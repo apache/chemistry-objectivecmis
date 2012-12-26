@@ -1,2 +1,41 @@
+Apache Chemistry ObjectiveCMIS
+==============================
 
-This is an Objective-C port of the OpenCMIS Java library.
+Apache Chemistry ObjectiveCMIS is a CMIS client library for Objective-C language.
+The library is primarily targeted at iOS application development and aims to 
+provide an interoperability API to CMIS based repositories.
+However, as the base library is built on the Foundation.framework it can be used
+for developing Mac OSX applications as well.
+
+The ObjectiveCMIS library is distributed as a ZIP file containing
+
+    the source: library and test source files
+    the library: libObjectiveCMIS.a
+    public header files: contained in the ObjectiveCMIS folder
+    documentation: provided as a docset (generated using appledocs).
+
+
+Minimum Requirements
+--------------------
+
+The library is making use of Objective-C automated reference counting (ARC).
+Therefore the library is compatible with iOS SDK v5.x or later.
+For development we recommend the latest available version of XCode and
+iOS/Mac OSX SDKs.
+
+
+How to include the library on your XCode project
+------------------------------------------------
+
+The easiest way to include the ObjectiveCMIS library into your project is to
+unzip the ObjectiveCMIS ZIP file.
+
+Then go to the 'File' menu in XCode and select the 'Add Files to...' option.
+Add the headers and library files contained in the ZIP distribution to your project:
+
+* Make sure that the library is included in the list of frameworks/libraries.
+  Select the build target and go to Build Phases. libObjectiveCMIS.a should be
+  listed in the Link Binary with Libraries option.
+
+* The CMIS headers should be included in the 'Copy Headers' section of Build Phases
+  for your build target.

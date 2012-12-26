@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
@@ -19,12 +19,18 @@ OBJECTIVECMIS_VERSION=0.1
 OBJECTIVECMIS_PACK=chemistry-objectiveccmis-$OBJECTIVECMIS_VERSION.zip
 OBJECTIVECMIS_RC=RC1
 
-rm -R release-temp
+if [ -d release-temp ]
+then
+  rm -R release-temp
+fi
 mkdir release-temp
 
 echo "Copying files..."
 
-rm -R release-pack
+if [ -d release-pack ]
+then
+  rm -R release-pack
+fi
 mkdir release-pack
 mkdir release-pack/src
 mkdir release-pack/doc
@@ -33,9 +39,9 @@ mkdir release-pack/bin
 cp NOTICE release-pack
 cp LICENSE release-pack
 cp README release-pack
-cp -R ObjectiveCMIS release-pack/src
-cp -R ObjectiveCMIS.xcodeproj release-pack/src
-cp -R ObjectiveCMISTests release-pack/src
+rsync -a --exclude='.*' ObjectiveCMIS release-pack/src
+rsync -a --exclude='.*' ObjectiveCMIS.xcodeproj release-pack/src
+rsync -a --exclude='.*' ObjectiveCMISTests release-pack/src
 
 
 echo "Generating documentation ..."
@@ -58,7 +64,10 @@ cp -R build/Debug-universal/* release-pack/bin
 
 echo "Creating package..."
 
-rm -R release
+if [ -d release ]
+then
+  rm -R release
+fi
 mkdir release
 
 cd release-pack
