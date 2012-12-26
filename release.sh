@@ -16,7 +16,7 @@
 # limitations under the License.
 
 OBJECTIVECMIS_VERSION=0.1
-OBJECTIVECMIS_PACK=chemistry-objectiveccmis-$OBJECTIVECMIS_VERSION.zip
+OBJECTIVECMIS_PACK=chemistry-objectivecmis-$OBJECTIVECMIS_VERSION.zip
 OBJECTIVECMIS_RC=RC1
 
 if [ -d release-temp ]
