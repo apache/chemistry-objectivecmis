@@ -16,8 +16,15 @@
 # limitations under the License.
 
 OBJECTIVECMIS_VERSION=0.1
-OBJECTIVECMIS_PACK=chemistry-objectivecmis-$OBJECTIVECMIS_VERSION.zip
-OBJECTIVECMIS_RC=RC1
+OBJECTIVECMIS_PACK_SRC=chemistry-objectivecmis-$OBJECTIVECMIS_VERSION-src.zip
+OBJECTIVECMIS_PACK_BIN=chemistry-objectivecmis-$OBJECTIVECMIS_VERSION-bin.zip
+OBJECTIVECMIS_RC=RC2
+
+if [ -d release ]
+then
+  rm -R release
+fi
+mkdir release
 
 if [ -d release-temp ]
 then
@@ -25,16 +32,14 @@ then
 fi
 mkdir release-temp
 
-echo "Copying files..."
 
+echo "Creating source package..."
 if [ -d release-pack ]
 then
   rm -R release-pack
 fi
 mkdir release-pack
 mkdir release-pack/src
-mkdir release-pack/doc
-mkdir release-pack/bin
 
 cp NOTICE release-pack
 cp LICENSE release-pack
@@ -42,6 +47,24 @@ cp README release-pack
 rsync -a --exclude='.*' ObjectiveCMIS release-pack/src
 rsync -a --exclude='.*' ObjectiveCMIS.xcodeproj release-pack/src
 rsync -a --exclude='.*' ObjectiveCMISTests release-pack/src
+
+cd release-pack
+
+zip -r ../release/$OBJECTIVECMIS_PACK_SRC *
+
+cd ..
+
+
+echo "Preparing binary package..."
+
+rm -R release-pack
+mkdir release-pack
+mkdir release-pack/doc
+mkdir release-pack/bin
+
+cp NOTICE release-pack
+cp LICENSE release-pack
+cp README release-pack
 
 
 echo "Generating documentation ..."
@@ -64,28 +87,29 @@ cp -R build/Debug-universal/* release-pack/bin
 
 echo "Creating package..."
 
-if [ -d release ]
-then
-  rm -R release
-fi
-mkdir release
-
 cd release-pack
 
-zip -r ../release/$OBJECTIVECMIS_PACK *
+zip -r ../release/$OBJECTIVECMIS_PACK_BIN *
 
 cd ..
 
 
-echo "Signing package ..."
+echo "Signing packages ..."
 
 cd release
 
-gpg --armor --output $OBJECTIVECMIS_PACK.asc --detach-sig $OBJECTIVECMIS_PACK
-gpg --print-md MD5 $OBJECTIVECMIS_PACK > $OBJECTIVECMIS_PACK.md5
-gpg --print-md SHA1 $OBJECTIVECMIS_PACK > $OBJECTIVECMIS_PACK.sha
-gpg --print-md MD5 $OBJECTIVECMIS_PACK.asc > $OBJECTIVECMIS_PACK.asc.md5
-gpg --print-md SHA1 $OBJECTIVECMIS_PACK.asc > $OBJECTIVECMIS_PACK.asc.sha
+gpg --armor --output $OBJECTIVECMIS_PACK_SRC.asc --detach-sig $OBJECTIVECMIS_PACK_SRC
+gpg --print-md MD5 $OBJECTIVECMIS_PACK_SRC > $OBJECTIVECMIS_PACK_SRC.md5
+gpg --print-md SHA1 $OBJECTIVECMIS_PACK_SRC > $OBJECTIVECMIS_PACK_SRC.sha
+gpg --print-md MD5 $OBJECTIVECMIS_PACK_SRC.asc > $OBJECTIVECMIS_PACK_SRC.asc.md5
+gpg --print-md SHA1 $OBJECTIVECMIS_PACK_SRC.asc > $OBJECTIVECMIS_PACK_SRC.asc.sha
+
+gpg --armor --output $OBJECTIVECMIS_PACK_BIN.asc --detach-sig $OBJECTIVECMIS_PACK_BIN
+gpg --print-md MD5 $OBJECTIVECMIS_PACK_BIN > $OBJECTIVECMIS_PACK_BINC.md5
+gpg --print-md SHA1 $OBJECTIVECMIS_PACK_BIN > $OBJECTIVECMIS_PACK_BIN.sha
+gpg --print-md MD5 $OBJECTIVECMIS_PACK_BIN.asc > $OBJECTIVECMIS_PACK_BIN.asc.md5
+gpg --print-md SHA1 $OBJECTIVECMIS_PACK_BIN.asc > $OBJECTIVECMIS_PACK_BIN.asc.sha
+
 
 cd ..
 

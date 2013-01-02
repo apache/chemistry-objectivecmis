@@ -7,12 +7,13 @@ provide an interoperability API to CMIS based repositories.
 However, as the base library is built on the Foundation.framework it can be used
 for developing Mac OSX applications as well.
 
-The ObjectiveCMIS library is distributed as a ZIP file containing
+The ObjectiveCMIS library is distributed in two packages.
 
-    the source: library and test source files
-    the library: libObjectiveCMIS.a
-    public header files: contained in the ObjectiveCMIS folder
-    documentation: provided as a docset (generated using appledocs).
+* The source package contains the source code of the library and the source code 
+  of the unit tests as well as a XCode project.
+
+* The binary package contains the library (libObjectiveCMIS.a), the public
+  header files and the API documentation as a docset (generated using appledocs).
 
 
 Minimum Requirements
@@ -28,7 +29,7 @@ How to include the library on your XCode project
 ------------------------------------------------
 
 The easiest way to include the ObjectiveCMIS library into your project is to
-unzip the ObjectiveCMIS ZIP file.
+unzip the ObjectiveCMIS binary package.
 
 Then go to the 'File' menu in XCode and select the 'Add Files to...' option.
 Add the headers and library files contained in the ZIP distribution to your project:
