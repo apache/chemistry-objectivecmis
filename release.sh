@@ -15,10 +15,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-OBJECTIVECMIS_VERSION=0.1
+OBJECTIVECMIS_VERSION=0.2
 OBJECTIVECMIS_PACK_SRC=chemistry-objectivecmis-$OBJECTIVECMIS_VERSION-src.zip
 OBJECTIVECMIS_PACK_BIN=chemistry-objectivecmis-$OBJECTIVECMIS_VERSION-bin.zip
-OBJECTIVECMIS_RC=RC2
+OBJECTIVECMIS_RC=RC1
 
 if [ -d release ]
 then
@@ -105,7 +105,7 @@ gpg --print-md MD5 $OBJECTIVECMIS_PACK_SRC.asc > $OBJECTIVECMIS_PACK_SRC.asc.md5
 gpg --print-md SHA1 $OBJECTIVECMIS_PACK_SRC.asc > $OBJECTIVECMIS_PACK_SRC.asc.sha
 
 gpg --armor --output $OBJECTIVECMIS_PACK_BIN.asc --detach-sig $OBJECTIVECMIS_PACK_BIN
-gpg --print-md MD5 $OBJECTIVECMIS_PACK_BIN > $OBJECTIVECMIS_PACK_BINC.md5
+gpg --print-md MD5 $OBJECTIVECMIS_PACK_BIN > $OBJECTIVECMIS_PACK_BIN.md5
 gpg --print-md SHA1 $OBJECTIVECMIS_PACK_BIN > $OBJECTIVECMIS_PACK_BIN.sha
 gpg --print-md MD5 $OBJECTIVECMIS_PACK_BIN.asc > $OBJECTIVECMIS_PACK_BIN.asc.md5
 gpg --print-md SHA1 $OBJECTIVECMIS_PACK_BIN.asc > $OBJECTIVECMIS_PACK_BIN.asc.sha
