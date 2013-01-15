@@ -22,6 +22,17 @@
 
 @interface CMISStandardAuthenticationProvider : NSObject <CMISAuthenticationProvider>
 
+@property (nonatomic, strong) NSURLCredential *credential;
+
+/**
+ * Initialize with username and password that will be added as authorization header
+ */
 - (id)initWithUsername:(NSString *)username andPassword:(NSString *)password;
+
+/**
+ * Initialize with a credential object that will be provided when a corresponding challenge is received from the server.
+ * Both client certificate and username / password credentials are supported
+ */
+- (id)initWithCredential:(NSURLCredential *)credential;
 
 @end

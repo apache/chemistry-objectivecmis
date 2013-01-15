@@ -33,4 +33,8 @@
 
 - (void)updateWithHttpURLResponse:(NSHTTPURLResponse*)httpUrlResponse;
 
+- (BOOL)canAuthenticateAgainstProtectionSpace:(NSURLProtectionSpace *)protectionSpace;
+- (void)didCancelAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge;
+- (void)didReceiveAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge;
+
 @end

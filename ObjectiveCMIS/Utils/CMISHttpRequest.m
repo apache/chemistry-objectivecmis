@@ -128,6 +128,24 @@ NSString * const kCMISExceptionVersioning              = @"versioning";
 }
 
 
+- (BOOL)connection:(NSURLConnection *)connection canAuthenticateAgainstProtectionSpace:(NSURLProtectionSpace *)protectionSpace
+{
+    return [self.authenticationProvider canAuthenticateAgainstProtectionSpace:(NSURLProtectionSpace *)protectionSpace];
+}
+
+
+- (void)connection:(NSURLConnection *)connection didCancelAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge
+{
+    [self.authenticationProvider didCancelAuthenticationChallenge:challenge];
+}
+
+
+- (void)connection:(NSURLConnection *)connection didReceiveAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge
+{
+    [self.authenticationProvider didReceiveAuthenticationChallenge:challenge];
+}
+
+
 - (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response
 {
     self.responseBody = [[NSMutableData alloc] init];
