@@ -172,49 +172,49 @@
     {
         if (self.isParsingTypeDefinition)
         {
-            self.typeDefinition.isCreatable = [self.currentString.lowercaseString isEqualToString:kCMISAtomEntryValueTrue];
+            self.typeDefinition.creatable = [self.currentString.lowercaseString isEqualToString:kCMISAtomEntryValueTrue];
         }
     }
     else if ([elementName isEqualToString:kCMISCoreFileable])
     {
         if (self.isParsingTypeDefinition)
         {
-            self.typeDefinition.isFileable = [self.currentString.lowercaseString isEqualToString:kCMISAtomEntryValueTrue];
+            self.typeDefinition.fileable = [self.currentString.lowercaseString isEqualToString:kCMISAtomEntryValueTrue];
         }
     }
     else if ([elementName isEqualToString:kCMISCoreQueryable])
     {
         if (self.isParsingTypeDefinition)
         {
-            self.typeDefinition.isQueryable = [self.currentString.lowercaseString isEqualToString:kCMISAtomEntryValueTrue];
+            self.typeDefinition.queryable = [self.currentString.lowercaseString isEqualToString:kCMISAtomEntryValueTrue];
         }
     }
     else if ([elementName isEqualToString:kCMISCoreFullTextIndexed])
     {
         if (self.isParsingTypeDefinition)
         {
-            self.typeDefinition.isFullTextIndexed = [self.currentString.lowercaseString isEqualToString:kCMISAtomEntryValueTrue];
+            self.typeDefinition.fullTextIndexed = [self.currentString.lowercaseString isEqualToString:kCMISAtomEntryValueTrue];
         }
     }
     else if ([elementName isEqualToString:kCMISCoreIncludedInSupertypeQuery])
     {
         if (self.isParsingTypeDefinition)
         {
-            self.typeDefinition.isIncludedInSupertypeQuery = [self.currentString.lowercaseString isEqualToString:kCMISAtomEntryValueTrue];
+            self.typeDefinition.includedInSupertypeQuery = [self.currentString.lowercaseString isEqualToString:kCMISAtomEntryValueTrue];
         }
     }
     else if ([elementName isEqualToString:kCMISCoreControllableACL])
     {
         if (self.isParsingTypeDefinition)
         {
-            self.typeDefinition.isControllableAcl = [self.currentString.lowercaseString isEqualToString:kCMISAtomEntryValueTrue];
+            self.typeDefinition.controllableAcl = [self.currentString.lowercaseString isEqualToString:kCMISAtomEntryValueTrue];
         }
     }
     else if ([elementName isEqualToString:kCMISCoreControllablePolicy])
     {
         if (self.isParsingTypeDefinition)
         {
-            self.typeDefinition.isControllablePolicy = [self.currentString.lowercaseString isEqualToString:kCMISAtomEntryValueTrue];
+            self.typeDefinition.controllablePolicy = [self.currentString.lowercaseString isEqualToString:kCMISAtomEntryValueTrue];
         }
     }
 

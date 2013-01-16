@@ -31,7 +31,7 @@
 
 @interface CMISSession ()
 @property (nonatomic, strong, readwrite) CMISObjectConverter *objectConverter;
-@property (nonatomic, assign, readwrite) BOOL isAuthenticated;
+@property (nonatomic, assign, readwrite, getter = isAuthenticated) BOOL authenticated;
 @property (nonatomic, strong, readwrite) id<CMISBinding> binding;
 @property (nonatomic, strong, readwrite) CMISRepositoryInfo *repositoryInfo;
 // Returns a CMISSession using the given session parameters.
@@ -47,7 +47,7 @@
 
 @implementation CMISSession
 
-@synthesize isAuthenticated = _isAuthenticated;
+@synthesize authenticated = _authenticated;
 @synthesize binding = _binding;
 @synthesize repositoryInfo = _repositoryInfo;
 @synthesize sessionParameters = _sessionParameters;
@@ -89,7 +89,7 @@
     if (self)
     {
         self.sessionParameters = sessionParameters;
-        self.isAuthenticated = NO;
+        self.authenticated = NO;
     
         // setup authentication provider if not present
         if (self.sessionParameters.authenticationProvider == nil)
@@ -170,7 +170,7 @@
             }
         } else {
             // no errors have occurred so set authenticated flag and return success flag
-            self.isAuthenticated = YES;
+            self.authenticated = YES;
             completionBlock(self, nil);
         }
     }];
@@ -214,10 +214,10 @@
     [self.binding.objectService retrieveObject:objectId
                                     withFilter:operationContext.filterString
                        andIncludeRelationShips:operationContext.includeRelationShips
-                           andIncludePolicyIds:operationContext.isIncludePolicies
+                           andIncludePolicyIds:operationContext.includePolicies
                             andRenditionFilder:operationContext.renditionFilterString
-                                 andIncludeACL:operationContext.isIncluseACLs
-                    andIncludeAllowableActions:operationContext.isIncludeAllowableActions
+                                 andIncludeACL:operationContext.includeACLs
+                    andIncludeAllowableActions:operationContext.includeAllowableActions
                                completionBlock:^(CMISObjectData *objectData, NSError *error) {
                                             if (error) {
                                                 completionBlock(nil, [CMISErrors cmisError:error withCMISErrorCode:kCMISErrorCodeObjectNotFound]);
@@ -241,10 +241,10 @@
     [self.binding.objectService retrieveObjectByPath:path
                                           withFilter:operationContext.filterString
                              andIncludeRelationShips:operationContext.includeRelationShips
-                                 andIncludePolicyIds:operationContext.isIncludePolicies
+                                 andIncludePolicyIds:operationContext.includePolicies
                                   andRenditionFilder:operationContext.renditionFilterString
-                                       andIncludeACL:operationContext.isIncluseACLs
-                          andIncludeAllowableActions:operationContext.isIncludeAllowableActions
+                                       andIncludeACL:operationContext.includeACLs
+                          andIncludeAllowableActions:operationContext.includeAllowableActions
                                      completionBlock:^(CMISObjectData *objectData, NSError *error) {
                                          if (objectData != nil && error == nil) {
                                              completionBlock([self.objectConverter convertObject:objectData], nil);
@@ -278,7 +278,7 @@
                                                   searchAllVersions:searchAllVersion
                                                   includeRelationShips:operationContext.includeRelationShips
                                                   renditionFilter:operationContext.renditionFilterString
-                                                  includeAllowableActions:operationContext.isIncludeAllowableActions
+                                                  includeAllowableActions:operationContext.includeAllowableActions
                                                   maxItems:[NSNumber numberWithInt:maxItems]
                                                   skipCount:[NSNumber numberWithInt:skipCount]
                                                   completionBlock:^(CMISObjectList *objectList, NSError *error) {
@@ -349,7 +349,7 @@
                            searchAllVersions:searchAllVersion
                         includeRelationShips:operationContext.includeRelationShips
                              renditionFilter:operationContext.renditionFilterString
-                     includeAllowableActions:operationContext.isIncludeAllowableActions
+                     includeAllowableActions:operationContext.includeAllowableActions
                                     maxItems:[NSNumber numberWithInt:maxItems]
                                    skipCount:[NSNumber numberWithInt:skipCount]
                              completionBlock:^(CMISObjectList *objectList, NSError *error) {

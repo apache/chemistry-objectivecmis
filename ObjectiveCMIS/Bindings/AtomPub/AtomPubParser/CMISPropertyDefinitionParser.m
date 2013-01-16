@@ -199,23 +199,23 @@
     }
     else if ([elementName isEqualToString:kCMISCoreInherited])
     {
-        self.propertyDefinition.isInherited = [self parseBooleanValue:self.currentString];
+        self.propertyDefinition.inherited = [self parseBooleanValue:self.currentString];
     }
     else if ([elementName isEqualToString:kCMISCoreRequired])
     {
-        self.propertyDefinition.isRequired = [self parseBooleanValue:self.currentString];
+        self.propertyDefinition.required = [self parseBooleanValue:self.currentString];
     }
     else if ([elementName isEqualToString:kCMISCoreQueryable])
     {
-        self.propertyDefinition.isQueryable = [self parseBooleanValue:self.currentString];
+        self.propertyDefinition.queryable = [self parseBooleanValue:self.currentString];
     }
     else if ([elementName isEqualToString:kCMISCoreOrderable])
     {
-        self.propertyDefinition.isOrderable = [self parseBooleanValue:self.currentString];
+        self.propertyDefinition.orderable = [self parseBooleanValue:self.currentString];
     }
     else if ([elementName isEqualToString:kCMISCoreOpenChoice])
     {
-        self.propertyDefinition.isOpenChoice = [self parseBooleanValue:self.currentString];
+        self.propertyDefinition.openChoice = [self parseBooleanValue:self.currentString];
     }
 
     self.currentString = nil;

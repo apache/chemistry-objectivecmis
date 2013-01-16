@@ -31,15 +31,15 @@
 @property (nonatomic, strong) NSString *displayName;
 @property (nonatomic, strong) NSString *queryName;
 @property (nonatomic, strong) NSString *description;
-@property CMISPropertyType propertyType;
-@property CMISCardinality cardinality;
-@property CMISUpdatability updatability;
+@property (nonatomic, assign) CMISPropertyType propertyType;
+@property (nonatomic, assign) CMISCardinality cardinality;
+@property (nonatomic, assign) CMISUpdatability updatability;
 
-@property BOOL isInherited;
-@property BOOL isRequired;
-@property BOOL isQueryable;
-@property BOOL isOrderable;
-@property BOOL isOpenChoice;
+@property (nonatomic, assign, getter = isInherited) BOOL inherited;
+@property (nonatomic, assign, getter = isRequired) BOOL required;
+@property (nonatomic, assign, getter = isQueryable) BOOL queryable;
+@property (nonatomic, assign, getter = isOrderable) BOOL orderable;
+@property (nonatomic, assign, getter = isOpenChoice) BOOL openChoice;
 
 @property (nonatomic, strong) NSArray *defaultValues;
 @property (nonatomic, strong) NSArray *choices;

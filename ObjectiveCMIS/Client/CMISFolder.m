@@ -83,8 +83,8 @@
                                                   filter:operationContext.filterString
                                     includeRelationShips:operationContext.includeRelationShips
                                          renditionFilter:operationContext.renditionFilterString
-                                 includeAllowableActions:operationContext.isIncludeAllowableActions
-                                      includePathSegment:operationContext.isIncludePathSegments
+                                 includeAllowableActions:operationContext.includeAllowableActions
+                                      includePathSegment:operationContext.includePathSegments
                                                skipCount:[NSNumber numberWithInt:skipCount]
                                                 maxItems:[NSNumber numberWithInt:maxItems]
                                          completionBlock:^(CMISObjectList *objectList, NSError *error) {

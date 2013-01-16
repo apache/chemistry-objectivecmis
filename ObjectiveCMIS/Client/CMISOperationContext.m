@@ -23,27 +23,27 @@
 @implementation CMISOperationContext
 
 @synthesize filterString = _filterString;
-@synthesize isIncludeAllowableActions = _isIncludeAllowableActions;
-@synthesize isIncluseACLs = _isIncluseACLs;
+@synthesize includeAllowableActions = _includeAllowableActions;
+@synthesize includeACLs = _includeACLs;
 @synthesize includeRelationShips = _includeRelationShips;
-@synthesize isIncludePolicies = _isIncludePolicies;
+@synthesize includePolicies = _includePolicies;
 @synthesize renditionFilterString = _renditionFilterString;
 @synthesize maxItemsPerPage = _maxItemsPerPage;
 @synthesize skipCount = _skipCount;
 @synthesize orderBy = _orderBy;
-@synthesize isIncludePathSegments = _isIncludePathSegments;
+@synthesize includePathSegments = _includePathSegments;
 
 + (CMISOperationContext *)defaultOperationContext
 {
     CMISOperationContext *defaultContext = [[CMISOperationContext alloc] init];
     defaultContext.filterString = nil;
-    defaultContext.isIncludeAllowableActions = YES;
-    defaultContext.isIncluseACLs = NO;
-    defaultContext.isIncludePolicies = NO;
+    defaultContext.includeAllowableActions = YES;
+    defaultContext.includeACLs = NO;
+    defaultContext.includePolicies = NO;
     defaultContext.includeRelationShips = CMISIncludeRelationshipNone;
     defaultContext.renditionFilterString = nil;
     defaultContext.orderBy = nil;
-    defaultContext.isIncludePathSegments = NO;
+    defaultContext.includePathSegments = NO;
     defaultContext.maxItemsPerPage = 100;
     defaultContext.skipCount = 0;
     return defaultContext;

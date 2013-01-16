@@ -743,7 +743,7 @@
                  STAssertTrue(firstResult.allowableActions.allowableActionsSet.count > 0, @"Expected at least one allowable action");
                  // With operationContext
                  CMISOperationContext *context = [CMISOperationContext defaultOperationContext];
-                 context.isIncludeAllowableActions = NO;
+                 context.includeAllowableActions = NO;
                  [self.session query:@"SELECT * FROM cmis:document WHERE cmis:name LIKE '%quote%'"
                    searchAllVersions:NO operationContext:context completionBlock:^(CMISPagedResult *result, NSError *error) {
                        STAssertNil(error, @"Got an error while executing query: %@", [error description]);
@@ -1526,7 +1526,7 @@
          [self uploadTestFileWithCompletionBlock:^(CMISDocument *testDocument) {
              // Use YES for retrieving the allowable actions
              CMISOperationContext *ctx = [[CMISOperationContext alloc] init];
-             ctx.isIncludeAllowableActions = YES;
+             ctx.includeAllowableActions = YES;
              [self.session retrieveObject:testDocument.identifier withOperationContext:ctx completionBlock:^(CMISObject *object, NSError *error) {
                  CMISDocument *document = (CMISDocument *)object;
                  STAssertNil(error, @"Got error while retrieving object : %@", [error description]);
@@ -1535,7 +1535,7 @@
                  
                  //Use NO for allowable actions
                  CMISOperationContext *ctx = [[CMISOperationContext alloc] init];
-                 ctx.isIncludeAllowableActions = NO;
+                 ctx.includeAllowableActions = NO;
                  [self.session retrieveObject:testDocument.identifier withOperationContext:ctx completionBlock:^(CMISObject *object, NSError *error) {
                      CMISDocument *document = (CMISDocument *)object;
                      STAssertNil(error, @"Got error while retrieving object : %@", [error description]);

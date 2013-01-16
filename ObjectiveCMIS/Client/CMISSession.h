@@ -31,7 +31,7 @@
 @interface CMISSession : NSObject
 
 // Flag to indicate whether the session has been authenticated.
-@property (nonatomic, assign, readonly) BOOL isAuthenticated;
+@property (nonatomic, assign, readonly, getter = isAuthenticated) BOOL authenticated;
 
 // The binding object being used for the session.
 @property (nonatomic, strong, readonly) id<CMISBinding> binding;

@@ -24,15 +24,15 @@
 @interface CMISOperationContext : NSObject
 
 @property (nonatomic, strong) NSString *filterString;
-@property BOOL isIncludeAllowableActions;
-@property BOOL isIncluseACLs;
-@property CMISIncludeRelationship includeRelationShips;
-@property BOOL isIncludePolicies;
+@property (nonatomic, assign) BOOL includeAllowableActions;
+@property (nonatomic, assign) BOOL includeACLs;
+@property (nonatomic, assign) CMISIncludeRelationship includeRelationShips;
+@property (nonatomic, assign) BOOL includePolicies;
 @property (nonatomic, strong) NSString *renditionFilterString;
 @property (nonatomic, strong) NSString *orderBy;
-@property BOOL isIncludePathSegments;
-@property NSInteger maxItemsPerPage;
-@property NSInteger skipCount;
+@property (nonatomic, assign) BOOL includePathSegments;
+@property (nonatomic, assign) NSInteger maxItemsPerPage;
+@property (nonatomic, assign) NSInteger skipCount;
 
 + (CMISOperationContext *)defaultOperationContext;
 

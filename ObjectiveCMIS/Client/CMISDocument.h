@@ -30,9 +30,9 @@
 @property (readonly) unsigned long long contentStreamLength;
 
 @property (nonatomic, strong, readonly) NSString *versionLabel;
-@property (readonly) BOOL isLatestVersion;
-@property (readonly) BOOL isMajorVersion;
-@property (readonly) BOOL isLatestMajorVersion;
+@property (nonatomic, assign, readonly, getter = isLatestVersion) BOOL latestVersion;
+@property (nonatomic, assign, readonly, getter = isMajorVersion) BOOL majorVersion;
+@property (nonatomic, assign, readonly, getter = isLatestMajorVersion) BOOL latestMajorVersion;
 @property (nonatomic, strong, readonly) NSString *versionSeriesId;
 
 /**

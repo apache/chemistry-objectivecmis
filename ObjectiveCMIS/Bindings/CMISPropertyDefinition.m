@@ -31,11 +31,11 @@
 @synthesize propertyType = _propertyType;
 @synthesize cardinality = _cardinality;
 @synthesize updatability = _updatability;
-@synthesize isInherited = _isInherited;
-@synthesize isRequired = _isRequired;
-@synthesize isQueryable = _isQueryable;
-@synthesize isOrderable = _isOrderable;
-@synthesize isOpenChoice = _isOpenChoice;
+@synthesize inherited = _inherited;
+@synthesize required = _required;
+@synthesize queryable = _queryable;
+@synthesize orderable = _orderable;
+@synthesize openChoice = _openChoice;
 @synthesize defaultValues = _defaultValues;
 @synthesize choices = _choices;
 

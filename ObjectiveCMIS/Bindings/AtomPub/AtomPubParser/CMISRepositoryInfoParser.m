@@ -32,7 +32,7 @@
 // TODO Temporary object, replace with CMISRepositoryCapabilities object or similar when available
 @property (nonatomic, strong) id currentCapabilities;
 
-@property (nonatomic, assign) BOOL isParsingExtensionElement;
+@property (nonatomic, assign, getter = isParsingExtensionElement) BOOL parsingExtensionElement;
 @end
 
 @implementation CMISRepositoryInfoParser
@@ -42,7 +42,7 @@
 @synthesize currentString = _currentString;
 @synthesize currentCollection = _currentCollection;
 @synthesize currentCapabilities = _currentCapabilities;
-@synthesize isParsingExtensionElement = _isParsingExtensionElement;
+@synthesize parsingExtensionElement = _parsingExtensionElement;
 
 
 - (id)initRepositoryInfoParserWithParentDelegate:(id<NSXMLParserDelegate, CMISRepositoryInfoParserDelegate>)parentDelegate parser:(NSXMLParser *)parser
@@ -54,7 +54,7 @@
         self.currentRepositoryInfo = [[CMISRepositoryInfo alloc] init];
         self.parentDelegate = parentDelegate;
         
-        self.isParsingExtensionElement = NO;
+        self.parsingExtensionElement = NO;
         
         [self pushNewCurrentExtensionData:self.currentRepositoryInfo];
         
@@ -85,7 +85,7 @@
     else if ( ![namespaceURI isEqualToString:kCMISNamespaceCmis] && ![namespaceURI isEqualToString:kCMISNamespaceApp] 
               && ![namespaceURI isEqualToString:kCMISNamespaceAtom] && ![namespaceURI isEqualToString:kCMISNamespaceCmisRestAtom]) 
     {
-        self.isParsingExtensionElement = YES;
+        self.parsingExtensionElement = YES;
         self.childParserDelegate = [CMISAtomPubExtensionElementParser extensionElementParserWithElementName:elementName namespaceUri:namespaceURI attributes:attributeDict parentDelegate:self parser:parser];
     }
     
@@ -189,7 +189,7 @@
     }
     else if (self.isParsingExtensionElement)
     {
-        self.isParsingExtensionElement = NO;
+        self.parsingExtensionElement = NO;
     }
     
     self.currentString = nil;

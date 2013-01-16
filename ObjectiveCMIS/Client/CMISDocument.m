@@ -36,9 +36,9 @@
 @property (readwrite) unsigned long long contentStreamLength;
 
 @property (nonatomic, strong, readwrite) NSString *versionLabel;
-@property (readwrite) BOOL isLatestVersion;
-@property (readwrite) BOOL isMajorVersion;
-@property (readwrite) BOOL isLatestMajorVersion;
+@property (nonatomic, assign, readwrite, getter = isLatestVersion) BOOL latestVersion;
+@property (nonatomic, assign, readwrite, getter = isMajorVersion) BOOL majorVersion;
+@property (nonatomic, assign, readwrite, getter = isLatestMajorVersion) BOOL latestMajorVersion;
 @property (nonatomic, strong, readwrite) NSString *versionSeriesId;
 
 @end
@@ -50,10 +50,10 @@
 @synthesize contentStreamMediaType = _contentStreamMediaType;
 @synthesize contentStreamLength = _contentStreamLength;
 @synthesize versionLabel = _versionLabel;
-@synthesize isLatestVersion = _isLatestVersion;
-@synthesize isMajorVersion = _isMajorVersion;
+@synthesize latestVersion = _latestVersion;
+@synthesize majorVersion = _majorVersion;
 @synthesize versionSeriesId = _versionSeriesId;
-@synthesize isLatestMajorVersion = _isLatestMajorVersion;
+@synthesize latestMajorVersion = _latestMajorVersion;
 
 - (id)initWithObjectData:(CMISObjectData *)objectData withSession:(CMISSession *)session
 {
@@ -67,9 +67,9 @@
 
         self.versionLabel = [[objectData.properties.propertiesDictionary objectForKey:kCMISPropertyVersionLabel] firstValue];
         self.versionSeriesId = [[objectData.properties.propertiesDictionary objectForKey:kCMISPropertyVersionSeriesId] firstValue];
-        self.isLatestVersion = [[[objectData.properties.propertiesDictionary objectForKey:kCMISPropertyIsLatestVersion] firstValue] boolValue];
-        self.isLatestMajorVersion = [[[objectData.properties.propertiesDictionary objectForKey:kCMISPropertyIsLatestMajorVersion] firstValue] boolValue];
-        self.isMajorVersion = [[[objectData.properties.propertiesDictionary objectForKey:kCMISPropertyIsMajorVersion] firstValue] boolValue];
+        self.latestVersion = [[[objectData.properties.propertiesDictionary objectForKey:kCMISPropertyIsLatestVersion] firstValue] boolValue];
+        self.latestMajorVersion = [[[objectData.properties.propertiesDictionary objectForKey:kCMISPropertyIsLatestMajorVersion] firstValue] boolValue];
+        self.majorVersion = [[[objectData.properties.propertiesDictionary objectForKey:kCMISPropertyIsMajorVersion] firstValue] boolValue];
     }
     return self;
 }
@@ -82,7 +82,7 @@
 - (void)retrieveAllVersionsWithOperationContext:(CMISOperationContext *)operationContext completionBlock:(void (^)(CMISCollection *collection, NSError *error))completionBlock
 {
     [self.binding.versioningService retrieveAllVersions:self.identifier
-           filter:operationContext.filterString includeAllowableActions:operationContext.isIncludeAllowableActions completionBlock:^(NSArray *objects, NSError *error) {
+           filter:operationContext.filterString includeAllowableActions:operationContext.includeAllowableActions completionBlock:^(NSArray *objects, NSError *error) {
                if (error) {
                    log(@"Error while retrieving all versions: %@", error.description);
                    completionBlock(nil, [CMISErrors cmisError:error withCMISErrorCode:kCMISErrorCodeRuntime]);
@@ -140,10 +140,10 @@
     [self.binding.versioningService retrieveObjectOfLatestVersion:self.identifier
                                                             major:major filter:operationContext.filterString
                                              includeRelationShips:operationContext.includeRelationShips
-                                                 includePolicyIds:operationContext.isIncludePolicies
+                                                 includePolicyIds:operationContext.includePolicies
                                                   renditionFilter:operationContext.renditionFilterString
-                                                       includeACL:operationContext.isIncluseACLs
-                                          includeAllowableActions:operationContext.isIncludeAllowableActions
+                                                       includeACL:operationContext.includeACLs
+                                          includeAllowableActions:operationContext.includeAllowableActions
                                                   completionBlock:^(CMISObjectData *objectData, NSError *error) {
             if (error) {
                 completionBlock(nil, [CMISErrors cmisError:error withCMISErrorCode:kCMISErrorCodeRuntime]);

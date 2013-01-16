@@ -29,7 +29,7 @@
 
 @synthesize username = _username;
 @synthesize password = _password;
-@synthesize httpHeadersToApply = _httpHeadersToApply;
+@synthesize credential = _credential;
 
 - (id)initWithUsername:(NSString *)username andPassword:(NSString *)password
 {

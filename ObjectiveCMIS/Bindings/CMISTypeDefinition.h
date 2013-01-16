@@ -31,15 +31,15 @@
 @property (nonatomic, strong) NSString *displayName;
 @property (nonatomic, strong) NSString *queryName;
 @property (nonatomic, strong) NSString *description;
-@property CMISBaseType baseTypeId;
+@property (nonatomic, assign) CMISBaseType baseTypeId;
 
-@property BOOL isCreatable;
-@property BOOL isFileable;
-@property BOOL isQueryable;
-@property BOOL isFullTextIndexed;
-@property BOOL isIncludedInSupertypeQuery;
-@property BOOL isControllablePolicy;
-@property BOOL isControllableAcl;
+@property (nonatomic, assign, getter = isCreatable) BOOL creatable;
+@property (nonatomic, assign, getter = isFileable) BOOL fileable;
+@property (nonatomic, assign, getter = isQueryable) BOOL queryable;
+@property (nonatomic, assign, getter = isFullTextIndexed) BOOL fullTextIndexed;
+@property (nonatomic, assign, getter = isIncludedInSupertypeQuery) BOOL includedInSupertypeQuery;
+@property (nonatomic, assign, getter = isControllablePolicy) BOOL controllablePolicy;
+@property (nonatomic, assign, getter = isControllableAcl) BOOL controllableAcl;
 
 // Mapping of property id <-> CMISPropertyDefinition
 @property (nonatomic, strong, readonly) NSDictionary *propertyDefinitions;

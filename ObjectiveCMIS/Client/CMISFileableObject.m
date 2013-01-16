@@ -37,8 +37,8 @@
                                                   withFilter:operationContext.filterString
                                     withIncludeRelationships:operationContext.includeRelationShips
                                          withRenditionFilter:operationContext.renditionFilterString
-                                 withIncludeAllowableActions:operationContext.isIncludeAllowableActions
-                              withIncludeRelativePathSegment:operationContext.isIncludePathSegments
+                                 withIncludeAllowableActions:operationContext.includeAllowableActions
+                              withIncludeRelativePathSegment:operationContext.includePathSegments
                                              completionBlock:^(NSArray *parentObjectDataArray, NSError *error) {
                                                  NSMutableArray *parentFolders = [NSMutableArray array];
                                                  for (CMISObjectData *parentObjectData in parentObjectDataArray)
