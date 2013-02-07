@@ -61,6 +61,14 @@
                    completionBlock:(void (^)(NSString *objectId, NSError *error))completionBlock
                      progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal))progressBlock;
 
+- (void)createDocumentFromInputStream:(NSInputStream *)inputStream
+                         withMimeType:(NSString *)mimeType
+                       withProperties:(NSDictionary *)properties
+                        bytesExpected:(unsigned long long)bytesExpected
+                      completionBlock:(void (^)(NSString *objectId, NSError *error))completionBlock
+                        progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal))progressBlock;
+
+
 - (void)deleteTreeWithDeleteAllVersions:(BOOL)deleteAllversions
                       withUnfileObjects:(CMISUnfileObject)unfileObjects
                   withContinueOnFailure:(BOOL)continueOnFailure

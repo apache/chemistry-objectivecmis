@@ -23,7 +23,7 @@
 
 @interface CMISRequest : NSObject
 
-@property (nonatomic, weak) CMISHttpRequest *httpRequest;
+@property (nonatomic, weak) id httpRequest;
 @property (nonatomic, readonly, getter = isCancelled) BOOL cancelled;
 
 - (void)cancel;

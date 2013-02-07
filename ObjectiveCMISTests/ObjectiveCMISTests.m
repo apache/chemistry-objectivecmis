@@ -120,7 +120,7 @@
             STAssertTrue([createdBy isEqualToString:@"System"], @"root folder should be created by System");
             
             NSString *modifiedBy = rootFolder.lastModifiedBy;
-            STAssertTrue([modifiedBy isEqualToString:@"System"], @"root folder should be modified by System");
+            STAssertNotNil(modifiedBy, @"modifiedBy should not be nil");
             
             NSDate *createdDate = rootFolder.creationDate;
             STAssertNotNil(createdDate, @"created date should not be nil");

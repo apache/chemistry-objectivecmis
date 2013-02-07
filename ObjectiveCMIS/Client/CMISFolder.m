@@ -155,6 +155,36 @@
     }];
 }
 
+- (void)createDocumentFromInputStream:(NSInputStream *)inputStream
+                         withMimeType:(NSString *)mimeType
+                       withProperties:(NSDictionary *)properties
+                        bytesExpected:(unsigned long long)bytesExpected
+                      completionBlock:(void (^)(NSString *objectId, NSError *error))completionBlock
+                        progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal))progressBlock
+{
+    [self.session.objectConverter convertProperties:properties forObjectTypeId:kCMISPropertyObjectTypeIdValueDocument completionBlock:^(CMISProperties *convertedProperties, NSError *error){
+        if (nil == convertedProperties)
+        {
+            log(@"Could not convert properties: %@", error.description);
+            if (completionBlock)
+            {
+                completionBlock(nil, [CMISErrors cmisError:error withCMISErrorCode:kCMISErrorCodeRuntime]);
+            }
+        }
+        else
+        {
+            [self.binding.objectService createDocumentFromInputStream:inputStream
+                                                         withMimeType:mimeType
+                                                       withProperties:convertedProperties
+                                                             inFolder:self.identifier
+                                                        bytesExpected:bytesExpected
+                                                      completionBlock:completionBlock
+                                                        progressBlock:progressBlock];
+        }
+    }];
+}
+
+
 - (void)deleteTreeWithDeleteAllVersions:(BOOL)deleteAllversions
                            withUnfileObjects:(CMISUnfileObject)unfileObjects
                        withContinueOnFailure:(BOOL)continueOnFailure

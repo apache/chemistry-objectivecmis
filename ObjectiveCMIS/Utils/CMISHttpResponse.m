@@ -43,6 +43,18 @@
     return httpResponse;
 }
 
++ (CMISHttpResponse *)responseWithStatusCode:(int)statusCode
+                               statusMessage:(NSString *)message
+                                     headers:(NSDictionary *)headers
+                                responseData:(NSData *)data
+{
+    CMISHttpResponse *httpResponse = [[CMISHttpResponse alloc] init];
+    httpResponse.statusCode = statusCode;
+    httpResponse.statusCodeMessage = message;
+    httpResponse.data = data;
+    return httpResponse;
+}
+
 
 - (NSString*)responseString
 {

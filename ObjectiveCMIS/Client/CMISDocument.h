@@ -65,6 +65,14 @@
                       completionBlock:(void (^)(NSError *error))completionBlock
                         progressBlock:(void (^)(unsigned long long bytesDownloaded, unsigned long long bytesTotal))progressBlock;
 
+
+/**
+ * Downloads the content to an outputstream and returns the handle to the http request in order to allow cancellation.
+ */
+- (CMISRequest*)downloadContentToOutputStream:(NSOutputStream *)outputStream
+                              completionBlock:(void (^)(NSError *error))completionBlock
+                                progressBlock:(void (^)(unsigned long long bytesDownloaded, unsigned long long bytesTotal))progressBlock;
+
 /**
  * Changes the content of this document to the content of the given file.
  *

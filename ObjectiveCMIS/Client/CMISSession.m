@@ -28,6 +28,8 @@
 #import "CMISOperationContext.h"
 #import "CMISPagedResult.h"
 #import "CMISTypeDefinition.h"
+#import "CMISNetworkProvider.h"
+#import "CMISDefaultNetworkProvider.h"
 
 @interface CMISSession ()
 @property (nonatomic, strong, readwrite) CMISObjectConverter *objectConverter;
@@ -106,6 +108,11 @@
                                                                                                              andPassword:password];
         }
 
+        if (self.sessionParameters.networkProvider == nil)
+        {
+            self.sessionParameters.networkProvider = [[CMISDefaultNetworkProvider alloc] init];
+        }
+        
         // create the binding the session will use
         CMISBindingFactory *bindingFactory = [[CMISBindingFactory alloc] init];
         self.binding = [bindingFactory bindingWithParameters:sessionParameters];

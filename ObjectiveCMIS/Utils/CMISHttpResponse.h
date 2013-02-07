@@ -26,6 +26,10 @@
 @property (nonatomic, strong, readonly) NSData *data;
 
 + (CMISHttpResponse *)responseUsingURLHTTPResponse:(NSHTTPURLResponse *)HTTPURLResponse andData:(NSData *)data;
++ (CMISHttpResponse *)responseWithStatusCode:(int)statusCode
+                               statusMessage:(NSString *)message
+                                     headers:(NSDictionary *)headers
+                                responseData:(NSData *)data;
 
 - (NSString*)exception;
 - (NSString*)errorMessage;

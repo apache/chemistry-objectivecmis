@@ -20,8 +20,10 @@
 #import <Foundation/Foundation.h>
 #import "CMISSessionParameters.h"
 #import "CMISBindingSession.h"
+#import "CMISNetworkProvider.h"
+#import "CMISRequest.h"
 
-@interface CMISAtomPubBaseService : NSObject
+@interface CMISAtomPubBaseService : NSObject 
 
 @property (nonatomic, strong, readonly) CMISBindingSession *bindingSession;
 @property (nonatomic, strong, readonly) NSURL *atomPubUrl;

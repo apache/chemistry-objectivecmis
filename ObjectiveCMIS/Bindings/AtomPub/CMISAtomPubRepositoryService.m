@@ -22,7 +22,6 @@
 #import "CMISWorkspace.h"
 #import "CMISErrors.h"
 #import "CMISTypeByIdUriBuilder.h"
-#import "CMISHttpUtil.h"
 #import "CMISHttpResponse.h"
 #import "CMISTypeDefinitionAtomEntryParser.h"
 
@@ -90,7 +89,7 @@
         CMISTypeByIdUriBuilder *typeByIdUriBuilder = object;
         typeByIdUriBuilder.id = typeId;
         
-        [HttpUtil invokeGET:[typeByIdUriBuilder buildUrl] withSession:self.bindingSession completionBlock:^(CMISHttpResponse *httpResponse, NSError *error) {
+        [self.bindingSession.networkProvider invokeGET:[typeByIdUriBuilder buildUrl] withSession:self.bindingSession completionBlock:^(CMISHttpResponse *httpResponse, NSError *error) {
             if (httpResponse) {
                 if (httpResponse.data != nil) {
                     CMISTypeDefinitionAtomEntryParser *parser = [[CMISTypeDefinitionAtomEntryParser alloc] initWithData:httpResponse.data];

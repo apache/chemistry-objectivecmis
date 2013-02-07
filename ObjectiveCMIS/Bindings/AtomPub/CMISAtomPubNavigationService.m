@@ -20,7 +20,6 @@
 #import "CMISAtomPubNavigationService.h"
 #import "CMISAtomPubBaseService+Protected.h"
 #import "CMISAtomFeedParser.h"
-#import "CMISHttpUtil.h"
 #import "CMISHttpResponse.h"
 #import "CMISErrors.h"
 #import "CMISURLUtil.h"
@@ -57,7 +56,7 @@
                           downLink = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterSkipCount withValue:[skipCount stringValue] toUrlString:downLink];
                           
                           // execute the request
-                          [HttpUtil invokeGET:[NSURL URLWithString:downLink]
+                          [self.bindingSession.networkProvider invokeGET:[NSURL URLWithString:downLink]
                                   withSession:self.bindingSession
                               completionBlock:^(CMISHttpResponse *httpResponse, NSError *error) {
                                   if (httpResponse) {
@@ -123,7 +122,7 @@
         
         upLink = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterRelativePathSegment withValue:(includeRelativePathSegment ? @"true" : @"false") toUrlString:upLink];
         
-        [HttpUtil invokeGET:[NSURL URLWithString:upLink]
+        [self.bindingSession.networkProvider invokeGET:[NSURL URLWithString:upLink]
                 withSession:self.bindingSession
             completionBlock:^(CMISHttpResponse *httpResponse, NSError *error) {
                 if (httpResponse) {
