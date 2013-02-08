@@ -69,8 +69,6 @@
 
 - (BOOL)parseAndReturnError:(NSError **)error;
 {
-    BOOL parseSuccessful = YES;
-    
     // create the array to hold the workspaces we find
     self.internalWorkspaces = [NSMutableArray array];
     
@@ -78,13 +76,14 @@
     NSXMLParser *parser = [[NSXMLParser alloc] initWithData:self.atomData];
     [parser setShouldProcessNamespaces:YES];
     [parser setDelegate:self];
-    parseSuccessful = [parser parse];
+    BOOL parseSuccessful = [parser parse];
     
     if (!parseSuccessful)
     {
-        log(@"Parsing error : %@", [parser parserError]);
-        if (*error) {
-            *error = [parser parserError];
+        NSError *parserError = [parser parserError];
+        log(@"Parsing error : %@", parserError);
+        if (error) {
+            *error = parserError;
         }
     }
     return parseSuccessful;

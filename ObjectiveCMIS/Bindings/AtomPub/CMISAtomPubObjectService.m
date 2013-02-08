@@ -107,26 +107,31 @@ andIncludeAllowableActions:(BOOL)includeAllowableActions
         } else {
             NSURL *contentUrl = objectData.contentUrl;
             
-            // This is not spec-compliant!! Took me half a day to find this in opencmis ...
-            if (streamId != nil) {
-                contentUrl = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterStreamId withValue:streamId toUrl:contentUrl];
+            if (contentUrl) {
+                // This is not spec-compliant!! Took me half a day to find this in opencmis ...
+                if (streamId != nil) {
+                    contentUrl = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterStreamId withValue:streamId toUrl:contentUrl];
+                }
+                
+                unsigned long long streamLength = [[[objectData.properties.propertiesDictionary objectForKey:kCMISPropertyContentStreamLength] firstValue] unsignedLongLongValue];
+                
+                [self.bindingSession.networkProvider invoke:contentUrl
+                                             withHttpMethod:HTTP_GET
+                                                withSession:self.bindingSession
+                                               outputStream:outputStream
+                                              bytesExpected:streamLength
+                                            completionBlock:^(CMISHttpResponse *httpResponse, NSError *error)
+                 {
+                     if (completionBlock) {
+                         completionBlock(error);
+                     }
+                 }progressBlock:progressBlock
+                requestObject:request];
+            } else { // it is spec-compliant to have no content stream set and in this case there is nothing to download
+                if (completionBlock) {
+                    completionBlock(nil);
+                }
             }
-            
-            unsigned long long streamLength = [[[objectData.properties.propertiesDictionary objectForKey:kCMISPropertyContentStreamLength] firstValue] unsignedLongLongValue];
-            
-            [self.bindingSession.networkProvider invoke:contentUrl
-              withHttpMethod:HTTP_GET
-                 withSession:self.bindingSession
-                outputStream:outputStream
-               bytesExpected:streamLength
-             completionBlock:^(CMISHttpResponse *httpResponse, NSError *error)
-             {
-                 if (completionBlock) {
-                     completionBlock(error);
-                 }
-             }
-               progressBlock:progressBlock
-               requestObject:request];
         }
     }];
     
