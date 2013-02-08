@@ -39,6 +39,7 @@ NSString * const kCMISSessionParameterMode = @"session_param_mode";
 @synthesize atomPubUrl = _atomPubUrl;
 @synthesize authenticationProvider = _authenticationProvider;
 @synthesize sessionData = _sessionData;
+@synthesize networkProvider = _networkProvider;
 
 - (id)init
 {

@@ -18,7 +18,8 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "CMISHttpUtil.h"
+#import "CMISBindingSession.h"
+#import "CMISNetworkProvider.h"
 
 @class CMISAuthenticationProvider;
 

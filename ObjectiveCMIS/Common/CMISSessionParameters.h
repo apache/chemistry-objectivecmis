@@ -21,6 +21,7 @@
 #import "CMISEnums.h"
 #import "CMISBinding.h"
 #import "CMISAuthenticationProvider.h"
+#import "CMISNetworkProvider.h"
 
 
 // Session param keys
@@ -55,6 +56,10 @@ extern NSString * const kCMISSessionParameterMode;
 // Authentication
 
 @property (nonatomic, strong) id<CMISAuthenticationProvider> authenticationProvider;
+
+// Network I/O
+@property (nonatomic, strong) id<CMISNetworkProvider> networkProvider;
+
 
 - (id)initWithBindingType:(CMISBindingType)bindingType;
 

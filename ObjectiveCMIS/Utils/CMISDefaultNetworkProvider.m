@@ -1,45 +1,47 @@
 /*
-  Licensed to the Apache Software Foundation (ASF) under one
-  or more contributor license agreements.  See the NOTICE file
-  distributed with this work for additional information
-  regarding copyright ownership.  The ASF licenses this file
-  to you under the Apache License, Version 2.0 (the
-  "License"); you may not use this file except in compliance
-  with the License.  You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-  Unless required by applicable law or agreed to in writing,
-  software distributed under the License is distributed on an
-  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-  KIND, either express or implied.  See the License for the
-  specific language governing permissions and limitations
-  under the License.
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+ 
+ http://www.apache.org/licenses/LICENSE-2.0
+ 
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
  */
 
-#import "CMISHttpUtil.h"
+#import "CMISDefaultNetworkProvider.h"
 #import "CMISAuthenticationProvider.h"
 #import "CMISErrors.h"
 #import "CMISHttpRequest.h"
 #import "CMISHttpDownloadRequest.h"
 #import "CMISHttpUploadRequest.h"
 #import "CMISRequest.h"
+#import "CMISSessionParameters.h"
+#import "CMISNetworkProvider.h"
 
+@interface CMISDefaultNetworkProvider ()
++ (NSMutableURLRequest *)createRequestForUrl:(NSURL *)url
+                              withHttpMethod:(CMISHttpRequestMethod)httpRequestMethod
+                                usingSession:(CMISBindingSession *)session;
+@end
 
-@implementation HttpUtil
-
+@implementation CMISDefaultNetworkProvider
 #pragma mark block based methods
 
-+ (void)invoke:(NSURL *)url
+
+- (void)invoke:(NSURL *)url
 withHttpMethod:(CMISHttpRequestMethod)httpRequestMethod
    withSession:(CMISBindingSession *)session
           body:(NSData *)body
        headers:(NSDictionary *)additionalHeaders
 completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))completionBlock
 {
-    NSMutableURLRequest *urlRequest = [self createRequestForUrl:url
-                                                 withHttpMethod:httpRequestMethod
-                                                   usingSession:session];
+    NSMutableURLRequest *urlRequest = [CMISDefaultNetworkProvider createRequestForUrl:url
+                                                     withHttpMethod:httpRequestMethod
+                                                       usingSession:session];
     
     [CMISHttpRequest startRequest:urlRequest
                    withHttpMethod:httpRequestMethod
@@ -49,16 +51,16 @@ completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))comple
                   completionBlock:completionBlock];
 }
 
-+ (void)invoke:(NSURL *)url
+- (void)invoke:(NSURL *)url
 withHttpMethod:(CMISHttpRequestMethod)httpRequestMethod
    withSession:(CMISBindingSession *)session
    inputStream:(NSInputStream *)inputStream
        headers:(NSDictionary *)additionalHeaders
 completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))completionBlock
 {
-    NSMutableURLRequest *urlRequest = [self createRequestForUrl:url
-                                                 withHttpMethod:httpRequestMethod
-                                                   usingSession:session];
+    NSMutableURLRequest *urlRequest = [CMISDefaultNetworkProvider createRequestForUrl:url
+                                                     withHttpMethod:httpRequestMethod
+                                                       usingSession:session];
     
     [CMISHttpUploadRequest startRequest:urlRequest
                          withHttpMethod:httpRequestMethod
@@ -70,7 +72,7 @@ completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))comple
                           progressBlock:nil];
 }
 
-+ (void)invoke:(NSURL *)url
+- (void)invoke:(NSURL *)url
 withHttpMethod:(CMISHttpRequestMethod)httpRequestMethod
    withSession:(CMISBindingSession *)session
    inputStream:(NSInputStream *)inputStream
@@ -81,9 +83,9 @@ completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))comple
  requestObject:(CMISRequest *)requestObject
 {
     if (!requestObject.isCancelled) {
-        NSMutableURLRequest *urlRequest = [self createRequestForUrl:url
-                                                     withHttpMethod:httpRequestMethod
-                                                       usingSession:session];
+        NSMutableURLRequest *urlRequest = [CMISDefaultNetworkProvider createRequestForUrl:url
+                                                         withHttpMethod:httpRequestMethod
+                                                           usingSession:session];
         
         CMISHttpUploadRequest *uploadRequest = [CMISHttpUploadRequest startRequest:urlRequest
                                                                     withHttpMethod:httpRequestMethod
@@ -102,20 +104,20 @@ completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))comple
     }
 }
 
-+ (void)invoke:(NSURL *)url
-   withHttpMethod:(CMISHttpRequestMethod)httpRequestMethod
-      withSession:(CMISBindingSession *)session
-     outputStream:(NSOutputStream *)outputStream
-    bytesExpected:(unsigned long long)bytesExpected
-  completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))completionBlock
-    progressBlock:(void (^)(unsigned long long bytesDownloaded, unsigned long long bytesTotal))progressBlock
-    requestObject:(CMISRequest *)requestObject
+- (void)invoke:(NSURL *)url
+withHttpMethod:(CMISHttpRequestMethod)httpRequestMethod
+   withSession:(CMISBindingSession *)session
+  outputStream:(NSOutputStream *)outputStream
+ bytesExpected:(unsigned long long)bytesExpected
+completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))completionBlock
+ progressBlock:(void (^)(unsigned long long bytesDownloaded, unsigned long long bytesTotal))progressBlock
+ requestObject:(CMISRequest *)requestObject
 {
     if (!requestObject.isCancelled) {
-        NSMutableURLRequest *urlRequest = [self createRequestForUrl:url
-                                                     withHttpMethod:HTTP_GET
-                                                       usingSession:session];
-    
+        NSMutableURLRequest *urlRequest = [CMISDefaultNetworkProvider createRequestForUrl:url
+                                                         withHttpMethod:HTTP_GET
+                                                           usingSession:session];
+        
         CMISHttpDownloadRequest *downloadRequest = [CMISHttpDownloadRequest startRequest:urlRequest
                                                                           withHttpMethod:httpRequestMethod
                                                                             outputStream:outputStream
@@ -128,12 +130,12 @@ completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))comple
         if (completionBlock) {
             completionBlock(nil, [CMISErrors createCMISErrorWithCode:kCMISErrorCodeCancelled
                                              withDetailedDescription:@"Request was cancelled"]);
-
+            
         }
     }
 }
 
-+ (void)invokeGET:(NSURL *)url
+- (void)invokeGET:(NSURL *)url
       withSession:(CMISBindingSession *)session
   completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))completionBlock
 {
@@ -145,7 +147,7 @@ completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))comple
         completionBlock:completionBlock];
 }
 
-+ (void)invokePOST:(NSURL *)url
+- (void)invokePOST:(NSURL *)url
        withSession:(CMISBindingSession *)session
               body:(NSData *)body
            headers:(NSDictionary *)additionalHeaders
@@ -159,7 +161,7 @@ completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))comple
         completionBlock:completionBlock];
 }
 
-+ (void)invokePUT:(NSURL *)url
+- (void)invokePUT:(NSURL *)url
       withSession:(CMISBindingSession *)session
              body:(NSData *)body
           headers:(NSDictionary *)additionalHeaders
@@ -173,7 +175,7 @@ completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))comple
         completionBlock:completionBlock];
 }
 
-+ (void)invokeDELETE:(NSURL *)url
+- (void)invokeDELETE:(NSURL *)url
          withSession:(CMISBindingSession *)session
      completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))completionBlock
 {
@@ -186,7 +188,6 @@ completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))comple
 }
 
 #pragma mark Helper methods
-
 + (NSMutableURLRequest *)createRequestForUrl:(NSURL *)url
                               withHttpMethod:(CMISHttpRequestMethod)httpRequestMethod
                                 usingSession:(CMISBindingSession *)session
@@ -212,13 +213,11 @@ completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))comple
             log(@"Invalid http request method: %d", httpRequestMethod);
             return nil;
     }
-
+    
     [request setHTTPMethod:httpMethod];
     log(@"HTTP %@: %@", httpMethod, [url absoluteString]);
-
+    
     return request;
 }
 
 @end
-
-

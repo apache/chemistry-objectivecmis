@@ -20,6 +20,7 @@
 #import <Foundation/Foundation.h>
 #import "CMISSessionParameters.h"
 #import "CMISAuthenticationProvider.h"
+#import "CMISNetworkProvider.h"
 
 extern NSString * const kCMISBindingSessionKeyAtomPubUrl;
 extern NSString * const kCMISBindingSessionKeyObjectByIdUriBuilder;
@@ -36,6 +37,7 @@ extern NSString * const kCMISBindingSessionKeyLinkCache;
 @property (nonatomic, strong, readonly) NSString *username;
 @property (nonatomic, strong, readonly) NSString *repositoryId;
 @property (nonatomic, strong, readonly) id<CMISAuthenticationProvider> authenticationProvider;
+@property (nonatomic, strong, readonly) id<CMISNetworkProvider> networkProvider;
 
 - (id)initWithSessionParameters:(CMISSessionParameters *)sessionParameters;
 

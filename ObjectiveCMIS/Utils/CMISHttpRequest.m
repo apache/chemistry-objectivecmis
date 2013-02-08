@@ -18,7 +18,6 @@
  */
 
 #import "CMISHttpRequest.h"
-#import "CMISHttpUtil.h"
 #import "CMISHttpResponse.h"
 #import "CMISErrors.h"
 #import "CMISAuthenticationProvider.h"

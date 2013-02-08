@@ -19,7 +19,6 @@
 
 #import "CMISDocument.h"
 #import "CMISConstants.h"
-#import "CMISHttpUtil.h"
 #import "CMISObjectConverter.h"
 #import "CMISStringInOutParameter.h"
 #import "CMISOperationContext.h"
@@ -164,6 +163,19 @@
                                                completionBlock:completionBlock
                                                  progressBlock:progressBlock];
 }
+
+
+- (CMISRequest*)downloadContentToOutputStream:(NSOutputStream *)outputStream
+                              completionBlock:(void (^)(NSError *error))completionBlock
+                                progressBlock:(void (^)(unsigned long long bytesDownloaded, unsigned long long bytesTotal))progressBlock
+{
+    return [self.binding.objectService downloadContentOfObject:self.identifier
+                                                  withStreamId:nil
+                                                toOutputStream:outputStream
+                                               completionBlock:completionBlock
+                                                 progressBlock:progressBlock];
+}
+
 
 - (void)deleteAllVersionsWithCompletionBlock:(void (^)(BOOL documentDeleted, NSError *error))completionBlock
 {

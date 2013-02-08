@@ -19,7 +19,6 @@
 
 #import "CMISAtomPubBaseService.h"
 #import "CMISAtomPubBaseService+Protected.h"
-#import "CMISHttpUtil.h"
 #import "CMISHttpResponse.h"
 #import "CMISServiceDocumentParser.h"
 #import "CMISConstants.h"
@@ -48,8 +47,6 @@
     if (self)
     {
         self.bindingSession = session;
-        
-        // pull out and cache all the useful objects for this binding
         self.atomPubUrl = [session objectForKey:kCMISBindingSessionKeyAtomPubUrl];
     }
     return self;
@@ -125,7 +122,7 @@
     if ([self.bindingSession objectForKey:kCMISSessionKeyWorkspaces]) {
         completionBlock([self.bindingSession objectForKey:kCMISSessionKeyWorkspaces], nil);
     } else {
-        [HttpUtil invokeGET:self.atomPubUrl
+        [self.bindingSession.networkProvider invokeGET:self.atomPubUrl
                 withSession:self.bindingSession
             completionBlock:^(CMISHttpResponse *httpResponse, NSError *error) {
                 if (httpResponse) {
@@ -183,7 +180,7 @@
         NSURL *objectIdUrl = [objectByIdUriBuilder buildUrl];
         
         // Execute actual call
-        [HttpUtil invokeGET:objectIdUrl
+        [self.bindingSession.networkProvider invokeGET:objectIdUrl
                 withSession:self.bindingSession
             completionBlock:^(CMISHttpResponse *httpResponse, NSError *error) {
                 if (httpResponse) {
@@ -227,7 +224,7 @@
         objectByPathUriBuilder.renditionFilter = renditionFilter;
         
         // Execute actual call
-        [HttpUtil invokeGET:[objectByPathUriBuilder buildUrl]
+        [self.bindingSession.networkProvider invokeGET:[objectByPathUriBuilder buildUrl]
                 withSession:self.bindingSession
             completionBlock:^(CMISHttpResponse *httpResponse, NSError *error) {
                 if (httpResponse) {

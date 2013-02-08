@@ -33,6 +33,7 @@ NSString * const kCMISBindingSessionKeyLinkCache = @"cmis_session_key_link_cache
 @property (nonatomic, strong, readwrite) NSString *username;
 @property (nonatomic, strong, readwrite) NSString *repositoryId;
 @property (nonatomic, strong, readwrite) id<CMISAuthenticationProvider> authenticationProvider;
+@property (nonatomic, strong, readwrite) id<CMISNetworkProvider> networkProvider;
 @property (nonatomic, strong, readwrite) NSMutableDictionary *sessionData;
 @end
 
@@ -42,6 +43,7 @@ NSString * const kCMISBindingSessionKeyLinkCache = @"cmis_session_key_link_cache
 @synthesize repositoryId = _repositoryId;
 @synthesize authenticationProvider = _authenticationProvider;
 @synthesize sessionData = _sessionData;
+@synthesize networkProvider = _networkProvider;
 
 - (id)initWithSessionParameters:(CMISSessionParameters *)sessionParameters
 {
@@ -54,6 +56,7 @@ NSString * const kCMISBindingSessionKeyLinkCache = @"cmis_session_key_link_cache
         self.username = sessionParameters.username;
         self.repositoryId = sessionParameters.repositoryId;
         self.authenticationProvider = sessionParameters.authenticationProvider;
+        self.networkProvider = sessionParameters.networkProvider;
         
         // store all other data in the dictionary
         [self.sessionData setObject:sessionParameters.atomPubUrl forKey:kCMISBindingSessionKeyAtomPubUrl];
