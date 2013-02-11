@@ -49,12 +49,6 @@
 
 @implementation CMISSession
 
-@synthesize authenticated = _authenticated;
-@synthesize binding = _binding;
-@synthesize repositoryInfo = _repositoryInfo;
-@synthesize sessionParameters = _sessionParameters;
-@synthesize objectConverter = _objectConverter;
-
 #pragma mark -
 #pragma mark Setup
 
@@ -72,12 +66,9 @@
                      completionBlock:(void (^)(CMISSession *session, NSError * error))completionBlock
 {
     CMISSession *session = [[CMISSession alloc] initWithSessionParameters:sessionParameters];
-    if (session)
-    {
+    if (session) {
         [session authenticateWithCompletionBlock:completionBlock];
-    }
-    else
-    {
+    } else {
         completionBlock(nil, [CMISErrors createCMISErrorWithCode:kCMISErrorCodeInvalidArgument
                                          withDetailedDescription:@"Not enough session parameters to connect"]);
     }
@@ -88,18 +79,15 @@
 - (id)initWithSessionParameters:(CMISSessionParameters *)sessionParameters
 {
     self = [super init];
-    if (self)
-    {
+    if (self) {
         self.sessionParameters = sessionParameters;
         self.authenticated = NO;
     
         // setup authentication provider if not present
-        if (self.sessionParameters.authenticationProvider == nil)
-        {
+        if (self.sessionParameters.authenticationProvider == nil) {
             NSString *username = self.sessionParameters.username;
             NSString *password = self.sessionParameters.password;
-            if (username == nil || password == nil)
-            {
+            if (username == nil || password == nil) {
                 log(@"No username or password provided for standard authentication provider");
                 return nil;
             }
@@ -108,8 +96,7 @@
                                                                                                              andPassword:password];
         }
 
-        if (self.sessionParameters.networkProvider == nil)
-        {
+        if (self.sessionParameters.networkProvider == nil) {
             self.sessionParameters.networkProvider = [[CMISDefaultNetworkProvider alloc] init];
         }
         
@@ -118,14 +105,11 @@
         self.binding = [bindingFactory bindingWithParameters:sessionParameters];
 
         id objectConverterClassValue = [self.sessionParameters objectForKey:kCMISSessionParameterObjectConverterClassName];
-        if (objectConverterClassValue != nil && [objectConverterClassValue isKindOfClass:[NSString class]])
-        {
+        if (objectConverterClassValue != nil && [objectConverterClassValue isKindOfClass:[NSString class]]) {
             NSString *objectConverterClassName = (NSString *)objectConverterClassValue;
             log(@"Using a custom object converter class: %@", objectConverterClassName);
             self.objectConverter = [[NSClassFromString(objectConverterClassName) alloc] initWithSession:self];
-        }
-        else // default
-        {
+        } else { //default
             self.objectConverter = [[CMISObjectConverter alloc] initWithSession:self];
         }
     
@@ -142,8 +126,7 @@
     // TODO: validate session parameters, extract the checks below?
     
     // check repository id is present
-    if (self.sessionParameters.repositoryId == nil)
-    {
+    if (self.sessionParameters.repositoryId == nil) {
         NSError *error = [CMISErrors createCMISErrorWithCode:kCMISErrorCodeInvalidArgument
                                      withDetailedDescription:@"Must provide repository id"];
         log(@"Error: %@", error.description);
@@ -163,15 +146,11 @@
     // get repository info
     [self.binding.repositoryService retrieveRepositoryInfoForId:self.sessionParameters.repositoryId completionBlock:^(CMISRepositoryInfo *repositoryInfo, NSError *error) {
         self.repositoryInfo = repositoryInfo;
-        if (self.repositoryInfo == nil)
-        {
-            if (error)
-            {
+        if (self.repositoryInfo == nil) {
+            if (error) {
                 log(@"Error because repositoryInfo is nil: %@", error.description);
                 completionBlock(nil, [CMISErrors cmisError:error withCMISErrorCode:kCMISErrorCodeInvalidArgument]);
-            }
-            else
-            {
+            } else {
                 completionBlock(nil, [CMISErrors createCMISErrorWithCode:kCMISErrorCodeInvalidArgument
                                                  withDetailedDescription:@"Could not fetch repository information"]);
             }
@@ -210,8 +189,7 @@
 
 - (void)retrieveObject:(NSString *)objectId withOperationContext:(CMISOperationContext *)operationContext completionBlock:(void (^)(CMISObject *object, NSError *error))completionBlock
 {
-    if (objectId == nil)
-    {
+    if (objectId == nil) {
         completionBlock(nil, [CMISErrors createCMISErrorWithCode:kCMISErrorCodeInvalidArgument withDetailedDescription:@"Must provide object id"]);
         return;
     }
@@ -278,8 +256,7 @@
                                      operationContext:(CMISOperationContext *)operationContext
                                       completionBlock:(void (^)(CMISPagedResult *pagedResult, NSError *error))completionBlock
 {
-    CMISFetchNextPageBlock fetchNextPageBlock = ^(int skipCount, int maxItems, CMISFetchNextPageBlockCompletionBlock pageBlockCompletionBlock)
-    {
+    CMISFetchNextPageBlock fetchNextPageBlock = ^(int skipCount, int maxItems, CMISFetchNextPageBlockCompletionBlock pageBlockCompletionBlock){
         // Fetch results through discovery service
         [self.binding.discoveryService query:statement
                                                   searchAllVersions:searchAllVersion
@@ -299,8 +276,7 @@
                                                           
                                                           NSMutableArray *resultArray = [[NSMutableArray alloc] init];
                                                           result.resultArray = resultArray;
-                                                          for (CMISObjectData *objectData in objectList.objects)
-                                                          {
+                                                          for (CMISObjectData *objectData in objectList.objects) {
                                                               [resultArray addObject:[CMISQueryResult queryResultUsingCmisObjectData:objectData andWithSession:self]];
                                                           }
                                                           pageBlockCompletionBlock(result, nil);
@@ -337,14 +313,12 @@
     [statement appendFormat:@" FROM %@", typeDefinition.queryName];
     
     // Where
-    if (whereClause != nil)
-    {
+    if (whereClause != nil) {
         [statement appendFormat:@" WHERE %@", whereClause];
     }
     
     // Order by
-    if (operationContext.orderBy != nil)
-    {
+    if (operationContext.orderBy != nil) {
         [statement appendFormat:@" ORDER BY %@", operationContext.orderBy];
     }
     

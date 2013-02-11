@@ -22,17 +22,6 @@
 
 @implementation CMISOperationContext
 
-@synthesize filterString = _filterString;
-@synthesize includeAllowableActions = _includeAllowableActions;
-@synthesize includeACLs = _includeACLs;
-@synthesize includeRelationShips = _includeRelationShips;
-@synthesize includePolicies = _includePolicies;
-@synthesize renditionFilterString = _renditionFilterString;
-@synthesize maxItemsPerPage = _maxItemsPerPage;
-@synthesize skipCount = _skipCount;
-@synthesize orderBy = _orderBy;
-@synthesize includePathSegments = _includePathSegments;
-
 + (CMISOperationContext *)defaultOperationContext
 {
     CMISOperationContext *defaultContext = [[CMISOperationContext alloc] init];

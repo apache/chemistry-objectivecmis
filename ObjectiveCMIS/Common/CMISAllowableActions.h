@@ -28,12 +28,20 @@
 
 // Designated Initializer
 - (id)init;
-// Use this init method when initializing with a raw NSDictionary parsed from an AtomPub Response
+
+/// Use this init method when initializing with a raw NSDictionary parsed from an AtomPub Response
+/**
+ */
 - (id)initWithAllowableActionsDictionary:(NSDictionary *)allowableActionsDict;
+
+/**
+ initialises with allowable actions dictionary and optional extension array
+ */
 - (id)initWithAllowableActionsDictionary:(NSDictionary *)allowableActionsDict extensionElementArray:(NSArray *)extensionElementArray;
 
-// Returns an NSSet of NSNumber of objects.  The NSNumber objects map to the CMISActionType enum
+/// Returns an NSSet of NSNumber of objects.  The NSNumber objects map to the CMISActionType enum
 - (NSSet *)allowableActionTypesSet;
-// Set the allowable actions with a raw NSDictionary parsed from an AtomPub Response
+
+/// Set the allowable actions with a raw NSDictionary parsed from an AtomPub Response
 - (void)setAllowableActionsWithDictionary:(NSDictionary *)allowableActionsDict;
 @end

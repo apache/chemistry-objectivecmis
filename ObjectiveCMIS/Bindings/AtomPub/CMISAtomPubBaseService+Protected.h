@@ -32,7 +32,9 @@
 /** Convenience method with all the defaults for the retrieval parameters */
 - (void)retrieveObjectInternal:(NSString *)objectId completionBlock:(void (^)(CMISObjectData *objectData, NSError *error))completionBlock;
 
-/** Full-blown object retrieval version */
+/** Full-blown object retrieval version 
+ * completionBlock returns CMISObjectData instance or nil if unsuccessul
+ */
 - (void)retrieveObjectInternal:(NSString *)objectId
                          withReturnVersion:(CMISReturnVersion)cmisReturnVersion
                                 withFilter:(NSString *)filter
@@ -43,6 +45,9 @@
                 andIncludeAllowableActions:(BOOL)includeAllowableActions
                completionBlock:(void (^)(CMISObjectData *objectData, NSError *error))completionBlock;
 
+/** retrieve object for a given path name
+ * completionBlock returns CMISObjectData instance or nil if unsuccessul
+ */
 - (void)retrieveObjectByPathInternal:(NSString *)path
                           withFilter:(NSString *)filter
              andIncludeRelationShips:(CMISIncludeRelationship)includeRelationship
@@ -52,13 +57,20 @@
           andIncludeAllowableActions:(BOOL)includeAllowableActions
                      completionBlock:(void (^)(CMISObjectData *objectData, NSError *error))completionBlock;
 
+/** retrieve object from cache
+ * completionBlock returns the object (as id) or nil if unsuccessul
+ */
 - (void)retrieveFromCache:(NSString *)cacheKey
           completionBlock:(void (^)(id object, NSError *error))completionBlock;
 
+///load the link for a given object Id
+///completionBlock returns the link as NSString or nil if unsuccessful
 - (void)loadLinkForObjectId:(NSString *)objectId
                 andRelation:(NSString *)rel
             completionBlock:(void (^)(NSString *link, NSError *error))completionBlock;
 
+///load the link for a given object Id
+///completionBlock returns the link as NSString or nil if unsuccessful
 - (void)loadLinkForObjectId:(NSString *)objectId
                 andRelation:(NSString *)rel
                     andType:(NSString *)type

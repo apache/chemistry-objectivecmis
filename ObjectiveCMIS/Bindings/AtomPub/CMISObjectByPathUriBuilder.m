@@ -28,20 +28,11 @@
 
 @implementation CMISObjectByPathUriBuilder
 
-@synthesize templateUrl = _templateUrl;
-@synthesize path = _path;
-@synthesize filter = _filter;
-@synthesize includeAllowableActions = _includeAllowableActions;
-@synthesize includePolicyIds = _includePolicyIds;
-@synthesize includeRelationships = _includeRelationships;
-@synthesize includeACL = _includeACL;
-@synthesize renditionFilter = _renditionFilter;
 
 - (id)initWithTemplateUrl:(NSString *)templateUrl
 {
     self = [super init];
-    if (self)
-    {
+    if (self) {
         self.templateUrl = templateUrl;
     }
     return self;

@@ -29,10 +29,6 @@
 
 @implementation CMISHttpResponse
 
-@synthesize statusCode = _statusCode;
-@synthesize data = _data;
-@synthesize statusCodeMessage = _statusCodeMessage;
-@synthesize responseString = _responseString;
 
 + (CMISHttpResponse *)responseUsingURLHTTPResponse:(NSHTTPURLResponse *)httpUrlResponse andData:(NSData *)data
 {
@@ -65,7 +61,8 @@
 }
 
 
-- (NSString*)exception {
+- (NSString*)exception
+{
     NSString *responseString = self.responseString;
     if (responseString) {
         NSRange begin = [responseString rangeOfString:@"<!--exception-->"];
@@ -83,7 +80,8 @@
 }
 
 
-- (NSString*)errorMessage {
+- (NSString*)errorMessage
+{
     NSString *responseString = self.responseString;
     if (responseString) {
         NSRange begin = [responseString rangeOfString:@"<!--message-->"];

@@ -26,6 +26,9 @@
 @property (nonatomic, weak) id httpRequest;
 @property (nonatomic, readonly, getter = isCancelled) BOOL cancelled;
 
+/**
+ cancel a network request
+ */
 - (void)cancel;
 
 @end

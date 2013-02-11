@@ -26,13 +26,11 @@
 
 @implementation CMISObjectId
 
-@synthesize identifier = _identifier;
 
 - (id)initWithString:(NSString *)string
 {
     self = [super init];
-    if (self)
-    {
+    if (self) {
         self.identifier = string;
     }
 

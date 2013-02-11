@@ -21,9 +21,9 @@
 
 
 @interface CMISURLUtil : NSObject
-
+/// utility method to obtain a URL string
 + (NSString *)urlStringByAppendingParameter:(NSString *)parameterName withValue:(NSString *)parameterValue toUrlString:(NSString *)urlString;
-
+/// utility method to obtain a URL string
 + (NSURL *)urlStringByAppendingParameter:(NSString *)parameterName withValue:(NSString *)parameterValue toUrl:(NSURL *)url;
 
 @end

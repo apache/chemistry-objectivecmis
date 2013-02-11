@@ -25,9 +25,6 @@
  */
 @implementation CMISFetchNextPageBlockResult
 
-@synthesize resultArray = _resultArray;
-@synthesize hasMoreItems = _hasMoreItems;
-@synthesize numItems = _numItems;
 
 @end
 
@@ -51,12 +48,6 @@
  */
 @implementation CMISPagedResult
 
-@synthesize resultArray = _resultArray;
-@synthesize hasMoreItems = _hasMoreItems;
-@synthesize numItems = _numItems;
-@synthesize fetchNextPageBlock = _fetchNextPageBlock;
-@synthesize maxItems = _maxItems;
-@synthesize skipCount = _skipCount;
 
 
 /** Internal init */
@@ -66,8 +57,7 @@
               andMaxItems:(NSInteger)maxItems andSkipCount:(NSInteger)skipCount;
 {
     self = [super init];
-    if (self)
-    {
+    if (self) {
         self.resultArray = resultArray;
         self.fetchNextPageBlock = fetchNextPageBlock;
         self.hasMoreItems = hasMoreItems;

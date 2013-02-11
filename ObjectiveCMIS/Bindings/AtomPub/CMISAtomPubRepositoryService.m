@@ -36,7 +36,6 @@
 
 @implementation CMISAtomPubRepositoryService
 
-@synthesize repositories = _repositories;
 
 - (void)retrieveRepositoriesWithCompletionBlock:(void (^)(NSArray *repositories, NSError *error))completionBlock
 {
@@ -64,10 +63,8 @@
 {
     self.repositories = [NSMutableDictionary dictionary];
     [self retrieveCMISWorkspacesWithCompletionBlock:^(NSArray *cmisWorkSpaces, NSError *error) {
-        if (cmisWorkSpaces != nil)
-        {
-            for (CMISWorkspace *workspace in cmisWorkSpaces)
-            {
+        if (cmisWorkSpaces != nil) {
+            for (CMISWorkspace *workspace in cmisWorkSpaces) {
                 [self.repositories setObject:workspace.repositoryInfo forKey:workspace.repositoryInfo.identifier];
             }
         }
@@ -77,8 +74,7 @@
 
 - (void)retrieveTypeDefinition:(NSString *)typeId completionBlock:(void (^)(CMISTypeDefinition *typeDefinition, NSError *error))completionBlock
 {
-    if (typeId == nil)
-    {
+    if (typeId == nil) {
         log(@"Parameter typeId is required");
         NSError *error = [[NSError alloc] init]; // TODO: proper error init
         completionBlock(nil, error);

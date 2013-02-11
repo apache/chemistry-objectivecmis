@@ -21,6 +21,5 @@
 
 @implementation CMISExtensionData
 
-@synthesize extensions = _extensions;
 
 @end

@@ -60,15 +60,21 @@ extern NSString * const kCMISSessionParameterMode;
 // Network I/O
 @property (nonatomic, strong) id<CMISNetworkProvider> networkProvider;
 
-
+/** init with binding type
+ */
 - (id)initWithBindingType:(CMISBindingType)bindingType;
 
-// Object storage methods
+/// Object storage methods
 - (NSArray *)allKeys;
+
 - (id)objectForKey:(id)key;
+
 - (id)objectForKey:(id)key withDefaultValue:(id)defaultValue;
+
 - (void)setObject:(id)object forKey:(id)key;
+
 - (void)addEntriesFromDictionary:(NSDictionary *)dictionary;
+
 - (void)removeKey:(id)key;
 
 @end

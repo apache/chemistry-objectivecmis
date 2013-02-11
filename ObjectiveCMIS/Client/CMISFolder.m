@@ -34,14 +34,11 @@
 
 @implementation CMISFolder
 
-@synthesize path = _path;
-@synthesize children = _children;
 
 - (id)initWithObjectData:(CMISObjectData *)objectData withSession:(CMISSession *)session
 {
     self = [super initWithObjectData:objectData withSession:session];
-    if (self)
-    {
+    if (self){
         self.path = [[objectData.properties propertyForId:kCMISPropertyPath] firstValue];
     }
     return self;
@@ -163,16 +160,12 @@
                         progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal))progressBlock
 {
     [self.session.objectConverter convertProperties:properties forObjectTypeId:kCMISPropertyObjectTypeIdValueDocument completionBlock:^(CMISProperties *convertedProperties, NSError *error){
-        if (nil == convertedProperties)
-        {
+        if (nil == convertedProperties){
             log(@"Could not convert properties: %@", error.description);
-            if (completionBlock)
-            {
+            if (completionBlock) {
                 completionBlock(nil, [CMISErrors cmisError:error withCMISErrorCode:kCMISErrorCodeRuntime]);
             }
-        }
-        else
-        {
+        } else {
             [self.binding.objectService createDocumentFromInputStream:inputStream
                                                          withMimeType:mimeType
                                                        withProperties:convertedProperties

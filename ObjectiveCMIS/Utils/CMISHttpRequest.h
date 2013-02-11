@@ -34,6 +34,13 @@
 @property (nonatomic, strong) id<CMISAuthenticationProvider> authenticationProvider;
 @property (nonatomic, copy) void (^completionBlock)(CMISHttpResponse *httpResponse, NSError *error);
 
+/**
+ * starts a URL request for given HTTP method 
+ * @param requestBody (optional)
+ * @param additionalHeaders (optional)
+ * @param authenticationProvider (required)
+ * completionBlock returns a CMISHTTPResponse object or nil if unsuccessful
+ */
 + (CMISHttpRequest*)startRequest:(NSMutableURLRequest *)urlRequest
               withHttpMethod:(CMISHttpRequestMethod)httpRequestMethod
                  requestBody:(NSData*)requestBody
@@ -41,11 +48,17 @@
       authenticationProvider:(id<CMISAuthenticationProvider>)authenticationProvider
              completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))completionBlock;
 
+/**
+ * designated initialiser. Do not use this initialiser directly. Instead use the
+ * class method startRequest:withHttpMethod:requestBody:headers:authenticationProvider:completionBlock
+ */
 - (id)initWithHttpMethod:(CMISHttpRequestMethod)httpRequestMethod
          completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))completionBlock;
 
+/// starts the URL request
 - (BOOL)startRequest:(NSMutableURLRequest*)urlRequest;
 
+/// cancel method. This may be called from a CMISRequest object
 - (void)cancel;
 
 @end

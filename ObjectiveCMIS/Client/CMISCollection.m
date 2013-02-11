@@ -25,12 +25,9 @@
 
 @implementation CMISCollection
 
-@synthesize items = _items;
-
 - (id)initWithItems:(NSArray *)items
 {
-    if (self = [super init])
-    {
+    if (self = [super init]){
         self.items = items;
     }
     

@@ -44,22 +44,19 @@
 
 @property (nonatomic, strong, readonly) CMISProperties *properties;
 
+/**
+ * initialise CMISObject with data and session
+ */
 - (id)initWithObjectData:(CMISObjectData *)objectData withSession:(CMISSession *)session;
 
 /**
  * Updates the properties that are provided.
- *
- * @param properties The properties to update. The key should be the property id.
- *                   The value can be an instance of CMISPropertyData, or a regular string.
- *                   If it is a string, a conversion to the CMISPropertyData will be done for you,
- *                   but keep in mind that this can trigger another remote call to the server to fetch the type info.
- *
- * @return the updated object (a repository might have created a new version of the object)
-*/
+ * completionBlock returns the updated CMISObject instance or nil if unsuccessful
+ */
 - (void)updateProperties:(NSDictionary *)properties completionBlock:(void (^)(CMISObject *object, NSError *error))completionBlock;
 
 /**
- * Returns the extensions for the given level as an array of CMISExtensionElement
+ * Returns the extensions for the given level as an array 
  */
 - (NSArray *)extensionsForExtensionLevel:(CMISExtensionLevel)extensionLevel;
 

@@ -31,6 +31,9 @@
 @property (nonatomic, strong) NSNumber * skipCount;
 @property (nonatomic, strong) NSNumber * maxItems;
 
+/**
+ @return the XML query as string
+ */
 - (NSString *)generateAtomEntryXML;
 
 @end

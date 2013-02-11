@@ -35,13 +35,11 @@
 
 @implementation CMISLinkCache
 
-@synthesize linkCache = _linkCache;
 
 - (id)initWithBindingSession:(CMISBindingSession *)bindingSession
 {
     self = [super init];
-    if (self)
-    {
+    if (self) {
         [self setupLinkCache:bindingSession];
 
     }
@@ -53,20 +51,15 @@
     self.linkCache = [[NSCache alloc] init];
 
     id linkCacheSize = [bindingSession objectForKey:kCMISSessionParameterLinkCacheSize];
-    if (linkCacheSize != nil)
-    {
-        if ([[linkCacheSize class] isEqual:[NSNumber class]])
-        {
+    if (linkCacheSize != nil) {
+        if ([[linkCacheSize class] isEqual:[NSNumber class]]) {
             self.linkCache.countLimit = [(NSNumber *) linkCacheSize unsignedIntValue];
-        }
-        else
-        {
+        } else {
             log(@"Invalid object set for %@ session parameter. Ignoring and using default instead", kCMISSessionParameterLinkCacheSize);
         }
     }
 
-    if (self.linkCache.countLimit <= 0)
-    {
+    if (self.linkCache.countLimit <= 0) {
         self.linkCache.countLimit = DEFAULT_LINK_CACHE_SIZE;
     }
 

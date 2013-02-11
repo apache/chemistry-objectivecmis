@@ -27,8 +27,8 @@
 @protocol CMISObjectService <NSObject>
 
 /**
- *Retrieves the object with the given object identifier.
- *
+ * Retrieves the object with the given object identifier.
+ * completionBlock returns objectData for object or nil if unsuccessful
  */
 - (void)retrieveObject:(NSString *)objectId
             withFilter:(NSString *)filter
@@ -40,8 +40,8 @@ andIncludeAllowableActions:(BOOL)includeAllowableActions
        completionBlock:(void (^)(CMISObjectData *objectData, NSError *error))completionBlock;
 
 /**
- *Retrieves an object using its path.
- *
+ * Retrieves an object using its path.
+ * completionBlock returns objectData for object or nil if unsuccessful
  */
 - (void)retrieveObjectByPath:(NSString *)path
                   withFilter:(NSString *)filter
@@ -53,10 +53,11 @@ andIncludeAllowableActions:(BOOL)includeAllowableActions
              completionBlock:(void (^)(CMISObjectData *objectData, NSError *error))completionBlock;
 
 /**
-* Gets the content stream for the specified Document object, or gets a rendition stream for a specified
-* rendition of a document or folder object. Downloads the content to a local file.
-*
-*/
+ * Gets the content stream for the specified Document object, or gets a rendition stream for a specified
+ * rendition of a document or folder object. Downloads the content to a local file.
+ * completionBlock returns objectData for object or nil if unsuccessful
+ *
+ */
 - (CMISRequest*)downloadContentOfObject:(NSString *)objectId
                            withStreamId:(NSString *)streamId
                                  toFile:(NSString *)filePath
@@ -66,6 +67,7 @@ andIncludeAllowableActions:(BOOL)includeAllowableActions
 /**
  * Gets the content stream for the specified Document object, or gets a rendition stream for a specified
  * rendition of a document or folder object. Downloads the content to an output stream.
+ * completionBlock returns objectData for object or nil if unsuccessful
  *
  */
 - (CMISRequest*)downloadContentOfObject:(NSString *)objectId
@@ -76,12 +78,13 @@ andIncludeAllowableActions:(BOOL)includeAllowableActions
 
 /**
  * Deletes the content stream for the specified document object.
-  *
-  * A Repository MAY automatically create new Document versions as part of this service method.
-  * Therefore, the objectId output NEED NOT be identical to the objectId input
-  *
-  * NOTE for atom pub binding: deleteContentStream: This does not return the new object id and change token as specified by the domain model.
-  * This is not possible without introducing a new HTTP header.
+ *
+ * A Repository MAY automatically create new Document versions as part of this service method.
+ * Therefore, the objectId output NEED NOT be identical to the objectId input
+ *
+ * NOTE for atom pub binding: deleteContentStream: This does not return the new object id and change token as specified by the domain model.
+ * This is not possible without introducing a new HTTP header.
+ * completionBlock - returns NSError nil if successful
  */
 - (void)deleteContentOfObject:(CMISStringInOutParameter *)objectIdParam
               withChangeToken:(CMISStringInOutParameter *)changeTokenParam
@@ -96,6 +99,7 @@ andIncludeAllowableActions:(BOOL)includeAllowableActions
  *
  * NOTE for atom pub binding: This does not return the new object id and change token as specified by the domain model.
  * (This is not possible without introducing a new HTTP header).
+ * completionBlock - returns NSError nil if successful
  */
 - (CMISRequest*)changeContentOfObject:(CMISStringInOutParameter *)objectIdParam
                       toContentOfFile:(NSString *)filePath
@@ -113,6 +117,7 @@ andIncludeAllowableActions:(BOOL)includeAllowableActions
  *
  * NOTE for atom pub binding: This does not return the new object id and change token as specified by the domain model.
  * (This is not possible without introducing a new HTTP header).
+ * completionBlock - returns NSError nil if successful
  */
 - (CMISRequest*)changeContentOfObject:(CMISStringInOutParameter *)objectId
                toContentOfInputStream:(NSInputStream *)inputStream
@@ -124,8 +129,9 @@ andIncludeAllowableActions:(BOOL)includeAllowableActions
                         progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal))progressBlock;
 
 /**
-* uploads the file from the given path to the given folder.
-*
+ * uploads the file from the given path to the given folder.
+ *
+ * completionBlock - returns NSError nil if successful
 */
 - (CMISRequest*)createDocumentFromFilePath:(NSString *)filePath
                               withMimeType:(NSString *)mimeType
@@ -137,6 +143,7 @@ andIncludeAllowableActions:(BOOL)includeAllowableActions
 /**
  * uploads the file from the given input stream to the given folder.
  *
+ * completionBlock - returns NSError nil if successful
  */
 - (CMISRequest*)createDocumentFromInputStream:(NSInputStream *)inputStream
                                  withMimeType:(NSString *)mimeType
@@ -147,15 +154,17 @@ andIncludeAllowableActions:(BOOL)includeAllowableActions
                                 progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal))progressBlock;
 
 /**
-* Deletes the given object.
-*
-* The allVersions parameter is currently ignored.
-*/
+ * Deletes the given object.
+ *
+ * The allVersions parameter is currently ignored.
+ * completionBlock returns true if successful
+ */
 - (void)deleteObject:(NSString *)objectId allVersions:(BOOL)allVersions completionBlock:(void (^)(BOOL objectDeleted, NSError *error))completionBlock;
 
 /**
-* Creates a new folder with given properties under the provided parent folder.
-*/
+ * Creates a new folder with given properties under the provided parent folder.
+ * completionBlock returns objectId for the newly created folder or nil if unsuccessful
+ */
 - (void)createFolderInParentFolder:(NSString *)folderObjectId
                     withProperties:(CMISProperties *)properties
                    completionBlock:(void (^)(NSString *objectId, NSError *error))completionBlock;
@@ -164,6 +173,7 @@ andIncludeAllowableActions:(BOOL)includeAllowableActions
  * Deletes the given folder and all of its subfolder and files
  *
  * Returns a list of objects which failed to be deleted.
+ * completionBlock returns array of failed objects if any. NSError will be nil if successful
  *
  */
 - (void)deleteTree:(NSString *)folderObjectId
@@ -174,6 +184,7 @@ andIncludeAllowableActions:(BOOL)includeAllowableActions
 
 /**
  * Updates the properties of the given object.
+ * completionBlock returns NSError nil if successful
  */
 - (void)updatePropertiesForObject:(CMISStringInOutParameter *)objectIdParam
                    withProperties:(CMISProperties *)properties
@@ -186,6 +197,7 @@ andIncludeAllowableActions:(BOOL)includeAllowableActions
  *
  * Note: the paging parameters (maxItems and skipCount) are not used in the atom pub binding.
  *       Ie. the whole set is <b>always</b> returned.
+ * completionBlock returns array of associated renditions or nil if unsuccessful
  */
 - (void)retrieveRenditions:(NSString *)objectId
             withRenditionFilter:(NSString *)renditionFilter

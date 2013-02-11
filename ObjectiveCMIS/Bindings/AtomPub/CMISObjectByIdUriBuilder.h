@@ -41,7 +41,13 @@ typedef enum
 @property (nonatomic, strong) NSString *renditionFilter;
 @property CMISReturnVersion returnVersion;
 
+/**
+ * initialise with the template URL string
+ */
 - (id)initWithTemplateUrl:(NSString *)templateUrl;
+/**
+ * returns the URL
+ */
 - (NSURL *)buildUrl;
 
 @end

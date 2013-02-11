@@ -59,8 +59,7 @@
 - (id)initWithData:(NSData*)atomData
 {
     self = [super init];
-    if (self)
-    {
+    if (self){
         self.atomData = atomData;
     }
     
@@ -78,8 +77,7 @@
     [parser setDelegate:self];
     BOOL parseSuccessful = [parser parse];
     
-    if (!parseSuccessful)
-    {
+    if (!parseSuccessful){
         NSError *parserError = [parser parserError];
         log(@"Parsing error : %@", parserError);
         if (error) {
@@ -101,23 +99,15 @@
 {
     self.currentString = [[NSMutableString alloc] init];
 
-    if ([elementName isEqualToString:kCMISAppWorkspace])
-    {
+    if ([elementName isEqualToString:kCMISAppWorkspace]) {
         self.currentWorkSpace = [[CMISWorkspace alloc] init];
-    }
-    else if ([elementName isEqualToString:kCMISRestAtomRepositoryInfo])
-    {
+    } else if ([elementName isEqualToString:kCMISRestAtomRepositoryInfo]) {
         self.childParserDelegate = [CMISRepositoryInfoParser repositoryInfoParserWithParentDelegate:self parser:parser];
-    }
-    else if ([elementName isEqualToString:kCMISAppCollection])
-    {
+    } else if ([elementName isEqualToString:kCMISAppCollection]) {
         self.currentCollection = [[CMISAtomCollection alloc] init];
         self.currentCollection.href = [attributeDict objectForKey:kCMISAtomLinkAttrHref];
-    }
-    else if ([elementName isEqualToString:kCMISAtomLink])
-    {
-        if (self.currentAtomLinks == nil)
-        {
+    } else if ([elementName isEqualToString:kCMISAtomLink]) {
+        if (self.currentAtomLinks == nil) {
             self.currentAtomLinks = [[NSMutableSet alloc] init];
         }
         
@@ -141,63 +131,38 @@
 {
     // TODO: parser needs refactoring!
 
-    if ([elementName isEqualToString:kCMISAppWorkspace])
-    {
+    if ([elementName isEqualToString:kCMISAppWorkspace]) {
         self.currentWorkSpace.linkRelations = [[CMISLinkRelations alloc] initWithLinkRelationSet:[self.currentAtomLinks copy]];
         self.currentAtomLinks = nil;
         
         [self.internalWorkspaces addObject:self.currentWorkSpace];
-    }
-    else if ([elementName isEqualToString:kCMISRestAtomUritemplate])
-    {
-        if ([self.currentType isEqualToString:kCMISUriTemplateObjectById])
-        {
+    } else if ([elementName isEqualToString:kCMISRestAtomUritemplate]) {
+        if ([self.currentType isEqualToString:kCMISUriTemplateObjectById]) {
             self.currentWorkSpace.objectByIdUriTemplate = self.currentTemplate;
-        }
-        else if ([self.currentType isEqualToString:kCMISUriTemplateObjectByPath])
-        {
+        } else if ([self.currentType isEqualToString:kCMISUriTemplateObjectByPath]) {
             self.currentWorkSpace.objectByPathUriTemplate = self.currentTemplate;
-        }
-        else if ([self.currentType isEqualToString:kCMISUriTemplateTypeById])
-        {
+        } else if ([self.currentType isEqualToString:kCMISUriTemplateTypeById]) {
             self.currentWorkSpace.typeByIdUriTemplate = self.currentTemplate;
-        }
-        else if ([self.currentType isEqualToString:kCMISUriTemplateQuery])
-        {
+        } else if ([self.currentType isEqualToString:kCMISUriTemplateQuery]) {
             self.currentWorkSpace.queryUriTemplate = self.currentTemplate;
         }
-    }
-    else if ([elementName isEqualToString:kCMISRestAtomTemplate])
-    {
+    } else if ([elementName isEqualToString:kCMISRestAtomTemplate]) {
         self.currentTemplate = self.currentString;
-    }
-    else if ([elementName isEqualToString:kCMISRestAtomType])
-    {
+    } else if ([elementName isEqualToString:kCMISRestAtomType]) {
         self.currentType = self.currentString;
-    }
-    else if ([elementName isEqualToString:kCMISRestAtomMediaType])
-    {
+    } else if ([elementName isEqualToString:kCMISRestAtomMediaType]) {
         self.currentMediaType = self.currentString;
-    }
-    else if ([elementName isEqualToString:kCMISAppCollection])
-    {
-        if (self.currentWorkSpace.collections == nil)
-        {
+    } else if ([elementName isEqualToString:kCMISAppCollection]) {
+        if (self.currentWorkSpace.collections == nil) {
             self.currentWorkSpace.collections = [[NSMutableArray alloc] init];
         }
         [self.currentWorkSpace.collections addObject:self.currentCollection];
         self.currentCollection = nil;
-    }
-    else if ([elementName isEqualToString:kCMISAtomTitle])
-    {
+    } else if ([elementName isEqualToString:kCMISAtomTitle]) {
         self.currentCollection.title = self.currentString;
-    }
-    else if ([elementName isEqualToString:kCMISAppAccept])
-    {
+    } else if ([elementName isEqualToString:kCMISAppAccept]) {
         self.currentCollection.accept = self.currentString;
-    }
-    else if ([elementName isEqualToString:kCMISRestAtomCollectionType])
-    {
+    } else if ([elementName isEqualToString:kCMISRestAtomCollectionType]) {
         self.currentCollection.type = self.currentString;
     }
 

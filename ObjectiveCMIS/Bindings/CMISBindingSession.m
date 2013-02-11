@@ -39,17 +39,11 @@ NSString * const kCMISBindingSessionKeyLinkCache = @"cmis_session_key_link_cache
 
 @implementation CMISBindingSession
 
-@synthesize username = _username;
-@synthesize repositoryId = _repositoryId;
-@synthesize authenticationProvider = _authenticationProvider;
-@synthesize sessionData = _sessionData;
-@synthesize networkProvider = _networkProvider;
 
 - (id)initWithSessionParameters:(CMISSessionParameters *)sessionParameters
 {
     self = [super init];
-    if (self)
-    {
+    if (self) {
         self.sessionData = [[NSMutableDictionary alloc] init];
         
         // grab common data from session parameters
@@ -61,8 +55,7 @@ NSString * const kCMISBindingSessionKeyLinkCache = @"cmis_session_key_link_cache
         // store all other data in the dictionary
         [self.sessionData setObject:sessionParameters.atomPubUrl forKey:kCMISBindingSessionKeyAtomPubUrl];
         
-        for (id key in sessionParameters.allKeys) 
-        {
+        for (id key in sessionParameters.allKeys) {
             [self.sessionData setObject:[sessionParameters objectForKey:key] forKey:key];
         }
     }

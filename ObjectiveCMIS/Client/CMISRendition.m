@@ -31,14 +31,11 @@
 
 @implementation CMISRendition
 
-@synthesize session = _session;
-@synthesize objectId = _objectId;
 
 - (id)initWithRenditionData:(CMISRenditionData *)renditionData andObjectId:(NSString *)objectId andSession:(CMISSession *)session
 {
     self = [super initWithRenditionData:renditionData];
-    if (self)
-    {
+    if (self) {
         self.objectId = objectId;
         self.session = session;
     }
@@ -53,16 +50,14 @@
 - (void)retrieveRenditionDocumentWithOperationContext:(CMISOperationContext *)operationContext
                                       completionBlock:(void (^)(CMISDocument *document, NSError *error))completionBlock
 {
-    if (self.renditionDocumentId == nil)
-    {
+    if (self.renditionDocumentId == nil) {
         log(@"Cannot retrieve rendition document: no renditionDocumentId was returned by the server.");
         completionBlock(nil, nil);
         return;
     }
 
     [self.session retrieveObject:self.renditionDocumentId withOperationContext:operationContext completionBlock:^(CMISObject *renditionDocument, NSError *error) {
-        if (renditionDocument != nil && !([[renditionDocument class] isKindOfClass:[CMISDocument class]]))
-        {
+        if (renditionDocument != nil && !([[renditionDocument class] isKindOfClass:[CMISDocument class]])) {
             completionBlock(nil, nil);
             return;
         }
@@ -75,8 +70,7 @@
                        completionBlock:(void (^)(NSError *error))completionBlock
                          progressBlock:(void (^)(unsigned long long bytesDownloaded, unsigned long long bytesTotal))progressBlock
 {
-    if (self.objectId == nil || self.streamId == nil)
-    {
+    if (self.objectId == nil || self.streamId == nil) {
         log(@"Object id or stream id is nil. Both are needed when fetching the content of a rendition");
         return;
     }
@@ -92,8 +86,7 @@
                                completionBlock:(void (^)(NSError *error))completionBlock
                                  progressBlock:(void (^)(unsigned long long bytesDownloaded, unsigned long long bytesTotal))progressBlock
 {
-    if (self.objectId == nil || self.streamId == nil)
-    {
+    if (self.objectId == nil || self.streamId == nil) {
         log(@"Object id or stream id is nil. Both are needed when fetching the content of a rendition");
         return;
     }

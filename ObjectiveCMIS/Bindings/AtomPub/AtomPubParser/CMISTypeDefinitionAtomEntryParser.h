@@ -31,6 +31,7 @@
 @property (nonatomic, strong, readonly) CMISTypeDefinition *typeDefinition;
 
 - (id)initWithData:(NSData *)atomData;
+/// parses the type definition. returns NO if unsuccessful
 - (BOOL)parseAndReturnError:(NSError **)error;
 
 @end

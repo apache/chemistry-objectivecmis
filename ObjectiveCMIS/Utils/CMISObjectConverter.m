@@ -34,13 +34,11 @@
 
 @implementation CMISObjectConverter
 
-@synthesize session = _session;
 
 - (id)initWithSession:(CMISSession *)session
 {
     self = [super init];
-    if (self)
-    {
+    if (self) {
         self.session = session;
     }
     
@@ -51,12 +49,9 @@
 {
     CMISObject *object = nil;
     
-    if (objectData.baseType == CMISBaseTypeDocument)
-    {
+    if (objectData.baseType == CMISBaseTypeDocument) {
         object = [[CMISDocument alloc] initWithObjectData:objectData withSession:self.session];
-    }
-    else if (objectData.baseType == CMISBaseTypeFolder)
-    {
+    } else if (objectData.baseType == CMISBaseTypeFolder) {
         object = [[CMISFolder alloc] initWithObjectData:objectData withSession:self.session];
     }
     
@@ -67,8 +62,7 @@
 {
     NSMutableArray *items = [[NSMutableArray alloc] initWithCapacity:[objects count]];
     
-    for (CMISObjectData *object in objects) 
-    {
+    for (CMISObjectData *object in objects)  {
         [items addObject:[self convertObject:object]];
     }
     
@@ -95,17 +89,13 @@
     for (NSString *propertyId in properties) {
         id propertyValue = [properties objectForKey:propertyId];
         // If the value is already a CMISPropertyData, we don't need to do anything
-        if ([propertyValue isKindOfClass:[CMISPropertyData class]])
-        {
+        if ([propertyValue isKindOfClass:[CMISPropertyData class]]) {
             [convertedProperties addProperty:(CMISPropertyData *)propertyValue];
-        }
-        else
-        {
+        } else {
             // Convert to CMISPropertyData based on the string
             CMISPropertyDefinition *propertyDefinition = [typeDefinition propertyDefinitionForId:propertyId];
             
-            if (propertyDefinition == nil)
-            {
+            if (propertyDefinition == nil) {
                 NSError *error = [CMISErrors createCMISErrorWithCode:kCMISErrorCodeInvalidArgument
                                              withDetailedDescription:[NSString stringWithFormat:@"Invalid property '%@' for this object type", propertyId]];
                 completionBlock(nil, error);
@@ -115,10 +105,8 @@
             Class expectedType = nil;
             BOOL validType = YES;
             
-            switch (propertyDefinition.propertyType)
-            {
-                case(CMISPropertyTypeString):
-                {
+            switch (propertyDefinition.propertyType) {
+                case(CMISPropertyTypeString): {
                     expectedType = [NSString class];
                     if ([propertyValue isKindOfClass:expectedType]) {
                         [convertedProperties addProperty:[CMISPropertyData createPropertyForId:propertyId withStringValue:propertyValue]];
@@ -137,8 +125,7 @@
                     }
                     break;
                 }
-                case(CMISPropertyTypeBoolean):
-                {
+                case(CMISPropertyTypeBoolean): {
                     expectedType = [NSNumber class];
                     if ([propertyValue isKindOfClass:expectedType]) {
                         BOOL boolValue = ((NSNumber *) propertyValue).boolValue;
@@ -158,8 +145,7 @@
                     }
                     break;
                 }
-                case(CMISPropertyTypeInteger):
-                {
+                case(CMISPropertyTypeInteger): {
                     expectedType = [NSNumber class];
                     if ([propertyValue isKindOfClass:expectedType]) {
                         NSInteger intValue = ((NSNumber *) propertyValue).integerValue;
@@ -179,8 +165,7 @@
                     }
                     break;
                 }
-                case(CMISPropertyTypeDecimal):
-                {
+                case(CMISPropertyTypeDecimal): {
                     expectedType = [NSNumber class];
                     if ([propertyValue isKindOfClass:expectedType]) {
                         [convertedProperties addProperty:[CMISPropertyData createPropertyForId:propertyId withDecimalValue:propertyValue]];
@@ -199,8 +184,7 @@
                     }
                     break;
                 }
-                case(CMISPropertyTypeId):
-                {
+                case(CMISPropertyTypeId): {
                     expectedType = [NSString class];
                     if ([propertyValue isKindOfClass:expectedType]) {
                         [convertedProperties addProperty:[CMISPropertyData createPropertyForId:propertyId withIdValue:propertyValue]];
@@ -219,8 +203,7 @@
                     }
                     break;
                 }
-                case(CMISPropertyTypeDateTime):
-                {
+                case(CMISPropertyTypeDateTime): {
                     if ([propertyValue isKindOfClass:[NSString class]]) {
                         propertyValue = [CMISDateUtil dateFromString:propertyValue];
                     }
@@ -245,8 +228,7 @@
                     }
                     break;
                 }
-                case(CMISPropertyTypeUri):
-                {
+                case(CMISPropertyTypeUri): {
                     if ([propertyValue isKindOfClass:[NSString class]]) {
                         propertyValue = [NSURL URLWithString:propertyValue];
                     }
@@ -271,8 +253,7 @@
                     }
                     break;
                 }
-                case(CMISPropertyTypeHtml):
-                {
+                case(CMISPropertyTypeHtml): {
                     expectedType = [NSString class];
                     if ([propertyValue isKindOfClass:expectedType]) {
                         [convertedProperties addProperty:[CMISPropertyData createPropertyForId:propertyId withHtmlValue:propertyValue]];
@@ -291,8 +272,7 @@
                     }
                     break;
                 }
-                default:
-                {
+                default: {
                     NSError *error = [CMISErrors createCMISErrorWithCode:kCMISErrorCodeInvalidArgument
                                                  withDetailedDescription:[NSString stringWithFormat:@"Unsupported: cannot convert property type %d", propertyDefinition.propertyType]];
                     completionBlock(nil, error);
@@ -319,8 +299,7 @@
 
 {
     // Validate params
-    if (!properties)
-    {
+    if (!properties) {
         completionBlock(nil, nil);
         return;
     }

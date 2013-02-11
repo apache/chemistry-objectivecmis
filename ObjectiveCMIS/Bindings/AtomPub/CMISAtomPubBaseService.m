@@ -38,14 +38,11 @@
 
 @implementation CMISAtomPubBaseService
 
-@synthesize bindingSession = _bindingSession;
-@synthesize atomPubUrl = _atomPubUrl;
 
 - (id)initWithBindingSession:(CMISBindingSession *)session
 {
     self = [super init];
-    if (self)
-    {
+    if (self) {
         self.bindingSession = session;
         self.atomPubUrl = [session objectForKey:kCMISBindingSessionKeyAtomPubUrl];
     }
@@ -250,8 +247,7 @@
 
 - (CMISLinkCache *)linkCache{
     CMISLinkCache *linkCache = [self.bindingSession objectForKey:kCMISBindingSessionKeyLinkCache];
-    if (linkCache == nil)
-    {
+    if (linkCache == nil) {
         linkCache = [[CMISLinkCache alloc] initWithBindingSession:self.bindingSession];
         [self.bindingSession setObject:linkCache forKey:kCMISBindingSessionKeyLinkCache];
     }
@@ -261,8 +257,7 @@
 - (void)clearCacheFromService
 {
     CMISLinkCache *linkCache = [self.bindingSession objectForKey:kCMISBindingSessionKeyLinkCache];
-    if (linkCache != nil)
-    {
+    if (linkCache != nil) {
         [linkCache removeAllLinks];
     }    
 }

@@ -29,8 +29,7 @@
     // TODO: Allow for the creation of custom binding implementations using NSClassFromString.
 
     id<CMISBinding> binding = nil;
-    if (sessionParameters.bindingType == CMISBindingTypeAtomPub)
-    {
+    if (sessionParameters.bindingType == CMISBindingTypeAtomPub) {
         binding = [[CMISAtomPubBinding alloc] initWithSessionParameters:sessionParameters];
     }
 

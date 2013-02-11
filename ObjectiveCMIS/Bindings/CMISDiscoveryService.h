@@ -30,7 +30,9 @@
 (optional) Integer skipCount: This is the number of potential results that the repository MUST skip/page over
                               before returning any results. Defaults to 0.
 */
-// TODO: add all params which are required by spec
+/** launches a query on the server with the parameters specified
+ * completionBlock returns the found object list or nil if unsuccessful
+ */
 - (void)query:(NSString *)statement searchAllVersions:(BOOL)searchAllVersions
                                  includeRelationShips:(CMISIncludeRelationship)includeRelationships
                                       renditionFilter:(NSString *)renditionFilter

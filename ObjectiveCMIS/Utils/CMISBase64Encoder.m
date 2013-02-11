@@ -41,8 +41,7 @@ static char *alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz012
     NSInteger j = 0;
     int remain;
 
-    for (i = 0; i < [plainText length]; i += 3)
-    {
+    for (i = 0; i < [plainText length]; i += 3) {
         remain = [plainText length] - i;
 
         outputBuffer[j++] = alphabet[(inputBuffer[i] & 0xFC) >> 2];
@@ -69,8 +68,7 @@ static char *alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz012
     NSMutableString *result = [[NSMutableString alloc] init];
 
     NSFileHandle *fileHandle = [NSFileHandle fileHandleForReadingAtPath:sourceFilePath];
-    if (fileHandle)
-    {
+    if (fileHandle) {
         // Get the total file length
         [fileHandle seekToEndOfFile];
         unsigned long long fileLength = [fileHandle offsetInFile];
@@ -79,10 +77,8 @@ static char *alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz012
         unsigned long long currentOffset = 0ULL;
 
         // Read the data and append it to the file
-        while (currentOffset < fileLength)
-        {
-            @autoreleasepool
-            {
+        while (currentOffset < fileLength) {
+            @autoreleasepool {
                 [fileHandle seekToFileOffset:currentOffset];
                 NSData *chunkOfData = [fileHandle readDataOfLength:32768];
                 [result appendString:[self stringByEncodingText:chunkOfData]];
@@ -92,9 +88,7 @@ static char *alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz012
 
         // Release the file handle
         [fileHandle closeFile];
-    }
-    else
-    {
+    } else {
         log(@"Could not create a file handle for %@", sourceFilePath);
     }
 
@@ -124,8 +118,7 @@ static char *alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz012
 + (void)encodeContentOfFile:(NSString *)sourceFilePath andAppendToFile:(NSString *)destinationFilePath
 {
     NSFileHandle *fileHandle = [NSFileHandle fileHandleForReadingAtPath:sourceFilePath];
-    if (fileHandle)
-    {
+    if (fileHandle) {
         // Get the total file length
         [fileHandle seekToEndOfFile];
         unsigned long long fileLength = [fileHandle offsetInFile];
@@ -134,10 +127,8 @@ static char *alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz012
         unsigned long long currentOffset = 0ULL;
 
         // Read the data and append it to the file
-        while (currentOffset < fileLength)
-        {
-            @autoreleasepool
-            {
+        while (currentOffset < fileLength) {
+            @autoreleasepool {
                 [fileHandle seekToFileOffset:currentOffset];
                 NSData *chunkOfData = [fileHandle readDataOfLength:524288]; // 512 kb
                 [FileUtil appendToFileAtPath:destinationFilePath data:[self dataByEncodingText:chunkOfData]];
@@ -147,9 +138,7 @@ static char *alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz012
 
         // Release the file handle
         [fileHandle closeFile];
-    }
-    else
-    {
+    } else {
         log(@"Could not create a file handle for %@", sourceFilePath);
     }
 }

@@ -28,8 +28,6 @@
 
 @implementation CMISRequest
 
-@synthesize httpRequest = _httpRequest;
-@synthesize cancelled = _cancelled;
 
 - (void)cancel
 {
@@ -42,8 +40,7 @@
 {
     _httpRequest = httpRequest;
     
-    if (self.isCancelled && [httpRequest respondsToSelector:@selector(cancel)])
-    {
+    if (self.isCancelled && [httpRequest respondsToSelector:@selector(cancel)]) {
         [httpRequest cancel];
     }
 }

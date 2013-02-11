@@ -27,17 +27,36 @@
 
 @interface CMISRendition : CMISRenditionData
 
+/**
+ initialiser
+ */
 - (id)initWithRenditionData:(CMISRenditionData *)renditionData andObjectId:(NSString *)objectId andSession:(CMISSession *)session;
 
+/**
+ * retrieves the rendition, e.g. thumbnail of a document
+ * completionBlock returns the rendition object as CMIS document or nil if unsuccessful
+ */
 - (void)retrieveRenditionDocumentWithCompletionBlock:(void (^)(CMISDocument *document, NSError *error))completionBlock;
 
+/**
+ * retrieves the rendition, e.g. thumbnail of a document
+ * completionBlock returns the rendition object as CMIS document or nil if unsuccessful
+ */
 - (void)retrieveRenditionDocumentWithOperationContext:(CMISOperationContext *)operationContext
                                       completionBlock:(void (^)(CMISDocument *document, NSError *error))completionBlock;
 
+/**
+ * downloads the rendition of a document e.g. thumbnail of a document to a file
+ * completionBlock returns the rendition object as CMIS document or nil if unsuccessful
+ */
 - (void)downloadRenditionContentToFile:(NSString *)filePath
                        completionBlock:(void (^)(NSError *error))completionBlock
                          progressBlock:(void (^)(unsigned long long bytesDownloaded, unsigned long long bytesTotal))progressBlock;
 
+/**
+ * downloads the rendition of a document e.g. thumbnail of a document to a file
+ * completionBlock returns the rendition object as CMIS document or nil if unsuccessful
+ */
 - (void)downloadRenditionContentToOutputStream:(NSOutputStream *)outputStream
                                completionBlock:(void (^)(NSError *error))completionBlock
                                  progressBlock:(void (^)(unsigned long long bytesDownloaded, unsigned long long bytesTotal))progressBlock;

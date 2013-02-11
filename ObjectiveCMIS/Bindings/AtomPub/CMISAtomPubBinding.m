@@ -42,22 +42,10 @@
 
 @implementation CMISAtomPubBinding
 
-@synthesize session = _session;
-@synthesize aclService = _aclService;
-@synthesize discoveryService = _discoveryService;
-@synthesize multiFilingService = _multiFilingService;
-@synthesize objectService = _objectService;
-@synthesize policyService = _policyService;
-@synthesize relationshipService = _relationshipService;
-@synthesize repositoryService = _repositoryService;
-@synthesize navigationService = _navigationService;
-@synthesize versioningService = _versioningService;
-
 - (id)initWithSessionParameters:(CMISSessionParameters *)sessionParameters
 {
     self = [super init];
-    if (self)
-    {
+    if (self) {
         self.session = [[CMISBindingSession alloc] initWithSessionParameters:sessionParameters];
         
         self.repositoryService = [[CMISAtomPubRepositoryService alloc] initWithBindingSession:self.session];

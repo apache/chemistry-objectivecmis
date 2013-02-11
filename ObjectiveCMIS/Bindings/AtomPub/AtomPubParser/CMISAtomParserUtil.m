@@ -29,40 +29,23 @@
 
 + (CMISPropertyType)atomPubTypeToInternalType:(NSString *)atomPubType
 {
-    if([atomPubType isEqualToString:kCMISAtomEntryPropertyId])
-    {
+    if([atomPubType isEqualToString:kCMISAtomEntryPropertyId]) {
         return CMISPropertyTypeId;
-    }
-    else if ([atomPubType isEqualToString:kCMISAtomEntryPropertyString])
-       {
+    } else if ([atomPubType isEqualToString:kCMISAtomEntryPropertyString]) {
            return CMISPropertyTypeString;
-       }
-    else if ([atomPubType isEqualToString:kCMISAtomEntryPropertyInteger])
-    {
+    } else if ([atomPubType isEqualToString:kCMISAtomEntryPropertyInteger]) {
         return CMISPropertyTypeInteger;
-    }
-    else if ([atomPubType isEqualToString:kCMISAtomEntryPropertyBoolean])
-    {
+    } else if ([atomPubType isEqualToString:kCMISAtomEntryPropertyBoolean]) {
         return CMISPropertyTypeBoolean;
-    }
-    else if ([atomPubType isEqualToString:kCMISAtomEntryPropertyDateTime])
-    {
+    } else if ([atomPubType isEqualToString:kCMISAtomEntryPropertyDateTime]) {
         return CMISPropertyTypeDateTime;
-    }
-    else if ([atomPubType isEqualToString:kCMISAtomEntryPropertyDecimal])
-    {
+    } else if ([atomPubType isEqualToString:kCMISAtomEntryPropertyDecimal]) {
         return CMISPropertyTypeDecimal;
-    }
-    else if ([atomPubType isEqualToString:kCMISAtomEntryPropertyHtml])
-    {
+    } else if ([atomPubType isEqualToString:kCMISAtomEntryPropertyHtml]) {
         return CMISPropertyTypeHtml;
-    }
-    else if ([atomPubType isEqualToString:kCMISAtomEntryPropertyUri])
-    {
+    } else if ([atomPubType isEqualToString:kCMISAtomEntryPropertyUri]) {
         return CMISPropertyTypeUri;
-    }
-    else
-    {
+    } else {
         log(@"Unknow property type %@. Go tell a developer to fix this.", atomPubType);
         return CMISPropertyTypeString;
     }
@@ -72,32 +55,19 @@
 {
     if ([propertyType isEqualToString:kCMISAtomEntryPropertyString] ||
         [propertyType isEqualToString:kCMISAtomEntryPropertyId] ||
-        [propertyType isEqualToString:kCMISAtomEntryPropertyHtml])
-    {
+        [propertyType isEqualToString:kCMISAtomEntryPropertyHtml]) {
         [array addObject:stringValue];
-    }
-    else if ([propertyType isEqualToString:kCMISAtomEntryPropertyInteger])
-    {
+    } else if ([propertyType isEqualToString:kCMISAtomEntryPropertyInteger]) {
         [array addObject:[NSNumber numberWithInt:[stringValue intValue]]];
-    }
-    else if ([propertyType isEqualToString:kCMISAtomEntryPropertyBoolean])
-    {
+    } else if ([propertyType isEqualToString:kCMISAtomEntryPropertyBoolean]) {
         [array addObject:[NSNumber numberWithBool:[stringValue isEqualToString:kCMISAtomEntryValueTrue]]];
-    }
-    else if ([propertyType isEqualToString:kCMISAtomEntryPropertyDateTime])
-    {
+    } else if ([propertyType isEqualToString:kCMISAtomEntryPropertyDateTime]) {
         [array addObject:[CMISDateUtil dateFromString:stringValue]];
-    }
-    else if ([propertyType isEqualToString:kCMISAtomEntryPropertyDecimal])
-    {
+    } else if ([propertyType isEqualToString:kCMISAtomEntryPropertyDecimal]) {
         [array addObject:[NSDecimalNumber decimalNumberWithString:stringValue]];
-    }
-    else if ([propertyType isEqualToString:kCMISAtomEntryPropertyUri])
-    {
+    } else if ([propertyType isEqualToString:kCMISAtomEntryPropertyUri]) {
         [array addObject:[NSURL URLWithString:stringValue]];
-    }
-    else
-    {
+    } else {
         log(@"Unknow property type %@. Go tell a developer to fix this.", propertyType);
     }
 }

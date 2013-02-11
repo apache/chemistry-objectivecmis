@@ -36,17 +36,11 @@
 
 @implementation CMISTypeDefinitionAtomEntryParser
 
-@synthesize typeDefinition = _typeDefinition;
-@synthesize isParsingTypeDefinition = _isParsingTypeDefinition;
-@synthesize atomData = _atomData;
-@synthesize currentString = _currentString;
-@synthesize childParserDelegate = _childParserDelegate;
 
 - (id)initWithData:(NSData *)atomData
 {
     self = [self init];
-    if (self)
-    {
+    if (self) {
         self.atomData = atomData;
     }
 
@@ -64,10 +58,8 @@
 
     parseSuccessful = [parser parse];
 
-    if (!parseSuccessful)
-    {
-        if (error)
-        {
+    if (!parseSuccessful) {
+        if (error) {
             *error = [parser parserError];
         }
     }
@@ -77,18 +69,15 @@
 
 - (void)parser:(NSXMLParser *)parser didStartElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qName attributes:(NSDictionary *)attributeDict
 {
-    if ([elementName isEqualToString:kCMISRestAtomType])
-    {
+    if ([elementName isEqualToString:kCMISRestAtomType]) {
         self.typeDefinition = [[CMISTypeDefinition alloc] init];
         self.isParsingTypeDefinition = YES;
-    }
-    else if ([elementName isEqualToString:kCMISCorePropertyStringDefinition]
+    } else if ([elementName isEqualToString:kCMISCorePropertyStringDefinition]
              || [elementName isEqualToString:kCMISCorePropertyIdDefinition]
              || [elementName isEqualToString:kCMISCorePropertyBooleanDefinition]
              || [elementName isEqualToString:kCMISCorePropertyIntegerDefinition]
              || [elementName isEqualToString:kCMISCorePropertyDateTimeDefinition]
-             || [elementName isEqualToString:kCMISCorePropertyDecimalDefinition])
-    {
+             || [elementName isEqualToString:kCMISCorePropertyDecimalDefinition]) {
         self.childParserDelegate = [CMISPropertyDefinitionParser parserForPropertyDefinition:elementName withParentDelegate:self parser:parser];
     }
 }
@@ -97,123 +86,75 @@
 - (void)parser:(NSXMLParser *)parser foundCharacters:(NSString *)string
 {
     NSString *cleanedString = [string stringByTrimmingCharactersInSet: [NSCharacterSet whitespaceAndNewlineCharacterSet]];
-    if (!self.currentString)
-    {
+    if (!self.currentString) {
         self.currentString = cleanedString;
-    }
-    else {
+    } else {
         self.currentString = [self.currentString stringByAppendingString:cleanedString];
     }
 }
 
 - (void)parser:(NSXMLParser *)parser didEndElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qName
 {
-    if ([elementName isEqualToString:kCMISRestAtomType])
-    {
+    if ([elementName isEqualToString:kCMISRestAtomType]) {
         self.isParsingTypeDefinition = NO;
-    }
-    else if ([elementName isEqualToString:kCMISCoreId])
-    {
-        if (self.isParsingTypeDefinition)
-        {
+    } else if ([elementName isEqualToString:kCMISCoreId]) {
+        if (self.isParsingTypeDefinition){
             self.typeDefinition.id = self.currentString;
         }
-    }
-    else if ([elementName isEqualToString:kCMISCoreLocalName])
-    {
-        if (self.isParsingTypeDefinition)
-        {
+    } else if ([elementName isEqualToString:kCMISCoreLocalName]) {
+        if (self.isParsingTypeDefinition) {
             self.typeDefinition.localName = self.currentString;
         }
-    }
-    else if ([elementName isEqualToString:kCMISCoreLocalNamespace])
-    {
-        if (self.isParsingTypeDefinition)
-        {
+    } else if ([elementName isEqualToString:kCMISCoreLocalNamespace]) {
+        if (self.isParsingTypeDefinition) {
             self.typeDefinition.localNameSpace = self.currentString;
         }
-    }
-    else if ([elementName isEqualToString:kCMISCoreDisplayName])
-    {
-        if (self.isParsingTypeDefinition)
-        {
+    } else if ([elementName isEqualToString:kCMISCoreDisplayName]) {
+        if (self.isParsingTypeDefinition) {
             self.typeDefinition.displayName = self.currentString;
         }
-    }
-    else if ([elementName isEqualToString:kCMISCoreQueryName])
-    {
-        if (self.isParsingTypeDefinition)
-        {
+    } else if ([elementName isEqualToString:kCMISCoreQueryName]) {
+        if (self.isParsingTypeDefinition) {
             self.typeDefinition.queryName = self.currentString;
         }
-    }
-    else if ([elementName isEqualToString:kCMISCoreDescription])
-    {
-        if (self.isParsingTypeDefinition)
-        {
+    } else if ([elementName isEqualToString:kCMISCoreDescription]) {
+        if (self.isParsingTypeDefinition) {
             self.typeDefinition.description = self.currentString;
         }
-    }
-    else if ([elementName isEqualToString:kCMISCoreBaseId])
-    {
-        if (self.isParsingTypeDefinition)
-        {
-            if ([self.currentString isEqualToString:kCMISPropertyObjectTypeIdValueDocument])
-            {
+    } else if ([elementName isEqualToString:kCMISCoreBaseId]) {
+        if (self.isParsingTypeDefinition) {
+            if ([self.currentString isEqualToString:kCMISPropertyObjectTypeIdValueDocument]) {
                 self.typeDefinition.baseTypeId = CMISBaseTypeDocument;
-            }
-            else if ([self.currentString isEqualToString:kCMISPropertyObjectTypeIdValueFolder])
-            {
+            } else if ([self.currentString isEqualToString:kCMISPropertyObjectTypeIdValueFolder]) {
                 self.typeDefinition.baseTypeId = CMISBaseTypeFolder;
             }
         }
-    }
-    else if ([elementName isEqualToString:kCMISCoreCreatable])
-    {
-        if (self.isParsingTypeDefinition)
-        {
+    } else if ([elementName isEqualToString:kCMISCoreCreatable]) {
+        if (self.isParsingTypeDefinition) {
             self.typeDefinition.creatable = [self.currentString.lowercaseString isEqualToString:kCMISAtomEntryValueTrue];
         }
-    }
-    else if ([elementName isEqualToString:kCMISCoreFileable])
-    {
-        if (self.isParsingTypeDefinition)
-        {
+    } else if ([elementName isEqualToString:kCMISCoreFileable]) {
+        if (self.isParsingTypeDefinition) {
             self.typeDefinition.fileable = [self.currentString.lowercaseString isEqualToString:kCMISAtomEntryValueTrue];
         }
-    }
-    else if ([elementName isEqualToString:kCMISCoreQueryable])
-    {
-        if (self.isParsingTypeDefinition)
-        {
+    } else if ([elementName isEqualToString:kCMISCoreQueryable]) {
+        if (self.isParsingTypeDefinition) {
             self.typeDefinition.queryable = [self.currentString.lowercaseString isEqualToString:kCMISAtomEntryValueTrue];
         }
-    }
-    else if ([elementName isEqualToString:kCMISCoreFullTextIndexed])
-    {
-        if (self.isParsingTypeDefinition)
-        {
+    } else if ([elementName isEqualToString:kCMISCoreFullTextIndexed]) {
+        if (self.isParsingTypeDefinition) {
             self.typeDefinition.fullTextIndexed = [self.currentString.lowercaseString isEqualToString:kCMISAtomEntryValueTrue];
         }
-    }
-    else if ([elementName isEqualToString:kCMISCoreIncludedInSupertypeQuery])
-    {
-        if (self.isParsingTypeDefinition)
-        {
+    } else if ([elementName isEqualToString:kCMISCoreIncludedInSupertypeQuery]) {
+        if (self.isParsingTypeDefinition) {
             self.typeDefinition.includedInSupertypeQuery = [self.currentString.lowercaseString isEqualToString:kCMISAtomEntryValueTrue];
         }
-    }
-    else if ([elementName isEqualToString:kCMISCoreControllableACL])
-    {
-        if (self.isParsingTypeDefinition)
-        {
+    } else if ([elementName isEqualToString:kCMISCoreControllableACL]) {
+        if (self.isParsingTypeDefinition) {
             self.typeDefinition.controllableAcl = [self.currentString.lowercaseString isEqualToString:kCMISAtomEntryValueTrue];
         }
-    }
-    else if ([elementName isEqualToString:kCMISCoreControllablePolicy])
-    {
-        if (self.isParsingTypeDefinition)
-        {
+    } else if ([elementName isEqualToString:kCMISCoreControllablePolicy]) {
+        if (self.isParsingTypeDefinition) {
             self.typeDefinition.controllablePolicy = [self.currentString.lowercaseString isEqualToString:kCMISAtomEntryValueTrue];
         }
     }

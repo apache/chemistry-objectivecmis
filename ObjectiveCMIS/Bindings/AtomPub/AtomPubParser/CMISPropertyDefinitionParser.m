@@ -35,15 +35,11 @@
 
 @implementation CMISPropertyDefinitionParser
 
-@synthesize propertyDefinition = _propertyDefinition;
-@synthesize currentString = _currentString;
-@synthesize parentDelegate = _parentDelegate;
 
 - (id)init
 {
     self = [super init];
-    if (self)
-    {
+    if (self) {
         self.propertyDefinition = [[CMISPropertyDefinition alloc] init];
     }
     return self;
@@ -54,36 +50,24 @@
               parser:(NSXMLParser *)parser
 {
     self = [self init];
-    if (self)
-    {
+    if (self) {
         self.parentDelegate = parentDelegate;
 
         // Setting ourself, the entry parser, as the delegate, we reset back to our parent when we're done
         [parser setDelegate:self];
 
         // Select type based on element name that is passed
-        if ([propertyDefinitionElementName isEqualToString:kCMISCorePropertyStringDefinition])
-        {
+        if ([propertyDefinitionElementName isEqualToString:kCMISCorePropertyStringDefinition]) {
             self.propertyDefinition.propertyType = CMISPropertyTypeString;
-        }
-        else if ([propertyDefinitionElementName isEqualToString:kCMISCorePropertyIdDefinition])
-        {
+        } else if ([propertyDefinitionElementName isEqualToString:kCMISCorePropertyIdDefinition]) {
             self.propertyDefinition.propertyType = CMISPropertyTypeId;
-        }
-        else if ([propertyDefinitionElementName isEqualToString:kCMISCorePropertyBooleanDefinition])
-        {
+        } else if ([propertyDefinitionElementName isEqualToString:kCMISCorePropertyBooleanDefinition]) {
             self.propertyDefinition.propertyType = CMISPropertyTypeBoolean;
-        }
-        else if ([propertyDefinitionElementName isEqualToString:kCMISCorePropertyDateTimeDefinition])
-        {
+        } else if ([propertyDefinitionElementName isEqualToString:kCMISCorePropertyDateTimeDefinition]) {
             self.propertyDefinition.propertyType = CMISPropertyTypeDateTime;
-        }
-        else if ([propertyDefinitionElementName isEqualToString:kCMISCorePropertyIntegerDefinition])
-        {
+        } else if ([propertyDefinitionElementName isEqualToString:kCMISCorePropertyIntegerDefinition]) {
             self.propertyDefinition.propertyType = CMISPropertyTypeInteger;
-        }
-        else if ([propertyDefinitionElementName isEqualToString:kCMISCorePropertyDecimalDefinition])
-        {
+        } else if ([propertyDefinitionElementName isEqualToString:kCMISCorePropertyDecimalDefinition]) {
             self.propertyDefinition.propertyType = CMISPropertyTypeDecimal;
         }
     }
@@ -104,11 +88,9 @@
 - (void)parser:(NSXMLParser *)parser foundCharacters:(NSString *)string
 {
     NSString *cleanedString = [string stringByTrimmingCharactersInSet: [NSCharacterSet whitespaceAndNewlineCharacterSet]];
-    if (!self.currentString)
-    {
+    if (!self.currentString) {
         self.currentString = cleanedString;
-    }
-    else {
+    } else {
         self.currentString = [self.currentString stringByAppendingString:cleanedString];
     }
 }
@@ -120,12 +102,9 @@
         || [elementName isEqualToString:kCMISCorePropertyBooleanDefinition]
         || [elementName isEqualToString:kCMISCorePropertyIntegerDefinition]
         || [elementName isEqualToString:kCMISCorePropertyDateTimeDefinition]
-        || [elementName isEqualToString:kCMISCorePropertyDecimalDefinition])
-    {
-        if (self.parentDelegate)
-        {
-            if ([self.parentDelegate respondsToSelector:@selector(propertyDefinitionParser:didFinishParsingPropertyDefinition:)])
-            {
+        || [elementName isEqualToString:kCMISCorePropertyDecimalDefinition]) {
+        if (self.parentDelegate) {
+            if ([self.parentDelegate respondsToSelector:@selector(propertyDefinitionParser:didFinishParsingPropertyDefinition:)]) {
                 [self.parentDelegate performSelector:@selector(propertyDefinitionParser:didFinishParsingPropertyDefinition:) withObject:self withObject:self.propertyDefinition];
             }
 
@@ -133,88 +112,48 @@
             parser.delegate = self.parentDelegate;
             self.parentDelegate = nil;
         }
-    }
-    else if ([elementName isEqualToString:kCMISCoreId])
-    {
+    } else if ([elementName isEqualToString:kCMISCoreId]) {
         self.propertyDefinition.id = self.currentString;
-    }
-    else if ([elementName isEqualToString:kCMISCoreLocalName])
-    {
+    } else if ([elementName isEqualToString:kCMISCoreLocalName]) {
         self.propertyDefinition.localName = self.currentString;
-    }
-    else if ([elementName isEqualToString:kCMISCoreLocalNamespace])
-    {
+    } else if ([elementName isEqualToString:kCMISCoreLocalNamespace]) {
         self.propertyDefinition.localNamespace = self.currentString;
-    }
-    else if ([elementName isEqualToString:kCMISCoreDisplayName])
-    {
+    } else if ([elementName isEqualToString:kCMISCoreDisplayName]) {
         self.propertyDefinition.displayName = self.currentString;
-    }
-    else if ([elementName isEqualToString:kCMISCoreQueryName])
-    {
+    } else if ([elementName isEqualToString:kCMISCoreQueryName]) {
         self.propertyDefinition.queryName = self.currentString;
-    }
-    else if ([elementName isEqualToString:kCMISCoreDescription])
-    {
+    } else if ([elementName isEqualToString:kCMISCoreDescription]) {
         self.propertyDefinition.description = self.currentString;
-    }
-    else if ([elementName isEqualToString:kCMISCoreCardinality])
-    {
-        if ([self.currentString isEqualToString:@"multi"])
-        {
+    } else if ([elementName isEqualToString:kCMISCoreCardinality]) {
+        if ([self.currentString isEqualToString:@"multi"]) {
             self.propertyDefinition.cardinality = CMISCardinalityMulti;
-        }
-        else if ([self.currentString isEqualToString:@"single"])
-        {
+        } else if ([self.currentString isEqualToString:@"single"]) {
             self.propertyDefinition.cardinality = CMISCardinalitySingle;
-        }
-        else
-        {
+        } else {
             log(@"Invalid value for property definition cardinality : '%@'", self.currentString);
         }
 
-    }
-    else if ([elementName isEqualToString:kCMISCoreUpdatability])
-    {
-        if ([self.currentString.lowercaseString isEqualToString:@"readonly"])
-        {
+    } else if ([elementName isEqualToString:kCMISCoreUpdatability]) {
+        if ([self.currentString.lowercaseString isEqualToString:@"readonly"]) {
             self.propertyDefinition.updatability = CMISUpdatabilityReadOnly;
-        }
-        else if ([self.currentString.lowercaseString isEqualToString:@"readwrite"])
-        {
+        } else if ([self.currentString.lowercaseString isEqualToString:@"readwrite"]) {
             self.propertyDefinition.updatability = CMISUpdatabilityReadWrite;
-        }
-        else if ([self.currentString.lowercaseString isEqualToString:@"whencheckedout"])
-        {
+        } else if ([self.currentString.lowercaseString isEqualToString:@"whencheckedout"]) {
             self.propertyDefinition.updatability = CMISUpdatabilityWhenCheckedOut;
-        }
-        else if ([self.currentString.lowercaseString isEqualToString:@"oncreate"])
-        {
+        } else if ([self.currentString.lowercaseString isEqualToString:@"oncreate"]) {
             self.propertyDefinition.updatability = CMISUpdatabilityOnCreate;
-        }
-        else
-        {
+        } else {
             log(@"Invalid value for property definition updatability : '%@'", self.currentString);
         }
-    }
-    else if ([elementName isEqualToString:kCMISCoreInherited])
-    {
+    } else if ([elementName isEqualToString:kCMISCoreInherited]) {
         self.propertyDefinition.inherited = [self parseBooleanValue:self.currentString];
-    }
-    else if ([elementName isEqualToString:kCMISCoreRequired])
-    {
+    } else if ([elementName isEqualToString:kCMISCoreRequired]) {
         self.propertyDefinition.required = [self parseBooleanValue:self.currentString];
-    }
-    else if ([elementName isEqualToString:kCMISCoreQueryable])
-    {
+    } else if ([elementName isEqualToString:kCMISCoreQueryable]) {
         self.propertyDefinition.queryable = [self parseBooleanValue:self.currentString];
-    }
-    else if ([elementName isEqualToString:kCMISCoreOrderable])
-    {
+    } else if ([elementName isEqualToString:kCMISCoreOrderable]) {
         self.propertyDefinition.orderable = [self parseBooleanValue:self.currentString];
-    }
-    else if ([elementName isEqualToString:kCMISCoreOpenChoice])
-    {
+    } else if ([elementName isEqualToString:kCMISCoreOpenChoice]) {
         self.propertyDefinition.openChoice = [self parseBooleanValue:self.currentString];
     }
 

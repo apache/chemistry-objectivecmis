@@ -24,17 +24,17 @@
 @interface CMISFileableObject : CMISObject
 
 /**
-* Returns all the parents of this object as an array of CMISFolder objects.
-*
-* Will be nil for root folder and non-fileable objects.
-*/
+ * Returns all the parents of this object as an array of CMISFolder objects.
+ * CompletionBlock will return array or nil if unsuccessful
+ * CompletionBlock will return nil for root folder and non-fileable objects.
+ */
 - (void)retrieveParentsWithCompletionBlock:(void (^)(NSArray *parentFolders, NSError *error))completionBlock;
 
 /**
-* Returns all the parents of this object as an array of CMISFolder objects.
-*
-* Will be nil for root folder and non-fileable objects.
-*/
+ * Returns all the parents of this object as an array of CMISFolder objects with paging options
+ * CompletionBlock will return array or nil if unsuccessful
+ * CompletionBlock will return nil for root folder and non-fileable objects.
+ */
 - (void)retrieveParentsWithOperationContext:(CMISOperationContext *)operationContext 
                             completionBlock:(void (^)(NSArray *parentFolders, NSError *error))completionBlock;
 

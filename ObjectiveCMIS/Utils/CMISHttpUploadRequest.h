@@ -25,6 +25,11 @@
 @property (nonatomic, assign) unsigned long long bytesExpected; // optional; if not set, expected content length from HTTP header is used
 @property (nonatomic, readonly) unsigned long long bytesUploaded;
 
+/**
+ * starts a URL request with a provided input stream. The inputStream will be passed on to the NSMutableURLRequest by using its
+ * setHTTPBodyStream method
+ * completionBlock returns CMISHttpResponse instance or nil if unsuccessful
+ */
 + (CMISHttpUploadRequest*)startRequest:(NSMutableURLRequest *)urlRequest
                         withHttpMethod:(CMISHttpRequestMethod)httpRequestMethod
                            inputStream:(NSInputStream*)inputStream
@@ -34,6 +39,7 @@
                        completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))completionBlock
                          progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal))progressBlock;
 
+/// designated initialiser. Do not call this method directly. Use the class method startRequest:withHttpMethod:inputStream:headers:bytesExpected:authenticationProvider:completionBlock:progressBlock instead
 - (id)initWithHttpMethod:(CMISHttpRequestMethod)httpRequestMethod
          completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))completionBlock
            progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal))progressBlock;

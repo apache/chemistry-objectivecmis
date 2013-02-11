@@ -25,6 +25,7 @@
 
 @protocol CMISRepositoryInfoParserDelegate <NSObject>
 @required
+/// parses repository info delegate method
 - (void)repositoryInfoParser:(CMISRepositoryInfoParser *)epositoryInfoParser didFinishParsingRepositoryInfo:(CMISRepositoryInfo *)repositoryInfo;
 @end
 
@@ -33,7 +34,9 @@
 
 @property (nonatomic, strong, readonly) CMISRepositoryInfo *currentRepositoryInfo;
 
+/// designated initialiser
 - (id)initRepositoryInfoParserWithParentDelegate:(id<NSXMLParserDelegate, CMISRepositoryInfoParserDelegate>)parentDelegate parser:(NSXMLParser *)parser;
+/// parses repository info 
 + (id)repositoryInfoParserWithParentDelegate:(id<NSXMLParserDelegate, CMISRepositoryInfoParserDelegate>)parentDelegate parser:(NSXMLParser *)parser;
 
 @end

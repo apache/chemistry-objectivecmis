@@ -21,10 +21,6 @@
 
 @implementation CMISAtomPubExtensionDataParserBase
 
-@synthesize childParserDelegate = _childParserDelegate;
-@synthesize currentExtensions = _currentExtensions;
-@synthesize currentExtensionData = _currentExtensionData;
-@synthesize previousExtensionDataArray = _previousExtensionDataArray;
 
 #pragma mark -
 #pragma mark Initializers
@@ -33,8 +29,7 @@
 - (id)init
 {
     self = [super init];
-    if (self)
-    {
+    if (self) {
         self.previousExtensionDataArray = [NSMutableArray array];
     }
     return self;
@@ -46,10 +41,8 @@
 - (void)pushNewCurrentExtensionData:(CMISExtensionData *)extensionDataObject
 {
     // Save the current state of the extensionData objects used for parsing
-    if (self.currentExtensionData)
-    {
-        if (self.currentExtensions)
-        {
+    if (self.currentExtensionData) {
+        if (self.currentExtensions) {
             self.currentExtensionData.extensions = [self.currentExtensions copy];
         }
         
@@ -73,8 +66,7 @@
     self.currentExtensions = [self.currentExtensionData.extensions mutableCopy];
     
     // if previous actually existed, remove last object
-    if (self.currentExtensionData)
-    {
+    if (self.currentExtensionData) {
         [self.previousExtensionDataArray removeLastObject];
     }
 }
@@ -86,8 +78,7 @@
 {
     // TODO Should abstract the ExtensionData parsing as this pattern is repeated everywhere ExtensionData is getting parsed.
     
-    if (self.currentExtensions == nil)
-    {
+    if (self.currentExtensions == nil) {
         self.currentExtensions = [[NSMutableArray alloc] init];
     }
     

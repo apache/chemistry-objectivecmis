@@ -24,7 +24,7 @@
 
 @interface CMISPropertyDefinitionParser : NSObject <NSXMLParserDelegate>
 
-// Initializes a child parser for an Atom Entry and takes over parsing control while parsing the Atom Entry
+/// Initializes a child parser for an Atom Entry and takes over parsing control while parsing the Atom Entry
 + (id)parserForPropertyDefinition:(NSString *)propertyDefinitionElementName
                withParentDelegate:(id<NSXMLParserDelegate, CMISPropertyDefinitionDelegate>)parentDelegate
                parser:(NSXMLParser *)parser;

@@ -35,24 +35,18 @@
 
 @implementation CMISQueryResult
 
-@synthesize properties = _properties;
-@synthesize allowableActions = _allowableActions;
-@synthesize renditions = _renditions;
 
 
 - (id)initWithCmisObjectData:(CMISObjectData *)cmisObjectData andWithSession:(CMISSession *)session
 {
     self = [super init];
-    if (self)
-    {
+    if (self) {
         self.properties = cmisObjectData.properties;
         self.allowableActions = cmisObjectData.allowableActions;
 
-        if (cmisObjectData.renditions != nil)
-        {
+        if (cmisObjectData.renditions != nil) {
             NSMutableArray *renditions = [NSMutableArray array];
-            for (CMISRenditionData *renditionData in cmisObjectData.renditions)
-            {
+            for (CMISRenditionData *renditionData in cmisObjectData.renditions) {
                 [renditions addObject:[[CMISRendition alloc] initWithRenditionData:renditionData andObjectId:cmisObjectData.identifier andSession:session]];
             }
             self.renditions = renditions;
@@ -72,12 +66,12 @@
     return [self.properties propertyForId:id];
 }
 
-- (CMISPropertyData *)properyForQueryName:(NSString *)queryName
+- (CMISPropertyData *)propertyForQueryName:(NSString *)queryName
 {
     return [self.properties propertyForQueryName:queryName];
 }
 
-- (id)properyValueForId:(NSString *)propertyId
+- (id)propertyValueForId:(NSString *)propertyId
 {
     return [self.properties propertyValueForId:propertyId];
 }

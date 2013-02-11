@@ -33,11 +33,15 @@
 @interface CMISAllowableActionsParser : CMISAtomPubExtensionDataParserBase <NSXMLParserDelegate>
 
 @property (nonatomic, strong) CMISAllowableActions *allowableActions;
-// Designated Initializer
+/// Designated Initializer
 - (id)initWithData:(NSData*)atomData;
+
+/**
+ parse method. returns NO if unsuccessful
+ */
 - (BOOL)parseAndReturnError:(NSError **)error;
 
-// Delegates parsing to child parser, ensure that the Element is 'allowableActions'
+/// Delegates parsing to child parser, ensure that the Element is 'allowableActions'
 + (id)allowableActionsParserWithParentDelegate:(id<NSXMLParserDelegate, CMISAllowableActionsParserDelegate>)parentDelegate parser:(NSXMLParser *)parser;
 
 @end

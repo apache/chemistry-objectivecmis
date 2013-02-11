@@ -52,26 +52,10 @@
 
 @implementation CMISObject
 
-@synthesize session = _session;
-@synthesize binding = _binding;
-@synthesize identifier = _identifier;
-@synthesize name = _name;
-@synthesize createdBy = _createdBy;
-@synthesize creationDate = _creationDate;
-@synthesize lastModifiedBy = _lastModifiedBy;
-@synthesize lastModificationDate = _lastModificationDate;
-@synthesize objectType = _objectType;
-@synthesize changeToken = _changeToken;
-@synthesize properties = _properties;
-@synthesize allowableActions = _allowableActions;
-@synthesize renditions = _renditions;
-@synthesize extensionsDict = _extensionsDict;
-
 - (id)initWithObjectData:(CMISObjectData *)objectData withSession:(CMISSession *)session
 {
     self =  [super initWithString:objectData.identifier];
-    if (self)
-    {
+    if (self) {
         self.session = session;
         self.binding = session.binding;
 
@@ -93,11 +77,9 @@
         [self.extensionsDict setObject:[self nonNilArray:self.allowableActions.extensions] forKey:[NSNumber numberWithInt:CMISExtensionLevelAllowableActions]];        
 
         // Renditions must be converted here, because they need access to the session
-        if (objectData.renditions != nil)
-        {
+        if (objectData.renditions != nil) {
             NSMutableArray *renditions = [NSMutableArray array];
-            for (CMISRenditionData *renditionData in objectData.renditions)
-            {
+            for (CMISRenditionData *renditionData in objectData.renditions) {
                 [renditions addObject:[[CMISRendition alloc] initWithRenditionData:renditionData andObjectId:self.identifier andSession:session]];
             }
             self.renditions = renditions;
@@ -115,16 +97,14 @@
 - (void)updateProperties:(NSDictionary *)properties completionBlock:(void (^)(CMISObject *object, NSError *error))completionBlock
 {
     // Validate properties param
-        if (!properties || properties.count == 0)
-    {
+    if (!properties || properties.count == 0) {
         completionBlock(nil, [CMISErrors createCMISErrorWithCode:kCMISErrorCodeInvalidArgument withDetailedDescription:@"Properties cannot be nil or empty"]);
         return;
     }
 
     // Convert properties to an understandable format for the service
     [self.session.objectConverter convertProperties:properties forObjectTypeId:self.objectType completionBlock:^(CMISProperties *convertedProperties, NSError *error) {
-        if (convertedProperties)
-        {
+        if (convertedProperties) {
             CMISStringInOutParameter *objectIdInOutParam = [CMISStringInOutParameter inOutParameterUsingInParameter:self.identifier];
             CMISStringInOutParameter *changeTokenInOutParam = [CMISStringInOutParameter inOutParameterUsingInParameter:self.changeToken];
             [self.binding.objectService
@@ -137,15 +117,11 @@
                                   completionBlock:^(CMISObject *object, NSError *error) {
                                       completionBlock(object, error);
                                   }];
-                 }
-                 else
-                 {
+                 } else {
                      completionBlock(nil, [CMISErrors cmisError:error withCMISErrorCode:kCMISErrorCodeRuntime]);
                  }
              }];
-        }
-        else
-        {
+        } else {
             completionBlock(nil, [CMISErrors cmisError:error withCMISErrorCode:kCMISErrorCodeRuntime]);
         }
     }];

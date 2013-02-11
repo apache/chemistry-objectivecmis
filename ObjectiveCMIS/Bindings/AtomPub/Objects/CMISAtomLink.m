@@ -21,15 +21,11 @@
 
 @implementation CMISAtomLink
 
-@synthesize rel = _rel;
-@synthesize type = _type;
-@synthesize href = _href;
 
 - (id)initWithRelation:(NSString *)rel type:(NSString *)type href:(NSString *)href
 {
     self = [super init];
-    if (self)
-    {
+    if (self) {
         self.rel = rel;
         self.type = type;
         self.href = href;

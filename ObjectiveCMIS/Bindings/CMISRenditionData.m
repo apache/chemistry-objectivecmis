@@ -22,20 +22,11 @@
 
 @implementation CMISRenditionData
 
-@synthesize streamId = _streamId;
-@synthesize mimeType = _mimeType;
-@synthesize title = _title;
-@synthesize kind = _kind;
-@synthesize length = _length;
-@synthesize height = _height;
-@synthesize width = _width;
-@synthesize renditionDocumentId = _renditionDocumentId;
 
 - (id)initWithRenditionData:(CMISRenditionData *)renditionData
 {
     self = [super init];
-    if (self)
-    {
+    if (self) {
         self.streamId = renditionData.streamId;
         self.mimeType = renditionData.mimeType;
         self.title = renditionData.title;

@@ -21,15 +21,6 @@
 
 @implementation CMISRepositoryInfo
 
-@synthesize identifier = _identifier;
-@synthesize name = _name;
-@synthesize desc = _desc;
-@synthesize rootFolderId = _rootFolderId;
-@synthesize cmisVersionSupported = _cmisVersionSupported;
-@synthesize productName = _productName;
-@synthesize productVersion = _productVersion;
-@synthesize vendorName = _vendorName;
-@synthesize repositoryCapabilities = _repositoryCapabilities;
 
 - (NSString *)description
 {

@@ -25,20 +25,16 @@
 
 + (NSString *)urlStringByAppendingParameter:(NSString *)parameterName withValue:(NSString *)parameterValue toUrlString:(NSString *)urlString
 {
-    if (parameterName == nil || parameterValue == nil)
-    {
+    if (parameterName == nil || parameterValue == nil) {
         return urlString;
     }
 
     NSMutableString *result = [NSMutableString stringWithString:urlString];
 
     // Append '?' if not yet in url, else append ampersand
-    if ([result rangeOfString:@"?"].location == NSNotFound)
-    {
+    if ([result rangeOfString:@"?"].location == NSNotFound) {
         [result appendString:@"?"];
-    }
-    else
-    {
+    } else {
         [result appendString:@"&"];
     }
 
