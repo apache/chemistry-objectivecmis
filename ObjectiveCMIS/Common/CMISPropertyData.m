@@ -27,19 +27,12 @@
 
 @implementation CMISPropertyData
 
-@synthesize identifier = _identifier;
-@synthesize localName = _localName;
-@synthesize displayName = _displayName;
-@synthesize queryName = _queryName;
-@synthesize values = _values;
-@synthesize type = _type;
 
 - (id)firstValue
 {
     id value = nil;
     
-    if (self.values != nil && [self.values count] > 0)
-    {
+    if (self.values != nil && [self.values count] > 0) {
         value = [self.values objectAtIndex:0];
     }
     
@@ -55,8 +48,7 @@
 #pragma mark Value retrieval convenience methods
 - (NSString *)propertyStringValue
 {
-    if (self.type == CMISPropertyTypeString)
-    {
+    if (self.type == CMISPropertyTypeString) {
         return [self firstValue];
     }
     return nil;
@@ -64,8 +56,7 @@
 
 - (NSNumber *)propertyIntegerValue
 {
-    if (self.type == CMISPropertyTypeInteger)
-    {
+    if (self.type == CMISPropertyTypeInteger) {
         return [self firstValue];
     }
     return nil;
@@ -73,8 +64,7 @@
 
 - (NSString *)propertyIdValue
 {
-    if (self.type == CMISPropertyTypeId)
-    {
+    if (self.type == CMISPropertyTypeId) {
         return [self firstValue];
     }
     return nil;
@@ -82,8 +72,7 @@
 
 - (NSDate *)propertyDateTimeValue
 {
-    if (self.type == CMISPropertyTypeDateTime)
-    {
+    if (self.type == CMISPropertyTypeDateTime) {
         return [self firstValue];
     }
     return nil;
@@ -91,8 +80,7 @@
 
 - (NSNumber *)propertyBooleanValue
 {
-    if (self.type == CMISPropertyTypeBoolean)
-    {
+    if (self.type == CMISPropertyTypeBoolean) {
         return [self firstValue];
     }
     return nil;
@@ -100,8 +88,7 @@
 
 - (NSNumber *)propertyDecimalValue
 {
-    if (self.type == CMISPropertyTypeDecimal)
-    {
+    if (self.type == CMISPropertyTypeDecimal) {
         return [self firstValue];
     }
     return nil;

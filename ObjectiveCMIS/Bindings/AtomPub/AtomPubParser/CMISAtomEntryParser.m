@@ -49,25 +49,12 @@
 
 @implementation CMISAtomEntryParser
 
-@synthesize objectData = _objectData;
-@synthesize atomData = _atomData;
-@synthesize currentPropertyType = _currentPropertyType;
-@synthesize currentPropertyData = _currentPropertyData;
-@synthesize propertyValues = _propertyValues;
-@synthesize currentObjectProperties = _currentObjectProperties;
-@synthesize currentLinkRelations = _currentLinkRelations;
-@synthesize parentDelegate = _parentDelegate;
-@synthesize entryAttributesDict = _entryAttributesDict;
-@synthesize currentRendition = _currentRendition;
-@synthesize currentRenditions = _currentRenditions;
-@synthesize string = _string;
 
 // Designated Initializer
 - (id)init
 {
     self = [super init];
-    if (self)
-    {
+    if (self) {
         self.currentLinkRelations = [NSMutableSet set];
     }
     return self;
@@ -76,8 +63,7 @@
 - (id)initWithData:(NSData *)atomData
 {
     self = [self init];
-    if (self)
-    {
+    if (self) {
         self.atomData = atomData;
     }
     
@@ -98,10 +84,8 @@
 
     parseSuccessful = [parser parse];
     
-    if (!parseSuccessful)
-    {
-        if (error)
-        {
+    if (!parseSuccessful){
+        if (error) {
             *error = [parser parserError];
         }
     }
@@ -112,8 +96,7 @@
 - (id)initWithAtomEntryAttributes:(NSDictionary *)attributes parentDelegate:(id<NSXMLParserDelegate, CMISAtomEntryParserDelegate>)parentDelegate parser:(NSXMLParser *)parser
 {
     self = [self init];
-    if (self)
-    {
+    if (self) {
         self.objectData = [[CMISObjectData alloc] init];
         self.entryAttributesDict = attributes;
         self.parentDelegate = parentDelegate;
@@ -137,8 +120,7 @@
 - (void)parser:(NSXMLParser *)parser didStartElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI
                                             qualifiedName:(NSString *)qName attributes:(NSDictionary *)attributeDict
 {
-    if ([namespaceURI isEqualToString:kCMISNamespaceCmis])
-    {
+    if ([namespaceURI isEqualToString:kCMISNamespaceCmis]) {
         if ([elementName isEqualToString:kCMISAtomEntryPropertyId] ||
             [elementName isEqualToString:kCMISAtomEntryPropertyString] ||
             [elementName isEqualToString:kCMISAtomEntryPropertyInteger] ||
@@ -146,8 +128,7 @@
             [elementName isEqualToString:kCMISAtomEntryPropertyBoolean] ||
             [elementName isEqualToString:kCMISAtomEntryPropertyUri] ||
             [elementName isEqualToString:kCMISAtomEntryPropertyHtml] ||
-            [elementName isEqualToString:kCMISAtomEntryPropertyDecimal])
-        {
+            [elementName isEqualToString:kCMISAtomEntryPropertyDecimal]) {
             self.propertyValues = [NSMutableArray array];
             // store attribute values in CMISPropertyData object
             self.currentPropertyType = elementName;
@@ -155,57 +136,38 @@
             self.currentPropertyData.identifier = [attributeDict objectForKey:kCMISAtomEntryPropertyDefId];
             self.currentPropertyData.queryName = [attributeDict objectForKey:kCMISAtomEntryQueryName];
             self.currentPropertyData.displayName = [attributeDict objectForKey:kCMISAtomEntryDisplayName];
-        }
-        else if ([elementName isEqualToString:kCMISCoreProperties])
-        {
+        } else if ([elementName isEqualToString:kCMISCoreProperties]) {
             // create the CMISProperties object to hold all property data
             self.currentObjectProperties = [[CMISProperties alloc] init];
             
             // Set ObjectProperties as the current extensionData object
             [self pushNewCurrentExtensionData:self.currentObjectProperties];
-        }
-        else if ([elementName isEqualToString:kCMISCoreRendition])
-        {
+        } else if ([elementName isEqualToString:kCMISCoreRendition]) {
             self.currentRendition = [[CMISRenditionData alloc] init];
-        }
-        else if ([elementName isEqualToString:kCMISAtomEntryAllowableActions]) 
-        {
+        } else if ([elementName isEqualToString:kCMISAtomEntryAllowableActions]) {
             // Delegate parsing to child parser for allowableActions element
             self.childParserDelegate = [CMISAllowableActionsParser allowableActionsParserWithParentDelegate:self parser:parser];
         }
-    }
-    else if ([namespaceURI isEqualToString:kCMISNamespaceCmisRestAtom])
-    {
-        if ([elementName isEqualToString:kCMISAtomEntryObject])
-        {
+    } else if ([namespaceURI isEqualToString:kCMISNamespaceCmisRestAtom]) {
+        if ([elementName isEqualToString:kCMISAtomEntryObject]) {
             // Set object data as the current extensionData object
             [self pushNewCurrentExtensionData:self.objectData];
         }
-    }
-    else if ([namespaceURI isEqualToString:kCMISNamespaceAtom])
-    {
-        if ([elementName isEqualToString:kCMISAtomEntryLink])
-        {
+    } else if ([namespaceURI isEqualToString:kCMISNamespaceAtom]) {
+        if ([elementName isEqualToString:kCMISAtomEntryLink]) {
             NSString *linkType = [attributeDict objectForKey:kCMISAtomEntryType];
             NSString *rel = [attributeDict objectForKey:kCMISAtomEntryRel];
             NSString *href = [attributeDict objectForKey:kCMISAtomEntryHref]; 
             
             CMISAtomLink *link = [[CMISAtomLink alloc] initWithRelation:rel type:linkType href:href];
             [self.currentLinkRelations addObject:link];
-        }
-        else if ([elementName isEqualToString:kCMISAtomEntryContent])
-        {
+        } else if ([elementName isEqualToString:kCMISAtomEntryContent]) {
             self.objectData.contentUrl = [NSURL URLWithString:[attributeDict objectForKey:kCMISAtomEntrySrc]];
         }
-    }
-    else if ([namespaceURI isEqualToString:kCMISNamespaceApp])
-    {
+    } else if ([namespaceURI isEqualToString:kCMISNamespaceApp]) {
         // Nothing to do in this namespace
-    }
-    else 
-    {
-        if (self.currentExtensionData != nil)
-        {
+    } else {
+        if (self.currentExtensionData != nil) {
             self.childParserDelegate = [CMISAtomPubExtensionElementParser extensionElementParserWithElementName:elementName namespaceUri:namespaceURI 
                                                                                                      attributes:attributeDict parentDelegate:self parser:parser];
         }
@@ -223,48 +185,29 @@
 - (void)parser:(NSXMLParser *)parser didEndElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qName 
 {
    
-    if ([elementName isEqualToString:kCMISAtomEntryValue])
-    {
+    if ([elementName isEqualToString:kCMISAtomEntryValue]) {
         [CMISAtomParserUtil parsePropertyValue:self.string withPropertyType:self.currentPropertyType addToArray:self.propertyValues];
-    }
-    else if (self.currentRendition != nil)
-    {
-        if ([elementName isEqualToString:kCMISCoreStreamId])
-        {
+    } else if (self.currentRendition != nil) {
+        if ([elementName isEqualToString:kCMISCoreStreamId]) {
             self.currentRendition.streamId = self.string;
-        }
-        else if ([elementName isEqualToString:kCMISCoreMimetype])
-        {
+        } else if ([elementName isEqualToString:kCMISCoreMimetype]) {
             self.currentRendition.mimeType = self.string;
-        }
-        else if ([elementName isEqualToString:kCMISCoreLength])
-        {
+        } else if ([elementName isEqualToString:kCMISCoreLength]) {
             self.currentRendition.length = [NSNumber numberWithInteger:[self.string integerValue]];
-        }
-        else if ([elementName isEqualToString:kCMISCoreTitle])
-        {
+        } else if ([elementName isEqualToString:kCMISCoreTitle]) {
             self.currentRendition.title = self.string;
-        }
-        else if ([elementName isEqualToString:kCMISCoreKind])
-        {
+        } else if ([elementName isEqualToString:kCMISCoreKind]) {
             self.currentRendition.kind = self.string;
-        }
-        else if ([elementName isEqualToString:kCMISCoreHeight])
-        {
+        } else if ([elementName isEqualToString:kCMISCoreHeight]) {
             self.currentRendition.height = [NSNumber numberWithInteger:[self.string integerValue]];
-        }
-        else if ([elementName isEqualToString:kCMISCoreWidth])
-        {
+        } else if ([elementName isEqualToString:kCMISCoreWidth]) {
             self.currentRendition.width = [NSNumber numberWithInteger:[self.string integerValue]];
-        }
-        else if ([elementName isEqualToString:kCMISCoreRenditionDocumentId])
-        {
+        } else if ([elementName isEqualToString:kCMISCoreRenditionDocumentId]) {
             self.currentRendition.renditionDocumentId = self.string;
         }
     }
     
-    if ([namespaceURI isEqualToString:kCMISNamespaceCmis])
-    {
+    if ([namespaceURI isEqualToString:kCMISNamespaceCmis]) {
         if ([elementName isEqualToString:kCMISAtomEntryPropertyId] ||
             [elementName isEqualToString:kCMISAtomEntryPropertyString] ||
             [elementName isEqualToString:kCMISAtomEntryPropertyInteger] ||
@@ -272,33 +215,24 @@
             [elementName isEqualToString:kCMISAtomEntryPropertyBoolean] ||
             [elementName isEqualToString:kCMISAtomEntryPropertyUri] ||
             [elementName isEqualToString:kCMISAtomEntryPropertyHtml] ||
-            [elementName isEqualToString:kCMISAtomEntryPropertyDecimal])
-        {            
+            [elementName isEqualToString:kCMISAtomEntryPropertyDecimal]) {            
             // add the property to the properties dictionary
             self.currentPropertyData.values = self.propertyValues;
             self.propertyValues = nil;
             [self.currentObjectProperties addProperty:self.currentPropertyData];
             self.currentPropertyData = nil;
-        }
-        else if ([elementName isEqualToString:kCMISCoreProperties])
-        {
+        } else if ([elementName isEqualToString:kCMISCoreProperties]) {
             // Finished parsing Properties & its ExtensionData
             [self saveCurrentExtensionsAndPushPreviousExtensionData];
-        }
-        else if ([elementName isEqualToString:kCMISCoreRendition])
-        {
-            if (self.currentRenditions == nil)
-            {
+        } else if ([elementName isEqualToString:kCMISCoreRendition]) {
+            if (self.currentRenditions == nil) {
                 self.currentRenditions = [[NSMutableArray alloc] init];
             }
             [self.currentRenditions addObject:self.currentRendition];
             self.currentRendition = nil;
         }
-    }
-    else if ([namespaceURI isEqualToString:kCMISNamespaceAtom])
-    {
-        if ( [elementName isEqualToString:kCMISAtomEntry])
-        {
+    } else if ([namespaceURI isEqualToString:kCMISNamespaceAtom]) {
+        if ( [elementName isEqualToString:kCMISAtomEntry]) {
             // set the properties on the objectData object
             self.objectData.properties = self.currentObjectProperties;
 
@@ -315,12 +249,9 @@
             // set the objectData baseType
             CMISPropertyData *baseTypeProperty = [self.currentObjectProperties.propertiesDictionary objectForKey:kCMISPropertyBaseTypeId];
             NSString *baseType = [baseTypeProperty firstValue];
-            if ([baseType isEqualToString:kCMISPropertyObjectTypeIdValueDocument])
-            {
+            if ([baseType isEqualToString:kCMISPropertyObjectTypeIdValueDocument]) {
                 self.objectData.baseType = CMISBaseTypeDocument;
-            }
-            else if ([baseType isEqualToString:kCMISPropertyObjectTypeIdValueFolder])
-            {
+            } else if ([baseType isEqualToString:kCMISPropertyObjectTypeIdValueFolder]) {
                 self.objectData.baseType = CMISBaseTypeFolder;
             }
 
@@ -329,10 +260,8 @@
 
             self.currentObjectProperties = nil;
 
-            if (self.parentDelegate)
-            {
-                if ([self.parentDelegate respondsToSelector:@selector(cmisAtomEntryParser:didFinishParsingCMISObjectData:)])
-                {
+            if (self.parentDelegate) {
+                if ([self.parentDelegate respondsToSelector:@selector(cmisAtomEntryParser:didFinishParsingCMISObjectData:)]) {
                     // Message the parent delegate the parsed ObjectData
                     [self.parentDelegate performSelector:@selector(cmisAtomEntryParser:didFinishParsingCMISObjectData:)
                                               withObject:self withObject:self.objectData];
@@ -343,13 +272,9 @@
                 self.parentDelegate = nil;
             }
         }
-    }
-    else if ([namespaceURI isEqualToString:kCMISNamespaceApp])
-    {
+    } else if ([namespaceURI isEqualToString:kCMISNamespaceApp]) {
         // Nothing to do in this namespace
-    }
-    else 
-    {
+    } else {
         // TODO other namespaces?
     }
 

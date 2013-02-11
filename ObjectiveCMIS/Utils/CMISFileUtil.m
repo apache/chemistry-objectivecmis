@@ -26,8 +26,7 @@
 {
     NSFileHandle *fileHandle = [NSFileHandle fileHandleForUpdatingAtPath:filePath];
 
-    if (fileHandle)
-    {
+    if (fileHandle) {
         [fileHandle seekToEndOfFile];
         [fileHandle writeData:data];
     }

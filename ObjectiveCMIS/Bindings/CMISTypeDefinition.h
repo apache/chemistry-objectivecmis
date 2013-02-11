@@ -41,10 +41,14 @@
 @property (nonatomic, assign, getter = isControllablePolicy) BOOL controllablePolicy;
 @property (nonatomic, assign, getter = isControllableAcl) BOOL controllableAcl;
 
-// Mapping of property id <-> CMISPropertyDefinition
+/// Mapping of property id <-> CMISPropertyDefinition
 @property (nonatomic, strong, readonly) NSDictionary *propertyDefinitions;
 
+/// add property definition
 - (void)addPropertyDefinition:(CMISPropertyDefinition *)propertyDefinition;
+
+
+/// retrieve property definition for given property Id
 - (CMISPropertyDefinition *)propertyDefinitionForId:(NSString *)propertyId;
 
 @end

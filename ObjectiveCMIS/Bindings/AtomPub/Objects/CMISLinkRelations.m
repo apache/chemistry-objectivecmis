@@ -25,13 +25,11 @@
 
 @implementation CMISLinkRelations
 
-@synthesize linkRelationSet = _linkRelationSet;
 
 - (id)initWithLinkRelationSet:(NSSet *)linkRelationSet
 {
     self = [super init];
-    if (self)
-    {
+    if (self) {
         self.linkRelationSet = linkRelationSet;
     }
     return self;
@@ -47,20 +45,16 @@
     NSArray *predicateArgsArray = nil;
     
     NSString *predicateFormat = @"(rel == %@)";
-    if (type != nil && type.length > 0)
-    {
+    if (type != nil && type.length > 0) {
         predicateFormat = [predicateFormat stringByAppendingString:@"&& (type == %@)"];
         predicateArgsArray = [NSArray arrayWithObjects:rel, type, nil];
-    }
-    else 
-    {
+    } else {
         predicateArgsArray = [NSArray arrayWithObject:rel];
     }
     
     NSPredicate *predicate = [NSPredicate predicateWithFormat:predicateFormat argumentArray:predicateArgsArray];
     NSSet *filteredSet = [self.linkRelationSet filteredSetUsingPredicate:predicate];
-    if ([filteredSet count] == 1)
-    {
+    if ([filteredSet count] == 1) {
         return [filteredSet.anyObject valueForKey:@"href"];
     }
     

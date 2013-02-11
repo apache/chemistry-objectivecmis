@@ -38,13 +38,6 @@
 
 @implementation CMISAtomPubExtensionElementParser
 
-@synthesize childDelegate = _childDelegate;
-@synthesize parentDelegate = _parentDelegate;
-@synthesize extensionName = _extensionName;
-@synthesize extensionNamespaceUri = _extensionNamespaceUri;
-@synthesize extensionValue = _extensionValue;
-@synthesize extensionAttributes = _extensionAttributes;
-@synthesize extensionChildren = _extensionChildren;
 
 #pragma mark -
 #pragma mark Initializers
@@ -52,8 +45,7 @@
 - (id)initWithElementName:(NSString *)elementName namespaceUri:(NSString *)namespaceUri attributes:(NSDictionary *)attributes parentDelegate:(id<NSXMLParserDelegate, CMISAtomPubExtensionElementParserDelegate>)parentDelegate parser:(NSXMLParser *)parser
 {
     self = [super init];
-    if (self)
-    {
+    if (self) {
         self.extensionName = elementName;
         self.extensionNamespaceUri = namespaceUri;
         self.extensionAttributes = attributes;
@@ -80,8 +72,7 @@
 
 - (void)parser:(NSXMLParser *)parser foundCharacters:(NSString *)string
 {
-    if (nil == self.extensionValue)
-    {
+    if (nil == self.extensionValue) {
         self.extensionValue = [[NSMutableString alloc] init];
     }
     [self.extensionValue appendString:string];
@@ -89,18 +80,14 @@
 
 - (void)parser:(NSXMLParser *)parser didEndElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qName
 {
-    if ([elementName isEqualToString:self.extensionName] && [namespaceURI isEqualToString:self.extensionNamespaceUri])
-    {
+    if ([elementName isEqualToString:self.extensionName] && [namespaceURI isEqualToString:self.extensionNamespaceUri]) {
         CMISExtensionElement *extElement = nil;
-        if ([self.extensionChildren count] > 0)
-        {
+        if ([self.extensionChildren count] > 0) {
             extElement = [[CMISExtensionElement alloc] initNodeWithName:self.extensionName 
                                                            namespaceUri:self.extensionNamespaceUri 
                                                              attributes:self.extensionAttributes 
                                                                children:self.extensionChildren];
-        }
-        else 
-        {
+        } else {
             extElement = [[CMISExtensionElement alloc] initLeafWithName:self.extensionName 
                                                            namespaceUri:self.extensionNamespaceUri 
                                                              attributes:self.extensionAttributes 
@@ -119,8 +106,7 @@
 
 - (void)extensionElementParser:(CMISAtomPubExtensionElementParser *)parser didFinishParsingExtensionElement:(CMISExtensionElement *)extensionElement
 {
-    if (self.extensionChildren == nil)
-    {
+    if (self.extensionChildren == nil) {
         self.extensionChildren = [[NSMutableArray alloc] init];
     }
     

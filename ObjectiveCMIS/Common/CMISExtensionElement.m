@@ -34,20 +34,13 @@
 
 @implementation CMISExtensionElement
 
-@synthesize name = _name;
-@synthesize namespaceUri = _namespaceUri;
-@synthesize value = _value;
-@synthesize attributes = _attributes;
-@synthesize children = _children;
-
 #pragma mark -
 #pragma mark Initializers
 
 - (id)initWithName:(NSString *)name namespaceUri:(NSString *)namespaceUri
 {
     self = [super init];
-    if (self)
-    {
+    if (self) {
         self.name = name;
         self.namespaceUri = namespaceUri;
     }
@@ -57,8 +50,7 @@
 - (id)initNodeWithName:(NSString *)name namespaceUri:(NSString *)namespaceUri attributes:(NSDictionary *)attributesDict children:(NSArray *)children
 {
     self = [self initWithName:name namespaceUri:namespaceUri];
-    if (self)
-    {
+    if (self) {
         self.value = nil;
         self.attributes = attributesDict;
         self.children = children;
@@ -69,8 +61,7 @@
 - (id)initLeafWithName:(NSString *)name namespaceUri:(NSString *)namespaceUri attributes:(NSDictionary *)attributesDict value:(NSString *)value
 {
     self = [self initWithName:name namespaceUri:namespaceUri];
-    if (self)
-    {
+    if (self) {
         self.value = value;
         self.attributes = attributesDict;
         self.children = nil;

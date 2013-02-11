@@ -31,7 +31,13 @@
 @property BOOL includeACL;
 @property (nonatomic, strong) NSString *renditionFilter;
 
+/**
+ * init the template URL with URL string
+ */
 - (id)initWithTemplateUrl:(NSString *)templateUrl;
+/**
+ * return the full URL
+ */
 - (NSURL *)buildUrl;
 
 @end

@@ -37,8 +37,7 @@
                                     completionBlock:(void (^)(CMISObjectList *objectList, NSError *error))completionBlock;
 {
     // Validate params
-    if (statement == nil)
-    {
+    if (statement == nil) {
         log(@"Must provide 'statement' parameter when executing a cmis query");
         completionBlock(nil, [CMISErrors createCMISErrorWithCode:kCMISErrorCodeInvalidArgument withDetailedDescription:nil]);
         return;
@@ -46,8 +45,7 @@
     
     // Validate query uri
     NSString *queryUrlString = [self.bindingSession objectForKey:kCMISBindingSessionKeyQueryCollection];
-    if (queryUrlString == nil)
-    {
+    if (queryUrlString == nil) {
         log(@"Unknown repository or query not supported!");
         completionBlock(nil, [CMISErrors createCMISErrorWithCode:kCMISErrorCodeObjectNotFound withDetailedDescription:nil]);
         return;

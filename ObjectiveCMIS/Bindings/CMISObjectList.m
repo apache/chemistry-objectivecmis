@@ -22,15 +22,11 @@
 
 @implementation CMISObjectList
 
-@synthesize objects = _objects;
-@synthesize hasMoreItems = _hasMoreItems;
-@synthesize numItems = _numItems;
 
 - (id)init
 {
     self = [super init];
-    if (self)
-    {
+    if (self) {
         self.objects = [NSArray array];
         self.numItems = 0;
         self.hasMoreItems = NO;

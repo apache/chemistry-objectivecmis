@@ -24,7 +24,13 @@
 
 @property (nonatomic, strong) NSString *id;
 
+/**
+ * init the template URL with URL string
+ */
 - (id)initWithTemplateUrl:(NSString *)templateUrl;
+/**
+ * @return the ready to use Url
+ */
 - (NSURL *)buildUrl;
 
 @end

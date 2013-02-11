@@ -38,8 +38,7 @@
     // Get Down link
     [self loadLinkForObjectId:objectId andRelation:kCMISLinkRelationDown
                       andType:kCMISMediaTypeChildren completionBlock:^(NSString *downLink, NSError *error) {
-                          if (error)
-                          {
+                          if (error) {
                               log(@"Could not retrieve down link: %@", error.description);
                               completionBlock(nil, error);
                               return;
@@ -69,8 +68,7 @@
                                       // Parse the feed (containing entries for the children) you get back
                                       CMISAtomFeedParser *parser = [[CMISAtomFeedParser alloc] initWithData:httpResponse.data];
                                       NSError *internalError = nil;
-                                      if ([parser parseAndReturnError:&internalError])
-                                      {
+                                      if ([parser parseAndReturnError:&internalError]) {
                                           NSString *nextLink = [parser.linkRelations linkHrefForRel:kCMISLinkRelationNext];
                                           
                                           CMISObjectList *objectList = [[CMISObjectList alloc] init];
@@ -78,9 +76,7 @@
                                           objectList.numItems = parser.numItems;
                                           objectList.objects = parser.entries;
                                           completionBlock(objectList, nil);
-                                      }
-                                      else
-                                      {
+                                      } else {
                                           NSError *error = [CMISErrors cmisError:internalError withCMISErrorCode:kCMISErrorCodeRuntime];
                                           completionBlock(nil, error);
                                       }
@@ -108,15 +104,13 @@
         }
         
         // Add optional parameters
-        if (filter != nil)
-        {
+        if (filter != nil) {
             upLink = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterFilter withValue:filter toUrlString:upLink];
         }
         upLink = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterIncludeAllowableActions withValue:(includeAllowableActions ? @"true" : @"false") toUrlString:upLink];
         upLink = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterIncludeRelationships withValue:[CMISEnums stringForIncludeRelationShip:includeRelationship] toUrlString:upLink];
         
-        if (renditionFilter != nil)
-        {
+        if (renditionFilter != nil) {
             upLink = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterRenditionFilter withValue:renditionFilter toUrlString:upLink];
         }
         
@@ -128,8 +122,7 @@
                 if (httpResponse) {
                     CMISAtomFeedParser *parser = [[CMISAtomFeedParser alloc] initWithData:httpResponse.data];
                     NSError *internalError;
-                    if (![parser parseAndReturnError:&internalError])
-                    {
+                    if (![parser parseAndReturnError:&internalError]) {
                         NSError *error = [CMISErrors cmisError:internalError withCMISErrorCode:kCMISErrorCodeRuntime];
                         log(@"Failing because parsing the Atom Feed XML returns an error");
                         completionBlock([NSArray array], error);

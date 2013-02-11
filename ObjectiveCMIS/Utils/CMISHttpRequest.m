@@ -40,14 +40,6 @@ NSString * const kCMISExceptionVersioning              = @"versioning";
 
 @implementation CMISHttpRequest
 
-@synthesize requestMethod = _requestMethod;
-@synthesize requestBody = _requestBody;
-@synthesize responseBody = _responseBody;
-@synthesize additionalHeaders = _additionalHeaders;
-@synthesize response = _response;
-@synthesize authenticationProvider = _authenticationProvider;
-@synthesize completionBlock = _completionBlock;
-@synthesize connection = _connection;
 
 + (CMISHttpRequest*)startRequest:(NSMutableURLRequest *)urlRequest
                   withHttpMethod:(CMISHttpRequestMethod)httpRequestMethod
@@ -200,8 +192,7 @@ NSString * const kCMISExceptionVersioning              = @"versioning";
     if ( (httpRequestMethod == HTTP_GET && response.statusCode != 200)
         || (httpRequestMethod == HTTP_POST && response.statusCode != 201)
         || (httpRequestMethod == HTTP_DELETE && response.statusCode != 204)
-        || (httpRequestMethod == HTTP_PUT && ((response.statusCode < 200 || response.statusCode > 299))))
-    {
+        || (httpRequestMethod == HTTP_PUT && ((response.statusCode < 200 || response.statusCode > 299)))) {
         log(@"Error content: %@", [[NSString alloc] initWithData:response.data encoding:NSUTF8StringEncoding]);
         
         if (error) {
@@ -211,8 +202,7 @@ NSString * const kCMISExceptionVersioning              = @"versioning";
                 errorMessage = response.statusCodeMessage; // fall back to HTTP error message
             }
             
-            switch (response.statusCode)
-            {
+            switch (response.statusCode) {
                 case 400:
                     if ([exception isEqualToString:kCMISExceptionFilterNotValid]) {
                         *error = [CMISErrors createCMISErrorWithCode:kCMISErrorCodeFilterNotValid

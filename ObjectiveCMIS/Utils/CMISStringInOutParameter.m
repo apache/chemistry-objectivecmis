@@ -22,9 +22,6 @@
 
 @implementation CMISStringInOutParameter
 
-@synthesize inParameter = _inParameter;
-@synthesize outParameter = _outParameter;
-
 + (CMISStringInOutParameter *)inOutParameterUsingInParameter:(NSString *)inParameter
 {
     CMISStringInOutParameter *result = [[CMISStringInOutParameter alloc] init];

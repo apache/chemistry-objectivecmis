@@ -22,21 +22,4 @@
 
 @implementation CMISPropertyDefinition
 
-@synthesize id = _id;
-@synthesize localName = _localName;
-@synthesize localNamespace = _localNamespace;
-@synthesize displayName = _displayName;
-@synthesize queryName = _queryName;
-@synthesize description = _description;
-@synthesize propertyType = _propertyType;
-@synthesize cardinality = _cardinality;
-@synthesize updatability = _updatability;
-@synthesize inherited = _inherited;
-@synthesize required = _required;
-@synthesize queryable = _queryable;
-@synthesize orderable = _orderable;
-@synthesize openChoice = _openChoice;
-@synthesize defaultValues = _defaultValues;
-@synthesize choices = _choices;
-
 @end

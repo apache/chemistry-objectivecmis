@@ -33,11 +33,12 @@
 
 @property (nonatomic, strong, readonly) CMISObjectData *objectData;
 
-// Designated Initializer
+/// Designated Initializer
 - (id)initWithData:(NSData *)atomData;
+/// parse method. returns NO if unsuccessful
 - (BOOL)parseAndReturnError:(NSError **)error;
 
-// Initializes a child parser for an Atom Entry and takes over parsing control while parsing the Atom Entry
+/// Initializes a child parser for an Atom Entry and takes over parsing control while parsing the Atom Entry
 + (id)atomEntryParserWithAtomEntryAttributes:(NSDictionary *)attributes parentDelegate:(id<NSXMLParserDelegate, CMISAtomEntryParserDelegate>)parentDelegate parser:(NSXMLParser *)parser;
 
 @end

@@ -57,13 +57,22 @@
 // The versioning service object for the binding
 @property (nonatomic, strong, readonly) id<CMISVersioningService> versioningService;
 
-
+/**
+ closes the session
+ */
 - (void)close;
 
 @optional
 
+/**
+ clears the cache from the session
+ */
 - (void)clearAllCaches;
 
+/**
+ clears the repository cache from the session
+ @param repositoryId
+ */
 - (void)clearCacheForRepositoryId:(NSString*)repositoryId;
 
 @end

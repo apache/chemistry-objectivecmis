@@ -32,14 +32,6 @@ NSString * const kCMISSessionParameterMode = @"session_param_mode";
 
 @implementation CMISSessionParameters
 
-@synthesize username = _username;
-@synthesize password = _password;
-@synthesize repositoryId = _repositoryId;
-@synthesize bindingType = _bindingType;
-@synthesize atomPubUrl = _atomPubUrl;
-@synthesize authenticationProvider = _authenticationProvider;
-@synthesize sessionData = _sessionData;
-@synthesize networkProvider = _networkProvider;
 
 - (id)init
 {
@@ -49,8 +41,7 @@ NSString * const kCMISSessionParameterMode = @"session_param_mode";
 - (id)initWithBindingType:(CMISBindingType)bindingType
 {
     self = [super init];
-    if (self)
-    {
+    if (self) {
         self.sessionData = [[NSMutableDictionary alloc] init];
         self.bindingType = bindingType;
     }

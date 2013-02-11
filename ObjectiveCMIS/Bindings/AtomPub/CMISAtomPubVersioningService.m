@@ -52,8 +52,7 @@
             completionBlock:(void (^)(NSArray *objects, NSError *error))completionBlock
 {
     // Validate params
-    if (!objectId)
-    {
+    if (!objectId) {
         log(@"Must provide an objectId when retrieving all versions");
         completionBlock(nil, [CMISErrors createCMISErrorWithCode:kCMISErrorCodeObjectNotFound withDetailedDescription:nil]);
         return;

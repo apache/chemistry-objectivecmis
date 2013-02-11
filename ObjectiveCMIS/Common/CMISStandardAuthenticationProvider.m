@@ -27,15 +27,11 @@
 
 @implementation CMISStandardAuthenticationProvider
 
-@synthesize username = _username;
-@synthesize password = _password;
-@synthesize credential = _credential;
 
 - (id)initWithUsername:(NSString *)username andPassword:(NSString *)password
 {
     self = [super init];
-    if (self)
-    {
+    if (self) {
         self.username = username;
         self.password = password;
     }

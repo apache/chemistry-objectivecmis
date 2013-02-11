@@ -28,14 +28,11 @@
 
 @implementation CMISTypeByIdUriBuilder
 
-@synthesize id = _id;
-@synthesize templateUrl = _templateUrl;
 
 - (id)initWithTemplateUrl:(NSString *)templateUrl
 {
     self = [super init];
-       if (self)
-       {
+       if (self) {
            self.templateUrl = templateUrl;
        }
        return self;

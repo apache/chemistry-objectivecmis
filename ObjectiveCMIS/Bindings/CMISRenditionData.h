@@ -44,11 +44,11 @@
 @property (nonatomic, strong) NSNumber *width;
 
 /**
-*  If specified, then the rendition can also be accessed as a document object in the CMIS services.
-*  If not set, then the rendition can only be accessed via the rendition services. Referential integrity of this ID is repository-specific.
-*
-* TODO: needs to be changed to more generic 'ObjectId'
-*/
+ *  If specified, then the rendition can also be accessed as a document object in the CMIS services.
+ *  If not set, then the rendition can only be accessed via the rendition services. Referential integrity of this ID is repository-specific.
+ *
+ * TODO: needs to be changed to more generic 'ObjectId'
+ */
 @property (nonatomic, strong) NSString *renditionDocumentId;
 
 - (id)initWithRenditionData:(CMISRenditionData *)renditionData;

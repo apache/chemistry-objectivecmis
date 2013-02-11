@@ -30,7 +30,6 @@
 
 
 @implementation CMISAllowableActions
-@synthesize allowableActionsSet = _allowableActionsSet;
 
 - (id)init
 {
@@ -42,8 +41,7 @@
 - (id)initWithAllowableActionsDictionary:(NSDictionary *)allowableActionsDict
 {
     self = [self init];
-    if (self)
-    {   
+    if (self) {   
         [self setAllowableActionsWithDictionary:allowableActionsDict];
     }
     return self;
@@ -52,8 +50,7 @@
 - (id)initWithAllowableActionsDictionary:(NSDictionary *)allowableActionsDict extensionElementArray:(NSArray *)extensionElementArray
 {
     self = [self initWithAllowableActionsDictionary:allowableActionsDict];
-    if (self)
-    {
+    if (self) {
         self.extensions = extensionElementArray;
     }
     return self;
@@ -64,8 +61,7 @@
     NSArray *actionsArray = [[NSArray alloc] initWithObjects:CMISAllowableActionsArray];
     
     NSMutableSet *allowableActionTypesSet = [NSMutableSet set];
-    for (NSString *actionStrValue in self.allowableActionsSet) 
-    {
+    for (NSString *actionStrValue in self.allowableActionsSet)  {
         // TODO: Check that the idx is valid in the defined enum
         
         NSInteger idx = [actionsArray indexOfObject:actionStrValue];

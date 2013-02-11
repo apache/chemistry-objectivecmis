@@ -21,16 +21,22 @@
 
 @interface CMISBase64Encoder : NSObject
 
+/// encodes data into base 64 and returns the result as NSString
 + (NSString *)stringByEncodingText:(NSData *)plainText;
 
+/// returns base64 encoded data for given input data
 + (NSData *)dataByEncodingText:(NSData *)plainText;
 
+/// base64 encodes the content of a file
 + (NSString *)encodeContentOfFile:(NSString *)sourceFilePath;
 
+/// base64 encodes data from an input stream
 + (NSString *)encodeContentFromInputStream:(NSInputStream*)inputStream;
 
+/// base64 encodes data from a source file and appends the encoded result to the given destination file
 + (void)encodeContentOfFile:(NSString *)sourceFilePath andAppendToFile:(NSString *)destinationFilePath;
 
+/// base64 encodes data from an input stream and appends the encoded data to a given destination file
 + (void)encodeContentFromInputStream:(NSInputStream*)inputStream andAppendToFile:(NSString *)destinationFilePath;
 
 @end

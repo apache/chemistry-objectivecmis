@@ -34,20 +34,13 @@
 
 @implementation CMISAllowableActionsParser
 
-@synthesize internalAllowableActionsDict = _internalAllowableActionsDict;
-@synthesize parentDelegate = _parentDelegate;
-@synthesize string = _string;
-@synthesize atomData = _atomData;
-@synthesize allowableActions;
-
 #pragma mark - 
 #pragma mark Init/Create methods
 
 - (id)initWithParentDelegate:(id<NSXMLParserDelegate, CMISAllowableActionsParserDelegate>)parentDelegate parser:(NSXMLParser *)parser 
 {
     self = [self initWithData:nil];
-    if (self) 
-    {
+    if (self)  {
         self.parentDelegate = parentDelegate;
         self.internalAllowableActionsDict = [[NSMutableDictionary alloc] init];
         
@@ -69,8 +62,7 @@
 - (id)initWithData:(NSData*)atomData
 {
     self = [super init];
-    if (self)
-    {
+    if (self) {
         self.atomData = atomData;
     }
     
@@ -88,10 +80,8 @@
     
     parseSuccessful = [parser parse];
     
-    if (!parseSuccessful)
-    {
-        if (error)
-        {
+    if (!parseSuccessful) {
+        if (error) {
             *error = [parser parserError];
         }
     }
@@ -106,23 +96,18 @@
   namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qualifiedName
     attributes:(NSDictionary *)attributeDict 
 {
-    if ([namespaceURI isEqualToString:kCMISNamespaceCmis])
-    {
+    if ([namespaceURI isEqualToString:kCMISNamespaceCmis]) {
         
-        if ([elementName isEqualToString:kCMISAtomEntryAllowableActions]) 
-        {
+        if ([elementName isEqualToString:kCMISAtomEntryAllowableActions])  {
             [self setInternalAllowableActionsDict:[NSMutableDictionary dictionary]];
             
             self.allowableActions = [[CMISAllowableActions alloc] init];
             [self pushNewCurrentExtensionData:self.allowableActions];
-        }
-        else
-        {
+        } else {
             self.string = [NSMutableString string];
         }
     }
-    else 
-    {
+    else {
         self.childParserDelegate = [CMISAtomPubExtensionElementParser extensionElementParserWithElementName:elementName namespaceUri:namespaceURI 
                                                                                                  attributes:attributeDict parentDelegate:self parser:parser];
     }
@@ -135,19 +120,15 @@
 
 - (void)parser:(NSXMLParser *)parser didEndElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qName 
 {
-    if ([namespaceURI isEqualToString:kCMISNamespaceCmis])
-    {
-        if ([elementName isEqualToString:kCMISAtomEntryAllowableActions])
-        {
+    if ([namespaceURI isEqualToString:kCMISNamespaceCmis]) {
+        if ([elementName isEqualToString:kCMISAtomEntryAllowableActions]) {
             // Set the parsed dictionary of allowable actions
             [self.allowableActions setAllowableActionsWithDictionary:[self.internalAllowableActionsDict copy]];
             // Save the extension data
             [self saveCurrentExtensionsAndPushPreviousExtensionData];
             
-            if (self.parentDelegate)
-            {
-                if ([self.parentDelegate respondsToSelector:@selector(allowableActionsParser:didFinishParsingAllowableActions:)])
-                {
+            if (self.parentDelegate) {
+                if ([self.parentDelegate respondsToSelector:@selector(allowableActionsParser:didFinishParsingAllowableActions:)]) {
                     [self.parentDelegate performSelector:@selector(allowableActionsParser:didFinishParsingAllowableActions:) withObject:self withObject:self.allowableActions];
                 }
                 
@@ -155,9 +136,7 @@
                 [parser setDelegate:self.parentDelegate];
                 self.parentDelegate = nil;
             }
-        }
-        else
-        {
+        } else {
             [self.internalAllowableActionsDict setObject:self.string forKey:elementName];
         }
     }

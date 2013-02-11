@@ -24,12 +24,13 @@
 
 @protocol CMISAtomPubExtensionElementParserDelegate <NSObject>
 @required
+/// parses extension element
 - (void)extensionElementParser:(CMISAtomPubExtensionElementParser *)parser didFinishParsingExtensionElement:(CMISExtensionElement *)extensionElement;
 @end
                                                                                                 
 
 @interface CMISAtomPubExtensionElementParser : NSObject <NSXMLParserDelegate, CMISAtomPubExtensionElementParserDelegate>
-
+/// extension element parser. returns parsed element
 + (id)extensionElementParserWithElementName:(NSString *)elementName namespaceUri:(NSString *)namespaceUri attributes:(NSDictionary *)attributes parentDelegate:(id<NSXMLParserDelegate, CMISAtomPubExtensionElementParserDelegate>)parentDelegate parser:(NSXMLParser *)parser;
 
 @end

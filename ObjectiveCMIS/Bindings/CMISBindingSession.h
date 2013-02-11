@@ -41,7 +41,7 @@ extern NSString * const kCMISBindingSessionKeyLinkCache;
 
 - (id)initWithSessionParameters:(CMISSessionParameters *)sessionParameters;
 
-// Object storage methods
+/// @name Object storage methods
 - (NSArray *)allKeys;
 - (id)objectForKey:(id)key;
 - (id)objectForKey:(id)key withDefaultValue:(id)defaultValue;

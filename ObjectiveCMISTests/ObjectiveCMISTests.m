@@ -52,19 +52,16 @@
 
 @implementation ObjectiveCMISTests
 
-@synthesize request = _request;
 
 - (void)testRepositories
 {
-    [self runTest:^
-    {
+    [self runTest:^ {
         [CMISSession arrayOfRepositories:self.parameters completionBlock:^(NSArray *repos, NSError *error) {
             STAssertNil(error, @"Error when calling arrayOfRepositories : %@", [error description]);
             STAssertNotNil(repos, @"repos object should not be nil");
             STAssertTrue(repos.count > 0, @"There should be at least one repository");
             
-            for (CMISRepositoryInfo *repoInfo in repos)
-            {
+            for (CMISRepositoryInfo *repoInfo in repos) {
                 NSLog(@"Repo id: %@", repoInfo.identifier);
             }
             self.testCompleted = YES;
@@ -74,8 +71,7 @@
 
 - (void)testAuthenticateWithInvalidCredentials
 {
-    [self runTest:^
-    {
+    [self runTest:^ {
         CMISSessionParameters *bogusParams = [[CMISSessionParameters alloc] initWithBindingType:CMISBindingTypeAtomPub];
         bogusParams.atomPubUrl = self.parameters.atomPubUrl;
         bogusParams.repositoryId = self.parameters.repositoryId;
@@ -84,8 +80,7 @@
 
         [CMISSession connectWithSessionParameters:bogusParams completionBlock:^(CMISSession *session, NSError *error){
             STAssertNil(session, @"we should not get back a valid session");
-            if (nil == session)
-            {
+            if (nil == session) {
                 log(@"*** testAuthenticateWithInvalidCredentials: error domain is %@, error code is %d and error description is %@",[error domain], [error code], [error description]);
                 NSError *underlyingError = [[error userInfo] valueForKey:NSUnderlyingErrorKey];
                 if (underlyingError) {
@@ -99,8 +94,7 @@
 
 - (void)testGetRootFolder
 {
-    [self runTest:^
-    {
+    [self runTest:^ {
         // make sure the repository info is available immediately after authentication
         CMISRepositoryInfo *repoInfo = self.session.repositoryInfo;
         STAssertNotNil(repoInfo, @"repoInfo object should not be nil");
@@ -146,8 +140,7 @@
 
 - (void)testRetrieveFolderChildrenUsingPaging
 {
-    [self runTest:^
-    {
+    [self runTest:^ {
         // Fetch 2 children at a time
         CMISOperationContext *operationContext = [CMISOperationContext defaultOperationContext];
         operationContext.skipCount = 0;
@@ -163,8 +156,7 @@
                 
                 // Save object ids for checking the next pages
                 NSMutableArray *objectIds = [NSMutableArray array];
-                for (CMISObject *object in pagedResult.resultArray)
-                {
+                for (CMISObject *object in pagedResult.resultArray) {
                     [objectIds addObject:object.identifier];
                 }
                 
@@ -176,8 +168,7 @@
                     STAssertTrue(secondPageResult.resultArray.count == 2, @"Expected 2 children in the page, but got %d", secondPageResult.resultArray.count);
                     
                     // Verify if no double object ids were found
-                    for (CMISObject *object in secondPageResult.resultArray)
-                    {
+                    for (CMISObject *object in secondPageResult.resultArray) {
                         STAssertTrue(![objectIds containsObject:object.identifier], @"Object was already returned in a previous page. This is a serious impl bug!");
                         [objectIds addObject:object.identifier];
                     }
@@ -207,8 +198,7 @@
 
 - (void)testDocumentProperties
 {
-    [self runTest:^
-    {
+    [self runTest:^ {
 
         // Get some random document
         [self retrieveVersionedTestDocumentWithCompletionBlock:^(CMISDocument *document) {
@@ -242,8 +232,7 @@
 
 - (void)testRetrieveAllowableActions
 {
-    [self runTest:^
-    {
+    [self runTest:^ {
         [self uploadTestFileWithCompletionBlock:^(CMISDocument *document) {
             STAssertNotNil(document.allowableActions, @"Allowable actions should not be nil");
             STAssertTrue(document.allowableActions.allowableActionsSet.count > 0, @"Expected at least one allowable action");
@@ -258,8 +247,7 @@
 
 - (void)testFileDownload
 {
-    [self runTest:^
-    {
+    [self runTest:^ {
         [self.session retrieveObjectByPath:@"/ios-test" completionBlock:^(CMISObject *object, NSError *error) {
             CMISFolder *testFolder = (CMISFolder *)object;
             STAssertNil(error, @"Error while retrieving folder: %@", [error description]);
@@ -276,10 +264,8 @@
                 STAssertTrue([children count] >= 3, @"There should be at least 3 children");
                 
                 CMISDocument *randomDoc = nil;
-                for (CMISObject *object in children)
-                {
-                    if ([object class] == [CMISDocument class])
-                    {
+                for (CMISObject *object in children) {
+                    if ([object class] == [CMISDocument class]) {
                         randomDoc = (CMISDocument *)object;
                     }
                 }
@@ -315,8 +301,7 @@
 
 - (void)testCancelDownload
 {
-    [self runTest:^
-     {
+    [self runTest:^ {
          [self.session retrieveObjectByPath:@"/ios-test/activiti-modeler.png" completionBlock:^(CMISObject *object, NSError *error) {
              CMISDocument *document = (CMISDocument *)object;
              STAssertNil(error, @"Error while retrieving object: %@", [error description]);
@@ -324,8 +309,7 @@
              // Writing content of CMIS document to local file
              NSString *filePath = [NSString stringWithFormat:@"%@/testfile", NSTemporaryDirectory()];
              self.request = [document downloadContentToFile:filePath
-                                            completionBlock:^(NSError *error)
-             {
+                                            completionBlock:^(NSError *error) {
                  STAssertNotNil(error, @"Could not cancel download");
                  STAssertTrue(error.code == kCMISErrorCodeCancelled, @"Unexpected error: %@", [error description]);
                  // Assert File exists and check file length
@@ -353,8 +337,7 @@
 
 - (void)testCreateAndDeleteDocument
 {
-    [self runTest:^
-    {
+    [self runTest:^ {
         // Check if test file exists
         NSString *filePath = [[NSBundle bundleForClass:[self class]] pathForResource:@"test_file.txt" ofType:nil];
         STAssertTrue([[NSFileManager defaultManager] fileExistsAtPath:filePath],
@@ -370,8 +353,7 @@
         [self.rootFolder createDocumentFromFilePath:filePath
                                        withMimeType:@"text/plain"
                                      withProperties:documentProperties
-                                    completionBlock:^ (NSString *objectId, NSError *error)
-             {
+                                    completionBlock:^ (NSString *objectId, NSError *error) {
                  if (objectId) {
                      STAssertNotNil(objectId, @"Object id received should be non-nil");
 
@@ -405,8 +387,7 @@
 
 - (void)testUploadFileThroughSession
 {
-    [self runTest:^
-    {
+    [self runTest:^ {
 
         // Set properties on test file
         NSString *filePath = [[NSBundle bundleForClass:[self class]] pathForResource:@"test_file.txt" ofType:nil];
@@ -422,8 +403,7 @@
                 withMimeType:@"text/plain"
                 withProperties:documentProperties
                 inFolder:self.rootFolder.identifier
-                completionBlock: ^ (NSString *newObjectId, NSError *error)
-                {
+                completionBlock: ^ (NSString *newObjectId, NSError *error) {
                     if (newObjectId) {
                         objectId = newObjectId;
                    
@@ -455,8 +435,7 @@
 
 - (void)testCreateBigDocument
 {
-    [self runTest:^
-    {
+    [self runTest:^ {
         // Check if test file exists
         NSString *fileToUploadPath = [[NSBundle bundleForClass:[self class]] pathForResource:@"cmis-spec-v1.0.pdf" ofType:nil];
         STAssertTrue([[NSFileManager defaultManager] fileExistsAtPath:fileToUploadPath],
@@ -473,8 +452,7 @@
         [self.rootFolder createDocumentFromFilePath:fileToUploadPath
                                        withMimeType:@"application/pdf"
                                      withProperties:documentProperties
-                                    completionBlock:^(NSString *newObjectId, NSError *error)
-               {
+                                    completionBlock:^(NSString *newObjectId, NSError *error) {
                    if (newObjectId) {
                        NSLog(@"File upload completed");
                        
@@ -539,8 +517,7 @@
 
 - (void)testCreateAndDeleteFolder
 {
-    [self runTest:^
-    {
+    [self runTest:^ {
         // Create a test folder
         NSMutableDictionary *properties = [NSMutableDictionary dictionary];
         NSString *folderName = [NSString stringWithFormat:@"test-folder-%@", [self stringFromCurrentDate]];
@@ -567,8 +544,7 @@
 
 - (void)testRetrieveAllVersionsOfDocument
 {
-    [self runTest:^
-    {
+    [self runTest:^ {
         // First find the document which we know that has some versions
         [self retrieveVersionedTestDocumentWithCompletionBlock:^(CMISDocument *document) {
             // Get all the versions of the document
@@ -578,12 +554,10 @@
                 
                 // Print out the version labels and verify them, while also verifying that they are ordered by creation date, descending
                 NSDate *previousModifiedDate = document.lastModificationDate;
-                for (CMISDocument *versionOfDocument in allVersionsOfDocument.items)
-                {
+                for (CMISDocument *versionOfDocument in allVersionsOfDocument.items) {
                     NSLog(@"%@ - version %@", versionOfDocument.name, versionOfDocument.versionLabel);
                     
-                    if (!versionOfDocument.isLatestVersion) // latest version is the one we got originally
-                    {
+                    if (!versionOfDocument.isLatestVersion) {// latest version is the one we got originally
                         STAssertTrue([document.name isEqualToString:versionOfDocument.name], @"Other version of same document does not have the same name");
                         STAssertFalse([document.versionLabel isEqualToString:versionOfDocument.versionLabel], @"Other version of same document should have different version label");
                         STAssertTrue([previousModifiedDate compare:versionOfDocument.lastModificationDate] == NSOrderedDescending,
@@ -605,8 +579,7 @@
 
 -(void)testRetrieveLatestVersionOfDocument
 {
-    [self runTest:^
-    {
+    [self runTest:^ {
          // First find the document which we know that has some versions
         [self retrieveVersionedTestDocumentWithCompletionBlock:^(CMISDocument *document) {
             // Check if the document retrieved is the latest version
@@ -661,8 +634,7 @@
 
 - (void)testQueryThroughDiscoveryService
 {
-    [self runTest:^
-    {
+    [self runTest:^ {
         id<CMISDiscoveryService> discoveryService = self.session.binding.discoveryService;
         STAssertNotNil(discoveryService, @"Discovery service should not be nil");
 
@@ -683,8 +655,7 @@
              
              STAssertTrue(objectList.objects.count == 3, @"Expected 3 items to be returned, but was %d", objectList.objects.count);
              
-             for (CMISObjectData *objectData in objectList.objects)
-             {
+             for (CMISObjectData *objectData in objectList.objects) {
                  STAssertTrue(objectData.properties.propertiesDictionary.count > 10, @"Expecting properties to be passed when querying");
              }
              
@@ -711,8 +682,7 @@
 
 - (void)testQueryThroughSession
 {
-    [self runTest:^
-     {
+    [self runTest:^ {
          // Query all properties
          [self.session query:@"SELECT * FROM cmis:document WHERE cmis:name LIKE '%quote%'" searchAllVersions:NO completionBlock:^(CMISPagedResult *result, NSError *error) {
              STAssertNil(error, @"Got an error while executing query: %@", [error description]);
@@ -761,8 +731,7 @@
 
 - (void)testQueryWithPaging
 {
-    [self runTest:^
-     {
+    [self runTest:^ {
          // Fetch first page
          CMISOperationContext *context = [[CMISOperationContext alloc] init];
          context.maxItemsPerPage = 5;
@@ -773,8 +742,7 @@
              
              // Save all the ids to check them later
              NSMutableArray *idsOfFirstPage = [NSMutableArray array];
-             for (CMISQueryResult *queryresult in firstPageResult.resultArray)
-             {
+             for (CMISQueryResult *queryresult in firstPageResult.resultArray) {
                  [idsOfFirstPage addObject:[queryresult propertyForId:kCMISPropertyObjectId]];
              }
              
@@ -783,8 +751,7 @@
                  STAssertNil(error, @"Got an error while executing query: %@", [error description]);
                  STAssertTrue(secondPageResults.resultArray.count == 5, @"Expected 5 results, but got %d back", secondPageResults.resultArray.count);
                  
-                 for (CMISQueryResult *queryResult in secondPageResults.resultArray)
-                 {
+                 for (CMISQueryResult *queryResult in secondPageResults.resultArray) {
                      STAssertFalse([idsOfFirstPage containsObject:[queryResult propertyForId:kCMISPropertyObjectId]], @"Found same object in first and second page");
                  }
                  
@@ -805,8 +772,7 @@
 
 - (void)testQueryObjects
 {
-    [self runTest:^
-     {
+    [self runTest:^ {
          // Fetch first page
          CMISOperationContext *context = [[CMISOperationContext alloc] init];
          context.maxItemsPerPage = 2;
@@ -820,8 +786,7 @@
               
               // Save all the ids to check them later
               NSMutableArray *idsOfFirstPage = [NSMutableArray array];
-              for (CMISDocument *document in firstPageResult.resultArray)
-              {
+              for (CMISDocument *document in firstPageResult.resultArray) {
                   [idsOfFirstPage addObject:document.identifier];
               }
               
@@ -843,8 +808,7 @@
 
 - (void)testRetrieveParents
 {
-    [self runTest:^
-     {
+    [self runTest:^ {
          // First, do a query for our test document
          NSString *queryStmt = @"SELECT * FROM cmis:document WHERE cmis:name = 'thumbsup-ios-test-retrieve-parents.gif'";
          [self.session query:queryStmt searchAllVersions:NO completionBlock:^(CMISPagedResult *results, NSError *error) {
@@ -900,8 +864,7 @@
 
 - (void)testRetrieveNonExistingObject
 {
-    [self runTest:^
-     {
+    [self runTest:^ {
          // test with non existing object id
          [self.session retrieveObject:@"bogus" completionBlock:^(CMISObject *object, NSError *error) {
              CMISDocument *document = (CMISDocument *)object;
@@ -923,8 +886,7 @@
 
 - (void)testRetrieveObjectByPath
 {
-    [self runTest:^
-     {
+    [self runTest:^ {
          // Use a document that has spaces in them (should be correctly encoded)
          NSString *path = [NSString stringWithFormat:@"%@ios-test/activiti logo big.png", self.rootFolder.path];
          [self.session retrieveObjectByPath:path completionBlock:^(CMISObject *object, NSError *error) {
@@ -951,8 +913,7 @@
 // And verify of the content is correct
 - (void)testChangeContentOfDocument
 {
-    [self runTest:^
-     {
+    [self runTest:^ {
          // Upload test file
          [self uploadTestFileWithCompletionBlock:^(CMISDocument *originalDocument) {
              // Change content of test file using overwrite
@@ -1009,8 +970,7 @@
 
 - (void)testDeleteContentOfDocument
 {
-    [self runTest:^
-     {
+    [self runTest:^ {
          // Upload test file
          [self uploadTestFileWithCompletionBlock:^(CMISDocument *originalDocument) {
              // Delete its content
@@ -1034,8 +994,7 @@
 
 - (void)testRetrieveTypeDefinition
 {
-    [self runTest:^
-     {
+    [self runTest:^ {
          [self.session.binding.repositoryService retrieveTypeDefinition:@"cmis:document" completionBlock:^(CMISTypeDefinition *typeDefinition, NSError *error) {
              STAssertNil(error, @"Got error while retrieving type definition: %@", [error description]);
              
@@ -1070,8 +1029,7 @@
 
 - (void)testUpdateDocumentPropertiesThroughObjectService
 {
-    [self runTest:^
-     {
+    [self runTest:^ {
          id<CMISObjectService> objectService = self.session.binding.objectService;
          
          // Create test document
@@ -1104,8 +1062,7 @@
 
 - (void)testUpdateFolderPropertiesThroughObjectService
 {
-    [self runTest:^
-     {
+    [self runTest:^ {
          // Create a temporary test folder
          NSMutableDictionary *properties = [NSMutableDictionary dictionary];
          NSString *folderName = [NSString stringWithFormat:@"temp_test_folder_%@", [self stringFromCurrentDate]];
@@ -1145,8 +1102,7 @@
 
 - (void)testUpdatePropertiesThroughCmisObject
 {
-    [self runTest:^
-     {
+    [self runTest:^ {
          // Create test document
          [self uploadTestFileWithCompletionBlock:^(CMISDocument *document) {
              // Prepare properties
@@ -1179,12 +1135,9 @@
     STAssertTrue(extElement.attributes.count == expectedAttrCount, @"Expected %d attributes, but found %d", expectedAttrCount, extElement.attributes.count);
     STAssertTrue(extElement.children.count == expectedChildCount, @"Expected %d children elements but found %d", expectedChildCount, extElement.children.count);
     
-    if (extElement.children.count > 0)
-    {
+    if (extElement.children.count > 0) {
         STAssertNil(extElement.value, @"Extension Element value must by nil but value contained '%@'", extElement.value);
-    }
-    else if (hasValue)
-    {
+    } else if (hasValue) {
         STAssertTrue(extElement.value.length > 0, @"Expected extension element value to be non-empty");
     }
 }
@@ -1194,8 +1147,7 @@
 {
     // Testing FolderChildren, executed at end
     
-    void (^testFolderChildrenXml)(NSString *, BOOL) = ^(NSString * filename, BOOL isOpenCmisImpl)
-    {
+    void (^testFolderChildrenXml)(NSString *, BOOL) = ^(NSString * filename, BOOL isOpenCmisImpl) {
         NSString *filePath = [[NSBundle bundleForClass:[self class]] pathForResource:filename ofType:@"xml"];
         NSData *atomData = [[NSData alloc] initWithContentsOfFile:filePath];
         STAssertNotNil(atomData, @"FolderChildren.xml is missing from the test target!");
@@ -1207,8 +1159,7 @@
         NSArray *entries = feedParser.entries;
         STAssertTrue(entries.count == 2, @"Expected 2 parsed entry objects, but found %d", entries.count);
         
-        for (CMISObjectData *objectData  in entries)
-        {
+        for (CMISObjectData *objectData  in entries) {
             // Check that there are no extension elements on the Object and allowable actions objects
             STAssertTrue(objectData.extensions.count == 0, @"Expected 0 extension elements, but found %d", objectData.extensions.count);
             STAssertTrue(objectData.allowableActions.extensions.count == 0, @"Expected 0 extension elements, but found %d", objectData.allowableActions.extensions.count);
@@ -1224,36 +1175,28 @@
                           childrenCount:expectedAspectsExtChildrenCt hasValue:NO];
             
             int aspectChildCt = 0;
-            for (CMISExtensionElement *aspectChild in extElement.children)
-            {
-                switch (aspectChildCt ++)
-                {
+            for (CMISExtensionElement *aspectChild in extElement.children) {
+                switch (aspectChildCt ++) {
                     case 0:
                     case 1:
                     case 2:
-                    case 3:
-                    {
+                    case 3: {
                         // appliedAspects
                         [self checkExtensionElement:aspectChild withName:@"appliedAspects" namespaceUri:@"http://www.alfresco.org" attributeCount:0 childrenCount:0 hasValue:YES];
                         break;
                     }
-                    case 4:
-                    {
+                    case 4: {
                         STAssertFalse(isOpenCmisImpl, @"Unexpected extension element encountered!");
                         // alf:properties
                         [self checkExtensionElement:aspectChild withName:@"properties" namespaceUri:@"http://www.alfresco.org" attributeCount:0 childrenCount:3 hasValue:NO];
                         
-                        for (CMISExtensionElement *aspectPropExt in aspectChild.children)
-                        {
-                            if (aspectPropExt.children)
-                            {
+                        for (CMISExtensionElement *aspectPropExt in aspectChild.children) {
+                            if (aspectPropExt.children) {
                                 [self checkExtensionElement:aspectPropExt withName:@"propertyString" namespaceUri:kCMISNamespaceCmis attributeCount:3 childrenCount:1 hasValue:NO];
                                 
                                 CMISExtensionElement *valueExt = aspectPropExt.children.lastObject;
                                 [self checkExtensionElement:valueExt withName:@"value" namespaceUri:kCMISNamespaceCmis attributeCount:0 childrenCount:0 hasValue:YES];
-                            }
-                            else
-                            {
+                            } else {
                                 [self checkExtensionElement:aspectPropExt withName:@"propertyString" namespaceUri:kCMISNamespaceCmis attributeCount:3 childrenCount:0 hasValue:NO];
                             }
                             
@@ -1286,8 +1229,7 @@
     static NSString *exampleUri = @"http://www.example.com";
     
     // Local Blocks
-    void (^testSimpleRootExtensionElement)(CMISExtensionElement *) = ^(CMISExtensionElement *rootExtElement)
-    {
+    void (^testSimpleRootExtensionElement)(CMISExtensionElement *) = ^(CMISExtensionElement *rootExtElement) {
         [self checkExtensionElement:rootExtElement withName:@"testExtSimpleRoot" namespaceUri:exampleUri attributeCount:0 childrenCount:1 hasValue:NO];
         
         CMISExtensionElement *simpleChildExtElement = rootExtElement.children.lastObject;
@@ -1295,8 +1237,7 @@
         STAssertTrue([simpleChildExtElement.value isEqualToString:@"simpleChildValue"], @"Expected value 'simpleChildValue' but was '%@'", simpleChildExtElement.value);
     };
     
-    void (^testComplexRootExtensionElement)(CMISExtensionElement *) = ^(CMISExtensionElement *rootExtElement)
-    {
+    void (^testComplexRootExtensionElement)(CMISExtensionElement *) = ^(CMISExtensionElement *rootExtElement) {
         [self checkExtensionElement:rootExtElement withName:@"testExtRoot" namespaceUri:exampleUri attributeCount:0 childrenCount:5 hasValue:NO];
         // Children Depth=1
         [self checkExtensionElement:[rootExtElement.children objectAtIndex:0] withName:@"testExtChildLevel1A" namespaceUri:exampleUri attributeCount:0 childrenCount:0 hasValue:YES];
@@ -1325,8 +1266,7 @@
     NSArray *entries = feedParser.entries;
     STAssertTrue(entries.count == 2, @"Expected 2 parsed entry objects, but found %d", entries.count);
     
-    for (CMISObjectData *objectData  in entries)
-    {
+    for (CMISObjectData *objectData  in entries) {
         STAssertTrue(objectData.extensions.count == 2, @"Expected 2 extension elements, but found %d", objectData.extensions.count);
         testSimpleRootExtensionElement([objectData.extensions objectAtIndex:0]);
         testComplexRootExtensionElement([objectData.extensions objectAtIndex:1]);
@@ -1348,8 +1288,7 @@
     static NSString *exampleUri = @"http://www.example.com";
     
     // Local Blocks
-    void (^testSimpleRootExtensionElement)(CMISExtensionElement *) = ^(CMISExtensionElement *rootExtElement)
-    {
+    void (^testSimpleRootExtensionElement)(CMISExtensionElement *) = ^(CMISExtensionElement *rootExtElement) {
         [self checkExtensionElement:rootExtElement withName:@"testExtSimpleRoot" namespaceUri:exampleUri attributeCount:0 childrenCount:1 hasValue:NO];
         
         CMISExtensionElement *simpleChildExtElement = rootExtElement.children.lastObject;
@@ -1357,8 +1296,7 @@
         STAssertTrue([simpleChildExtElement.value isEqualToString:@"simpleChildValue"], @"Expected value 'simpleChildValue' but was '%@'", simpleChildExtElement.value);
     };
     
-    void (^testComplexRootExtensionElement)(CMISExtensionElement *) = ^(CMISExtensionElement *rootExtElement)
-    {
+    void (^testComplexRootExtensionElement)(CMISExtensionElement *) = ^(CMISExtensionElement *rootExtElement) {
         [self checkExtensionElement:rootExtElement withName:@"testExtRoot" namespaceUri:exampleUri attributeCount:0 childrenCount:5 hasValue:NO];
         // Children Depth=1
         [self checkExtensionElement:[rootExtElement.children objectAtIndex:0] withName:@"testExtChildLevel1A" namespaceUri:exampleUri attributeCount:0 childrenCount:0 hasValue:YES];
@@ -1435,8 +1373,7 @@
 
 - (void)testPropertiesConversion
 {
-    [self runTest:^
-     {
+    [self runTest:^ {
          NSDate *testDate = [NSDate date];
          NSCalendar *calendar = [NSCalendar currentCalendar];
          NSUInteger unitflags = NSYearCalendarUnit | NSMonthCalendarUnit | NSDayCalendarUnit | NSHourCalendarUnit | NSMinuteCalendarUnit | NSSecondCalendarUnit;
@@ -1520,8 +1457,7 @@
 
 - (void)testOperationContextForRetrievingObject
 {
-    [self runTest:^
-     {
+    [self runTest:^ {
          // Create some test document
          [self uploadTestFileWithCompletionBlock:^(CMISDocument *testDocument) {
              // Use YES for retrieving the allowable actions
@@ -1554,8 +1490,7 @@
 
 - (void)testGetRenditionsThroughCmisObject
 {
-    [self runTest:^
-     {
+    [self runTest:^ {
          // Fetch test document
          NSString *path = [NSString stringWithFormat:@"%@ios-test/test-word-doc.docx", self.rootFolder.path];
          CMISOperationContext *operationContext = [CMISOperationContext defaultOperationContext];
@@ -1568,10 +1503,8 @@
              NSArray *renditions = document.renditions;
              STAssertTrue(renditions.count > 0, @"Expected at least one rendition");
              CMISRendition *thumbnailRendition = nil;
-             for (CMISRendition *rendition in renditions)
-             {
-                 if ([rendition.kind isEqualToString:@"cmis:thumbnail"])
-                 {
+             for (CMISRendition *rendition in renditions) {
+                 if ([rendition.kind isEqualToString:@"cmis:thumbnail"]) {
                      thumbnailRendition = rendition;
                  }
              }
@@ -1607,8 +1540,7 @@
 
 - (void)testGetRenditionsThroughObjectService
 {
-    [self runTest:^
-     {
+    [self runTest:^ {
          // Fetch test document
          NSString *path = [NSString stringWithFormat:@"%@ios-test/test-word-doc.docx", self.rootFolder.path];
          CMISOperationContext *operationContext = [CMISOperationContext defaultOperationContext];
@@ -1627,10 +1559,8 @@
                   STAssertNil(error, @"Error while retrieving renditions: %@", [error description]);
                   STAssertTrue(renditions.count > 0, @"Expected at least one rendition");
                   CMISRenditionData *thumbnailRendition = nil;
-                  for (CMISRenditionData *rendition in renditions)
-                  {
-                      if ([rendition.kind isEqualToString:@"cmis:thumbnail"])
-                      {
+                  for (CMISRenditionData *rendition in renditions) {
+                      if ([rendition.kind isEqualToString:@"cmis:thumbnail"]) {
                           thumbnailRendition = rendition;
                       }
                   }

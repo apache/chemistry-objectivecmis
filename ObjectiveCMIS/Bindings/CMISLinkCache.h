@@ -25,16 +25,24 @@
 
 @interface CMISLinkCache : NSObject
 
+/// initialise with CMISBindingSession instance
 - (id)initWithBindingSession:(CMISBindingSession *)bindingSession;
 
+/// retrieves the link for a given object Id/relationship
 - (NSString *)linkForObjectId:(NSString *)objectId andRelation:(NSString *)rel;
 
+/// retrieves the link for a given objectId, relationship and type
 - (NSString *)linkForObjectId:(NSString *)objectId andRelation:(NSString *)rel andType:(NSString *)type;
 
+/// adds a link for object Id
 - (void)addLinks:(CMISLinkRelations *)links forObjectId:(NSString *)objectId;
 
+/// removes link for object Id
 - (void)removeLinksForObjectId:(NSString *)objectId;
 
+/**
+ * removes all links
+ */
 - (void)removeAllLinks;
 
 @end

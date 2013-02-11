@@ -27,21 +27,11 @@
 
 @implementation CMISObjectByIdUriBuilder
 
-@synthesize templateUrl = _templateUrl;
-@synthesize objectId = _objectId;
-@synthesize filter = _filter;
-@synthesize includeAllowableActions = _includeAllowableActions;
-@synthesize includePolicyIds = _includePolicyIds;
-@synthesize includeRelationships = _includeRelationships;
-@synthesize includeACL = _includeACL;
-@synthesize renditionFilter = _renditionFilter;
-@synthesize returnVersion = _returnVersion;
 
 - (id)initWithTemplateUrl:(NSString *)templateUrl
 {
     self = [super init];
-    if (self)
-    {
+    if (self) {
         self.templateUrl = templateUrl;
 
         // Defaults
@@ -66,19 +56,13 @@
     urlString = [urlString stringByReplacingOccurrencesOfString:@"{includeACL}" withString:(self.includeACL ? @"true" : @"false")];
     urlString = [urlString stringByReplacingOccurrencesOfString:@"{renditionFilter}" withString:(self.renditionFilter != nil ? self.renditionFilter : @"")];
 
-    if (self.returnVersion != NOT_PROVIDED)
-    {
+    if (self.returnVersion != NOT_PROVIDED) {
         NSString *returnVersionParam = nil;
-        if (self.returnVersion == THIS)
-        {
+        if (self.returnVersion == THIS) {
             returnVersionParam = @"this";
-        }
-        else if (self.returnVersion == LATEST)
-        {
+        } else if (self.returnVersion == LATEST) {
             returnVersionParam = @"latest";
-        }
-        else
-        {
+        } else {
             returnVersionParam = @"latestmajor";
         }
 

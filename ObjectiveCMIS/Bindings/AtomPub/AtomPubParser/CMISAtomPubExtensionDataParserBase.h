@@ -30,9 +30,11 @@
 
 - (id)init;
 
-// Saves the current extensionData and extensions state and sets the messaged object as the new current extensionData object
+/// Saves the current extensionData and extensions state and sets the messaged object as the new current extensionData object
+
 - (void)pushNewCurrentExtensionData:(CMISExtensionData *)extensionDataObject;
-//  Saves the current extensions on the extensionData object and makes the previous extensionData and extensions the current objects
+
+///  Saves the current extensions on the extensionData object and makes the previous extensionData and extensions the current objects
 - (void)saveCurrentExtensionsAndPushPreviousExtensionData;
 
 @end

@@ -30,10 +30,6 @@
 
 @implementation CMISHttpDownloadRequest
 
-@synthesize outputStream = _outputStream;
-@synthesize progressBlock = _progressBlock;
-@synthesize bytesDownloaded = _bytesDownloaded;
-@synthesize bytesExpected = _bytesExpected;
 
 + (CMISHttpDownloadRequest*)startRequest:(NSMutableURLRequest *)urlRequest
                           withHttpMethod:(CMISHttpRequestMethod)httpRequestMethod

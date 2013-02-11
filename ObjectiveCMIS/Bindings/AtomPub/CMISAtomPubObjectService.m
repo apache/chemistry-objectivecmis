@@ -143,8 +143,7 @@ andIncludeAllowableActions:(BOOL)includeAllowableActions
               completionBlock:(void (^)(NSError *error))completionBlock
 {
     // Validate object id param
-    if (objectIdParam == nil || objectIdParam.inParameter == nil)
-    {
+    if (objectIdParam == nil || objectIdParam.inParameter == nil) {
         log(@"Object id is nil or inParameter of objectId is nil");
         completionBlock([[NSError alloc] init]); // TODO: properly init error (CmisInvalidArgumentException)
         return;
@@ -222,8 +221,7 @@ andIncludeAllowableActions:(BOOL)includeAllowableActions
                         progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal))progressBlock
 {
     // Validate object id param
-    if (objectIdParam == nil || objectIdParam.inParameter == nil)
-    {
+    if (objectIdParam == nil || objectIdParam.inParameter == nil) {
         log(@"Object id is nil or inParameter of objectId is nil");
         if (completionBlock) {
             completionBlock([CMISErrors createCMISErrorWithCode:kCMISErrorCodeInvalidArgument withDetailedDescription:@"Must provide object id"]);
@@ -337,8 +335,7 @@ andIncludeAllowableActions:(BOOL)includeAllowableActions
                                 progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal))progressBlock
 {
     // Validate properties
-    if ([properties propertyValueForId:kCMISPropertyName] == nil || [properties propertyValueForId:kCMISPropertyObjectTypeId] == nil)
-    {
+    if ([properties propertyValueForId:kCMISPropertyName] == nil || [properties propertyValueForId:kCMISPropertyObjectTypeId] == nil) {
         log(@"Must provide %@ and %@ as properties", kCMISPropertyName, kCMISPropertyObjectTypeId);
         if (completionBlock) {
             completionBlock(nil, [CMISErrors createCMISErrorWithCode:kCMISErrorCodeInvalidArgument withDetailedDescription:nil]);
@@ -347,8 +344,7 @@ andIncludeAllowableActions:(BOOL)includeAllowableActions
     }
     
     // Validate mimetype
-    if (inputStream && !mimeType)
-    {
+    if (inputStream && !mimeType) {
         log(@"Must provide a mimetype when creating a cmis document");
         if (completionBlock) {
             completionBlock(nil, [CMISErrors createCMISErrorWithCode:kCMISErrorCodeInvalidArgument withDetailedDescription:nil]);
@@ -404,16 +400,14 @@ andIncludeAllowableActions:(BOOL)includeAllowableActions
 
 - (void)createFolderInParentFolder:(NSString *)folderObjectId withProperties:(CMISProperties *)properties completionBlock:(void (^)(NSString *, NSError *))completionBlock
 {
-    if ([properties propertyValueForId:kCMISPropertyName] == nil || [properties propertyValueForId:kCMISPropertyObjectTypeId] == nil)
-    {
+    if ([properties propertyValueForId:kCMISPropertyName] == nil || [properties propertyValueForId:kCMISPropertyObjectTypeId] == nil) {
         log(@"Must provide %@ and %@ as properties", kCMISPropertyName, kCMISPropertyObjectTypeId);
         completionBlock(nil,  [CMISErrors createCMISErrorWithCode:kCMISErrorCodeInvalidArgument withDetailedDescription:nil]);
         return;
     }
     
     // Validate parent folder id
-    if (!folderObjectId)
-    {
+    if (!folderObjectId) {
         log(@"Must provide a parent folder object id when creating a new folder");
         completionBlock(nil, [CMISErrors createCMISErrorWithCode:kCMISErrorCodeObjectNotFound withDetailedDescription:nil]);
         return;
@@ -443,8 +437,7 @@ andIncludeAllowableActions:(BOOL)includeAllowableActions
    completionBlock:(void (^)(NSArray *failedObjects, NSError *error))completionBlock
 {
     // Validate params
-    if (!folderObjectId)
-    {
+    if (!folderObjectId) {
         log(@"Must provide a folder object id when deleting a folder tree");
         completionBlock(nil, [CMISErrors createCMISErrorWithCode:kCMISErrorCodeObjectNotFound withDetailedDescription:nil]);
         return;
@@ -498,8 +491,7 @@ andIncludeAllowableActions:(BOOL)includeAllowableActions
                   completionBlock:(void (^)(NSError *error))completionBlock
 {
     // Validate params
-    if (objectIdParam == nil || objectIdParam.inParameter == nil)
-    {
+    if (objectIdParam == nil || objectIdParam.inParameter == nil) {
         log(@"Object id is nil or inParameter of objectId is nil");
         completionBlock([[NSError alloc] init]); // TODO: properly init error (CmisInvalidArgumentException)
         return;
@@ -507,16 +499,14 @@ andIncludeAllowableActions:(BOOL)includeAllowableActions
     
     // Get self link
     [self loadLinkForObjectId:objectIdParam.inParameter andRelation:kCMISLinkRelationSelf completionBlock:^(NSString *selfLink, NSError *error) {
-        if (selfLink == nil)
-        {
+        if (selfLink == nil) {
             log(@"Could not retrieve %@ link", kCMISLinkRelationSelf);
             completionBlock([CMISErrors cmisError:error withCMISErrorCode:kCMISErrorCodeConnection]);
             return;
         }
         
         // Append optional params
-        if (changeTokenParam != nil && changeTokenParam.inParameter != nil)
-        {
+        if (changeTokenParam != nil && changeTokenParam.inParameter != nil) {
             selfLink = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterChangeToken
                                                         withValue:changeTokenParam.inParameter toUrlString:selfLink];
         }
@@ -541,12 +531,10 @@ andIncludeAllowableActions:(BOOL)includeAllowableActions
                                      // Object id and changeToken might have changed because of this operation
                                      CMISAtomEntryParser *atomEntryParser = [[CMISAtomEntryParser alloc] initWithData:httpResponse.data];
                                      NSError *error = nil;
-                                     if ([atomEntryParser parseAndReturnError:&error])
-                                     {
+                                     if ([atomEntryParser parseAndReturnError:&error]) {
                                          objectIdParam.outParameter = [[atomEntryParser.objectData.properties propertyForId:kCMISPropertyObjectId] firstValue];
                                          
-                                         if (changeTokenParam != nil)
-                                         {
+                                         if (changeTokenParam != nil) {
                                              changeTokenParam.outParameter = [[atomEntryParser.objectData.properties propertyForId:kCMISPropertyChangeToken] firstValue];
                                          }
                                      }

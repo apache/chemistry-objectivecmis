@@ -27,8 +27,14 @@
 
 @interface CMISAtomParserUtil : NSObject
 
+/**
+ * converts an atomPubType to a CMISPropertyType object
+ */
 + (CMISPropertyType)atomPubTypeToInternalType:(NSString *)atomPubType;
 
+/**
+ * parses the property value and adds it to an array
+ */
 + (void)parsePropertyValue:(NSString *)stringValue withPropertyType:(NSString *)propertyType addToArray:(NSMutableArray*)array;
 
 @end

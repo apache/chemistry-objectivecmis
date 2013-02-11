@@ -25,6 +25,23 @@ typedef enum {
 
 @protocol CMISNetworkProvider <NSObject>
 
+/**
+ * CMISNetworkProvider is a protocol used by the CMIS library to invoke network requests. 
+ * In case a custom network provider is to be used, this protocol must be implemented and an instance of the
+ * custom class provided in the CMISSessionParameters when creating a CMIS Session.
+ * CMISSessionParameters provides a networkProvider property for that purpose.
+ * All methods in this protocol must be implemented
+ */
+
+/**
+ * A general invoke method, typically used for GET, DELETE HTTP methods
+ * @param url the RESTful API URL to be used
+ * @param httpRequestMethod
+ * @param session
+ * @param body the data for the upload (maybe nil)
+ * @param headers any additional headers to be used in the request (maybe nil)
+ * @param completionBlock returns an instance of the HTTPResponse if successful or nil otherwise
+ */
 - (void)invoke:(NSURL *)url
 withHttpMethod:(CMISHttpRequestMethod)httpRequestMethod
    withSession:(CMISBindingSession *)session
@@ -32,6 +49,15 @@ withHttpMethod:(CMISHttpRequestMethod)httpRequestMethod
        headers:(NSDictionary *)additionalHeaders
 completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))completionBlock;
 
+/**
+ * Invoke method used for uploads, i.e. POST/PUT requests
+ * @param url the RESTful API URL to be used
+ * @param httpRequestMethod
+ * @param session
+ * @param inputStream the stream pointing to the source to be uploaded. Must be an instance or extension of NSInputStream
+ * @param headers any additional headers to be used in the request (maybe nil)
+ * @param completionBlock returns an instance of the HTTPResponse if successful or nil otherwise
+ */
 - (void)invoke:(NSURL *)url
 withHttpMethod:(CMISHttpRequestMethod)httpRequestMethod
    withSession:(CMISBindingSession *)session
@@ -40,6 +66,18 @@ withHttpMethod:(CMISHttpRequestMethod)httpRequestMethod
 completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))completionBlock;
 
 
+/**
+ * Invoke method used for uploads, i.e. POST/PUT requests
+ * @param url the RESTful API URL to be used
+ * @param httpRequestMethod
+ * @param session
+ * @param inputStream the stream pointing to the source to be uploaded. Must be an instance or extension of NSInputStream
+ * @param headers any additional headers to be used in the request (maybe nil)
+ * @param bytesExpected the size of the content to be uploaded
+ * @param completionBlock returns an instance of the HTTPResponse if successful or nil otherwise
+ * @param progressBlock
+ * @param requestObject a handle to the CMISRequest allowing this HTTP request to be cancelled
+ */
 - (void)invoke:(NSURL *)url withHttpMethod:(CMISHttpRequestMethod)httpRequestMethod
    withSession:(CMISBindingSession *)session
    inputStream:(NSInputStream *)inputStream
@@ -49,6 +87,17 @@ completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))comple
  progressBlock:(void (^)(unsigned long long bytesDownloaded, unsigned long long bytesTotal))progressBlock
  requestObject:(CMISRequest *)requestObject;
 
+/**
+ * Invoke method used for downloads, 
+ * @param url the RESTful API URL to be used
+ * @param httpRequestMethod
+ * @param session
+ * @param outputStream the stream pointing to the destination. Must be an instance or extension of NSOutputStream
+ * @param bytesExpected the size of the content to be downloaded
+ * @param completionBlock returns an instance of the HTTPResponse if successful or nil otherwise
+ * @param progressBlock
+ * @param requestObject a handle to the CMISRequest allowing this HTTP request to be cancelled
+ */
 - (void)invoke:(NSURL *)url
 withHttpMethod:(CMISHttpRequestMethod)httpRequestMethod
    withSession:(CMISBindingSession *)session
@@ -60,23 +109,51 @@ completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))comple
 
 
 
+/**
+ * Convenience GET invoke method
+ * @param url the RESTful API URL to be used
+ * @param session
+ * @param completionBlock returns an instance of the HTTPResponse if successful or nil otherwise
+ */
 - (void)invokeGET:(NSURL *)url
       withSession:(CMISBindingSession *)session
   completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))completionBlock;
 
 
+/**
+ * Convenience POST invoke method. Use for creating new content
+ * @param url the RESTful API URL to be used
+ * @param session
+ * @param body the data to be posted
+ * @param additionalHeaders any additional headers to be used in the request (optional)
+ * @param completionBlock returns an instance of the HTTPResponse if successful or nil otherwise
+ */
 - (void)invokePOST:(NSURL *)url
        withSession:(CMISBindingSession *)session
               body:(NSData *)body
            headers:(NSDictionary *)additionalHeaders
    completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))completionBlock;
 
+/**
+ * Convenience PUT invoke method. Use for updating existing content
+ * @param url the RESTful API URL to be used
+ * @param session
+ * @param body the data to be uploaded
+ * @param additionalHeaders any additional headers to be used in the request (optional)
+ * @param completionBlock returns an instance of the HTTPResponse if successful or nil otherwise
+ */
 - (void)invokePUT:(NSURL *)url
       withSession:(CMISBindingSession *)session
              body:(NSData *)body
           headers:(NSDictionary *)additionalHeaders
   completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))completionBlock;
 
+/**
+ * Convenience DELETE invoke method
+ * @param url the RESTful API URL to be used
+ * @param session
+ * @param completionBlock returns an instance of the HTTPResponse if successful or nil otherwise
+ */
 - (void)invokeDELETE:(NSURL *)url
          withSession:(CMISBindingSession *)session
      completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))completionBlock;

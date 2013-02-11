@@ -24,8 +24,7 @@
 + (NSString *)stringForIncludeRelationShip:(CMISIncludeRelationship)includeRelationship
 {
     NSString *includeRelationShipString = nil;
-    switch (includeRelationship)
-    {
+    switch (includeRelationship) {
         case (CMISIncludeRelationshipNone):
             includeRelationShipString = @"none";
             break;
@@ -48,8 +47,7 @@
 + (NSString *)stringForUnfileObject:(CMISUnfileObject)unfileObject;
 {
     NSString *unfileObjectString = nil;
-    switch (unfileObject)
-    {
+    switch (unfileObject) {
         case CMISUnfile:
             unfileObjectString = @"unfile";
             break;

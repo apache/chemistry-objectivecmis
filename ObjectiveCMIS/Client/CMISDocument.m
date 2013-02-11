@@ -44,21 +44,10 @@
 
 @implementation CMISDocument
 
-@synthesize contentStreamId = _contentStreamId;
-@synthesize contentStreamFileName = _contentStreamFileName;
-@synthesize contentStreamMediaType = _contentStreamMediaType;
-@synthesize contentStreamLength = _contentStreamLength;
-@synthesize versionLabel = _versionLabel;
-@synthesize latestVersion = _latestVersion;
-@synthesize majorVersion = _majorVersion;
-@synthesize versionSeriesId = _versionSeriesId;
-@synthesize latestMajorVersion = _latestMajorVersion;
-
 - (id)initWithObjectData:(CMISObjectData *)objectData withSession:(CMISSession *)session
 {
     self = [super initWithObjectData:objectData withSession:session];
-    if (self)
-    {
+    if (self){
         self.contentStreamId = [[objectData.properties.propertiesDictionary objectForKey:kCMISProperyContentStreamId] firstValue];
         self.contentStreamMediaType = [[objectData.properties.propertiesDictionary objectForKey:kCMISPropertyContentStreamMediaType] firstValue];
         self.contentStreamLength = [[[objectData.properties.propertiesDictionary objectForKey:kCMISPropertyContentStreamLength] firstValue] unsignedLongLongValue];

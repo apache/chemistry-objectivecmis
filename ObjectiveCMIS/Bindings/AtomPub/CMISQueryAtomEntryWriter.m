@@ -22,20 +22,12 @@
 
 @implementation CMISQueryAtomEntryWriter
 
-@synthesize statement = _statement;
-@synthesize searchAllVersions = _searchAllVersions;
-@synthesize includeRelationships = _includeRelationships;
-@synthesize renditionFilter = _renditionFilter;
-@synthesize includeAllowableActions = _includeAllowableActions;
-@synthesize skipCount = _skipCount;
-@synthesize maxItems = _maxItems;
 
 
 - (id)init
 {
     self = [super init];
-    if (self)
-    {
+    if (self) {
         self.includeRelationships = CMISIncludeRelationshipNone;
     }
     return self;
@@ -59,13 +51,11 @@
     [xml appendFormat:@"<cmis:includeRelationships>%@</cmis:includeRelationships>", [CMISEnums stringForIncludeRelationShip:self.includeRelationships]];
     [xml appendFormat:@"<cmis:renditionFilter>%@</cmis:renditionFilter>", self.renditionFilter != nil ? self.renditionFilter : @"*"];
 
-    if (self.maxItems != nil)
-    {
+    if (self.maxItems != nil) {
         [xml appendFormat:@"<cmis:maxItems>%d</cmis:maxItems>", self.maxItems.intValue];
     }
 
-    if (self.skipCount != nil)
-    {
+    if (self.skipCount != nil) {
         [xml appendFormat:@"<cmis:skipCount>%d</cmis:skipCount>", self.skipCount.intValue];
     }
     [xml appendString:@"</cmis:query>"];

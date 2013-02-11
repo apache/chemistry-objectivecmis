@@ -41,7 +41,9 @@
  */
 @property (readonly) NSInteger numItems;
 
+/// designated initialiser
 - (id)initWithData:(NSData*)feedData;
+/// parses the atom XML data. returns NO if unsuccessful
 - (BOOL)parseAndReturnError:(NSError **)error;
 
 @end

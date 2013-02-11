@@ -26,24 +26,17 @@
 
 @implementation CMISProperties
 
-@synthesize internalPropertiesByIdDict = _internalPropertiesByIdDict;
-@synthesize internalPropertiesByQueryNameDict = _internalPropertiesByQueryNameDict;
-@synthesize propertiesDictionary = _propertiesDictionary;
-@synthesize propertyList = _propertyList;
 
 
 - (void)addProperty:(CMISPropertyData *)propertyData
 {
-    if (self.internalPropertiesByIdDict == nil)
-    {
+    if (self.internalPropertiesByIdDict == nil) {
         self.internalPropertiesByIdDict = [NSMutableDictionary dictionary];
     }
     [self.internalPropertiesByIdDict setObject:propertyData forKey:propertyData.identifier];
 
-    if (propertyData.queryName != nil)
-    {
-        if (self.internalPropertiesByQueryNameDict == nil)
-        {
+    if (propertyData.queryName != nil) {
+        if (self.internalPropertiesByQueryNameDict == nil) {
             self.internalPropertiesByQueryNameDict = [NSMutableDictionary dictionary];
         }
         [self.internalPropertiesByQueryNameDict setObject:propertyData forKey:propertyData.queryName];

@@ -29,23 +29,6 @@
 
 @implementation CMISTypeDefinition
 
-@synthesize id = _id;
-@synthesize localName = _localName;
-@synthesize localNameSpace = _localNameSpace;
-@synthesize displayName = _displayName;
-@synthesize queryName = _queryName;
-@synthesize description = _description;
-@synthesize baseTypeId = _baseTypeId;
-@synthesize creatable = _creatable;
-@synthesize fileable = _fileable;
-@synthesize queryable = _queryable;
-@synthesize fullTextIndexed = _fullTextIndexed;
-@synthesize includedInSupertypeQuery = _includedInSupertypeQuery;
-@synthesize controllablePolicy = _controllablePolicy;
-@synthesize controllableAcl = _controllableAcl;
-@synthesize propertyDefinitions = _propertyDefinitions;
-@synthesize internalPropertyDefinitions = _internalPropertyDefinitions;
-
 - (NSDictionary *)propertyDefinitions
 {
     return self.internalPropertyDefinitions;
@@ -53,8 +36,7 @@
 
 - (void)addPropertyDefinition:(CMISPropertyDefinition *)propertyDefinition
 {
-    if (self.internalPropertyDefinitions == nil)
-    {
+    if (self.internalPropertyDefinitions == nil) {
         self.internalPropertyDefinitions = [[NSMutableDictionary alloc] init];
     }
     [self.internalPropertyDefinitions setObject:propertyDefinition forKey:propertyDefinition.id];

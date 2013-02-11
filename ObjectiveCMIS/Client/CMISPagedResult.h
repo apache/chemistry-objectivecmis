@@ -44,11 +44,23 @@ typedef void (^CMISFetchNextPageBlock)(int skipCount, int maxItems, CMISFetchNex
 @property (readonly) BOOL hasMoreItems;
 @property (readonly) NSInteger numItems;
 
+/**
+ * completionBlock returns paged results or nil if unsuccessful
+ */
 + (void)pagedResultUsingFetchBlock:(CMISFetchNextPageBlock)fetchNextPageBlock
                 andLimitToMaxItems:(NSInteger)maxItems andStartFromSkipCount:(NSInteger)skipCount
                    completionBlock:(void (^)(CMISPagedResult *result, NSError *error))completionBlock;
 
+/**
+ * fetches the next page
+ * completionBlock returns paged result or nil if unsuccessful
+ */
 - (void)fetchNextPageWithCompletionBlock:(void (^)(CMISPagedResult *result, NSError *error))completionBlock;
+
+/**
+ * enumerates through the items in a page
+ * completionBlock returns NSError nil if successful
+ */
 - (void)enumerateItemsUsingBlock:(void (^)(CMISObject *object, BOOL *stop))enumerationBlock
                  completionBlock:(void (^)(NSError *error))completionBlock;
 

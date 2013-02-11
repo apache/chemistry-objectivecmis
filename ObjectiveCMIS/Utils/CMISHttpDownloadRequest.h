@@ -30,6 +30,9 @@
 
 @property (nonatomic, readonly) unsigned long long bytesDownloaded;
 
+/** starts a URL request for download. Data are written to the provided output stream
+ * completionBlock returns a CMISHttpResponse object or nil if unsuccessful
+ */
 + (CMISHttpDownloadRequest*)startRequest:(NSMutableURLRequest*)urlRequest
                           withHttpMethod:(CMISHttpRequestMethod)httpRequestMethod
                             outputStream:(NSOutputStream*)outputStream
@@ -37,7 +40,7 @@
                   authenticationProvider:(id<CMISAuthenticationProvider>) authenticationProvider
                          completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))completionBlock
                            progressBlock:(void (^)(unsigned long long bytesDownloaded, unsigned long long bytesTotal))progressBlock;
-
+/// designated initialiser. Do not use directly, instead call the startRequest class method above
 - (id)initWithHttpMethod:(CMISHttpRequestMethod)httpRequestMethod
          completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))completionBlock
            progressBlock:(void (^)(unsigned long long bytesDownloaded, unsigned long long bytesTotal))progressBlock;

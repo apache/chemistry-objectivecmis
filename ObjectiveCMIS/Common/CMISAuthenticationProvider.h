@@ -31,10 +31,24 @@
 */
 @property(nonatomic, strong, readonly) NSDictionary *httpHeadersToApply;
 
+/**
+ * updates the provider with NSHTTPURLResponse
+ */
 - (void)updateWithHttpURLResponse:(NSHTTPURLResponse*)httpUrlResponse;
 
+/**
+ * checks if provider can authenticate against provided protection space
+ */
 - (BOOL)canAuthenticateAgainstProtectionSpace:(NSURLProtectionSpace *)protectionSpace;
+
+/**
+ * callback when authentication challenge was cancelled
+ */
 - (void)didCancelAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge;
+
+/**
+ * callback when authentication challenge was received
+ */
 - (void)didReceiveAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge;
 
 @end

@@ -25,11 +25,6 @@
 
 @implementation CMISBaseTest
 
-@synthesize parameters = _parameters;
-@synthesize session = _session;
-@synthesize rootFolder = _rootFolder;
-@synthesize testCompleted = _testCompleted;
-
 
 - (void) runTest:(CMISTestBlock)testBlock
 {
@@ -50,8 +45,7 @@
     NSArray *environmentArray = [environmentsDict objectForKey:@"environments"];
     STAssertNotNil(environmentArray, @"environmentArray is nil!");
 
-    for (NSDictionary *envDict in environmentArray)
-    {
+    for (NSDictionary *envDict in environmentArray) {
         NSString *url = [envDict valueForKey:@"url"];
         NSString *repositoryId = [envDict valueForKey:@"repositoryId"];
         NSString *username = [envDict valueForKey:@"username"];
@@ -80,30 +74,23 @@
     self.parameters.repositoryId = repositoryId;
 
     // Extra cmis params could be provided as method parameter
-    if (extraSessionParameters != nil)
-    {
-        for (id extraSessionParamKey in extraSessionParameters)
-        {
+    if (extraSessionParameters != nil) {
+        for (id extraSessionParamKey in extraSessionParameters) {
             [self.parameters setObject:[extraSessionParameters objectForKey:extraSessionParamKey] forKey:extraSessionParamKey];
         }
     }
 
     // Or, extra cmis parameters could be provided by overriding a base method
     NSDictionary *customParameters = [self customCmisParameters];
-    if (customParameters)
-    {
-        for (id customParamKey in customParameters)
-        {
+    if (customParameters) {
+        for (id customParamKey in customParameters) {
             [self.parameters setObject:[customParameters objectForKey:customParamKey] forKey:customParamKey];
         }
     }
     [CMISSession connectWithSessionParameters:self.parameters completionBlock:^(CMISSession *session, NSError *error){
-        if (nil == session)
-        {
+        if (nil == session) {
 
-        }
-        else
-        {
+        } else {
             self.session = session;
             STAssertTrue(self.session.isAuthenticated, @"Session should be authenticated");
             [self.session retrieveRootFolderWithCompletionBlock:^(CMISFolder *rootFolder, NSError *error) {
@@ -182,8 +169,7 @@
 - (void)waitForCompletion:(NSTimeInterval)timeoutSecs
 {
     NSDate *timeoutDate = [NSDate dateWithTimeIntervalSinceNow:timeoutSecs];
-    do
-    {
+    do {
         [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:timeoutDate];
     } while (!self.testCompleted && [timeoutDate timeIntervalSinceNow] > 0);
 

@@ -29,8 +29,7 @@
 {
     static dispatch_once_t predicate = 0;
       __strong static NSDateFormatter *dateFormatter = nil;
-      dispatch_once(&predicate, ^
-      {
+      dispatch_once(&predicate, ^ {
           dateFormatter = [[NSDateFormatter alloc] init];
           dateFormatter.locale = [NSLocale systemLocale];
           dateFormatter.calendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar]; // ISO8601 calendar not available
@@ -43,13 +42,15 @@
 }
 
 
-+ (NSString*)stringFromDate:(NSDate*)date {
++ (NSString*)stringFromDate:(NSDate*)date
+{
     NSString *string = [[CMISDateUtil CMISDateFormatter] stringFromDate:date];
     return string;
 }
 
 
-+ (NSDate *)dateFromString:(NSString *)string {
++ (NSDate *)dateFromString:(NSString *)string
+{
     if (string == nil) {
         return nil;
     }

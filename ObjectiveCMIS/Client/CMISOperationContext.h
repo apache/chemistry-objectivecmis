@@ -34,6 +34,11 @@
 @property (nonatomic, assign) NSInteger maxItemsPerPage;
 @property (nonatomic, assign) NSInteger skipCount;
 
+/**
+ * creates a default operationContext instance. The defaults are
+ - 100 items per page
+ - start at first 100 items
+ */
 + (CMISOperationContext *)defaultOperationContext;
 
 @end

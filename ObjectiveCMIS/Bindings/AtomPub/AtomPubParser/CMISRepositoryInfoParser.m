@@ -37,19 +37,12 @@
 
 @implementation CMISRepositoryInfoParser
 
-@synthesize currentRepositoryInfo = _currentRepositoryInfo;
-@synthesize parentDelegate = _parentDelegate;
-@synthesize currentString = _currentString;
-@synthesize currentCollection = _currentCollection;
-@synthesize currentCapabilities = _currentCapabilities;
-@synthesize parsingExtensionElement = _parsingExtensionElement;
 
 
 - (id)initRepositoryInfoParserWithParentDelegate:(id<NSXMLParserDelegate, CMISRepositoryInfoParserDelegate>)parentDelegate parser:(NSXMLParser *)parser
 {
     self = [super init];
-    if (self)
-    {
+    if (self) {
         self.currentString = [[NSMutableString alloc] init];
         self.currentRepositoryInfo = [[CMISRepositoryInfo alloc] init];
         self.parentDelegate = parentDelegate;
@@ -75,16 +68,12 @@
 {
     self.currentString = [[NSMutableString alloc] init];
     
-    if ([namespaceURI isEqualToString:kCMISNamespaceCmis])
-    {
-        if ([elementName isEqualToString:kCMISCoreCapabilities])
-        {
+    if ([namespaceURI isEqualToString:kCMISNamespaceCmis]) {
+        if ([elementName isEqualToString:kCMISCoreCapabilities]) {
             self.currentCapabilities = [NSMutableDictionary dictionaryWithCapacity:14];
         }
-    }
-    else if ( ![namespaceURI isEqualToString:kCMISNamespaceCmis] && ![namespaceURI isEqualToString:kCMISNamespaceApp] 
-              && ![namespaceURI isEqualToString:kCMISNamespaceAtom] && ![namespaceURI isEqualToString:kCMISNamespaceCmisRestAtom]) 
-    {
+    } else if ( ![namespaceURI isEqualToString:kCMISNamespaceCmis] && ![namespaceURI isEqualToString:kCMISNamespaceApp] 
+              && ![namespaceURI isEqualToString:kCMISNamespaceAtom] && ![namespaceURI isEqualToString:kCMISNamespaceCmisRestAtom])  {
         self.parsingExtensionElement = YES;
         self.childParserDelegate = [CMISAtomPubExtensionElementParser extensionElementParserWithElementName:elementName namespaceUri:namespaceURI attributes:attributeDict parentDelegate:self parser:parser];
     }
@@ -103,59 +92,35 @@
 
 - (void)parser:(NSXMLParser *)parser didEndElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qName 
 {
-    if ([namespaceURI isEqualToString:kCMISNamespaceCmis])
-    {
-        if ([elementName isEqualToString:kCMISCoreRepositoryId])
-        {
+    if ([namespaceURI isEqualToString:kCMISNamespaceCmis]) {
+        if ([elementName isEqualToString:kCMISCoreRepositoryId]) {
             self.currentRepositoryInfo.identifier = self.currentString;
-        }
-        else if ([elementName isEqualToString:kCMISCoreRepositoryName])
-        {
+        } else if ([elementName isEqualToString:kCMISCoreRepositoryName]) {
             self.currentRepositoryInfo.name = self.currentString;
-        }
-        else if ([elementName isEqualToString:kCMISCoreRepositoryDescription])
-        {
+        } else if ([elementName isEqualToString:kCMISCoreRepositoryDescription]) {
             self.currentRepositoryInfo.desc = self.currentString;
-        }
-        else if ([elementName isEqualToString:kCMISCoreVendorName])
-        {
+        } else if ([elementName isEqualToString:kCMISCoreVendorName]) {
             self.currentRepositoryInfo.vendorName = self.currentString;
-        }
-        else if ([elementName isEqualToString:kCMISCoreProductName])
-        {
+        } else if ([elementName isEqualToString:kCMISCoreProductName]) {
             self.currentRepositoryInfo.productName = self.currentString;
-        }
-        else if ([elementName isEqualToString:kCMISCoreProductVersion])
-        {
+        } else if ([elementName isEqualToString:kCMISCoreProductVersion]) {
             self.currentRepositoryInfo.productVersion = self.currentString;
-        }
-        else if ([elementName isEqualToString:kCMISCoreRootFolderId])
-        {
+        } else if ([elementName isEqualToString:kCMISCoreRootFolderId]) {
             self.currentRepositoryInfo.rootFolderId = self.currentString;
-        }
-        else if ([elementName isEqualToString:kCMISCoreCmisVersionSupported])
-        {
+        } else if ([elementName isEqualToString:kCMISCoreCmisVersionSupported]) {
             self.currentRepositoryInfo.cmisVersionSupported = self.currentString;
-        }
-        else if ([elementName hasPrefix:_kCMISCoreCapabilityPrefix] && self.currentCapabilities)
-        {
+        } else if ([elementName hasPrefix:_kCMISCoreCapabilityPrefix] && self.currentCapabilities) {
             [self.currentCapabilities setValue:self.currentString forKeyPath:elementName];
-        }
-        else if ([elementName isEqualToString:kCMISCoreCapabilities])
-        {
+        } else if ([elementName isEqualToString:kCMISCoreCapabilities]) {
             self.currentRepositoryInfo.repositoryCapabilities = self.currentCapabilities;
             self.currentCapabilities = nil;
-        }
-        else if ([elementName isEqualToString:kCMISCoreAclCapability] || [elementName isEqualToString:kCMISCorePermission]
+        } else if ([elementName isEqualToString:kCMISCoreAclCapability] || [elementName isEqualToString:kCMISCorePermission]
                  || [elementName isEqualToString:kCMISCorePermissions]|| [elementName isEqualToString:kCMISCoreMapping]
                  || [elementName isEqualToString:kCMISCoreKey]|| [elementName isEqualToString:kCMISCoreSupportedPermissions]
-                 || [elementName isEqualToString:kCMISCorePropagation] || [elementName isEqualToString:kCMISCoreDescription])
-        {
+                 || [elementName isEqualToString:kCMISCorePropagation] || [elementName isEqualToString:kCMISCoreDescription]) {
             
             // TODO Handle ACL Capability tree
-        }
-        else 
-        {
+        } else {
             /*
              TODO Parse these into the repoItem object
                 kCMISCoreSupportedPermissions;
@@ -169,11 +134,8 @@
             
             //log(@"TODO Cmis-Core Element was ignored: ElementName=%@, Value=%@",elementName, self.currentString);
         } 
-    }
-    else if ([namespaceURI isEqualToString:kCMISNamespaceCmisRestAtom])
-    {
-        if ([elementName isEqualToString:kCMISRestAtomRepositoryInfo] && self.parentDelegate)
-        {
+    } else if ([namespaceURI isEqualToString:kCMISNamespaceCmisRestAtom]) {
+        if ([elementName isEqualToString:kCMISRestAtomRepositoryInfo] && self.parentDelegate) {
             // Finished parsing Properties & its ExtensionData
             [self saveCurrentExtensionsAndPushPreviousExtensionData];
 
@@ -182,13 +144,9 @@
             parser.delegate = self.parentDelegate;
             self.parentDelegate = nil;
         }
-    }
-    else if ([namespaceURI isEqualToString:kCMISNamespaceApp] || [namespaceURI isEqualToString:kCMISNamespaceAtom])
-    {
+    } else if ([namespaceURI isEqualToString:kCMISNamespaceApp] || [namespaceURI isEqualToString:kCMISNamespaceAtom]) {
         log(@"WARNING: We should not get here");
-    }
-    else if (self.isParsingExtensionElement)
-    {
+    } else if (self.isParsingExtensionElement) {
         self.parsingExtensionElement = NO;
     }
     
@@ -200,8 +158,7 @@
 
 - (void)extensionElementParser:(CMISAtomPubExtensionElementParser *)parser didFinishParsingExtensionElement:(CMISExtensionElement *)extensionElement
 {
-    if (self.currentExtensions == nil)
-    {
+    if (self.currentExtensions == nil) {
         self.currentExtensions = [[NSMutableArray alloc] init];
     }
     

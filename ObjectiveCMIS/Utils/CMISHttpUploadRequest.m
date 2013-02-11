@@ -29,10 +29,6 @@
 
 @implementation CMISHttpUploadRequest
 
-@synthesize inputStream = _inputStream;
-@synthesize progressBlock = _progressBlock;
-@synthesize bytesExpected = _bytesExpected;
-@synthesize bytesUploaded = _bytesUploaded;
 
 + (CMISHttpUploadRequest*)startRequest:(NSMutableURLRequest *)urlRequest
                         withHttpMethod:(CMISHttpRequestMethod)httpRequestMethod

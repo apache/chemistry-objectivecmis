@@ -25,8 +25,9 @@
 
 @protocol CMISNavigationService <NSObject>
 
-/*
+/**
  * Retrieves the children for the given object identifier.
+ * completionBlock returns object list or nil if unsuccessful
  */
 - (void)retrieveChildren:(NSString *)objectId orderBy:(NSString *)orderBy
                   filter:(NSString *)filter includeRelationShips:(CMISIncludeRelationship)includeRelationship
@@ -36,11 +37,12 @@
          completionBlock:(void (^)(CMISObjectList *objectList, NSError *error))completionBlock;
 
 /**
-* Retrieves the parent of a given object.
-* Returns a list of CMISObjectData objects
-*
-* TODO: OpenCMIS returns an ObjectParentData object .... is this necessary?
-*/
+ * Retrieves the parent of a given object.
+ * Returns a list of CMISObjectData objects
+ *
+ * TODO: OpenCMIS returns an ObjectParentData object .... is this necessary?
+ * completionBlock returns array of parents or nil if unsuccessful
+ */
 - (void)retrieveParentsForObject:(NSString *)objectId
                       withFilter:(NSString *)filter
         withIncludeRelationships:(CMISIncludeRelationship)includeRelationship

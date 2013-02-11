@@ -31,18 +31,11 @@
 
 @implementation CMISAtomFeedParser
 
-@synthesize feedData = _feedData;
-@synthesize internalEntries = _internalEntries;
-@synthesize numItems = _numItems;
-@synthesize feedLinkRelations = _feedLinkRelations;
-@synthesize childParserDelegate = _childParserDelegate;
-@synthesize string = _string;
 
 - (id)initWithData:(NSData*)feedData
 {
     self = [super init];
-    if (self)
-    {
+    if (self) {
         self.feedData = feedData;
         self.feedLinkRelations = [NSMutableSet set];
     }
@@ -52,12 +45,9 @@
 
 - (NSArray *)entries
 {
-    if (self.internalEntries != nil)
-    {
+    if (self.internalEntries != nil) {
         return [NSArray arrayWithArray:self.internalEntries];
-    }
-    else 
-    {
+    } else {
         return nil;
     }
 }
@@ -80,10 +70,8 @@
     [parser setDelegate:self];
     parseSuccessful = [parser parse];
     
-    if (!parseSuccessful)
-    {
-        if (error)
-        {
+    if (!parseSuccessful) {
+        if (error) {
             *error = [parser parserError];
         }
     }
@@ -96,13 +84,10 @@
 
 - (void)parser:(NSXMLParser *)parser didStartElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qName attributes:(NSDictionary *)attributeDict 
 {
-    if ([elementName isEqualToString:kCMISAtomEntry])
-    {
+    if ([elementName isEqualToString:kCMISAtomEntry]) {
         // Delegate parsing of AtomEntry element to the entry child parser
         self.childParserDelegate = [CMISAtomEntryParser atomEntryParserWithAtomEntryAttributes:attributeDict parentDelegate:self parser:parser];
-    }
-    else if ([elementName isEqualToString:kCMISAtomEntryLink])
-    {
+    } else if ([elementName isEqualToString:kCMISAtomEntryLink]) {
         CMISAtomLink *link = [[CMISAtomLink alloc] init];
         [link setValuesForKeysWithDictionary:attributeDict];
         [self.feedLinkRelations addObject:link];
@@ -119,8 +104,7 @@
 
 - (void)parser:(NSXMLParser *)parser didEndElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qName 
 {
-    if ([elementName isEqualToString:kCMISAtomFeedNumItems])
-    {
+    if ([elementName isEqualToString:kCMISAtomFeedNumItems]) {
         self.numItems = [self.string integerValue];
     }
 

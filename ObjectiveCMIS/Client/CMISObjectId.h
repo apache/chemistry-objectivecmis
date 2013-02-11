@@ -24,6 +24,8 @@
 
 @property (nonatomic, strong, readonly) NSString *identifier;
 
+/**
+ */
 - (id)initWithString:(NSString *)string;
 
 @end
