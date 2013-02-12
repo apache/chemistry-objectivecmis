@@ -115,7 +115,7 @@ static char *alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz012
 }
 
 
-+ (void)encodeContentOfFile:(NSString *)sourceFilePath andAppendToFile:(NSString *)destinationFilePath
++ (void)encodeContentOfFile:(NSString *)sourceFilePath appendToFile:(NSString *)destinationFilePath
 {
     NSFileHandle *fileHandle = [NSFileHandle fileHandleForReadingAtPath:sourceFilePath];
     if (fileHandle) {
@@ -143,7 +143,7 @@ static char *alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz012
     }
 }
 
-+ (void)encodeContentFromInputStream:(NSInputStream*)inputStream andAppendToFile:(NSString *)destinationFilePath
++ (void)encodeContentFromInputStream:(NSInputStream*)inputStream appendToFile:(NSString *)destinationFilePath
 {
     [inputStream open];
     

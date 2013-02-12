@@ -35,9 +35,9 @@
 @implementation CMISFolder
 
 
-- (id)initWithObjectData:(CMISObjectData *)objectData withSession:(CMISSession *)session
+- (id)initWithObjectData:(CMISObjectData *)objectData session:(CMISSession *)session
 {
-    self = [super initWithObjectData:objectData withSession:session];
+    self = [super initWithObjectData:objectData session:session];
     if (self){
         self.path = [[objectData.properties propertyForId:kCMISPropertyPath] firstValue];
     }
@@ -78,7 +78,7 @@
         [self.binding.navigationService retrieveChildren:self.identifier
                                                  orderBy:operationContext.orderBy
                                                   filter:operationContext.filterString
-                                    includeRelationShips:operationContext.includeRelationShips
+                                           relationShips:operationContext.includeRelationShips
                                          renditionFilter:operationContext.renditionFilterString
                                  includeAllowableActions:operationContext.includeAllowableActions
                                       includePathSegment:operationContext.includePathSegments
@@ -86,7 +86,7 @@
                                                 maxItems:[NSNumber numberWithInt:maxItems]
                                          completionBlock:^(CMISObjectList *objectList, NSError *error) {
                                              if (error) {
-                                                 pageBlockCompletionBlock(nil, [CMISErrors cmisError:error withCMISErrorCode:kCMISErrorCodeConnection]);
+                                                 pageBlockCompletionBlock(nil, [CMISErrors cmisError:error cmisErrorCode:kCMISErrorCodeConnection]);
                                              } else {
                                                  CMISFetchNextPageBlockResult *result = [[CMISFetchNextPageBlockResult alloc] init];
                                                  result.hasMoreItems = objectList.hasMoreItems;
@@ -99,11 +99,11 @@
     };
 
     [CMISPagedResult pagedResultUsingFetchBlock:fetchNextPageBlock
-                             andLimitToMaxItems:operationContext.maxItemsPerPage
-                          andStartFromSkipCount:operationContext.skipCount
+                                limitToMaxItems:operationContext.maxItemsPerPage
+                             startFromSkipCount:operationContext.skipCount
                           completionBlock:^(CMISPagedResult *result, NSError *error) {
                               if (error) {
-                                  completionBlock(nil, [CMISErrors cmisError:error withCMISErrorCode:kCMISErrorCodeRuntime]);
+                                  completionBlock(nil, [CMISErrors cmisError:error cmisErrorCode:kCMISErrorCodeRuntime]);
                               } else {
                                   completionBlock(result, nil);
                               }
@@ -116,10 +116,10 @@
                                     forObjectTypeId:[properties objectForKey:kCMISPropertyObjectTypeId]
                                     completionBlock:^(CMISProperties *properties, NSError *error) {
                      if (error) {
-                         completionBlock(nil, [CMISErrors cmisError:error withCMISErrorCode:kCMISErrorCodeRuntime]);
+                         completionBlock(nil, [CMISErrors cmisError:error cmisErrorCode:kCMISErrorCodeRuntime]);
                      } else {
                          [self.binding.objectService createFolderInParentFolder:self.identifier
-                                                                 withProperties:properties
+                                                                     properties:properties
                                                                 completionBlock:^(NSString *objectId, NSError *error) {
                                                                     completionBlock(objectId, error);
                                                                 }];
@@ -128,8 +128,8 @@
 }
 
 - (void)createDocumentFromFilePath:(NSString *)filePath
-                      withMimeType:(NSString *)mimeType
-                    withProperties:(NSDictionary *)properties
+                          mimeType:(NSString *)mimeType
+                        properties:(NSDictionary *)properties
                    completionBlock:(void (^)(NSString *objectId, NSError *error))completionBlock
                      progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal))progressBlock
 {
@@ -139,12 +139,12 @@
         if (error) {
             log(@"Could not convert properties: %@", error.description);
             if (completionBlock) {
-                completionBlock(nil, [CMISErrors cmisError:error withCMISErrorCode:kCMISErrorCodeRuntime]);
+                completionBlock(nil, [CMISErrors cmisError:error cmisErrorCode:kCMISErrorCodeRuntime]);
             }
         } else {
             [self.binding.objectService createDocumentFromFilePath:filePath
-                                                      withMimeType:mimeType
-                                                    withProperties:convertedProperties
+                                                          mimeType:mimeType
+                                                        properties:convertedProperties
                                                           inFolder:self.identifier
                                                    completionBlock:completionBlock
                                                      progressBlock:progressBlock];
@@ -153,8 +153,8 @@
 }
 
 - (void)createDocumentFromInputStream:(NSInputStream *)inputStream
-                         withMimeType:(NSString *)mimeType
-                       withProperties:(NSDictionary *)properties
+                             mimeType:(NSString *)mimeType
+                           properties:(NSDictionary *)properties
                         bytesExpected:(unsigned long long)bytesExpected
                       completionBlock:(void (^)(NSString *objectId, NSError *error))completionBlock
                         progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal))progressBlock
@@ -163,12 +163,12 @@
         if (nil == convertedProperties){
             log(@"Could not convert properties: %@", error.description);
             if (completionBlock) {
-                completionBlock(nil, [CMISErrors cmisError:error withCMISErrorCode:kCMISErrorCodeRuntime]);
+                completionBlock(nil, [CMISErrors cmisError:error cmisErrorCode:kCMISErrorCodeRuntime]);
             }
         } else {
             [self.binding.objectService createDocumentFromInputStream:inputStream
-                                                         withMimeType:mimeType
-                                                       withProperties:convertedProperties
+                                                             mimeType:mimeType
+                                                           properties:convertedProperties
                                                              inFolder:self.identifier
                                                         bytesExpected:bytesExpected
                                                       completionBlock:completionBlock
@@ -179,9 +179,9 @@
 
 
 - (void)deleteTreeWithDeleteAllVersions:(BOOL)deleteAllversions
-                           withUnfileObjects:(CMISUnfileObject)unfileObjects
-                       withContinueOnFailure:(BOOL)continueOnFailure
-                             completionBlock:(void (^)(NSArray *failedObjects, NSError *error))completionBlock
+                          unfileObjects:(CMISUnfileObject)unfileObjects
+                      continueOnFailure:(BOOL)continueOnFailure
+                        completionBlock:(void (^)(NSArray *failedObjects, NSError *error))completionBlock
 {
     [self.binding.objectService deleteTree:self.identifier allVersion:deleteAllversions
                                     unfileObjects:unfileObjects continueOnFailure:continueOnFailure completionBlock:completionBlock];

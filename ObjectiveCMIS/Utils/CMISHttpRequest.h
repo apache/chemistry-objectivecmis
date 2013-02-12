@@ -42,11 +42,11 @@
  * completionBlock returns a CMISHTTPResponse object or nil if unsuccessful
  */
 + (CMISHttpRequest*)startRequest:(NSMutableURLRequest *)urlRequest
-              withHttpMethod:(CMISHttpRequestMethod)httpRequestMethod
-                 requestBody:(NSData*)requestBody
-                     headers:(NSDictionary*)additionalHeaders
-      authenticationProvider:(id<CMISAuthenticationProvider>)authenticationProvider
-             completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))completionBlock;
+                      httpMethod:(CMISHttpRequestMethod)httpRequestMethod
+                     requestBody:(NSData*)requestBody
+                         headers:(NSDictionary*)additionalHeaders
+          authenticationProvider:(id<CMISAuthenticationProvider>)authenticationProvider
+                 completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))completionBlock;
 
 /**
  * designated initialiser. Do not use this initialiser directly. Instead use the

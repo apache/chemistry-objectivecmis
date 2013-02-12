@@ -32,7 +32,7 @@
 @implementation CMISRendition
 
 
-- (id)initWithRenditionData:(CMISRenditionData *)renditionData andObjectId:(NSString *)objectId andSession:(CMISSession *)session
+- (id)initWithRenditionData:(CMISRenditionData *)renditionData objectId:(NSString *)objectId session:(CMISSession *)session
 {
     self = [super initWithRenditionData:renditionData];
     if (self) {
@@ -56,7 +56,7 @@
         return;
     }
 
-    [self.session retrieveObject:self.renditionDocumentId withOperationContext:operationContext completionBlock:^(CMISObject *renditionDocument, NSError *error) {
+    [self.session retrieveObject:self.renditionDocumentId operationContext:operationContext completionBlock:^(CMISObject *renditionDocument, NSError *error) {
         if (renditionDocument != nil && !([[renditionDocument class] isKindOfClass:[CMISDocument class]])) {
             completionBlock(nil, nil);
             return;
@@ -76,7 +76,7 @@
     }
 
     [self.session.binding.objectService downloadContentOfObject:self.objectId
-                                                   withStreamId:self.streamId
+                                                       streamId:self.streamId
                                                          toFile:filePath
                                                 completionBlock:completionBlock
                                                   progressBlock:progressBlock];
@@ -92,7 +92,7 @@
     }
     
     [self.session.binding.objectService downloadContentOfObject:self.objectId
-                                                   withStreamId:self.streamId
+                                                       streamId:self.streamId
                                                          toOutputStream:outputStream
                                                 completionBlock:completionBlock
                                                   progressBlock:progressBlock];

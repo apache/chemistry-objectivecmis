@@ -107,7 +107,7 @@
                 log(@"No matching repository found for repository id %@", self.bindingSession.repositoryId);
                 // TODO: populate error properly
                 NSString *detailedDescription = [NSString stringWithFormat:@"No matching repository found for repository id %@", self.bindingSession.repositoryId];
-                error = [CMISErrors createCMISErrorWithCode:kCMISErrorCodeNoRepositoryFound withDetailedDescription:detailedDescription];
+                error = [CMISErrors createCMISErrorWithCode:kCMISErrorCodeNoRepositoryFound detailedDescription:detailedDescription];
             }
         }
         completionBlock(error);
@@ -120,7 +120,7 @@
         completionBlock([self.bindingSession objectForKey:kCMISSessionKeyWorkspaces], nil);
     } else {
         [self.bindingSession.networkProvider invokeGET:self.atomPubUrl
-                withSession:self.bindingSession
+                session:self.bindingSession
             completionBlock:^(CMISHttpResponse *httpResponse, NSError *error) {
                 if (httpResponse) {
                     NSData *data = httpResponse.data;
@@ -148,20 +148,26 @@
 
 - (void)retrieveObjectInternal:(NSString *)objectId completionBlock:(void (^)(CMISObjectData *objectData, NSError *error))completionBlock
 {
-    [self retrieveObjectInternal:objectId withReturnVersion:NOT_PROVIDED withFilter:@"" andIncludeRelationShips:CMISIncludeRelationshipNone
-             andIncludePolicyIds:NO andRenditionFilder:nil andIncludeACL:NO
-      andIncludeAllowableActions:YES completionBlock:completionBlock];
+    [self retrieveObjectInternal:objectId
+                   returnVersion:NOT_PROVIDED
+                          filter:@""
+                   relationShips:CMISIncludeRelationshipNone
+                includePolicyIds:NO
+                 renditionFilder:nil
+                      includeACL:NO
+         includeAllowableActions:YES
+                 completionBlock:completionBlock];
 }
 
 
 - (void)retrieveObjectInternal:(NSString *)objectId
-             withReturnVersion:(CMISReturnVersion)returnVersion
-                    withFilter:(NSString *)filter
-       andIncludeRelationShips:(CMISIncludeRelationship)includeRelationship
-           andIncludePolicyIds:(BOOL)includePolicyIds
-            andRenditionFilder:(NSString *)renditionFilter
-                 andIncludeACL:(BOOL)includeACL
-    andIncludeAllowableActions:(BOOL)includeAllowableActions
+                 returnVersion:(CMISReturnVersion)returnVersion
+                        filter:(NSString *)filter
+                 relationShips:(CMISIncludeRelationship)includeRelationship
+              includePolicyIds:(BOOL)includePolicyIds
+               renditionFilder:(NSString *)renditionFilter
+                    includeACL:(BOOL)includeACL
+       includeAllowableActions:(BOOL)includeAllowableActions
                completionBlock:(void (^)(CMISObjectData *objectData, NSError *error))completionBlock
 {
     [self retrieveFromCache:kCMISBindingSessionKeyObjectByIdUriBuilder completionBlock:^(id object, NSError *error) {
@@ -178,7 +184,7 @@
         
         // Execute actual call
         [self.bindingSession.networkProvider invokeGET:objectIdUrl
-                withSession:self.bindingSession
+                session:self.bindingSession
             completionBlock:^(CMISHttpResponse *httpResponse, NSError *error) {
                 if (httpResponse) {
                     if (httpResponse.statusCode == 200 && httpResponse.data) {
@@ -190,7 +196,7 @@
                             
                             // Add links to link cache
                             CMISLinkCache *linkCache = [self linkCache];
-                            [linkCache addLinks:objectData.linkRelations forObjectId:objectData.identifier];
+                            [linkCache addLinks:objectData.linkRelations objectId:objectData.identifier];
                         }
                         completionBlock(objectData, error);
                     }
@@ -202,12 +208,12 @@
 }
 
 - (void)retrieveObjectByPathInternal:(NSString *)path
-                          withFilter:(NSString *)filter
-             andIncludeRelationShips:(CMISIncludeRelationship)includeRelationship
-                 andIncludePolicyIds:(BOOL)includePolicyIds
-                  andRenditionFilder:(NSString *)renditionFilter
-                       andIncludeACL:(BOOL)includeACL
-          andIncludeAllowableActions:(BOOL)includeAllowableActions
+                              filter:(NSString *)filter
+                       relationShips:(CMISIncludeRelationship)includeRelationship
+                    includePolicyIds:(BOOL)includePolicyIds
+                     renditionFilder:(NSString *)renditionFilter
+                          includeACL:(BOOL)includeACL
+             includeAllowableActions:(BOOL)includeAllowableActions
                      completionBlock:(void (^)(CMISObjectData *objectData, NSError *error))completionBlock
 {
     [self retrieveFromCache:kCMISBindingSessionKeyObjectByPathUriBuilder completionBlock:^(id object, NSError *error) {
@@ -222,7 +228,7 @@
         
         // Execute actual call
         [self.bindingSession.networkProvider invokeGET:[objectByPathUriBuilder buildUrl]
-                withSession:self.bindingSession
+                session:self.bindingSession
             completionBlock:^(CMISHttpResponse *httpResponse, NSError *error) {
                 if (httpResponse) {
                     if (httpResponse.statusCode == 200 && httpResponse.data != nil) {
@@ -234,7 +240,7 @@
                             
                             // Add links to link cache
                             CMISLinkCache *linkCache = [self linkCache];
-                            [linkCache addLinks:objectData.linkRelations forObjectId:objectData.identifier];
+                            [linkCache addLinks:objectData.linkRelations objectId:objectData.identifier];
                         }
                         completionBlock(objectData, error);
                     }
@@ -264,19 +270,22 @@
 
 
 - (void)loadLinkForObjectId:(NSString *)objectId
-                andRelation:(NSString *)rel
+                   relation:(NSString *)rel
             completionBlock:(void (^)(NSString *link, NSError *error))completionBlock
 {
-    [self loadLinkForObjectId:objectId andRelation:rel andType:nil completionBlock:completionBlock];
+    [self loadLinkForObjectId:objectId relation:rel type:nil completionBlock:completionBlock];
 }
 
 
-- (void)loadLinkForObjectId:(NSString *)objectId andRelation:(NSString *)rel andType:(NSString *)type completionBlock:(void (^)(NSString *link, NSError *error))completionBlock
+- (void)loadLinkForObjectId:(NSString *)objectId
+                   relation:(NSString *)rel
+                       type:(NSString *)type
+            completionBlock:(void (^)(NSString *link, NSError *error))completionBlock
 {
     CMISLinkCache *linkCache = [self linkCache];
     
     // Fetch link from cache
-    NSString *link = [linkCache linkForObjectId:objectId andRelation:rel andType:type];
+    NSString *link = [linkCache linkForObjectId:objectId relation:rel type:type];
     if (link) {
         completionBlock(link, nil);
     } else {
@@ -284,12 +293,12 @@
         [self retrieveObjectInternal:objectId completionBlock:^(CMISObjectData *objectData, NSError *error) {
             if (error) {
                 log(@"Could not retrieve object with id %@", objectId);
-                completionBlock(nil, [CMISErrors cmisError:error withCMISErrorCode:kCMISErrorCodeObjectNotFound]);
+                completionBlock(nil, [CMISErrors cmisError:error cmisErrorCode:kCMISErrorCodeObjectNotFound]);
             } else {
-                NSString *link = [linkCache linkForObjectId:objectId andRelation:rel andType:type];
+                NSString *link = [linkCache linkForObjectId:objectId relation:rel type:type];
                 if (link == nil) {
                     completionBlock(nil, [CMISErrors createCMISErrorWithCode:kCMISErrorCodeObjectNotFound
-                                                     withDetailedDescription:[NSString stringWithFormat:@"Could not find link '%@' for object with id %@", rel, objectId]]);
+                                                     detailedDescription:[NSString stringWithFormat:@"Could not find link '%@' for object with id %@", rel, objectId]]);
                 } else {
                     completionBlock(link, nil);
                 }

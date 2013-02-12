@@ -51,7 +51,7 @@
     }
 }
 
-+ (void)parsePropertyValue:(NSString *)stringValue withPropertyType:(NSString *)propertyType addToArray:(NSMutableArray*)array
++ (void)parsePropertyValue:(NSString *)stringValue propertyType:(NSString *)propertyType addToArray:(NSMutableArray*)array
 {
     if ([propertyType isEqualToString:kCMISAtomEntryPropertyString] ||
         [propertyType isEqualToString:kCMISAtomEntryPropertyId] ||

@@ -64,7 +64,7 @@ NSString * const kCMISSessionParameterMode = @"session_param_mode";
     return [self.sessionData objectForKey:key];
 }
 
-- (id)objectForKey:(id)key withDefaultValue:(id)defaultValue
+- (id)objectForKey:(id)key defaultValue:(id)defaultValue
 {
     NSObject *value = [self.sessionData objectForKey:key];
     return value != nil ? value : defaultValue;

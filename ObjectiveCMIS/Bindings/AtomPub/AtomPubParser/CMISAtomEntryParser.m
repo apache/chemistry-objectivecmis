@@ -186,7 +186,7 @@
 {
    
     if ([elementName isEqualToString:kCMISAtomEntryValue]) {
-        [CMISAtomParserUtil parsePropertyValue:self.string withPropertyType:self.currentPropertyType addToArray:self.propertyValues];
+        [CMISAtomParserUtil parsePropertyValue:self.string propertyType:self.currentPropertyType addToArray:self.propertyValues];
     } else if (self.currentRendition != nil) {
         if ([elementName isEqualToString:kCMISCoreStreamId]) {
             self.currentRendition.streamId = self.string;

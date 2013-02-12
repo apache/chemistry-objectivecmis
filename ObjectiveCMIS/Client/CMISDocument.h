@@ -58,7 +58,7 @@
  * The completionBlock returns the CMIS document or nil if unsuccessful
  */
 - (void)retrieveObjectOfLatestVersionWithMajorVersion:(BOOL)major
-                                 withOperationContext:(CMISOperationContext *)operationContext
+                                     operationContext:(CMISOperationContext *)operationContext
                                       completionBlock:(void (^)(CMISDocument *document, NSError *error))completionBlock;
 
 /**
@@ -87,7 +87,7 @@
  * completionBlock will return NSError nil if successful
  */
 - (CMISRequest*)changeContentToContentOfFile:(NSString *)filePath
-                       withOverwriteExisting:(BOOL)overwrite
+                                   overwrite:(BOOL)overwrite
                              completionBlock:(void (^)(NSError *error))completionBlock
                                progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal))progressBlock;
 
@@ -101,8 +101,8 @@
  */
 - (CMISRequest*)changeContentToContentOfInputStream:(NSInputStream *)inputStream
                                       bytesExpected:(unsigned long long)bytesExpected
-                                       withFileName:(NSString *)filename
-                              withOverwriteExisting:(BOOL)overwrite
+                                           fileName:(NSString *)fileName
+                                          overwrite:(BOOL)overwrite
                                     completionBlock:(void (^)(NSError *error))completionBlock
                                       progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal))progressBlock;
 

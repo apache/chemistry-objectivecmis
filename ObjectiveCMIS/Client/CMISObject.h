@@ -47,7 +47,7 @@
 /**
  * initialise CMISObject with data and session
  */
-- (id)initWithObjectData:(CMISObjectData *)objectData withSession:(CMISSession *)session;
+- (id)initWithObjectData:(CMISObjectData *)objectData session:(CMISSession *)session;
 
 /**
  * Updates the properties that are provided.

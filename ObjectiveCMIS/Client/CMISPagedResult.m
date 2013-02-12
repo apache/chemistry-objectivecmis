@@ -53,8 +53,10 @@
 /** Internal init */
 - (id)initWithResultArray:(NSArray *)resultArray
  retrievedUsingFetchBlock:(CMISFetchNextPageBlock)fetchNextPageBlock
-              andNumItems:(NSInteger)numItems andHasMoreItems:(BOOL)hasMoreItems
-              andMaxItems:(NSInteger)maxItems andSkipCount:(NSInteger)skipCount;
+                 numItems:(NSInteger)numItems
+             hasMoreItems:(BOOL)hasMoreItems
+                 maxItems:(NSInteger)maxItems
+                skipCount:(NSInteger)skipCount;
 {
     self = [super init];
     if (self) {
@@ -69,20 +71,21 @@
 }
 
 + (void)pagedResultUsingFetchBlock:(CMISFetchNextPageBlock)fetchNextPageBlock
-                andLimitToMaxItems:(NSInteger)maxItems andStartFromSkipCount:(NSInteger)skipCount
+                   limitToMaxItems:(NSInteger)maxItems
+                startFromSkipCount:(NSInteger)skipCount
                    completionBlock:(void (^)(CMISPagedResult *result, NSError *error))completionBlock
 {
     // Fetch the first requested page
     fetchNextPageBlock(skipCount, maxItems, ^(CMISFetchNextPageBlockResult *result, NSError *error) {
         if (error) {
-            completionBlock(nil, [CMISErrors cmisError:error withCMISErrorCode:kCMISErrorCodeRuntime]);
+            completionBlock(nil, [CMISErrors cmisError:error cmisErrorCode:kCMISErrorCodeRuntime]);
         } else {
             completionBlock([[CMISPagedResult alloc] initWithResultArray:result.resultArray
                                                 retrievedUsingFetchBlock:fetchNextPageBlock
-                                                             andNumItems:result.numItems
-                                                         andHasMoreItems:result.hasMoreItems
-                                                             andMaxItems:maxItems
-                                                            andSkipCount:skipCount],
+                                                                numItems:result.numItems
+                                                            hasMoreItems:result.hasMoreItems
+                                                                maxItems:maxItems
+                                                               skipCount:skipCount],
                             nil);
         }
     });
@@ -91,8 +94,8 @@
 - (void)fetchNextPageWithCompletionBlock:(void (^)(CMISPagedResult *result, NSError *error))completionBlock
 {
     [CMISPagedResult pagedResultUsingFetchBlock:self.fetchNextPageBlock
-                             andLimitToMaxItems:self.maxItems
-                          andStartFromSkipCount:(self.skipCount + self.resultArray.count)
+                                limitToMaxItems:self.maxItems
+                             startFromSkipCount:(self.skipCount + self.resultArray.count)
                                 completionBlock:completionBlock];
 }
 
@@ -102,7 +105,7 @@
     for (CMISObject *object in self.resultArray) {
         enumerationBlock(object, &stop);
         if (stop) {
-            NSError *error = [CMISErrors createCMISErrorWithCode:kCMISErrorCodeCancelled withDetailedDescription:@"Item enumeration was stopped"];
+            NSError *error = [CMISErrors createCMISErrorWithCode:kCMISErrorCodeCancelled detailedDescription:@"Item enumeration was stopped"];
             completionBlock(error);
             return;
         }

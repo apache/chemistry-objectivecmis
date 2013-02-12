@@ -23,7 +23,7 @@
 
 @implementation CMISURLUtil
 
-+ (NSString *)urlStringByAppendingParameter:(NSString *)parameterName withValue:(NSString *)parameterValue toUrlString:(NSString *)urlString
++ (NSString *)urlStringByAppendingParameter:(NSString *)parameterName value:(NSString *)parameterValue urlString:(NSString *)urlString
 {
     if (parameterName == nil || parameterValue == nil) {
         return urlString;
@@ -46,9 +46,9 @@
     return result;
 }
 
-+ (NSURL *)urlStringByAppendingParameter:(NSString *)parameterName withValue:(NSString *)parameterValue toUrl:(NSURL *)url
++ (NSURL *)urlStringByAppendingParameter:(NSString *)parameterName value:(NSString *)parameterValue url:(NSURL *)url
 {
-    return [NSURL URLWithString:[CMISURLUtil urlStringByAppendingParameter:parameterName withValue:parameterValue toUrlString:[url absoluteString]]];
+    return [NSURL URLWithString:[CMISURLUtil urlStringByAppendingParameter:parameterName value:parameterValue urlString:[url absoluteString]]];
 }
 
 @end

@@ -67,19 +67,19 @@
 //    self.linkCache.delegate = self;
 }
 
-- (NSString *)linkForObjectId:(NSString *)objectId andRelation:(NSString *)rel
+- (NSString *)linkForObjectId:(NSString *)objectId relation:(NSString *)rel
 {
     CMISLinkRelations *linkRelations = [self.linkCache objectForKey:objectId];
     return [linkRelations linkHrefForRel:rel];
 }
 
-- (NSString *)linkForObjectId:(NSString *)objectId andRelation:(NSString *)rel andType:(NSString *)type
+- (NSString *)linkForObjectId:(NSString *)objectId relation:(NSString *)rel type:(NSString *)type
 {
     CMISLinkRelations *linkRelations = [self.linkCache objectForKey:objectId];
     return [linkRelations linkHrefForRel:rel type:type];
 }
 
-- (void)addLinks:(CMISLinkRelations *)links forObjectId:(NSString *)objectId
+- (void)addLinks:(CMISLinkRelations *)links objectId:(NSString *)objectId
 {
     [self.linkCache setObject:links forKey:objectId];
 }

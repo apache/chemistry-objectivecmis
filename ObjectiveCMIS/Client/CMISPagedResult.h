@@ -48,7 +48,8 @@ typedef void (^CMISFetchNextPageBlock)(int skipCount, int maxItems, CMISFetchNex
  * completionBlock returns paged results or nil if unsuccessful
  */
 + (void)pagedResultUsingFetchBlock:(CMISFetchNextPageBlock)fetchNextPageBlock
-                andLimitToMaxItems:(NSInteger)maxItems andStartFromSkipCount:(NSInteger)skipCount
+                   limitToMaxItems:(NSInteger)maxItems
+                startFromSkipCount:(NSInteger)skipCount
                    completionBlock:(void (^)(CMISPagedResult *result, NSError *error))completionBlock;
 
 /**

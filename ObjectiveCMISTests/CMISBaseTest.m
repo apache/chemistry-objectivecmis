@@ -139,10 +139,9 @@
     __block long long previousUploadedBytes = -1;
     __block NSString *objectId = nil;
     [self.rootFolder createDocumentFromFilePath:filePath
-            withMimeType:@"text/plain"
-            withProperties:documentProperties
-            completionBlock: ^ (NSString *newObjectId, NSError *error)
-            {
+                                       mimeType:@"text/plain"
+                                     properties:documentProperties
+                                completionBlock: ^ (NSString *newObjectId, NSError *error){
                 if (newObjectId) {
                     objectId = newObjectId;
                     

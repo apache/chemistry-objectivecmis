@@ -34,12 +34,14 @@
  * Returns the repository info for the repository with the given id
  * completionBlock returns repository or nil if unsuccessful
  */
-- (void)retrieveRepositoryInfoForId:(NSString *)repositoryId completionBlock:(void (^)(CMISRepositoryInfo *repositoryInfo, NSError *error))completionBlock;
+- (void)retrieveRepositoryInfoForId:(NSString *)repositoryId
+                    completionBlock:(void (^)(CMISRepositoryInfo *repositoryInfo, NSError *error))completionBlock;
 
 /**
  * Returns the type definitions
  * completionBlock returns type definition or nil if unsuccessful
  */
-- (void)retrieveTypeDefinition:(NSString *)typeId completionBlock:(void (^)(CMISTypeDefinition *typeDefinition, NSError *error))completionBlock;
+- (void)retrieveTypeDefinition:(NSString *)typeId
+               completionBlock:(void (^)(CMISTypeDefinition *typeDefinition, NSError *error))completionBlock;
 
 @end

@@ -35,6 +35,6 @@
 /**
  * parses the property value and adds it to an array
  */
-+ (void)parsePropertyValue:(NSString *)stringValue withPropertyType:(NSString *)propertyType addToArray:(NSMutableArray*)array;
++ (void)parsePropertyValue:(NSString *)stringValue propertyType:(NSString *)propertyType addToArray:(NSMutableArray*)array;
 
 @end

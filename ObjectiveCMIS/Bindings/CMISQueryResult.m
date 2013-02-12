@@ -37,7 +37,7 @@
 
 
 
-- (id)initWithCmisObjectData:(CMISObjectData *)cmisObjectData andWithSession:(CMISSession *)session
+- (id)initWithCmisObjectData:(CMISObjectData *)cmisObjectData session:(CMISSession *)session
 {
     self = [super init];
     if (self) {
@@ -47,7 +47,7 @@
         if (cmisObjectData.renditions != nil) {
             NSMutableArray *renditions = [NSMutableArray array];
             for (CMISRenditionData *renditionData in cmisObjectData.renditions) {
-                [renditions addObject:[[CMISRendition alloc] initWithRenditionData:renditionData andObjectId:cmisObjectData.identifier andSession:session]];
+                [renditions addObject:[[CMISRendition alloc] initWithRenditionData:renditionData objectId:cmisObjectData.identifier session:session]];
             }
             self.renditions = renditions;
         }
@@ -55,9 +55,9 @@
     return self;
 }
 
-+ (CMISQueryResult *)queryResultUsingCmisObjectData:(CMISObjectData *)cmisObjectData andWithSession:(CMISSession *)session
++ (CMISQueryResult *)queryResultUsingCmisObjectData:(CMISObjectData *)cmisObjectData session:(CMISSession *)session
 {
-    CMISQueryResult *queryResult = [[CMISQueryResult alloc] initWithCmisObjectData:cmisObjectData andWithSession:session];
+    CMISQueryResult *queryResult = [[CMISQueryResult alloc] initWithCmisObjectData:cmisObjectData session:session];
     return queryResult;
 }
 

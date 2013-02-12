@@ -69,7 +69,7 @@ extern NSString * const kCMISSessionParameterMode;
 
 - (id)objectForKey:(id)key;
 
-- (id)objectForKey:(id)key withDefaultValue:(id)defaultValue;
+- (id)objectForKey:(id)key defaultValue:(id)defaultValue;
 
 - (void)setObject:(id)object forKey:(id)key;
 

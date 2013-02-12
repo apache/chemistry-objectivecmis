@@ -88,7 +88,7 @@
   * completionBlock returns the CMIS object or nil if unsuccessful
   */
 - (void)retrieveObject:(NSString *)objectId
-  withOperationContext:(CMISOperationContext *)operationContext
+      operationContext:(CMISOperationContext *)operationContext
        completionBlock:(void (^)(CMISObject *object, NSError *error))completionBlock;
 
 /**
@@ -104,7 +104,7 @@
  * completionBlock returns the CMIS object or nil if unsuccessful
  */
 - (void)retrieveObjectByPath:(NSString *)path
-        withOperationContext:(CMISOperationContext *)operationContext
+            operationContext:(CMISOperationContext *)operationContext
              completionBlock:(void (^)(CMISObject *object, NSError *error))completionBlock;
 
 /**
@@ -135,7 +135,7 @@
  * completionBlock returns the search results as a paged results object or nil if unsuccessful.
  */
 - (void)queryObjectsWithTypeid:(NSString *)typeId
-               withWhereClause:(NSString *)whereClause
+                   whereClause:(NSString *)whereClause
              searchAllVersions:(BOOL)searchAllVersion
               operationContext:(CMISOperationContext *)operationContext
                completionBlock:(void (^)(CMISPagedResult *result, NSError *error))completionBlock;
@@ -173,8 +173,8 @@
  * completionBlock returns object Id of newly created object or nil if unsuccessful
  */
 - (void)createDocumentFromFilePath:(NSString *)filePath
-                      withMimeType:(NSString *)mimeType
-                    withProperties:(NSDictionary *)properties
+                          mimeType:(NSString *)mimeType
+                        properties:(NSDictionary *)properties
                           inFolder:(NSString *)folderObjectId
                    completionBlock:(void (^)(NSString *objectId, NSError *error))completionBlock
                      progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal))progressBlock;
@@ -184,8 +184,8 @@
  * completionBlock returns object Id of newly created object or nil if unsuccessful
  */
 - (void)createDocumentFromInputStream:(NSInputStream *)inputStream
-                         withMimeType:(NSString *)mimeType
-                       withProperties:(NSDictionary *)properties
+                             mimeType:(NSString *)mimeType
+                           properties:(NSDictionary *)properties
                              inFolder:(NSString *)folderObjectId
                         bytesExpected:(unsigned long long)bytesExpected
                       completionBlock:(void (^)(NSString *objectId, NSError *error))completionBlock

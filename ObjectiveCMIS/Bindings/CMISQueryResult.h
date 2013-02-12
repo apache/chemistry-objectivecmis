@@ -35,12 +35,12 @@
 /**
  * Initializes this query result.
  */
-- (id)initWithCmisObjectData:(CMISObjectData *)cmisObjectData andWithSession:(CMISSession *)session;
+- (id)initWithCmisObjectData:(CMISObjectData *)cmisObjectData session:(CMISSession *)session;
 
 /**
  * Convience method for the initializer.
  */
-+ (CMISQueryResult *)queryResultUsingCmisObjectData:(CMISObjectData *)cmisObjectData andWithSession:(CMISSession *)session;
++ (CMISQueryResult *)queryResultUsingCmisObjectData:(CMISObjectData *)cmisObjectData session:(CMISSession *)session;
 
 /**
  * Returns a property by id.

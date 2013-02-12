@@ -28,7 +28,7 @@
  * @param username
  * @param password
  */
-- (id)initWithUsername:(NSString *)username andPassword:(NSString *)password;
+- (id)initWithUsername:(NSString *)username password:(NSString *)password;
 
 /** Initialize with a credential object that will be provided when a corresponding challenge is received from the server.
  * Both client certificate and username / password credentials are supported

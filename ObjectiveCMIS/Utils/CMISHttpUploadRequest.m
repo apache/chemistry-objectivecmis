@@ -31,7 +31,7 @@
 
 
 + (CMISHttpUploadRequest*)startRequest:(NSMutableURLRequest *)urlRequest
-                        withHttpMethod:(CMISHttpRequestMethod)httpRequestMethod
+                            httpMethod:(CMISHttpRequestMethod)httpRequestMethod
                            inputStream:(NSInputStream*)inputStream
                                headers:(NSDictionary*)additionalHeaders
                          bytesExpected:(unsigned long long)bytesExpected

@@ -34,11 +34,11 @@
                             completionBlock:(void (^)(NSArray *parentFolders, NSError *error))completionBlock
 {
     [self.binding.navigationService retrieveParentsForObject:self.identifier
-                                                  withFilter:operationContext.filterString
-                                    withIncludeRelationships:operationContext.includeRelationShips
-                                         withRenditionFilter:operationContext.renditionFilterString
-                                 withIncludeAllowableActions:operationContext.includeAllowableActions
-                              withIncludeRelativePathSegment:operationContext.includePathSegments
+                                                      filter:operationContext.filterString
+                                               relationships:operationContext.includeRelationShips
+                                             renditionFilter:operationContext.renditionFilterString
+                                     includeAllowableActions:operationContext.includeAllowableActions
+                                  includeRelativePathSegment:operationContext.includePathSegments
                                              completionBlock:^(NSArray *parentObjectDataArray, NSError *error) {
                                                  NSMutableArray *parentFolders = [NSMutableArray array];
                                                  for (CMISObjectData *parentObjectData in parentObjectDataArray){

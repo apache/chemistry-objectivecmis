@@ -110,47 +110,47 @@
     return propertyData;
 }
 
-+ (CMISPropertyData *)createPropertyForId:(NSString *)id withArrayValue:(NSArray *)value type:(CMISPropertyType)type
++ (CMISPropertyData *)createPropertyForId:(NSString *)id arrayValue:(NSArray *)value type:(CMISPropertyType)type
 {
     return [self createPropertyInternal:id value:value type:type];
 }
 
-+ (CMISPropertyData *)createPropertyForId:(NSString *)id withStringValue:(NSString *)value
++ (CMISPropertyData *)createPropertyForId:(NSString *)id stringValue:(NSString *)value
 {
     return [self createPropertyInternal:id value:value type:CMISPropertyTypeString];
 }
 
-+ (CMISPropertyData *)createPropertyForId:(NSString *)id withIntegerValue:(NSInteger)value
++ (CMISPropertyData *)createPropertyForId:(NSString *)id integerValue:(NSInteger)value
 {
     return [self createPropertyInternal:id value:[NSNumber numberWithInteger:value] type:CMISPropertyTypeInteger];
 }
 
-+ (CMISPropertyData *)createPropertyForId:(NSString *)id withDecimalValue:(NSNumber *)value
++ (CMISPropertyData *)createPropertyForId:(NSString *)id decimalValue:(NSNumber *)value
 {
     return [self createPropertyInternal:id value:value type:CMISPropertyTypeDecimal];
 }
 
-+ (CMISPropertyData *)createPropertyForId:(NSString *)id withIdValue:(NSString *)value
++ (CMISPropertyData *)createPropertyForId:(NSString *)id idValue:(NSString *)value
 {
     return [self createPropertyInternal:id value:value type:CMISPropertyTypeId];
 }
 
-+ (CMISPropertyData *)createPropertyForId:(NSString *)id withDateTimeValue:(NSDate *)value
++ (CMISPropertyData *)createPropertyForId:(NSString *)id dateTimeValue:(NSDate *)value
 {
     return [self createPropertyInternal:id value:value type:CMISPropertyTypeDateTime];
 }
 
-+ (CMISPropertyData *)createPropertyForId:(NSString *)id withBoolValue:(BOOL)value
++ (CMISPropertyData *)createPropertyForId:(NSString *)id boolValue:(BOOL)value
 {
     return [self createPropertyInternal:id value:[NSNumber numberWithBool:value] type:CMISPropertyTypeBoolean];
 }
 
-+ (CMISPropertyData *)createPropertyForId:(NSString *)id withUriValue:(NSURL *)value
++ (CMISPropertyData *)createPropertyForId:(NSString *)id uriValue:(NSURL *)value
 {
     return [self createPropertyInternal:id value:value type:CMISPropertyTypeUri];
 }
 
-+ (CMISPropertyData *)createPropertyForId:(NSString *)id withHtmlValue:(NSString *)value
++ (CMISPropertyData *)createPropertyForId:(NSString *)id htmlValue:(NSString *)value
 {
     return [self createPropertyInternal:id value:value type:CMISPropertyTypeHtml];
 }

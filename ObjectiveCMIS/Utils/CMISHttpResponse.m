@@ -30,7 +30,8 @@
 @implementation CMISHttpResponse
 
 
-+ (CMISHttpResponse *)responseUsingURLHTTPResponse:(NSHTTPURLResponse *)httpUrlResponse andData:(NSData *)data
++ (CMISHttpResponse *)responseUsingURLHTTPResponse:(NSHTTPURLResponse *)httpUrlResponse
+                                              data:(NSData *)data
 {
     CMISHttpResponse *httpResponse = [[CMISHttpResponse alloc] init];
     httpResponse.statusCode = httpUrlResponse.statusCode;

@@ -31,7 +31,7 @@
  * completionBlock returns CMISHttpResponse instance or nil if unsuccessful
  */
 + (CMISHttpUploadRequest*)startRequest:(NSMutableURLRequest *)urlRequest
-                        withHttpMethod:(CMISHttpRequestMethod)httpRequestMethod
+                            httpMethod:(CMISHttpRequestMethod)httpRequestMethod
                            inputStream:(NSInputStream*)inputStream
                                headers:(NSDictionary*)addionalHeaders
                          bytesExpected:(unsigned long long)bytesExpected

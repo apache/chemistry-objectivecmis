@@ -65,8 +65,8 @@
  * completionBlock returns object Id of newly created document or nil if not successful
  */
 - (void)createDocumentFromFilePath:(NSString *)filePath
-                      withMimeType:(NSString *)mimeType
-                    withProperties:(NSDictionary *)properties
+                          mimeType:(NSString *)mimeType
+                        properties:(NSDictionary *)properties
                    completionBlock:(void (^)(NSString *objectId, NSError *error))completionBlock
                      progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal))progressBlock;
 
@@ -75,8 +75,8 @@
  * completionBlock returns object Id of newly created document or nil if not successful
  */
 - (void)createDocumentFromInputStream:(NSInputStream *)inputStream
-                         withMimeType:(NSString *)mimeType
-                       withProperties:(NSDictionary *)properties
+                             mimeType:(NSString *)mimeType
+                           properties:(NSDictionary *)properties
                         bytesExpected:(unsigned long long)bytesExpected
                       completionBlock:(void (^)(NSString *objectId, NSError *error))completionBlock
                         progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal))progressBlock;
@@ -87,8 +87,8 @@
  * completionBlock returns list of failed objects (if any) 
  */
 - (void)deleteTreeWithDeleteAllVersions:(BOOL)deleteAllversions
-                      withUnfileObjects:(CMISUnfileObject)unfileObjects
-                  withContinueOnFailure:(BOOL)continueOnFailure
+                          unfileObjects:(CMISUnfileObject)unfileObjects
+                      continueOnFailure:(BOOL)continueOnFailure
                         completionBlock:(void (^)(NSArray *failedObjects, NSError *error))completionBlock;
 
 

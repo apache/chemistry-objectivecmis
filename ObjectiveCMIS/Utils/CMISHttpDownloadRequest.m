@@ -32,7 +32,7 @@
 
 
 + (CMISHttpDownloadRequest*)startRequest:(NSMutableURLRequest *)urlRequest
-                          withHttpMethod:(CMISHttpRequestMethod)httpRequestMethod
+                              httpMethod:(CMISHttpRequestMethod)httpRequestMethod
                             outputStream:(NSOutputStream*)outputStream
                            bytesExpected:(unsigned long long)bytesExpected
                   authenticationProvider:(id<CMISAuthenticationProvider>) authenticationProvider
@@ -102,7 +102,7 @@
             if (self.completionBlock)
             {
                 NSError *cmisError = [CMISErrors createCMISErrorWithCode:kCMISErrorCodeStorage
-                                                 withDetailedDescription:@"Could not open output stream"];
+                                                     detailedDescription:@"Could not open output stream"];
                 self.completionBlock(nil, cmisError);
             }
         }

@@ -37,10 +37,14 @@
               includeAllowableActions:(BOOL)includeAllowableActions
                       completionBlock:(void (^)(CMISObjectData *objectData, NSError *error))completionBlock
 {
-    [self retrieveObjectInternal:objectId withReturnVersion:(major ? LATEST_MAJOR : LATEST)
-                      withFilter:filter andIncludeRelationShips:includeRelationships
-             andIncludePolicyIds:includePolicyIds andRenditionFilder:renditionFilter
-                   andIncludeACL:includeACL andIncludeAllowableActions:includeAllowableActions
+    [self retrieveObjectInternal:objectId
+                   returnVersion:(major ? LATEST_MAJOR : LATEST)
+                          filter:filter
+                   relationShips:includeRelationships
+                includePolicyIds:includePolicyIds
+                 renditionFilder:renditionFilter
+                      includeACL:includeACL
+         includeAllowableActions:includeAllowableActions
                  completionBlock:^(CMISObjectData *objectData, NSError *error) {
                      completionBlock(objectData, error);
                  }];
@@ -54,38 +58,40 @@
     // Validate params
     if (!objectId) {
         log(@"Must provide an objectId when retrieving all versions");
-        completionBlock(nil, [CMISErrors createCMISErrorWithCode:kCMISErrorCodeObjectNotFound withDetailedDescription:nil]);
+        completionBlock(nil, [CMISErrors createCMISErrorWithCode:kCMISErrorCodeObjectNotFound detailedDescription:nil]);
         return;
     }
     
     // Fetch version history link
-    [self loadLinkForObjectId:objectId andRelation:kCMISLinkVersionHistory completionBlock:^(NSString *versionHistoryLink, NSError *error) {
+    [self loadLinkForObjectId:objectId
+                     relation:kCMISLinkVersionHistory
+              completionBlock:^(NSString *versionHistoryLink, NSError *error) {
         if (error) {
-            completionBlock(nil, [CMISErrors cmisError:error withCMISErrorCode:kCMISErrorCodeObjectNotFound]);
+            completionBlock(nil, [CMISErrors cmisError:error cmisErrorCode:kCMISErrorCodeObjectNotFound]);
             return;
         }
         
         if (filter) {
-            versionHistoryLink = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterFilter withValue:filter toUrlString:versionHistoryLink];
+            versionHistoryLink = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterFilter value:filter urlString:versionHistoryLink];
         }
         versionHistoryLink = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterIncludeAllowableActions
-                                                              withValue:(includeAllowableActions ? @"true" : @"false") toUrlString:versionHistoryLink];
+                                                              value:(includeAllowableActions ? @"true" : @"false") urlString:versionHistoryLink];
         
         // Execute call
         [self.bindingSession.networkProvider invokeGET:[NSURL URLWithString:versionHistoryLink]
-                withSession:self.bindingSession
+                session:self.bindingSession
             completionBlock:^(CMISHttpResponse *httpResponse, NSError *error) {
                 if (httpResponse) {
                     NSData *data = httpResponse.data;
                     CMISAtomFeedParser *feedParser = [[CMISAtomFeedParser alloc] initWithData:data];
                     NSError *error;
                     if (![feedParser parseAndReturnError:&error]) {
-                        completionBlock(nil, [CMISErrors cmisError:error withCMISErrorCode:kCMISErrorCodeVersioning]);
+                        completionBlock(nil, [CMISErrors cmisError:error cmisErrorCode:kCMISErrorCodeVersioning]);
                     } else {
                         completionBlock(feedParser.entries, nil);
                     }
                 } else {
-                    completionBlock(nil, [CMISErrors cmisError:error withCMISErrorCode:kCMISErrorCodeConnection]);
+                    completionBlock(nil, [CMISErrors cmisError:error cmisErrorCode:kCMISErrorCodeConnection]);
                 }
             }];
     }];

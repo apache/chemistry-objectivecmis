@@ -41,7 +41,7 @@
 {
     [self internalRetrieveRepositoriesWithCompletionBlock:^(NSError *error) {
         if (error) {
-            completionBlock(nil, [CMISErrors cmisError:error withCMISErrorCode:kCMISErrorCodeObjectNotFound]);
+            completionBlock(nil, [CMISErrors cmisError:error cmisErrorCode:kCMISErrorCodeObjectNotFound]);
         } else {
             completionBlock([self.repositories allValues], nil);
         }
@@ -52,7 +52,7 @@
 {
     [self internalRetrieveRepositoriesWithCompletionBlock:^(NSError *error) {
         if (error) {
-            completionBlock(nil, [CMISErrors cmisError:error withCMISErrorCode:kCMISErrorCodeInvalidArgument]);
+            completionBlock(nil, [CMISErrors cmisError:error cmisErrorCode:kCMISErrorCodeInvalidArgument]);
         } else {
             completionBlock([self.repositories objectForKey:repositoryId], nil);
         }
@@ -85,7 +85,7 @@
         CMISTypeByIdUriBuilder *typeByIdUriBuilder = object;
         typeByIdUriBuilder.id = typeId;
         
-        [self.bindingSession.networkProvider invokeGET:[typeByIdUriBuilder buildUrl] withSession:self.bindingSession completionBlock:^(CMISHttpResponse *httpResponse, NSError *error) {
+        [self.bindingSession.networkProvider invokeGET:[typeByIdUriBuilder buildUrl] session:self.bindingSession completionBlock:^(CMISHttpResponse *httpResponse, NSError *error) {
             if (httpResponse) {
                 if (httpResponse.data != nil) {
                     CMISTypeDefinitionAtomEntryParser *parser = [[CMISTypeDefinitionAtomEntryParser alloc] initWithData:httpResponse.data];

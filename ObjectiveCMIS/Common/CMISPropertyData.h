@@ -56,38 +56,38 @@
 
 /** Creation of a multi-value property 
  */
-+ (CMISPropertyData *)createPropertyForId:(NSString *)id withArrayValue:(NSArray *)value type:(CMISPropertyType)type;
++ (CMISPropertyData *)createPropertyForId:(NSString *)id arrayValue:(NSArray *)value type:(CMISPropertyType)type;
 
 /** Creation of a string property 
  */
-+ (CMISPropertyData *)createPropertyForId:(NSString *)id withStringValue:(NSString *)value;
++ (CMISPropertyData *)createPropertyForId:(NSString *)id stringValue:(NSString *)value;
 
 /** Creation of an integer property 
  */
-+ (CMISPropertyData *)createPropertyForId:(NSString *)id withIntegerValue:(NSInteger)value;
++ (CMISPropertyData *)createPropertyForId:(NSString *)id integerValue:(NSInteger)value;
 
 /** Creation of a decimal property 
  */
-+ (CMISPropertyData *)createPropertyForId:(NSString *)id withDecimalValue:(NSNumber *)value;
++ (CMISPropertyData *)createPropertyForId:(NSString *)id decimalValue:(NSNumber *)value;
 
 /** Creation of an id property 
  */
-+ (CMISPropertyData *)createPropertyForId:(NSString *)id withIdValue:(NSString *)value;
++ (CMISPropertyData *)createPropertyForId:(NSString *)id idValue:(NSString *)value;
 
 /** Creation of a datetime property 
  */
-+ (CMISPropertyData *)createPropertyForId:(NSString *)id withDateTimeValue:(NSDate *)value;
++ (CMISPropertyData *)createPropertyForId:(NSString *)id dateTimeValue:(NSDate *)value;
 
 /** Creation of a boolean property 
  */
-+ (CMISPropertyData *)createPropertyForId:(NSString *)id withBoolValue:(BOOL)value;
++ (CMISPropertyData *)createPropertyForId:(NSString *)id boolValue:(BOOL)value;
 
 /** Creation of a uri property 
  */
-+ (CMISPropertyData *)createPropertyForId:(NSString *)id withUriValue:(NSURL *)value;
++ (CMISPropertyData *)createPropertyForId:(NSString *)id uriValue:(NSURL *)value;
 
 /** Creation of a uri property 
  */
-+ (CMISPropertyData *)createPropertyForId:(NSString *)id withHtmlValue:(NSString *)value;
++ (CMISPropertyData *)createPropertyForId:(NSString *)id htmlValue:(NSString *)value;
 
 @end

@@ -73,7 +73,7 @@ NSString * const kCMISBindingSessionKeyLinkCache = @"cmis_session_key_link_cache
     return [self.sessionData objectForKey:key];
 }
 
-- (id)objectForKey:(id)key withDefaultValue:(id)defaultValue
+- (id)objectForKey:(id)key defaultValue:(id)defaultValue
 {
     NSObject *value = [self.sessionData objectForKey:key];
     return value != nil ? value : defaultValue;

@@ -29,10 +29,14 @@
  * Retrieves the children for the given object identifier.
  * completionBlock returns object list or nil if unsuccessful
  */
-- (void)retrieveChildren:(NSString *)objectId orderBy:(NSString *)orderBy
-                  filter:(NSString *)filter includeRelationShips:(CMISIncludeRelationship)includeRelationship
-         renditionFilter:(NSString *)renditionFilter includeAllowableActions:(BOOL)includeAllowableActions
-      includePathSegment:(BOOL)includePathSegment skipCount:(NSNumber *)skipCount
+- (void)retrieveChildren:(NSString *)objectId
+                 orderBy:(NSString *)orderBy
+                  filter:(NSString *)filter
+           relationShips:(CMISIncludeRelationship)includeRelationship
+         renditionFilter:(NSString *)renditionFilter
+ includeAllowableActions:(BOOL)includeAllowableActions
+      includePathSegment:(BOOL)includePathSegment
+               skipCount:(NSNumber *)skipCount
                 maxItems:(NSNumber *)maxItems
          completionBlock:(void (^)(CMISObjectList *objectList, NSError *error))completionBlock;
 
@@ -44,11 +48,11 @@
  * completionBlock returns array of parents or nil if unsuccessful
  */
 - (void)retrieveParentsForObject:(NSString *)objectId
-                      withFilter:(NSString *)filter
-        withIncludeRelationships:(CMISIncludeRelationship)includeRelationship
-             withRenditionFilter:(NSString *)renditionFilter
-     withIncludeAllowableActions:(BOOL)includeAllowableActions
-  withIncludeRelativePathSegment:(BOOL)includeRelativePathSegment
+                          filter:(NSString *)filter
+                   relationships:(CMISIncludeRelationship)includeRelationship
+                 renditionFilter:(NSString *)renditionFilter
+         includeAllowableActions:(BOOL)includeAllowableActions
+      includeRelativePathSegment:(BOOL)includeRelativePathSegment
                  completionBlock:(void (^)(NSArray *parents, NSError *error))completionBlock;
 
 

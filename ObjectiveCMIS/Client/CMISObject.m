@@ -52,7 +52,7 @@
 
 @implementation CMISObject
 
-- (id)initWithObjectData:(CMISObjectData *)objectData withSession:(CMISSession *)session
+- (id)initWithObjectData:(CMISObjectData *)objectData session:(CMISSession *)session
 {
     self =  [super initWithString:objectData.identifier];
     if (self) {
@@ -80,7 +80,7 @@
         if (objectData.renditions != nil) {
             NSMutableArray *renditions = [NSMutableArray array];
             for (CMISRenditionData *renditionData in objectData.renditions) {
-                [renditions addObject:[[CMISRendition alloc] initWithRenditionData:renditionData andObjectId:self.identifier andSession:session]];
+                [renditions addObject:[[CMISRendition alloc] initWithRenditionData:renditionData objectId:self.identifier session:session]];
             }
             self.renditions = renditions;
         }
@@ -98,7 +98,7 @@
 {
     // Validate properties param
     if (!properties || properties.count == 0) {
-        completionBlock(nil, [CMISErrors createCMISErrorWithCode:kCMISErrorCodeInvalidArgument withDetailedDescription:@"Properties cannot be nil or empty"]);
+        completionBlock(nil, [CMISErrors createCMISErrorWithCode:kCMISErrorCodeInvalidArgument detailedDescription:@"Properties cannot be nil or empty"]);
         return;
     }
 
@@ -109,8 +109,8 @@
             CMISStringInOutParameter *changeTokenInOutParam = [CMISStringInOutParameter inOutParameterUsingInParameter:self.changeToken];
             [self.binding.objectService
              updatePropertiesForObject:objectIdInOutParam
-             withProperties:convertedProperties
-             withChangeToken:changeTokenInOutParam
+             properties:convertedProperties
+             changeToken:changeTokenInOutParam
              completionBlock:^(NSError *error) {
                  if (objectIdInOutParam.outParameter) {
                      [self.session retrieveObject:objectIdInOutParam.outParameter
@@ -118,11 +118,11 @@
                                       completionBlock(object, error);
                                   }];
                  } else {
-                     completionBlock(nil, [CMISErrors cmisError:error withCMISErrorCode:kCMISErrorCodeRuntime]);
+                     completionBlock(nil, [CMISErrors cmisError:error cmisErrorCode:kCMISErrorCodeRuntime]);
                  }
              }];
         } else {
-            completionBlock(nil, [CMISErrors cmisError:error withCMISErrorCode:kCMISErrorCodeRuntime]);
+            completionBlock(nil, [CMISErrors cmisError:error cmisErrorCode:kCMISErrorCodeRuntime]);
         }
     }];
 }

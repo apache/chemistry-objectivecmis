@@ -29,13 +29,13 @@
 - (id)initWithBindingSession:(CMISBindingSession *)bindingSession;
 
 /// retrieves the link for a given object Id/relationship
-- (NSString *)linkForObjectId:(NSString *)objectId andRelation:(NSString *)rel;
+- (NSString *)linkForObjectId:(NSString *)objectId relation:(NSString *)rel;
 
 /// retrieves the link for a given objectId, relationship and type
-- (NSString *)linkForObjectId:(NSString *)objectId andRelation:(NSString *)rel andType:(NSString *)type;
+- (NSString *)linkForObjectId:(NSString *)objectId relation:(NSString *)rel type:(NSString *)type;
 
 /// adds a link for object Id
-- (void)addLinks:(CMISLinkRelations *)links forObjectId:(NSString *)objectId;
+- (void)addLinks:(CMISLinkRelations *)links objectId:(NSString *)objectId;
 
 /// removes link for object Id
 - (void)removeLinksForObjectId:(NSString *)objectId;

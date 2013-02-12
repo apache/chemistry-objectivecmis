@@ -29,17 +29,17 @@
 
 
 - (void)query:(NSString *)statement searchAllVersions:(BOOL)searchAllVersions
-                                 includeRelationShips:(CMISIncludeRelationship)includeRelationships
+                                        relationShips:(CMISIncludeRelationship)includeRelationships
                                       renditionFilter:(NSString *)renditionFilter
-                            includeAllowableActions:(BOOL)includeAllowableActions
-                                           maxItems:(NSNumber *)maxItems
-                                          skipCount:(NSNumber *)skipCount
-                                    completionBlock:(void (^)(CMISObjectList *objectList, NSError *error))completionBlock;
+                              includeAllowableActions:(BOOL)includeAllowableActions
+                                             maxItems:(NSNumber *)maxItems
+                                            skipCount:(NSNumber *)skipCount
+                                      completionBlock:(void (^)(CMISObjectList *objectList, NSError *error))completionBlock;
 {
     // Validate params
     if (statement == nil) {
         log(@"Must provide 'statement' parameter when executing a cmis query");
-        completionBlock(nil, [CMISErrors createCMISErrorWithCode:kCMISErrorCodeInvalidArgument withDetailedDescription:nil]);
+        completionBlock(nil, [CMISErrors createCMISErrorWithCode:kCMISErrorCodeInvalidArgument detailedDescription:nil]);
         return;
     }
     
@@ -47,7 +47,7 @@
     NSString *queryUrlString = [self.bindingSession objectForKey:kCMISBindingSessionKeyQueryCollection];
     if (queryUrlString == nil) {
         log(@"Unknown repository or query not supported!");
-        completionBlock(nil, [CMISErrors createCMISErrorWithCode:kCMISErrorCodeObjectNotFound withDetailedDescription:nil]);
+        completionBlock(nil, [CMISErrors createCMISErrorWithCode:kCMISErrorCodeObjectNotFound detailedDescription:nil]);
         return;
     }
     
@@ -64,7 +64,7 @@
     
     // Execute HTTP call
     [self.bindingSession.networkProvider invokePOST:queryURL
-             withSession:self.bindingSession
+             session:self.bindingSession
                     body:[[atomEntryWriter generateAtomEntryXML] dataUsingEncoding:NSUTF8StringEncoding]
                  headers:[NSDictionary dictionaryWithObject:kCMISMediaTypeQuery forKey:@"Content-type"]
          completionBlock:^(CMISHttpResponse *httpResponse, NSError *error) {
@@ -80,10 +80,10 @@
                      objectList.objects = feedParser.entries;
                      completionBlock(objectList, nil);
                  } else {
-                     completionBlock(nil, [CMISErrors cmisError:error withCMISErrorCode:kCMISErrorCodeRuntime]);
+                     completionBlock(nil, [CMISErrors cmisError:error cmisErrorCode:kCMISErrorCodeRuntime]);
                  }
              } else {
-                 completionBlock(nil, [CMISErrors cmisError:error withCMISErrorCode:kCMISErrorCodeConnection]);
+                 completionBlock(nil, [CMISErrors cmisError:error cmisErrorCode:kCMISErrorCodeConnection]);
              }
          }];
 }

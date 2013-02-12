@@ -31,12 +31,12 @@
  * completionBlock returns objectData for object or nil if unsuccessful
  */
 - (void)retrieveObject:(NSString *)objectId
-            withFilter:(NSString *)filter
-andIncludeRelationShips:(CMISIncludeRelationship)includeRelationship
-   andIncludePolicyIds:(BOOL)includePolicyIds
-    andRenditionFilder:(NSString *)renditionFilter
-         andIncludeACL:(BOOL)includeACL
-andIncludeAllowableActions:(BOOL)includeAllowableActions
+                filter:(NSString *)filter
+         relationShips:(CMISIncludeRelationship)includeRelationship
+      includePolicyIds:(BOOL)includePolicyIds
+       renditionFilder:(NSString *)renditionFilter
+            includeACL:(BOOL)includeACL
+    includeAllowableActions:(BOOL)includeAllowableActions
        completionBlock:(void (^)(CMISObjectData *objectData, NSError *error))completionBlock;
 
 /**
@@ -44,12 +44,12 @@ andIncludeAllowableActions:(BOOL)includeAllowableActions
  * completionBlock returns objectData for object or nil if unsuccessful
  */
 - (void)retrieveObjectByPath:(NSString *)path
-                  withFilter:(NSString *)filter
-     andIncludeRelationShips:(CMISIncludeRelationship)includeRelationship
-         andIncludePolicyIds:(BOOL)includePolicyIds
-          andRenditionFilder:(NSString *)renditionFilter
-               andIncludeACL:(BOOL)includeACL
-  andIncludeAllowableActions:(BOOL)includeAllowableActions
+                      filter:(NSString *)filter
+               relationShips:(CMISIncludeRelationship)includeRelationship
+            includePolicyIds:(BOOL)includePolicyIds
+             renditionFilder:(NSString *)renditionFilter
+                  includeACL:(BOOL)includeACL
+     includeAllowableActions:(BOOL)includeAllowableActions
              completionBlock:(void (^)(CMISObjectData *objectData, NSError *error))completionBlock;
 
 /**
@@ -59,7 +59,7 @@ andIncludeAllowableActions:(BOOL)includeAllowableActions
  *
  */
 - (CMISRequest*)downloadContentOfObject:(NSString *)objectId
-                           withStreamId:(NSString *)streamId
+                               streamId:(NSString *)streamId
                                  toFile:(NSString *)filePath
                         completionBlock:(void (^)(NSError *error))completionBlock
                           progressBlock:(void (^)(unsigned long long bytesDownloaded, unsigned long long bytesTotal))progressBlock;
@@ -71,7 +71,7 @@ andIncludeAllowableActions:(BOOL)includeAllowableActions
  *
  */
 - (CMISRequest*)downloadContentOfObject:(NSString *)objectId
-                           withStreamId:(NSString *)streamId
+                               streamId:(NSString *)streamId
                          toOutputStream:(NSOutputStream *)outputStream
                         completionBlock:(void (^)(NSError *error))completionBlock
                           progressBlock:(void (^)(unsigned long long bytesDownloaded, unsigned long long bytesTotal))progressBlock;
@@ -87,7 +87,7 @@ andIncludeAllowableActions:(BOOL)includeAllowableActions
  * completionBlock - returns NSError nil if successful
  */
 - (void)deleteContentOfObject:(CMISStringInOutParameter *)objectIdParam
-              withChangeToken:(CMISStringInOutParameter *)changeTokenParam
+                  changeToken:(CMISStringInOutParameter *)changeTokenParam
               completionBlock:(void (^)(NSError *error))completionBlock;
 
 /**
@@ -103,8 +103,8 @@ andIncludeAllowableActions:(BOOL)includeAllowableActions
  */
 - (CMISRequest*)changeContentOfObject:(CMISStringInOutParameter *)objectIdParam
                       toContentOfFile:(NSString *)filePath
-                withOverwriteExisting:(BOOL)overwrite
-                      withChangeToken:(CMISStringInOutParameter *)changeTokenParam
+                    overwriteExisting:(BOOL)overwrite
+                          changeToken:(CMISStringInOutParameter *)changeTokenParam
                       completionBlock:(void (^)(NSError *error))completionBlock
                         progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal))progressBlock;
 
@@ -122,9 +122,9 @@ andIncludeAllowableActions:(BOOL)includeAllowableActions
 - (CMISRequest*)changeContentOfObject:(CMISStringInOutParameter *)objectId
                toContentOfInputStream:(NSInputStream *)inputStream
                         bytesExpected:(unsigned long long)bytesExpected
-                         withFilename:(NSString *)filename
-                withOverwriteExisting:(BOOL)overwrite
-                      withChangeToken:(CMISStringInOutParameter *)changeToken
+                             filename:(NSString *)filename
+                    overwriteExisting:(BOOL)overwrite
+                          changeToken:(CMISStringInOutParameter *)changeToken
                       completionBlock:(void (^)(NSError *error))completionBlock
                         progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal))progressBlock;
 
@@ -134,8 +134,8 @@ andIncludeAllowableActions:(BOOL)includeAllowableActions
  * completionBlock - returns NSError nil if successful
 */
 - (CMISRequest*)createDocumentFromFilePath:(NSString *)filePath
-                              withMimeType:(NSString *)mimeType
-                            withProperties:(CMISProperties *)properties
+                                  mimeType:(NSString *)mimeType
+                                properties:(CMISProperties *)properties
                                   inFolder:(NSString *)folderObjectId
                            completionBlock:(void (^)(NSString *objectId, NSError *error))completionBlock
                              progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal))progressBlock;
@@ -146,8 +146,8 @@ andIncludeAllowableActions:(BOOL)includeAllowableActions
  * completionBlock - returns NSError nil if successful
  */
 - (CMISRequest*)createDocumentFromInputStream:(NSInputStream *)inputStream
-                                 withMimeType:(NSString *)mimeType
-                               withProperties:(CMISProperties *)properties
+                                     mimeType:(NSString *)mimeType
+                                   properties:(CMISProperties *)properties
                                      inFolder:(NSString *)folderObjectId
                                 bytesExpected:(unsigned long long)bytesExpected // optional
                               completionBlock:(void (^)(NSString *objectId, NSError *error))completionBlock
@@ -159,14 +159,16 @@ andIncludeAllowableActions:(BOOL)includeAllowableActions
  * The allVersions parameter is currently ignored.
  * completionBlock returns true if successful
  */
-- (void)deleteObject:(NSString *)objectId allVersions:(BOOL)allVersions completionBlock:(void (^)(BOOL objectDeleted, NSError *error))completionBlock;
+- (void)deleteObject:(NSString *)objectId
+         allVersions:(BOOL)allVersions
+     completionBlock:(void (^)(BOOL objectDeleted, NSError *error))completionBlock;
 
 /**
  * Creates a new folder with given properties under the provided parent folder.
  * completionBlock returns objectId for the newly created folder or nil if unsuccessful
  */
 - (void)createFolderInParentFolder:(NSString *)folderObjectId
-                    withProperties:(CMISProperties *)properties
+                        properties:(CMISProperties *)properties
                    completionBlock:(void (^)(NSString *objectId, NSError *error))completionBlock;
 
 /**
@@ -187,8 +189,8 @@ andIncludeAllowableActions:(BOOL)includeAllowableActions
  * completionBlock returns NSError nil if successful
  */
 - (void)updatePropertiesForObject:(CMISStringInOutParameter *)objectIdParam
-                   withProperties:(CMISProperties *)properties
-                  withChangeToken:(CMISStringInOutParameter *)changeTokenParam
+                       properties:(CMISProperties *)properties
+                      changeToken:(CMISStringInOutParameter *)changeTokenParam
                   completionBlock:(void (^)(NSError *error))completionBlock;
 
 /**
@@ -200,9 +202,9 @@ andIncludeAllowableActions:(BOOL)includeAllowableActions
  * completionBlock returns array of associated renditions or nil if unsuccessful
  */
 - (void)retrieveRenditions:(NSString *)objectId
-            withRenditionFilter:(NSString *)renditionFilter
-                   withMaxItems:(NSNumber *)maxItems
-                  withSkipCount:(NSNumber *)skipCount
+                renditionFilter:(NSString *)renditionFilter
+                    maxItems:(NSNumber *)maxItems
+                    skipCount:(NSNumber *)skipCount
            completionBlock:(void (^)(NSArray *renditions, NSError *error))completionBlock;
 
 @end

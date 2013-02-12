@@ -30,7 +30,7 @@
 /**
  initialiser
  */
-- (id)initWithRenditionData:(CMISRenditionData *)renditionData andObjectId:(NSString *)objectId andSession:(CMISSession *)session;
+- (id)initWithRenditionData:(CMISRenditionData *)renditionData objectId:(NSString *)objectId session:(CMISSession *)session;
 
 /**
  * retrieves the rendition, e.g. thumbnail of a document

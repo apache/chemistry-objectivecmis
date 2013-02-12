@@ -34,9 +34,9 @@
 + (NSString *)encodeContentFromInputStream:(NSInputStream*)inputStream;
 
 /// base64 encodes data from a source file and appends the encoded result to the given destination file
-+ (void)encodeContentOfFile:(NSString *)sourceFilePath andAppendToFile:(NSString *)destinationFilePath;
++ (void)encodeContentOfFile:(NSString *)sourceFilePath appendToFile:(NSString *)destinationFilePath;
 
 /// base64 encodes data from an input stream and appends the encoded data to a given destination file
-+ (void)encodeContentFromInputStream:(NSInputStream*)inputStream andAppendToFile:(NSString *)destinationFilePath;
++ (void)encodeContentFromInputStream:(NSInputStream*)inputStream appendToFile:(NSString *)destinationFilePath;
 
 @end

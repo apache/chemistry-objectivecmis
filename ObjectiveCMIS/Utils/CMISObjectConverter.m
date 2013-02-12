@@ -50,9 +50,9 @@
     CMISObject *object = nil;
     
     if (objectData.baseType == CMISBaseTypeDocument) {
-        object = [[CMISDocument alloc] initWithObjectData:objectData withSession:self.session];
+        object = [[CMISDocument alloc] initWithObjectData:objectData session:self.session];
     } else if (objectData.baseType == CMISBaseTypeFolder) {
-        object = [[CMISFolder alloc] initWithObjectData:objectData withSession:self.session];
+        object = [[CMISFolder alloc] initWithObjectData:objectData session:self.session];
     }
     
     return object;
@@ -97,7 +97,7 @@
             
             if (propertyDefinition == nil) {
                 NSError *error = [CMISErrors createCMISErrorWithCode:kCMISErrorCodeInvalidArgument
-                                             withDetailedDescription:[NSString stringWithFormat:@"Invalid property '%@' for this object type", propertyId]];
+                                                 detailedDescription:[NSString stringWithFormat:@"Invalid property '%@' for this object type", propertyId]];
                 completionBlock(nil, error);
                 return;
             }
@@ -109,7 +109,7 @@
                 case(CMISPropertyTypeString): {
                     expectedType = [NSString class];
                     if ([propertyValue isKindOfClass:expectedType]) {
-                        [convertedProperties addProperty:[CMISPropertyData createPropertyForId:propertyId withStringValue:propertyValue]];
+                        [convertedProperties addProperty:[CMISPropertyData createPropertyForId:propertyId stringValue:propertyValue]];
                     } else if ([propertyValue isKindOfClass:[NSArray class]]) {
                         for (id propertyValueItemValue in propertyValue) {
                             if (![propertyValueItemValue isKindOfClass:expectedType]) {
@@ -118,7 +118,7 @@
                             }
                         }
                         if (validType) {
-                            [convertedProperties addProperty:[CMISPropertyData createPropertyForId:propertyId withArrayValue:propertyValue type:propertyDefinition.propertyType]];
+                            [convertedProperties addProperty:[CMISPropertyData createPropertyForId:propertyId arrayValue:propertyValue type:propertyDefinition.propertyType]];
                         }
                     } else {
                         validType = NO;
@@ -129,7 +129,7 @@
                     expectedType = [NSNumber class];
                     if ([propertyValue isKindOfClass:expectedType]) {
                         BOOL boolValue = ((NSNumber *) propertyValue).boolValue;
-                        [convertedProperties addProperty:[CMISPropertyData createPropertyForId:propertyId withBoolValue:boolValue]];
+                        [convertedProperties addProperty:[CMISPropertyData createPropertyForId:propertyId boolValue:boolValue]];
                     } else if ([propertyValue isKindOfClass:[NSArray class]]) {
                         for (id propertyValueItemValue in propertyValue) {
                             if (![propertyValueItemValue isKindOfClass:expectedType]) {
@@ -138,7 +138,7 @@
                             }
                         }
                         if (validType) {
-                            [convertedProperties addProperty:[CMISPropertyData createPropertyForId:propertyId withArrayValue:propertyValue type:propertyDefinition.propertyType]];
+                            [convertedProperties addProperty:[CMISPropertyData createPropertyForId:propertyId arrayValue:propertyValue type:propertyDefinition.propertyType]];
                         }
                     } else {
                         validType = NO;
@@ -149,7 +149,7 @@
                     expectedType = [NSNumber class];
                     if ([propertyValue isKindOfClass:expectedType]) {
                         NSInteger intValue = ((NSNumber *) propertyValue).integerValue;
-                        [convertedProperties addProperty:[CMISPropertyData createPropertyForId:propertyId withIntegerValue:intValue]];
+                        [convertedProperties addProperty:[CMISPropertyData createPropertyForId:propertyId integerValue:intValue]];
                     } else if ([propertyValue isKindOfClass:[NSArray class]]) {
                         for (id propertyValueItemValue in propertyValue) {
                             if (![propertyValueItemValue isKindOfClass:expectedType]) {
@@ -158,7 +158,7 @@
                             }
                         }
                         if (validType) {
-                            [convertedProperties addProperty:[CMISPropertyData createPropertyForId:propertyId withArrayValue:propertyValue type:propertyDefinition.propertyType]];
+                            [convertedProperties addProperty:[CMISPropertyData createPropertyForId:propertyId arrayValue:propertyValue type:propertyDefinition.propertyType]];
                         }
                     } else {
                         validType = NO;
@@ -168,7 +168,7 @@
                 case(CMISPropertyTypeDecimal): {
                     expectedType = [NSNumber class];
                     if ([propertyValue isKindOfClass:expectedType]) {
-                        [convertedProperties addProperty:[CMISPropertyData createPropertyForId:propertyId withDecimalValue:propertyValue]];
+                        [convertedProperties addProperty:[CMISPropertyData createPropertyForId:propertyId decimalValue:propertyValue]];
                     } else if ([propertyValue isKindOfClass:[NSArray class]]) {
                         for (id propertyValueItemValue in propertyValue) {
                             if (![propertyValueItemValue isKindOfClass:expectedType]) {
@@ -177,7 +177,7 @@
                             }
                         }
                         if (validType) {
-                            [convertedProperties addProperty:[CMISPropertyData createPropertyForId:propertyId withArrayValue:propertyValue type:propertyDefinition.propertyType]];
+                            [convertedProperties addProperty:[CMISPropertyData createPropertyForId:propertyId arrayValue:propertyValue type:propertyDefinition.propertyType]];
                         }
                     } else {
                         validType = NO;
@@ -187,7 +187,7 @@
                 case(CMISPropertyTypeId): {
                     expectedType = [NSString class];
                     if ([propertyValue isKindOfClass:expectedType]) {
-                        [convertedProperties addProperty:[CMISPropertyData createPropertyForId:propertyId withIdValue:propertyValue]];
+                        [convertedProperties addProperty:[CMISPropertyData createPropertyForId:propertyId idValue:propertyValue]];
                     } else if ([propertyValue isKindOfClass:[NSArray class]]) {
                         for (id propertyValueItemValue in propertyValue) {
                             if (![propertyValueItemValue isKindOfClass:expectedType]) {
@@ -196,7 +196,7 @@
                             }
                         }
                         if (validType) {
-                            [convertedProperties addProperty:[CMISPropertyData createPropertyForId:propertyId withArrayValue:propertyValue type:propertyDefinition.propertyType]];
+                            [convertedProperties addProperty:[CMISPropertyData createPropertyForId:propertyId arrayValue:propertyValue type:propertyDefinition.propertyType]];
                         }
                     } else {
                         validType = NO;
@@ -209,7 +209,7 @@
                     }
                     expectedType = [NSDate class];
                     if ([propertyValue isKindOfClass:expectedType]) {
-                        [convertedProperties addProperty:[CMISPropertyData createPropertyForId:propertyId withDateTimeValue:propertyValue]];
+                        [convertedProperties addProperty:[CMISPropertyData createPropertyForId:propertyId dateTimeValue:propertyValue]];
                     } else if ([propertyValue isKindOfClass:[NSArray class]]) {
                         for (__strong id propertyValueItemValue in propertyValue) {
                             if ([propertyValueItemValue isKindOfClass:[NSString class]]) {
@@ -221,7 +221,7 @@
                             }
                         }
                         if (validType) {
-                            [convertedProperties addProperty:[CMISPropertyData createPropertyForId:propertyId withArrayValue:propertyValue type:propertyDefinition.propertyType]];
+                            [convertedProperties addProperty:[CMISPropertyData createPropertyForId:propertyId arrayValue:propertyValue type:propertyDefinition.propertyType]];
                         }
                     } else {
                         validType = NO;
@@ -234,7 +234,7 @@
                     }
                     expectedType = [NSURL class];
                     if ([propertyValue isKindOfClass:expectedType]) {
-                        [convertedProperties addProperty:[CMISPropertyData createPropertyForId:propertyId withUriValue:propertyValue]];
+                        [convertedProperties addProperty:[CMISPropertyData createPropertyForId:propertyId uriValue:propertyValue]];
                     } else if ([propertyValue isKindOfClass:[NSArray class]]) {
                         for (__strong id propertyValueItemValue in propertyValue) {
                             if ([propertyValueItemValue isKindOfClass:[NSString class]]) {
@@ -246,7 +246,7 @@
                             }
                         }
                         if (validType) {
-                            [convertedProperties addProperty:[CMISPropertyData createPropertyForId:propertyId withArrayValue:propertyValue type:propertyDefinition.propertyType]];
+                            [convertedProperties addProperty:[CMISPropertyData createPropertyForId:propertyId arrayValue:propertyValue type:propertyDefinition.propertyType]];
                         }
                     } else {
                         validType = NO;
@@ -256,7 +256,7 @@
                 case(CMISPropertyTypeHtml): {
                     expectedType = [NSString class];
                     if ([propertyValue isKindOfClass:expectedType]) {
-                        [convertedProperties addProperty:[CMISPropertyData createPropertyForId:propertyId withHtmlValue:propertyValue]];
+                        [convertedProperties addProperty:[CMISPropertyData createPropertyForId:propertyId htmlValue:propertyValue]];
                     } else if ([propertyValue isKindOfClass:[NSArray class]]) {
                         for (id propertyValueItemValue in propertyValue) {
                             if (![propertyValueItemValue isKindOfClass:expectedType]) {
@@ -265,7 +265,7 @@
                             }
                         }
                         if (validType) {
-                            [convertedProperties addProperty:[CMISPropertyData createPropertyForId:propertyId withArrayValue:propertyValue type:propertyDefinition.propertyType]];
+                            [convertedProperties addProperty:[CMISPropertyData createPropertyForId:propertyId arrayValue:propertyValue type:propertyDefinition.propertyType]];
                         }
                     } else {
                         validType = NO;
@@ -274,7 +274,7 @@
                 }
                 default: {
                     NSError *error = [CMISErrors createCMISErrorWithCode:kCMISErrorCodeInvalidArgument
-                                                 withDetailedDescription:[NSString stringWithFormat:@"Unsupported: cannot convert property type %d", propertyDefinition.propertyType]];
+                                                 detailedDescription:[NSString stringWithFormat:@"Unsupported: cannot convert property type %d", propertyDefinition.propertyType]];
                     completionBlock(nil, error);
                     return;
                 }
@@ -282,7 +282,7 @@
             
             if (!validType) {
                 NSError *error = [CMISErrors createCMISErrorWithCode:kCMISErrorCodeInvalidArgument
-                                             withDetailedDescription:[NSString stringWithFormat:@"Property value for %@ should be of type '%@'", propertyId, expectedType]];
+                                             detailedDescription:[NSString stringWithFormat:@"Property value for %@ should be of type '%@'", propertyId, expectedType]];
                 completionBlock(nil, error);
                 return;
             }
@@ -332,7 +332,7 @@
          retrieveTypeDefinition:objectTypeId
          completionBlock:^(CMISTypeDefinition *typeDefinition, NSError *error) {
              if (error) {
-                 completionBlock(nil, [CMISErrors cmisError:error withCMISErrorCode:kCMISErrorCodeRuntime]);
+                 completionBlock(nil, [CMISErrors cmisError:error cmisErrorCode:kCMISErrorCodeRuntime]);
              } else {
                  [self internalNormalConvertProperties:properties
                                         typeDefinition:typeDefinition

@@ -351,8 +351,8 @@
 
         __block long long previousBytesUploaded = -1;
         [self.rootFolder createDocumentFromFilePath:filePath
-                                       withMimeType:@"text/plain"
-                                     withProperties:documentProperties
+                                           mimeType:@"text/plain"
+                                         properties:documentProperties
                                     completionBlock:^ (NSString *objectId, NSError *error) {
                  if (objectId) {
                      STAssertNotNil(objectId, @"Object id received should be non-nil");
@@ -400,10 +400,10 @@
         __block long long previousUploadedBytes = -1;
         __block NSString *objectId = nil;
         [self.session createDocumentFromFilePath:filePath
-                withMimeType:@"text/plain"
-                withProperties:documentProperties
-                inFolder:self.rootFolder.identifier
-                completionBlock: ^ (NSString *newObjectId, NSError *error) {
+                                        mimeType:@"text/plain"
+                                      properties:documentProperties
+                                        inFolder:self.rootFolder.identifier
+                                 completionBlock: ^ (NSString *newObjectId, NSError *error) {
                     if (newObjectId) {
                         objectId = newObjectId;
                    
@@ -450,8 +450,8 @@
         __block long long previousBytesUploaded = -1;
         __block NSString *objectId;
         [self.rootFolder createDocumentFromFilePath:fileToUploadPath
-                                       withMimeType:@"application/pdf"
-                                     withProperties:documentProperties
+                                           mimeType:@"application/pdf"
+                                         properties:documentProperties
                                     completionBlock:^(NSString *newObjectId, NSError *error) {
                    if (newObjectId) {
                        NSLog(@"File upload completed");
@@ -532,7 +532,10 @@
                 CMISFolder *newFolder = (CMISFolder *)object;
                 STAssertNil(error, @"Error while retrieving newly created folder: %@", [error description]);
                 STAssertNotNil(newFolder, @"New folder should not be nil");
-                [newFolder deleteTreeWithDeleteAllVersions:YES withUnfileObjects:CMISDelete withContinueOnFailure:YES completionBlock:^(NSArray *failedObjects, NSError *error) {
+                [newFolder deleteTreeWithDeleteAllVersions:YES
+                                             unfileObjects:CMISDelete
+                                         continueOnFailure:YES
+                                           completionBlock:^(NSArray *failedObjects, NSError *error) {
                     STAssertNil(error, @"Error while deleting newly created folder: %@", [error description]);
 
                     self.testCompleted = YES;
@@ -639,14 +642,14 @@
         STAssertNotNil(discoveryService, @"Discovery service should not be nil");
 
         // Basic check if the service returns results that are usable
-        [discoveryService
-         query:@"SELECT * FROM cmis:document" searchAllVersions:NO
-         includeRelationShips:CMISIncludeRelationshipNone
-         renditionFilter:nil
-         includeAllowableActions:YES
-         maxItems:[NSNumber numberWithInt:3]
-         skipCount:[NSNumber numberWithInt:0]
-         completionBlock:^(CMISObjectList *objectList, NSError *error) {
+        [discoveryService query:@"SELECT * FROM cmis:document"
+              searchAllVersions:NO
+                  relationShips:CMISIncludeRelationshipNone
+                renditionFilter:nil
+            includeAllowableActions:YES
+                       maxItems:[NSNumber numberWithInt:3]
+                      skipCount:[NSNumber numberWithInt:0]
+                completionBlock:^(CMISObjectList *objectList, NSError *error) {
              STAssertNil(error, @"Got an error while executing query: %@", [error description]);
              STAssertNotNil(objectList, @"Object list after query should not be nil");
              
@@ -660,13 +663,12 @@
              }
              
              // Doing a query without any maxItems or skipCount, and also only requesting one property 'column'
-             [discoveryService
-              query:@"SELECT cmis:name FROM cmis:document WHERE cmis:name LIKE '%quote%'"
-              searchAllVersions:NO
-              includeRelationShips:CMISIncludeRelationshipNone
-              renditionFilter:nil
-              includeAllowableActions:YES
-              maxItems:nil skipCount:nil completionBlock:^(CMISObjectList *objectList, NSError *error) {
+             [discoveryService query:@"SELECT cmis:name FROM cmis:document WHERE cmis:name LIKE '%quote%'"
+                   searchAllVersions:NO
+                       relationShips:CMISIncludeRelationshipNone
+                     renditionFilter:nil
+             includeAllowableActions:YES
+                            maxItems:nil skipCount:nil completionBlock:^(CMISObjectList *objectList, NSError *error) {
                   STAssertNil(error, @"Got an error while executing query: %@", [error description]);
                   STAssertNotNil(objectList, @"Object list after query should not be nil");
                   STAssertTrue(objectList.objects.count > 0, @"Returned # objects is repo specific, but should be at least 1");
@@ -777,10 +779,11 @@
          CMISOperationContext *context = [[CMISOperationContext alloc] init];
          context.maxItemsPerPage = 2;
          context.skipCount = 0;
-         [self.session
-          queryObjectsWithTypeid:@"cmis:document"
-          withWhereClause:nil
-          searchAllVersions:NO operationContext:context completionBlock:^(CMISPagedResult *firstPageResult, NSError *error) {
+         [self.session queryObjectsWithTypeid:@"cmis:document"
+                                  whereClause:nil
+                            searchAllVersions:NO
+                             operationContext:context
+                              completionBlock:^(CMISPagedResult *firstPageResult, NSError *error) {
               STAssertNil(error, @"Got an error while executing query: %@", [error description]);
               STAssertTrue(firstPageResult.resultArray.count == 2, @"Expected 2 results, but got %d back", firstPageResult.resultArray.count);
               
@@ -921,9 +924,9 @@
              NSString *newContentFilePath = [[NSBundle bundleForClass:[self class]] pathForResource:@"test_file_2.txt" ofType:nil];
              [self.session.binding.objectService
               changeContentOfObject:[CMISStringInOutParameter inOutParameterUsingInParameter:originalDocument.identifier]
-              toContentOfFile:newContentFilePath
-              withOverwriteExisting:YES
-              withChangeToken:nil
+                toContentOfFile:newContentFilePath
+                overwriteExisting:YES
+                changeToken:nil
               completionBlock: ^(NSError *error) {
                   if (error == nil) {
                       NSLog(@"Content has been successfully changed");
@@ -1037,10 +1040,10 @@
              // Prepare params
              CMISStringInOutParameter *objectIdInOutParam = [CMISStringInOutParameter inOutParameterUsingInParameter:document.identifier];
              CMISProperties *properties = [[CMISProperties alloc] init];
-             [properties addProperty:[CMISPropertyData createPropertyForId:kCMISPropertyName withStringValue:@"name_has_changed"]];
+             [properties addProperty:[CMISPropertyData createPropertyForId:kCMISPropertyName stringValue:@"name_has_changed"]];
              
              // Update properties and verify
-             [objectService updatePropertiesForObject:objectIdInOutParam withProperties:properties withChangeToken:nil completionBlock:^(NSError *error) {
+             [objectService updatePropertiesForObject:objectIdInOutParam properties:properties changeToken:nil completionBlock:^(NSError *error) {
                  STAssertNil(error, @"Got error while updating properties: %@", [error description]);
                  STAssertNotNil(objectIdInOutParam.outParameter, @"When updating properties, the object id should be returned");
                  
@@ -1077,8 +1080,8 @@
              CMISStringInOutParameter *objectIdParam = [CMISStringInOutParameter inOutParameterUsingInParameter:folderId];
              CMISProperties *updateProperties = [[CMISProperties alloc] init];
              NSString *renamedFolderName = [NSString stringWithFormat:@"temp_test_folder_renamed_%@", [self stringFromCurrentDate]];
-             [updateProperties addProperty:[CMISPropertyData createPropertyForId:kCMISPropertyName withStringValue:renamedFolderName]];
-             [objectService updatePropertiesForObject:objectIdParam withProperties:updateProperties withChangeToken:nil completionBlock:^(NSError *error) {
+             [updateProperties addProperty:[CMISPropertyData createPropertyForId:kCMISPropertyName stringValue:renamedFolderName]];
+             [objectService updatePropertiesForObject:objectIdParam properties:updateProperties changeToken:nil completionBlock:^(NSError *error) {
                  STAssertNil(error, @"Got error while updating folder properties: %@", [error description]);
                  STAssertNotNil(objectIdParam.outParameter, @"Returned object id should not be nil");
                  
@@ -1089,7 +1092,7 @@
                      STAssertEqualObjects(renamedFolder.name, renamedFolderName, @"Folder was not renamed, name is %@", renamedFolder.name);
                      
                      // Delete test folder
-                     [renamedFolder deleteTreeWithDeleteAllVersions:YES withUnfileObjects:CMISDelete withContinueOnFailure:YES completionBlock:^(NSArray *failedObjects, NSError *error) {
+                     [renamedFolder deleteTreeWithDeleteAllVersions:YES unfileObjects:CMISDelete continueOnFailure:YES completionBlock:^(NSArray *failedObjects, NSError *error) {
                          STAssertNil(error, @"Error while deleting newly created folder: %@", [error description]);
 
                          self.testCompleted = YES;
@@ -1383,11 +1386,11 @@
          
          // Try to convert with already CMISPropertyData. This should work just fine.
          NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
-         [properties setObject:[CMISPropertyData createPropertyForId:kCMISPropertyName withStringValue:@"testName"] forKey:kCMISPropertyName];
-         [properties setObject:[CMISPropertyData createPropertyForId:kCMISPropertyObjectTypeId withIdValue:@"cmis:document"] forKey:kCMISPropertyObjectTypeId];
-         [properties setObject:[CMISPropertyData createPropertyForId:kCMISPropertyCreationDate withDateTimeValue:testDate] forKey:kCMISPropertyCreationDate];
-         [properties setObject:[CMISPropertyData createPropertyForId:kCMISPropertyIsLatestVersion withBoolValue:YES] forKey:kCMISPropertyIsLatestVersion];
-         [properties setObject:[CMISPropertyData createPropertyForId:kCMISPropertyContentStreamLength withIntegerValue:5] forKey:kCMISPropertyContentStreamLength];
+         [properties setObject:[CMISPropertyData createPropertyForId:kCMISPropertyName stringValue:@"testName"] forKey:kCMISPropertyName];
+         [properties setObject:[CMISPropertyData createPropertyForId:kCMISPropertyObjectTypeId idValue:@"cmis:document"] forKey:kCMISPropertyObjectTypeId];
+         [properties setObject:[CMISPropertyData createPropertyForId:kCMISPropertyCreationDate dateTimeValue:testDate] forKey:kCMISPropertyCreationDate];
+         [properties setObject:[CMISPropertyData createPropertyForId:kCMISPropertyIsLatestVersion boolValue:YES] forKey:kCMISPropertyIsLatestVersion];
+         [properties setObject:[CMISPropertyData createPropertyForId:kCMISPropertyContentStreamLength integerValue:5] forKey:kCMISPropertyContentStreamLength];
          
          [self.session.objectConverter convertProperties:properties forObjectTypeId:@"cmis:document" completionBlock:^(CMISProperties *convertedProperties, NSError *error) {
              STAssertNil(error, @"Error while converting properties: %@", [error description]);
@@ -1463,7 +1466,7 @@
              // Use YES for retrieving the allowable actions
              CMISOperationContext *ctx = [[CMISOperationContext alloc] init];
              ctx.includeAllowableActions = YES;
-             [self.session retrieveObject:testDocument.identifier withOperationContext:ctx completionBlock:^(CMISObject *object, NSError *error) {
+             [self.session retrieveObject:testDocument.identifier operationContext:ctx completionBlock:^(CMISObject *object, NSError *error) {
                  CMISDocument *document = (CMISDocument *)object;
                  STAssertNil(error, @"Got error while retrieving object : %@", [error description]);
                  STAssertNotNil(document.allowableActions, @"Allowable actions should not be nil");
@@ -1472,7 +1475,7 @@
                  //Use NO for allowable actions
                  CMISOperationContext *ctx = [[CMISOperationContext alloc] init];
                  ctx.includeAllowableActions = NO;
-                 [self.session retrieveObject:testDocument.identifier withOperationContext:ctx completionBlock:^(CMISObject *object, NSError *error) {
+                 [self.session retrieveObject:testDocument.identifier operationContext:ctx completionBlock:^(CMISObject *object, NSError *error) {
                      CMISDocument *document = (CMISDocument *)object;
                      STAssertNil(error, @"Got error while retrieving object : %@", [error description]);
                      STAssertNil(document.allowableActions, @"Allowable actions should be nil");
@@ -1495,7 +1498,7 @@
          NSString *path = [NSString stringWithFormat:@"%@ios-test/test-word-doc.docx", self.rootFolder.path];
          CMISOperationContext *operationContext = [CMISOperationContext defaultOperationContext];
          operationContext.renditionFilterString = @"*";
-         [self.session retrieveObjectByPath:path withOperationContext:operationContext completionBlock:^(CMISObject *object, NSError *error) {
+         [self.session retrieveObjectByPath:path operationContext:operationContext completionBlock:^(CMISObject *object, NSError *error) {
              CMISDocument *document = (CMISDocument *)object;
              STAssertNil(error, @"Error while retrieving document: %@", [error description]);
              
@@ -1545,17 +1548,16 @@
          NSString *path = [NSString stringWithFormat:@"%@ios-test/test-word-doc.docx", self.rootFolder.path];
          CMISOperationContext *operationContext = [CMISOperationContext defaultOperationContext];
          operationContext.renditionFilterString = @"*";
-         [self.session retrieveObjectByPath:path withOperationContext:operationContext completionBlock:^(CMISObject *object, NSError *error) {
+         [self.session retrieveObjectByPath:path operationContext:operationContext completionBlock:^(CMISObject *object, NSError *error) {
              CMISDocument *document = (CMISDocument *)object;
              STAssertNil(error, @"Error while retrieving document: %@", [error description]);
              
              // Get renditions through service
-             [self.session.binding.objectService
-              retrieveRenditions:document.identifier
-              withRenditionFilter:@"*"
-              withMaxItems:nil
-              withSkipCount:nil
-              completionBlock:^(NSArray *renditions, NSError *error) {
+             [self.session.binding.objectService retrieveRenditions:document.identifier
+                                                    renditionFilter:@"*"
+                                                           maxItems:nil
+                                                          skipCount:nil
+                                                    completionBlock:^(NSArray *renditions, NSError *error) {
                   STAssertNil(error, @"Error while retrieving renditions: %@", [error description]);
                   STAssertTrue(renditions.count > 0, @"Expected at least one rendition");
                   CMISRenditionData *thumbnailRendition = nil;
@@ -1570,11 +1572,10 @@
                   // Download content through objectService
                   NSString *filePath = [NSString stringWithFormat:@"%@/testfile-rendition-through-objectservice.pdf", NSTemporaryDirectory()];
 //                  NSString *filePath = @"testfile-rendition-through-objectservice.pdf";
-                  [self.session.binding.objectService
-                   downloadContentOfObject:document.identifier
-                   withStreamId:thumbnailRendition.streamId
-                   toFile:filePath
-                   completionBlock: ^(NSError *error) {
+                  [self.session.binding.objectService downloadContentOfObject:document.identifier
+                                                                     streamId:thumbnailRendition.streamId
+                                                                       toFile:filePath
+                                                              completionBlock: ^(NSError *error) {
                        if (error == nil) {
                            // Assert File exists and check file length
                            STAssertTrue([[NSFileManager defaultManager] fileExistsAtPath:filePath], @"File does not exist");

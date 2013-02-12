@@ -34,7 +34,7 @@
  * completionBlock returns the found object list or nil if unsuccessful
  */
 - (void)query:(NSString *)statement searchAllVersions:(BOOL)searchAllVersions
-                                 includeRelationShips:(CMISIncludeRelationship)includeRelationships
+                                        relationShips:(CMISIncludeRelationship)includeRelationships
                                       renditionFilter:(NSString *)renditionFilter
                               includeAllowableActions:(BOOL)includeAllowableActions
                                              maxItems:(NSNumber *)maxItems
