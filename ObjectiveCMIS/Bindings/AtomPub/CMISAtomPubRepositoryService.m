@@ -30,16 +30,16 @@
 @end
 
 @interface CMISAtomPubRepositoryService (PrivateMethods)
-- (void)internalRetrieveRepositoriesWithCompletionBlock:(void (^)(NSError *error))completionBlock;
+- (CMISRequest*)internalRetrieveRepositoriesWithCompletionBlock:(void (^)(NSError *error))completionBlock;
 @end
 
 
 @implementation CMISAtomPubRepositoryService
 
 
-- (void)retrieveRepositoriesWithCompletionBlock:(void (^)(NSArray *repositories, NSError *error))completionBlock
+- (CMISRequest*)retrieveRepositoriesWithCompletionBlock:(void (^)(NSArray *repositories, NSError *error))completionBlock
 {
-    [self internalRetrieveRepositoriesWithCompletionBlock:^(NSError *error) {
+    return [self internalRetrieveRepositoriesWithCompletionBlock:^(NSError *error) {
         if (error) {
             completionBlock(nil, [CMISErrors cmisError:error cmisErrorCode:kCMISErrorCodeObjectNotFound]);
         } else {
@@ -48,9 +48,9 @@
     }];
 }
 
-- (void)retrieveRepositoryInfoForId:(NSString *)repositoryId completionBlock:(void (^)(CMISRepositoryInfo *repositoryInfo, NSError *error))completionBlock
+- (CMISRequest*)retrieveRepositoryInfoForId:(NSString *)repositoryId completionBlock:(void (^)(CMISRepositoryInfo *repositoryInfo, NSError *error))completionBlock
 {
-    [self internalRetrieveRepositoriesWithCompletionBlock:^(NSError *error) {
+    return [self internalRetrieveRepositoriesWithCompletionBlock:^(NSError *error) {
         if (error) {
             completionBlock(nil, [CMISErrors cmisError:error cmisErrorCode:kCMISErrorCodeInvalidArgument]);
         } else {
@@ -59,10 +59,11 @@
     }];
 }
 
-- (void)internalRetrieveRepositoriesWithCompletionBlock:(void (^)(NSError *error))completionBlock
+- (CMISRequest*)internalRetrieveRepositoriesWithCompletionBlock:(void (^)(NSError *error))completionBlock
 {
     self.repositories = [NSMutableDictionary dictionary];
-    [self retrieveCMISWorkspacesWithCompletionBlock:^(NSArray *cmisWorkSpaces, NSError *error) {
+    CMISRequest *request = [[CMISRequest alloc] init];
+    [self retrieveCMISWorkspacesWithCancellableRequest:request completionBlock:^(NSArray *cmisWorkSpaces, NSError *error) {
         if (cmisWorkSpaces != nil) {
             for (CMISWorkspace *workspace in cmisWorkSpaces) {
                 [self.repositories setObject:workspace.repositoryInfo forKey:workspace.repositoryInfo.identifier];
@@ -70,22 +71,27 @@
         }
         completionBlock(error);
     }];
+    return request;
 }
-
-- (void)retrieveTypeDefinition:(NSString *)typeId completionBlock:(void (^)(CMISTypeDefinition *typeDefinition, NSError *error))completionBlock
+- (CMISRequest*)retrieveTypeDefinition:(NSString *)typeId completionBlock:(void (^)(CMISTypeDefinition *typeDefinition, NSError *error))completionBlock
 {
     if (typeId == nil) {
         log(@"Parameter typeId is required");
         NSError *error = [[NSError alloc] init]; // TODO: proper error init
         completionBlock(nil, error);
-        return;
+        return nil;
     }
-    
-    [self retrieveFromCache:kCMISBindingSessionKeyTypeByIdUriBuilder completionBlock:^(id object, NSError *error) {
+    CMISRequest *request = [[CMISRequest alloc] init];
+    [self retrieveFromCache:kCMISBindingSessionKeyTypeByIdUriBuilder
+                cmisRequest:request
+            completionBlock:^(id object, NSError *error) {
         CMISTypeByIdUriBuilder *typeByIdUriBuilder = object;
         typeByIdUriBuilder.id = typeId;
         
-        [self.bindingSession.networkProvider invokeGET:[typeByIdUriBuilder buildUrl] session:self.bindingSession completionBlock:^(CMISHttpResponse *httpResponse, NSError *error) {
+        [self.bindingSession.networkProvider invokeGET:[typeByIdUriBuilder buildUrl]
+                                               session:self.bindingSession
+                                           cmisRequest:request
+                                       completionBlock:^(CMISHttpResponse *httpResponse, NSError *error) {
             if (httpResponse) {
                 if (httpResponse.data != nil) {
                     CMISTypeDefinitionAtomEntryParser *parser = [[CMISTypeDefinitionAtomEntryParser alloc] initWithData:httpResponse.data];
@@ -104,6 +110,8 @@
             }
         }];
     }];
+    
+    return request;
 }
 
 @end

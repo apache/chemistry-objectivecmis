@@ -36,7 +36,7 @@
 
         // Defaults
         self.includeAllowableActions = YES;
-        self.includeRelationships = CMISIncludeRelationshipNone;
+        self.relationships = CMISIncludeRelationshipNone;
         self.returnVersion = NOT_PROVIDED;
     }
     return self;
@@ -49,7 +49,7 @@
     urlString = [urlString stringByReplacingOccurrencesOfString:@"{includeAllowableActions}" withString:(self.includeAllowableActions ? @"true" : @"false")];
     urlString = [urlString stringByReplacingOccurrencesOfString:@"{includePolicyIds}" withString:(self.includePolicyIds ? @"true" : @"false")];
 
-    NSString *includeRelationShipParam = [CMISEnums stringForIncludeRelationShip:self.includeRelationships];
+    NSString *includeRelationShipParam = [CMISEnums stringForIncludeRelationShip:self.relationships];
     urlString = [urlString stringByReplacingOccurrencesOfString:@"{includeRelationships}" withString:includeRelationShipParam];
 
 

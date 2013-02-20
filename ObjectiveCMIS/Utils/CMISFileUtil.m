@@ -20,7 +20,7 @@
 #import "CMISFileUtil.h"
 
 
-@implementation FileUtil
+@implementation CMISFileUtil
 
 + (void)appendToFileAtPath:(NSString *)filePath data:(NSData *)data
 {

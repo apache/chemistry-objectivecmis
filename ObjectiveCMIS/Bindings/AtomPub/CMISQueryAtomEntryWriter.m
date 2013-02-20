@@ -28,7 +28,7 @@
 {
     self = [super init];
     if (self) {
-        self.includeRelationships = CMISIncludeRelationshipNone;
+        self.relationships = CMISIncludeRelationshipNone;
     }
     return self;
 }
@@ -48,7 +48,7 @@
     [xml appendFormat:@"<cmis:searchAllVersions>%@</cmis:searchAllVersions>", self.searchAllVersions ? @"true" : @"false"];
 
     [xml appendFormat:@"<cmis:includeAllowableActions>%@</cmis:includeAllowableActions>", self.includeAllowableActions ? @"true" : @"false"];
-    [xml appendFormat:@"<cmis:includeRelationships>%@</cmis:includeRelationships>", [CMISEnums stringForIncludeRelationShip:self.includeRelationships]];
+    [xml appendFormat:@"<cmis:includeRelationships>%@</cmis:includeRelationships>", [CMISEnums stringForIncludeRelationShip:self.relationships]];
     [xml appendFormat:@"<cmis:renditionFilter>%@</cmis:renditionFilter>", self.renditionFilter != nil ? self.renditionFilter : @"*"];
 
     if (self.maxItems != nil) {

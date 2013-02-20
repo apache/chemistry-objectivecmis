@@ -25,17 +25,17 @@
 @implementation CMISFileableObject
 
 
-- (void)retrieveParentsWithCompletionBlock:(void (^)(NSArray *parentFolders, NSError *error))completionBlock
+- (CMISRequest*)retrieveParentsWithCompletionBlock:(void (^)(NSArray *parentFolders, NSError *error))completionBlock
 {
     return [self retrieveParentsWithOperationContext:[CMISOperationContext defaultOperationContext] completionBlock:completionBlock];
 }
 
-- (void)retrieveParentsWithOperationContext:(CMISOperationContext *)operationContext
+- (CMISRequest*)retrieveParentsWithOperationContext:(CMISOperationContext *)operationContext
                             completionBlock:(void (^)(NSArray *parentFolders, NSError *error))completionBlock
 {
-    [self.binding.navigationService retrieveParentsForObject:self.identifier
+    return [self.binding.navigationService retrieveParentsForObject:self.identifier
                                                       filter:operationContext.filterString
-                                               relationships:operationContext.includeRelationShips
+                                               relationships:operationContext.relationships
                                              renditionFilter:operationContext.renditionFilterString
                                      includeAllowableActions:operationContext.includeAllowableActions
                                   includeRelativePathSegment:operationContext.includePathSegments

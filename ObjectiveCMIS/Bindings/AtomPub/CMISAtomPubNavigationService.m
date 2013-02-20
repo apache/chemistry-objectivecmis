@@ -28,10 +28,10 @@
 @implementation CMISAtomPubNavigationService
 
 
-- (void)retrieveChildren:(NSString *)objectId
+- (CMISRequest*)retrieveChildren:(NSString *)objectId
                  orderBy:(NSString *)orderBy
                   filter:(NSString *)filter
-           relationShips:(CMISIncludeRelationship)includeRelationship
+           relationships:(CMISIncludeRelationship)relationships
          renditionFilter:(NSString *)renditionFilter
  includeAllowableActions:(BOOL)includeAllowableActions
       includePathSegment:(BOOL)includePathSegment
@@ -40,8 +40,12 @@
          completionBlock:(void (^)(CMISObjectList *objectList, NSError *error))completionBlock
 {
     // Get Down link
-    [self loadLinkForObjectId:objectId relation:kCMISLinkRelationDown
-                      type:kCMISMediaTypeChildren completionBlock:^(NSString *downLink, NSError *error) {
+    CMISRequest *request = [[CMISRequest alloc] init];
+    [self loadLinkForObjectId:objectId
+                     relation:kCMISLinkRelationDown
+                         type:kCMISMediaTypeChildren
+                  cmisRequest:request
+              completionBlock:^(NSString *downLink, NSError *error) {
                           if (error) {
                               log(@"Could not retrieve down link: %@", error.description);
                               completionBlock(nil, error);
@@ -52,7 +56,7 @@
                           downLink = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterFilter value:filter urlString:downLink];
                           downLink = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterOrderBy value:orderBy urlString:downLink];
                           downLink = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterIncludeAllowableActions value:(includeAllowableActions ? @"true" : @"false") urlString:downLink];
-                          downLink = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterIncludeRelationships value:[CMISEnums stringForIncludeRelationShip:includeRelationship] urlString:downLink];
+                          downLink = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterIncludeRelationships value:[CMISEnums stringForIncludeRelationShip:relationships] urlString:downLink];
                           downLink = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterRenditionFilter value:renditionFilter urlString:downLink];
                           downLink = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterIncludePathSegment value:(includePathSegment ? @"true" : @"false") urlString:downLink];
                           downLink = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterMaxItems value:[maxItems stringValue] urlString:downLink];
@@ -61,6 +65,7 @@
                           // execute the request
                           [self.bindingSession.networkProvider invokeGET:[NSURL URLWithString:downLink]
                                                                  session:self.bindingSession
+                                                             cmisRequest:request
                                                          completionBlock:^(CMISHttpResponse *httpResponse, NSError *error) {
                                   if (httpResponse) {
                                       if (httpResponse.data == nil) {
@@ -90,19 +95,22 @@
                                   }
                               }];
                       }];
+    return request;
 }
 
-- (void)retrieveParentsForObject:(NSString *)objectId
+- (CMISRequest*)retrieveParentsForObject:(NSString *)objectId
                           filter:(NSString *)filter
-                   relationships:(CMISIncludeRelationship)includeRelationship
+                   relationships:(CMISIncludeRelationship)relationships
                  renditionFilter:(NSString *)renditionFilter
          includeAllowableActions:(BOOL)includeAllowableActions
       includeRelativePathSegment:(BOOL)includeRelativePathSegment
                  completionBlock:(void (^)(NSArray *parents, NSError *error))completionBlock
 {
     // Get up link
+    CMISRequest *request = [[CMISRequest alloc] init];
     [self loadLinkForObjectId:objectId
                      relation:kCMISLinkRelationUp
+                  cmisRequest:request
               completionBlock:^(NSString *upLink, NSError *error) {
         if (upLink == nil) {
             log(@"Failing because the NSString upLink is nil");
@@ -115,7 +123,7 @@
             upLink = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterFilter value:filter urlString:upLink];
         }
         upLink = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterIncludeAllowableActions value:(includeAllowableActions ? @"true" : @"false") urlString:upLink];
-        upLink = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterIncludeRelationships value:[CMISEnums stringForIncludeRelationShip:includeRelationship] urlString:upLink];
+        upLink = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterIncludeRelationships value:[CMISEnums stringForIncludeRelationShip:relationships] urlString:upLink];
         
         if (renditionFilter != nil) {
             upLink = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterRenditionFilter value:renditionFilter urlString:upLink];
@@ -124,8 +132,9 @@
         upLink = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterRelativePathSegment value:(includeRelativePathSegment ? @"true" : @"false") urlString:upLink];
         
         [self.bindingSession.networkProvider invokeGET:[NSURL URLWithString:upLink]
-                session:self.bindingSession
-            completionBlock:^(CMISHttpResponse *httpResponse, NSError *error) {
+                                               session:self.bindingSession
+                                           cmisRequest:request
+                                       completionBlock:^(CMISHttpResponse *httpResponse, NSError *error) {
                 if (httpResponse) {
                     CMISAtomFeedParser *parser = [[CMISAtomFeedParser alloc] initWithData:httpResponse.data];
                     NSError *internalError;
@@ -142,6 +151,7 @@
                 }
             }];
     }];
+    return request;
 }
 
 @end

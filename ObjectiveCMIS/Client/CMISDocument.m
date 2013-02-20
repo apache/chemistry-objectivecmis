@@ -62,14 +62,14 @@
     return self;
 }
 
-- (void)retrieveAllVersionsWithCompletionBlock:(void (^)(CMISCollection *allVersionsOfDocument, NSError *error))completionBlock
+- (CMISRequest*)retrieveAllVersionsWithCompletionBlock:(void (^)(CMISCollection *allVersionsOfDocument, NSError *error))completionBlock
 {
-    [self retrieveAllVersionsWithOperationContext:[CMISOperationContext defaultOperationContext] completionBlock:completionBlock];
+    return [self retrieveAllVersionsWithOperationContext:[CMISOperationContext defaultOperationContext] completionBlock:completionBlock];
 }
 
-- (void)retrieveAllVersionsWithOperationContext:(CMISOperationContext *)operationContext completionBlock:(void (^)(CMISCollection *collection, NSError *error))completionBlock
+- (CMISRequest*)retrieveAllVersionsWithOperationContext:(CMISOperationContext *)operationContext completionBlock:(void (^)(CMISCollection *collection, NSError *error))completionBlock
 {
-    [self.binding.versioningService retrieveAllVersions:self.identifier
+    return [self.binding.versioningService retrieveAllVersions:self.identifier
            filter:operationContext.filterString includeAllowableActions:operationContext.includeAllowableActions completionBlock:^(NSArray *objects, NSError *error) {
                if (error) {
                    log(@"Error while retrieving all versions: %@", error.description);
@@ -81,12 +81,14 @@
 }
 
 - (CMISRequest*)changeContentToContentOfFile:(NSString *)filePath
+                                    mimeType:(NSString *)mimeType
                                    overwrite:(BOOL)overwrite
                              completionBlock:(void (^)(NSError *error))completionBlock
                                progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal))progressBlock
 {
     return [self.binding.objectService changeContentOfObject:[CMISStringInOutParameter inOutParameterUsingInParameter:self.identifier]
                                              toContentOfFile:filePath
+                                                    mimeType:mimeType
                                            overwriteExisting:overwrite
                                                  changeToken:[CMISStringInOutParameter inOutParameterUsingInParameter:self.changeToken]
                                              completionBlock:completionBlock
@@ -96,6 +98,7 @@
 - (CMISRequest*)changeContentToContentOfInputStream:(NSInputStream *)inputStream
                                       bytesExpected:(unsigned long long)bytesExpected
                                            fileName:(NSString *)filename
+                                           mimeType:(NSString *)mimeType
                                           overwrite:(BOOL)overwrite
                                     completionBlock:(void (^)(NSError *error))completionBlock
                                       progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal))progressBlock
@@ -104,36 +107,37 @@
                                       toContentOfInputStream:inputStream
                                                bytesExpected:bytesExpected
                                                     filename:filename
+                                                    mimeType:mimeType
                                            overwriteExisting:overwrite
                                                  changeToken:[CMISStringInOutParameter inOutParameterUsingInParameter:self.changeToken]
                                              completionBlock:completionBlock
                                                progressBlock:progressBlock];
 }
 
-- (void)deleteContentWithCompletionBlock:(void (^)(NSError *error))completionBlock
+- (CMISRequest*)deleteContentWithCompletionBlock:(void (^)(NSError *error))completionBlock
 {
-    [self.binding.objectService deleteContentOfObject:[CMISStringInOutParameter inOutParameterUsingInParameter:self.identifier]
+    return [self.binding.objectService deleteContentOfObject:[CMISStringInOutParameter inOutParameterUsingInParameter:self.identifier]
                                       changeToken:[CMISStringInOutParameter inOutParameterUsingInParameter:self.changeToken]
                                       completionBlock:completionBlock];
 }
 
-- (void)retrieveObjectOfLatestVersionWithMajorVersion:(BOOL)major completionBlock:(void (^)(CMISDocument *document, NSError *error))completionBlock
+- (CMISRequest*)retrieveObjectOfLatestVersionWithMajorVersion:(BOOL)major completionBlock:(void (^)(CMISDocument *document, NSError *error))completionBlock
 {
-    [self retrieveObjectOfLatestVersionWithMajorVersion:major operationContext:[CMISOperationContext defaultOperationContext] completionBlock:completionBlock];
+    return [self retrieveObjectOfLatestVersionWithMajorVersion:major operationContext:[CMISOperationContext defaultOperationContext] completionBlock:completionBlock];
 }
 
-- (void)retrieveObjectOfLatestVersionWithMajorVersion:(BOOL)major
+- (CMISRequest*)retrieveObjectOfLatestVersionWithMajorVersion:(BOOL)major
                                      operationContext:(CMISOperationContext *)operationContext
                                       completionBlock:(void (^)(CMISDocument *document, NSError *error))completionBlock
 {
-    [self.binding.versioningService retrieveObjectOfLatestVersion:self.identifier
-                                                            major:major filter:operationContext.filterString
-                                             includeRelationShips:operationContext.includeRelationShips
-                                                 includePolicyIds:operationContext.includePolicies
-                                                  renditionFilter:operationContext.renditionFilterString
-                                                       includeACL:operationContext.includeACLs
-                                          includeAllowableActions:operationContext.includeAllowableActions
-                                                  completionBlock:^(CMISObjectData *objectData, NSError *error) {
+    return [self.binding.versioningService retrieveObjectOfLatestVersion:self.identifier
+                                                                   major:major filter:operationContext.filterString
+                                                           relationships:operationContext.relationships
+                                                        includePolicyIds:operationContext.includePolicies
+                                                         renditionFilter:operationContext.renditionFilterString
+                                                              includeACL:operationContext.includeACLs
+                                                 includeAllowableActions:operationContext.includeAllowableActions
+                                                         completionBlock:^(CMISObjectData *objectData, NSError *error) {
             if (error) {
                 completionBlock(nil, [CMISErrors cmisError:error cmisErrorCode:kCMISErrorCodeRuntime]);
             } else {
@@ -167,9 +171,9 @@
 }
 
 
-- (void)deleteAllVersionsWithCompletionBlock:(void (^)(BOOL documentDeleted, NSError *error))completionBlock
+- (CMISRequest*)deleteAllVersionsWithCompletionBlock:(void (^)(BOOL documentDeleted, NSError *error))completionBlock
 {
-    [self.binding.objectService deleteObject:self.identifier allVersions:YES completionBlock:completionBlock];
+    return [self.binding.objectService deleteObject:self.identifier allVersions:YES completionBlock:completionBlock];
 }
 
 @end

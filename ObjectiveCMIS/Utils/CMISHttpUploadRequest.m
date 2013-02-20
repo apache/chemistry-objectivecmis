@@ -23,6 +23,9 @@
 
 @property (nonatomic, assign) unsigned long long bytesUploaded;
 @property (nonatomic, copy) void (^progressBlock)(unsigned long long bytesUploaded, unsigned long long bytesTotal);
+- (id)initWithHttpMethod:(CMISHttpRequestMethod)httpRequestMethod
+         completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))completionBlock
+           progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal))progressBlock;
 
 @end
 
@@ -30,7 +33,7 @@
 @implementation CMISHttpUploadRequest
 
 
-+ (CMISHttpUploadRequest*)startRequest:(NSMutableURLRequest *)urlRequest
++ (id)startRequest:(NSMutableURLRequest *)urlRequest
                             httpMethod:(CMISHttpRequestMethod)httpRequestMethod
                            inputStream:(NSInputStream*)inputStream
                                headers:(NSDictionary*)additionalHeaders
@@ -47,7 +50,7 @@
     httpRequest.bytesExpected = bytesExpected;
     httpRequest.authenticationProvider = authenticationProvider;
     
-    if ([httpRequest startRequest:urlRequest]) {
+    if ([httpRequest startRequest:urlRequest] == NO) {
         httpRequest = nil;
     }
     

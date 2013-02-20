@@ -184,3 +184,8 @@ NSString * const kCMISUriTemplateQuery = @"query";
 NSString * const kCMISAtomLinkAttrHref = @"href";
 NSString * const kCMISAtomLinkAttrType = @"type";
 NSString * const kCMISAtomLinkAttrRel = @"rel";
+
+// Constants for HTTP request headers
+NSString * const kCMISHTTPHeaderContentType = @"Content-Type";
+NSString * const kCMISHTTPHeaderContentDisposition = @"Content-Disposition";
+NSString * const kCMISHTTPHeaderContentDispositionAttachment = @"attachment; filename=%@";

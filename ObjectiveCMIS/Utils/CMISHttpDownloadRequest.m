@@ -24,6 +24,9 @@
 
 @property (nonatomic, copy) void (^progressBlock)(unsigned long long bytesDownloaded, unsigned long long bytesTotal);
 @property (nonatomic, assign) unsigned long long bytesDownloaded;
+- (id)initWithHttpMethod:(CMISHttpRequestMethod)httpRequestMethod
+         completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))completionBlock
+           progressBlock:(void (^)(unsigned long long bytesDownloaded, unsigned long long bytesTotal))progressBlock;
 
 @end
 
@@ -31,7 +34,7 @@
 @implementation CMISHttpDownloadRequest
 
 
-+ (CMISHttpDownloadRequest*)startRequest:(NSMutableURLRequest *)urlRequest
++ (id)startRequest:(NSMutableURLRequest *)urlRequest
                               httpMethod:(CMISHttpRequestMethod)httpRequestMethod
                             outputStream:(NSOutputStream*)outputStream
                            bytesExpected:(unsigned long long)bytesExpected

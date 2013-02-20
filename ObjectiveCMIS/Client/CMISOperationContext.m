@@ -29,7 +29,7 @@
     defaultContext.includeAllowableActions = YES;
     defaultContext.includeACLs = NO;
     defaultContext.includePolicies = NO;
-    defaultContext.includeRelationShips = CMISIncludeRelationshipNone;
+    defaultContext.relationships = CMISIncludeRelationshipNone;
     defaultContext.renditionFilterString = nil;
     defaultContext.orderBy = nil;
     defaultContext.includePathSegments = NO;

@@ -337,7 +337,7 @@
         }
     }
     else {
-        [FileUtil appendToFileAtPath:self.internalFilePath data:[string dataUsingEncoding:NSUTF8StringEncoding]];
+        [CMISFileUtil appendToFileAtPath:self.internalFilePath data:[string dataUsingEncoding:NSUTF8StringEncoding]];
     }
 
 }

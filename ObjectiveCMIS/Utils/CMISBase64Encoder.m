@@ -131,7 +131,7 @@ static char *alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz012
             @autoreleasepool {
                 [fileHandle seekToFileOffset:currentOffset];
                 NSData *chunkOfData = [fileHandle readDataOfLength:524288]; // 512 kb
-                [FileUtil appendToFileAtPath:destinationFilePath data:[self dataByEncodingText:chunkOfData]];
+                [CMISFileUtil appendToFileAtPath:destinationFilePath data:[self dataByEncodingText:chunkOfData]];
                 currentOffset += chunkOfData.length;
             }
         }
@@ -154,7 +154,7 @@ static char *alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz012
             if (length > 0) {
                 [chunkOfData setLength:length];
                 NSData *encodedChunkOfData = [self dataByEncodingText:chunkOfData];
-                [FileUtil appendToFileAtPath:destinationFilePath data:encodedChunkOfData];
+                [CMISFileUtil appendToFileAtPath:destinationFilePath data:encodedChunkOfData];
             } else {
                 break;
             }

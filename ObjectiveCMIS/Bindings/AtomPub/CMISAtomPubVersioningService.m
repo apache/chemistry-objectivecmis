@@ -27,30 +27,33 @@
 
 @implementation CMISAtomPubVersioningService
 
-- (void)retrieveObjectOfLatestVersion:(NSString *)objectId
+- (CMISRequest*)retrieveObjectOfLatestVersion:(NSString *)objectId
                                 major:(BOOL)major
                                filter:(NSString *)filter
-                 includeRelationShips:(CMISIncludeRelationship)includeRelationships
+                        relationships:(CMISIncludeRelationship)relationships
                      includePolicyIds:(BOOL)includePolicyIds
                       renditionFilter:(NSString *)renditionFilter
                            includeACL:(BOOL)includeACL
               includeAllowableActions:(BOOL)includeAllowableActions
                       completionBlock:(void (^)(CMISObjectData *objectData, NSError *error))completionBlock
 {
+    CMISRequest *request = [[CMISRequest alloc] init];
     [self retrieveObjectInternal:objectId
                    returnVersion:(major ? LATEST_MAJOR : LATEST)
                           filter:filter
-                   relationShips:includeRelationships
+                   relationships:relationships
                 includePolicyIds:includePolicyIds
                  renditionFilder:renditionFilter
                       includeACL:includeACL
          includeAllowableActions:includeAllowableActions
+                     cmisRequest:request
                  completionBlock:^(CMISObjectData *objectData, NSError *error) {
                      completionBlock(objectData, error);
                  }];
+    return request;
 }
 
-- (void)retrieveAllVersions:(NSString *)objectId
+- (CMISRequest*)retrieveAllVersions:(NSString *)objectId
                      filter:(NSString *)filter
     includeAllowableActions:(BOOL)includeAllowableActions
             completionBlock:(void (^)(NSArray *objects, NSError *error))completionBlock
@@ -59,12 +62,14 @@
     if (!objectId) {
         log(@"Must provide an objectId when retrieving all versions");
         completionBlock(nil, [CMISErrors createCMISErrorWithCode:kCMISErrorCodeObjectNotFound detailedDescription:nil]);
-        return;
+        return nil;
     }
+    CMISRequest *request = [[CMISRequest alloc] init];
     
     // Fetch version history link
     [self loadLinkForObjectId:objectId
                      relation:kCMISLinkVersionHistory
+                  cmisRequest:request
               completionBlock:^(NSString *versionHistoryLink, NSError *error) {
         if (error) {
             completionBlock(nil, [CMISErrors cmisError:error cmisErrorCode:kCMISErrorCodeObjectNotFound]);
@@ -79,8 +84,9 @@
         
         // Execute call
         [self.bindingSession.networkProvider invokeGET:[NSURL URLWithString:versionHistoryLink]
-                session:self.bindingSession
-            completionBlock:^(CMISHttpResponse *httpResponse, NSError *error) {
+                                               session:self.bindingSession
+                                           cmisRequest:request
+                                       completionBlock:^(CMISHttpResponse *httpResponse, NSError *error) {
                 if (httpResponse) {
                     NSData *data = httpResponse.data;
                     CMISAtomFeedParser *feedParser = [[CMISAtomFeedParser alloc] initWithData:data];
@@ -95,6 +101,7 @@
                 }
             }];
     }];
+    return request;
 }
 
 @end

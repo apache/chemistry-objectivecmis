@@ -22,26 +22,37 @@
 @interface CMISRequest ()
 
 @property (nonatomic, getter = isCancelled) BOOL cancelled;
-
 @end
 
 
 @implementation CMISRequest
 
+- (id)init
+{
+    self = [super init];
+    if (nil != self)
+    {
+        self.cancelled = NO;
+    }
+    return self;
+}
 
 - (void)cancel
 {
     self.cancelled = YES;
-    
-    [self.httpRequest cancel];
+    if ([self.httpRequest respondsToSelector:@selector(cancel)]){
+        [self.httpRequest cancel];
+    }
 }
+
 
 - (void)setHttpRequest:(id)httpRequest
 {
     _httpRequest = httpRequest;
-    
-    if (self.isCancelled && [httpRequest respondsToSelector:@selector(cancel)]) {
-        [httpRequest cancel];
+    if (self.isCancelled){
+        if ([httpRequest respondsToSelector:@selector(cancel)]) {
+            [httpRequest cancel];
+        }
     }
 }
 

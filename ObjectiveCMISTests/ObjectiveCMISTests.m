@@ -474,9 +474,9 @@
                                    
                                    // Compare file sizes
                                    NSError *fileError;
-                                   unsigned long long originalFileSize = [FileUtil fileSizeForFileAtPath:fileToUploadPath error:&fileError];
+                                   unsigned long long originalFileSize = [CMISFileUtil fileSizeForFileAtPath:fileToUploadPath error:&fileError];
                                    STAssertNil(fileError, @"Got error while getting file size for %@: %@", fileToUploadPath, [fileError description]);
-                                   unsigned long long downloadedFileSize = [FileUtil fileSizeForFileAtPath:downloadedFilePath error:&fileError];
+                                   unsigned long long downloadedFileSize = [CMISFileUtil fileSizeForFileAtPath:downloadedFilePath error:&fileError];
                                    STAssertNil(fileError, @"Got error while getting file size for %@: %@", downloadedFilePath, [fileError description]);
                                    STAssertTrue(originalFileSize == downloadedFileSize, @"Original file size (%llu) is not equal to downloaded file size (%llu)", originalFileSize, downloadedFileSize);
                                    
@@ -644,7 +644,7 @@
         // Basic check if the service returns results that are usable
         [discoveryService query:@"SELECT * FROM cmis:document"
               searchAllVersions:NO
-                  relationShips:CMISIncludeRelationshipNone
+                  relationships:CMISIncludeRelationshipNone
                 renditionFilter:nil
             includeAllowableActions:YES
                        maxItems:[NSNumber numberWithInt:3]
@@ -665,7 +665,7 @@
              // Doing a query without any maxItems or skipCount, and also only requesting one property 'column'
              [discoveryService query:@"SELECT cmis:name FROM cmis:document WHERE cmis:name LIKE '%quote%'"
                    searchAllVersions:NO
-                       relationShips:CMISIncludeRelationshipNone
+                       relationships:CMISIncludeRelationshipNone
                      renditionFilter:nil
              includeAllowableActions:YES
                             maxItems:nil skipCount:nil completionBlock:^(CMISObjectList *objectList, NSError *error) {
@@ -919,15 +919,17 @@
     [self runTest:^ {
          // Upload test file
          [self uploadTestFileWithCompletionBlock:^(CMISDocument *originalDocument) {
+             STAssertTrue([originalDocument.contentStreamMediaType isEqualToString:@"text/plain"], @"Mime type for original document should be text/plain but it is: %@", originalDocument.contentStreamMediaType);
              // Change content of test file using overwrite
              __block long long previousUploadedBytes = -1;
              NSString *newContentFilePath = [[NSBundle bundleForClass:[self class]] pathForResource:@"test_file_2.txt" ofType:nil];
              [self.session.binding.objectService
               changeContentOfObject:[CMISStringInOutParameter inOutParameterUsingInParameter:originalDocument.identifier]
-                toContentOfFile:newContentFilePath
-                overwriteExisting:YES
-                changeToken:nil
-              completionBlock: ^(NSError *error) {
+                    toContentOfFile:newContentFilePath
+                           mimeType:originalDocument.contentStreamMediaType
+                  overwriteExisting:YES
+                        changeToken:nil
+                    completionBlock: ^(NSError *error) {
                   if (error == nil) {
                       NSLog(@"Content has been successfully changed");
                       
@@ -936,6 +938,7 @@
 //                      NSString *tempDownloadFilePath = @"temp_download_file.txt";
                       // some repos will up the version when uploading new content
                       [originalDocument retrieveObjectOfLatestVersionWithMajorVersion:NO completionBlock:^(CMISDocument *latestVersionOfDocument , NSError *error) {
+                          STAssertTrue([latestVersionOfDocument.contentStreamMediaType isEqualToString:@"text/plain"], @"Mime type for updated document should be text/plain but it is: %@", latestVersionOfDocument.contentStreamMediaType);
                           [latestVersionOfDocument downloadContentToFile:tempDownloadFilePath completionBlock:^(NSError *error) {
                               if (error == nil) {
                                   NSString *contentOfDownloadedFile = [NSString stringWithContentsOfFile:tempDownloadFilePath encoding:NSUTF8StringEncoding error:nil];

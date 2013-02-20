@@ -27,9 +27,8 @@
 
 @implementation CMISAtomPubDiscoveryService
 
-
-- (void)query:(NSString *)statement searchAllVersions:(BOOL)searchAllVersions
-                                        relationShips:(CMISIncludeRelationship)includeRelationships
+- (CMISRequest*)query:(NSString *)statement searchAllVersions:(BOOL)searchAllVersions
+                                        relationships:(CMISIncludeRelationship)relationships
                                       renditionFilter:(NSString *)renditionFilter
                               includeAllowableActions:(BOOL)includeAllowableActions
                                              maxItems:(NSNumber *)maxItems
@@ -40,7 +39,7 @@
     if (statement == nil) {
         log(@"Must provide 'statement' parameter when executing a cmis query");
         completionBlock(nil, [CMISErrors createCMISErrorWithCode:kCMISErrorCodeInvalidArgument detailedDescription:nil]);
-        return;
+        return nil;
     }
     
     // Validate query uri
@@ -48,7 +47,7 @@
     if (queryUrlString == nil) {
         log(@"Unknown repository or query not supported!");
         completionBlock(nil, [CMISErrors createCMISErrorWithCode:kCMISErrorCodeObjectNotFound detailedDescription:nil]);
-        return;
+        return nil;
     }
     
     NSURL *queryURL = [NSURL URLWithString:queryUrlString];
@@ -57,17 +56,19 @@
     atomEntryWriter.statement = statement;
     atomEntryWriter.searchAllVersions = searchAllVersions;
     atomEntryWriter.includeAllowableActions = includeAllowableActions;
-    atomEntryWriter.includeRelationships = includeRelationships;
+    atomEntryWriter.relationships = relationships;
     atomEntryWriter.renditionFilter = renditionFilter;
     atomEntryWriter.maxItems = maxItems;
     atomEntryWriter.skipCount = skipCount;
     
+    CMISRequest *request = [[CMISRequest alloc] init];
     // Execute HTTP call
     [self.bindingSession.networkProvider invokePOST:queryURL
-             session:self.bindingSession
-                    body:[[atomEntryWriter generateAtomEntryXML] dataUsingEncoding:NSUTF8StringEncoding]
-                 headers:[NSDictionary dictionaryWithObject:kCMISMediaTypeQuery forKey:@"Content-type"]
-         completionBlock:^(CMISHttpResponse *httpResponse, NSError *error) {
+                                            session:self.bindingSession
+                                               body:[[atomEntryWriter generateAtomEntryXML] dataUsingEncoding:NSUTF8StringEncoding]
+                                            headers:[NSDictionary dictionaryWithObject:kCMISMediaTypeQuery forKey:@"Content-type"]
+                                        cmisRequest:request
+                                    completionBlock:^(CMISHttpResponse *httpResponse, NSError *error) {
              if (httpResponse) {
                  CMISAtomFeedParser *feedParser = [[CMISAtomFeedParser alloc] initWithData:httpResponse.data];
                  NSError *error = nil;
@@ -85,7 +86,8 @@
              } else {
                  completionBlock(nil, [CMISErrors cmisError:error cmisErrorCode:kCMISErrorCodeConnection]);
              }
-         }];
+         } ];
+    return request;
 }
 
 @end

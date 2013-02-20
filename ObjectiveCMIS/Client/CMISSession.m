@@ -26,6 +26,7 @@
 #import "CMISQueryResult.h"
 #import "CMISErrors.h"
 #import "CMISOperationContext.h"
+#import "CMISRequest.h"
 #import "CMISPagedResult.h"
 #import "CMISTypeDefinition.h"
 #import "CMISNetworkProvider.h"
@@ -165,15 +166,15 @@
 
 #pragma mark CMIS operations
 
-- (void)retrieveRootFolderWithCompletionBlock:(void (^)(CMISFolder *folder, NSError *error))completionBlock
+- (CMISRequest*)retrieveRootFolderWithCompletionBlock:(void (^)(CMISFolder *folder, NSError *error))completionBlock
 {
-    [self retrieveFolderWithOperationContext:[CMISOperationContext defaultOperationContext] completionBlock:completionBlock];
+    return [self retrieveFolderWithOperationContext:[CMISOperationContext defaultOperationContext] completionBlock:completionBlock];
 }
 
-- (void)retrieveFolderWithOperationContext:(CMISOperationContext *)operationContext completionBlock:(void (^)(CMISFolder *folder, NSError *error))completionBlock
+- (CMISRequest*)retrieveFolderWithOperationContext:(CMISOperationContext *)operationContext completionBlock:(void (^)(CMISFolder *folder, NSError *error))completionBlock
 {
     NSString *rootFolderId = self.repositoryInfo.rootFolderId;
-    [self retrieveObject:rootFolderId operationContext:operationContext completionBlock:^(CMISObject *rootFolder, NSError *error) {
+    return [self retrieveObject:rootFolderId operationContext:operationContext completionBlock:^(CMISObject *rootFolder, NSError *error) {
         if (rootFolder != nil && ![rootFolder isKindOfClass:[CMISFolder class]]) {
             completionBlock(nil, [CMISErrors createCMISErrorWithCode:kCMISErrorCodeRuntime detailedDescription:@"Root folder object is not a folder!"]);
         } else {
@@ -182,30 +183,30 @@
     }];
 }
 
-- (void)retrieveObject:(NSString *)objectId completionBlock:(void (^)(CMISObject *object, NSError *error))completionBlock
+- (CMISRequest*)retrieveObject:(NSString *)objectId completionBlock:(void (^)(CMISObject *object, NSError *error))completionBlock
 {
-    [self retrieveObject:objectId operationContext:[CMISOperationContext defaultOperationContext] completionBlock:completionBlock];
+    return [self retrieveObject:objectId operationContext:[CMISOperationContext defaultOperationContext] completionBlock:completionBlock];
 }
 
-- (void)retrieveObject:(NSString *)objectId
+- (CMISRequest*)retrieveObject:(NSString *)objectId
       operationContext:(CMISOperationContext *)operationContext
        completionBlock:(void (^)(CMISObject *object, NSError *error))completionBlock
 {
     if (objectId == nil) {
         completionBlock(nil, [CMISErrors createCMISErrorWithCode:kCMISErrorCodeInvalidArgument detailedDescription:@"Must provide object id"]);
-        return;
+        return nil;
     }
 
     // TODO: cache the object
 
-    [self.binding.objectService retrieveObject:objectId
-                                        filter:operationContext.filterString
-                                 relationShips:operationContext.includeRelationShips
-                              includePolicyIds:operationContext.includePolicies
-                               renditionFilder:operationContext.renditionFilterString
-                                    includeACL:operationContext.includeACLs
-                       includeAllowableActions:operationContext.includeAllowableActions
-                               completionBlock:^(CMISObjectData *objectData, NSError *error) {
+    return [self.binding.objectService retrieveObject:objectId
+                                               filter:operationContext.filterString
+                                        relationships:operationContext.relationships
+                                     includePolicyIds:operationContext.includePolicies
+                                      renditionFilder:operationContext.renditionFilterString
+                                           includeACL:operationContext.includeACLs
+                              includeAllowableActions:operationContext.includeAllowableActions
+                                      completionBlock:^(CMISObjectData *objectData, NSError *error) {
                                             if (error) {
                                                 completionBlock(nil, [CMISErrors cmisError:error cmisErrorCode:kCMISErrorCodeObjectNotFound]);
                                             } else {
@@ -218,18 +219,18 @@
                                         }];
 }
 
-- (void)retrieveObjectByPath:(NSString *)path completionBlock:(void (^)(CMISObject *object, NSError *error))completionBlock
+- (CMISRequest*)retrieveObjectByPath:(NSString *)path completionBlock:(void (^)(CMISObject *object, NSError *error))completionBlock
 {
-    [self retrieveObjectByPath:path operationContext:[CMISOperationContext defaultOperationContext] completionBlock:completionBlock];
+    return [self retrieveObjectByPath:path operationContext:[CMISOperationContext defaultOperationContext] completionBlock:completionBlock];
 }
 
-- (void)retrieveObjectByPath:(NSString *)path
+- (CMISRequest*)retrieveObjectByPath:(NSString *)path
             operationContext:(CMISOperationContext *)operationContext
              completionBlock:(void (^)(CMISObject *object, NSError *error))completionBlock
 {
-    [self.binding.objectService retrieveObjectByPath:path
+    return [self.binding.objectService retrieveObjectByPath:path
                                               filter:operationContext.filterString
-                                       relationShips:operationContext.includeRelationShips
+                                       relationships:operationContext.relationships
                                     includePolicyIds:operationContext.includePolicies
                                      renditionFilder:operationContext.renditionFilterString
                                           includeACL:operationContext.includeACLs
@@ -246,25 +247,26 @@
                                      }];
 }
 
-- (void)retrieveTypeDefinition:(NSString *)typeId completionBlock:(void (^)(CMISTypeDefinition *typeDefinition, NSError *error))completionBlock
+- (CMISRequest*)retrieveTypeDefinition:(NSString *)typeId completionBlock:(void (^)(CMISTypeDefinition *typeDefinition, NSError *error))completionBlock
 {
     return [self.binding.repositoryService retrieveTypeDefinition:typeId completionBlock:completionBlock];
 }
 
-- (void)query:(NSString *)statement searchAllVersions:(BOOL)searchAllVersion completionBlock:(void (^)(CMISPagedResult *pagedResult, NSError *error))completionBlock
+- (CMISRequest*)query:(NSString *)statement searchAllVersions:(BOOL)searchAllVersion completionBlock:(void (^)(CMISPagedResult *pagedResult, NSError *error))completionBlock
 {
-    [self query:statement searchAllVersions:searchAllVersion operationContext:[CMISOperationContext defaultOperationContext] completionBlock:completionBlock];
+    return [self query:statement searchAllVersions:searchAllVersion operationContext:[CMISOperationContext defaultOperationContext] completionBlock:completionBlock];
 }
 
-- (void)query:(NSString *)statement searchAllVersions:(BOOL)searchAllVersion
+- (CMISRequest*)query:(NSString *)statement searchAllVersions:(BOOL)searchAllVersion
                                      operationContext:(CMISOperationContext *)operationContext
                                       completionBlock:(void (^)(CMISPagedResult *pagedResult, NSError *error))completionBlock
 {
+    __block CMISRequest *request = [[CMISRequest alloc] init];
     CMISFetchNextPageBlock fetchNextPageBlock = ^(int skipCount, int maxItems, CMISFetchNextPageBlockCompletionBlock pageBlockCompletionBlock){
         // Fetch results through discovery service
-        [self.binding.discoveryService query:statement
+       request = [self.binding.discoveryService query:statement
                                                   searchAllVersions:searchAllVersion
-                                                  relationShips:operationContext.includeRelationShips
+                                                  relationships:operationContext.relationships
                                                   renditionFilter:operationContext.renditionFilterString
                                                   includeAllowableActions:operationContext.includeAllowableActions
                                                   maxItems:[NSNumber numberWithInt:maxItems]
@@ -299,9 +301,10 @@
                                         completionBlock(result, nil);
                                     }
                                 }];
+    return request;
 }
 
-- (void)queryObjectsWithTypeDefinition:(CMISTypeDefinition *)typeDefinition
+- (CMISRequest*)queryObjectsWithTypeDefinition:(CMISTypeDefinition *)typeDefinition
                            whereClause:(NSString *)whereClause
                      searchAllVersions:(BOOL)searchAllVersion
                       operationContext:(CMISOperationContext *)operationContext
@@ -326,18 +329,20 @@
         [statement appendFormat:@" ORDER BY %@", operationContext.orderBy];
     }
     
+    __block CMISRequest *request = [[CMISRequest alloc] init];
+    
     // Fetch block for paged results
     CMISFetchNextPageBlock fetchNextPageBlock = ^(int skipCount, int maxItems, CMISFetchNextPageBlockCompletionBlock pageBlockCompletionBlock)
     {
         // Fetch results through discovery service
-        [self.binding.discoveryService query:statement
-                           searchAllVersions:searchAllVersion
-                               relationShips:operationContext.includeRelationShips
-                             renditionFilter:operationContext.renditionFilterString
-                     includeAllowableActions:operationContext.includeAllowableActions
-                                    maxItems:[NSNumber numberWithInt:maxItems]
-                                   skipCount:[NSNumber numberWithInt:skipCount]
-                             completionBlock:^(CMISObjectList *objectList, NSError *error) {
+        request = [self.binding.discoveryService query:statement
+                                     searchAllVersions:searchAllVersion
+                                         relationships:operationContext.relationships
+                                       renditionFilter:operationContext.renditionFilterString
+                               includeAllowableActions:operationContext.includeAllowableActions
+                                              maxItems:[NSNumber numberWithInt:maxItems]
+                                             skipCount:[NSNumber numberWithInt:skipCount]
+                                       completionBlock:^(CMISObjectList *objectList, NSError *error) {
                                  if (error) {
                                      pageBlockCompletionBlock(nil, [CMISErrors cmisError:error cmisErrorCode:kCMISErrorCodeRuntime]);
                                  } else {
@@ -368,15 +373,16 @@
                                         completionBlock(result, nil);
                                     }
                                 }];
+    return request;
 }
 
-- (void)queryObjectsWithTypeid:(NSString *)typeId
+- (CMISRequest*)queryObjectsWithTypeid:(NSString *)typeId
                    whereClause:(NSString *)whereClause
              searchAllVersions:(BOOL)searchAllVersion
               operationContext:(CMISOperationContext *)operationContext
                completionBlock:(void (^)(CMISPagedResult *result, NSError *error))completionBlock
 {
-    [self retrieveTypeDefinition:typeId
+    return [self retrieveTypeDefinition:typeId
                  completionBlock:^(CMISTypeDefinition *typeDefinition, NSError *internalError) {
                      if (internalError != nil) {
                          NSError *error = [CMISErrors cmisError:internalError cmisErrorCode:kCMISErrorCodeRuntime];
@@ -391,23 +397,25 @@
                  }];
 }
 
-- (void)createFolder:(NSDictionary *)properties
+- (CMISRequest*)createFolder:(NSDictionary *)properties
             inFolder:(NSString *)folderObjectId
      completionBlock:(void (^)(NSString *objectId, NSError *error))completionBlock
 {
+    __block CMISRequest *request = [[CMISRequest alloc] init];
     [self.objectConverter convertProperties:properties
                             forObjectTypeId:[properties objectForKey:kCMISPropertyObjectTypeId]
                             completionBlock:^(CMISProperties *convertedProperties, NSError *error) {
                                if (error) {
                                    completionBlock(nil, [CMISErrors cmisError:error cmisErrorCode:kCMISErrorCodeRuntime]);
                                } else {
-                                   [self.binding.objectService createFolderInParentFolder:folderObjectId
+                                  request = [self.binding.objectService createFolderInParentFolder:folderObjectId
                                                                                properties:convertedProperties
                                                                           completionBlock:^(NSString *objectId, NSError *error) {
                                                                               completionBlock(objectId, error);
                                                                           }];
                                }
                            }];
+    return request;
 }
 
 - (CMISRequest*)downloadContentOfCMISObject:(NSString *)objectId
@@ -435,12 +443,13 @@
 }
 
 
-- (void)createDocumentFromFilePath:(NSString *)filePath
+- (CMISRequest*)createDocumentFromFilePath:(NSString *)filePath
                           mimeType:(NSString *)mimeType
                         properties:(NSDictionary *)properties inFolder:(NSString *)folderObjectId
                    completionBlock:(void (^)(NSString *objectId, NSError *error))completionBlock
                      progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal))progressBlock
 {
+    __block CMISRequest *request = [[CMISRequest alloc] init];
     [self.objectConverter convertProperties:properties
                             forObjectTypeId:[properties objectForKey:kCMISPropertyObjectTypeId]
                             completionBlock:^(CMISProperties *convertedProperties, NSError *error) {
@@ -450,7 +459,7 @@
                 completionBlock(nil, [CMISErrors cmisError:error cmisErrorCode:kCMISErrorCodeRuntime]);
             }
         } else {
-            [self.binding.objectService createDocumentFromFilePath:filePath
+            request = [self.binding.objectService createDocumentFromFilePath:filePath
                                                           mimeType:mimeType
                                                         properties:convertedProperties
                                                       inFolder:folderObjectId
@@ -458,9 +467,10 @@
                                                      progressBlock:progressBlock];
         }
     }];
+    return request;
 }
 
-- (void)createDocumentFromInputStream:(NSInputStream *)inputStream
+- (CMISRequest*)createDocumentFromInputStream:(NSInputStream *)inputStream
                              mimeType:(NSString *)mimeType
                            properties:(NSDictionary *)properties
                              inFolder:(NSString *)folderObjectId
@@ -468,6 +478,7 @@
                       completionBlock:(void (^)(NSString *objectId, NSError *error))completionBlock
                         progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal))progressBlock
 {
+    __block CMISRequest *request = [[CMISRequest alloc] init];
     [self.objectConverter convertProperties:properties
                             forObjectTypeId:[properties objectForKey:kCMISPropertyObjectTypeId]
                             completionBlock:^(CMISProperties *convertedProperties, NSError *error) {
@@ -477,7 +488,7 @@
                 completionBlock(nil, [CMISErrors cmisError:error cmisErrorCode:kCMISErrorCodeRuntime]);
             }
         } else {
-            [self.binding.objectService createDocumentFromInputStream:inputStream
+            request = [self.binding.objectService createDocumentFromInputStream:inputStream
                                                              mimeType:mimeType
                                                            properties:convertedProperties
                                                              inFolder:folderObjectId
@@ -486,6 +497,7 @@
                                                         progressBlock:progressBlock];
         }
     }];
+    return request;
 }
 
 @end

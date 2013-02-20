@@ -41,7 +41,7 @@ NSString * const kCMISExceptionVersioning              = @"versioning";
 @implementation CMISHttpRequest
 
 
-+ (CMISHttpRequest*)startRequest:(NSMutableURLRequest *)urlRequest
++ (id)startRequest:(NSMutableURLRequest *)urlRequest
                       httpMethod:(CMISHttpRequestMethod)httpRequestMethod
                      requestBody:(NSData*)requestBody
                          headers:(NSDictionary*)additionalHeaders

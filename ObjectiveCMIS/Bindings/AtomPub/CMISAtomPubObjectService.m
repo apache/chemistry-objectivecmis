@@ -31,23 +31,25 @@
 
 @implementation CMISAtomPubObjectService
 
-- (void)retrieveObject:(NSString *)objectId
+- (CMISRequest*)retrieveObject:(NSString *)objectId
                 filter:(NSString *)filter
-         relationShips:(CMISIncludeRelationship)includeRelationship
+         relationships:(CMISIncludeRelationship)relationships
       includePolicyIds:(BOOL)includePolicyIds
        renditionFilder:(NSString *)renditionFilter
             includeACL:(BOOL)includeACL
     includeAllowableActions:(BOOL)includeAllowableActions
        completionBlock:(void (^)(CMISObjectData *objectData, NSError *error))completionBlock
 {
+    CMISRequest *cmisRequest = [[CMISRequest alloc] init];
     [self retrieveObjectInternal:objectId
                    returnVersion:NOT_PROVIDED
                           filter:filter
-                   relationShips:includeRelationship
+                   relationships:relationships
                 includePolicyIds:includePolicyIds
                  renditionFilder:renditionFilter
                       includeACL:includeACL
          includeAllowableActions:includeAllowableActions
+                     cmisRequest:cmisRequest
                  completionBlock:^(CMISObjectData *objectData, NSError *error) {
                      if (error) {
                          completionBlock(nil, [CMISErrors cmisError:error cmisErrorCode:kCMISErrorCodeObjectNotFound]);
@@ -55,25 +57,29 @@
                          completionBlock(objectData, nil);
                      }
                  }];
+    return cmisRequest;
 }
 
-- (void)retrieveObjectByPath:(NSString *)path
+- (CMISRequest*)retrieveObjectByPath:(NSString *)path
                       filter:(NSString *)filter
-               relationShips:(CMISIncludeRelationship)includeRelationship
+               relationships:(CMISIncludeRelationship)relationships
             includePolicyIds:(BOOL)includePolicyIds
              renditionFilder:(NSString *)renditionFilter
                   includeACL:(BOOL)includeACL
      includeAllowableActions:(BOOL)includeAllowableActions
              completionBlock:(void (^)(CMISObjectData *objectData, NSError *error))completionBlock
 {
+    CMISRequest *cmisRequest = [[CMISRequest alloc] init];
     [self retrieveObjectByPathInternal:path
                                 filter:filter
-                         relationShips:includeRelationship
+                         relationships:relationships
                       includePolicyIds:includePolicyIds
                        renditionFilder:renditionFilter
                             includeACL:includeACL
                includeAllowableActions:includeAllowableActions
+                           cmisRequest:cmisRequest
                        completionBlock:completionBlock];
+    return cmisRequest;
 }
 
 - (CMISRequest*)downloadContentOfObject:(NSString *)objectId
@@ -98,7 +104,9 @@
 {
     CMISRequest *request = [[CMISRequest alloc] init];
     
-    [self retrieveObjectInternal:objectId completionBlock:^(CMISObjectData *objectData, NSError *error) {
+    [self retrieveObjectInternal:objectId
+                     cmisRequest:request
+                 completionBlock:^(CMISObjectData *objectData, NSError *error) {
         if (error) {
             log(@"Error while retrieving CMIS object for object id '%@' : %@", objectId, error.description);
             if (completionBlock) {
@@ -120,13 +128,13 @@
                                                     session:self.bindingSession
                                                outputStream:outputStream
                                               bytesExpected:streamLength
+                                                cmisRequest:request
                                             completionBlock:^(CMISHttpResponse *httpResponse, NSError *error)
                  {
                      if (completionBlock) {
                          completionBlock(error);
                      }
-                 }progressBlock:progressBlock
-                requestObject:request];
+                 }progressBlock:progressBlock];
             } else { // it is spec-compliant to have no content stream set and in this case there is nothing to download
                 if (completionBlock) {
                     completionBlock(nil);
@@ -138,7 +146,7 @@
     return request;
 }
 
-- (void)deleteContentOfObject:(CMISStringInOutParameter *)objectIdParam
+- (CMISRequest*)deleteContentOfObject:(CMISStringInOutParameter *)objectIdParam
                   changeToken:(CMISStringInOutParameter *)changeTokenParam
               completionBlock:(void (^)(NSError *error))completionBlock
 {
@@ -146,11 +154,15 @@
     if (objectIdParam == nil || objectIdParam.inParameter == nil) {
         log(@"Object id is nil or inParameter of objectId is nil");
         completionBlock([[NSError alloc] init]); // TODO: properly init error (CmisInvalidArgumentException)
-        return;
+        return nil;
     }
     
+    CMISRequest *request = [[CMISRequest alloc] init];
     // Get edit media link
-    [self loadLinkForObjectId:objectIdParam.inParameter relation:kCMISLinkEditMedia completionBlock:^(NSString *editMediaLink, NSError *error) {
+    [self loadLinkForObjectId:objectIdParam.inParameter
+                     relation:kCMISLinkEditMedia
+                  cmisRequest:request
+              completionBlock:^(NSString *editMediaLink, NSError *error) {
         if (editMediaLink == nil){
             log(@"Could not retrieve %@ link for object '%@'", kCMISLinkEditMedia, objectIdParam.inParameter);
             completionBlock(error);
@@ -164,8 +176,9 @@
         }
         
         [self.bindingSession.networkProvider invokeDELETE:[NSURL URLWithString:editMediaLink]
-                   session:self.bindingSession
-               completionBlock:^(CMISHttpResponse *httpResponse, NSError *error) {
+                                                  session:self.bindingSession
+                                              cmisRequest:request
+                                          completionBlock:^(CMISHttpResponse *httpResponse, NSError *error) {
                    if (httpResponse) {
                        // Atompub DOES NOT SUPPORT returning the new object id and change token
                        // See http://docs.oasis-open.org/cmis/CMIS/v1.0/cs01/cmis-spec-v1.0.html#_Toc243905498
@@ -177,10 +190,12 @@
                    }
                }];
     }];
+    return request;
 }
 
 - (CMISRequest*)changeContentOfObject:(CMISStringInOutParameter *)objectIdParam
                       toContentOfFile:(NSString *)filePath
+                             mimeType:(NSString *)mimeType
                     overwriteExisting:(BOOL)overwrite
                           changeToken:(CMISStringInOutParameter *)changeTokenParam
                       completionBlock:(void (^)(NSError *error))completionBlock
@@ -196,7 +211,7 @@
     }
     
     NSError *fileError = nil;
-    unsigned long long fileSize = [FileUtil fileSizeForFileAtPath:filePath error:&fileError];
+    unsigned long long fileSize = [CMISFileUtil fileSizeForFileAtPath:filePath error:&fileError];
     if (fileError) {
         log(@"Could not determine size of file %@: %@", filePath, [fileError description]);
     }
@@ -205,6 +220,7 @@
                 toContentOfInputStream:inputStream
                          bytesExpected:fileSize
                               filename:[filePath lastPathComponent]
+                              mimeType:mimeType
                      overwriteExisting:overwrite
                            changeToken:changeTokenParam
                        completionBlock:completionBlock
@@ -215,11 +231,13 @@
                toContentOfInputStream:(NSInputStream *)inputStream
                         bytesExpected:(unsigned long long)bytesExpected
                              filename:(NSString*)filename
+                             mimeType:(NSString *)mimeType
                     overwriteExisting:(BOOL)overwrite
                           changeToken:(CMISStringInOutParameter *)changeTokenParam
                       completionBlock:(void (^)(NSError *error))completionBlock
                         progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal))progressBlock
 {
+    CMISRequest *request = [[CMISRequest alloc] init];
     // Validate object id param
     if (objectIdParam == nil || objectIdParam.inParameter == nil) {
         log(@"Object id is nil or inParameter of objectId is nil");
@@ -237,14 +255,21 @@
         return nil;
     }
     
+    if (nil == mimeType)
+    {
+        mimeType = kCMISMediaTypeOctetStream;
+    }
+    
     // Atompub DOES NOT SUPPORT returning the new object id and change token
     // See http://docs.oasis-open.org/cmis/CMIS/v1.0/cs01/cmis-spec-v1.0.html#_Toc243905498
     objectIdParam.outParameter = nil;
     changeTokenParam.outParameter = nil;
     
-    CMISRequest *request = [[CMISRequest alloc] init];
     // Get edit media link
-    [self loadLinkForObjectId:objectIdParam.inParameter relation:kCMISLinkEditMedia completionBlock:^(NSString *editMediaLink, NSError *error) {
+    [self loadLinkForObjectId:objectIdParam.inParameter
+                     relation:kCMISLinkEditMedia
+                  cmisRequest:request
+              completionBlock:^(NSString *editMediaLink, NSError *error) {
         if (editMediaLink == nil){
             log(@"Could not retrieve %@ link for object '%@'", kCMISLinkEditMedia, objectIdParam.inParameter);
             if (completionBlock) {
@@ -263,16 +288,20 @@
         editMediaLink = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterOverwriteFlag
                                                          value:(overwrite ? @"true" : @"false") urlString:editMediaLink];
         
-        // Execute HTTP call on edit media link, passing the a stream to the file
-        NSDictionary *additionalHeader = [NSDictionary dictionaryWithObject:[NSString stringWithFormat:@"attachment; filename=%@",
-                                                                             filename] forKey:@"Content-Disposition"];
         
+        // Execute HTTP call on edit media link, passing the a stream to the file
+        NSArray *values =  @[[NSString stringWithFormat:kCMISHTTPHeaderContentDispositionAttachment, filename], mimeType];
+        NSArray *keys = @[kCMISHTTPHeaderContentDisposition, kCMISHTTPHeaderContentType];
+        
+        NSDictionary *headers = [NSDictionary dictionaryWithObjects:values forKeys:keys];
+                  
         [self.bindingSession.networkProvider invoke:[NSURL URLWithString:editMediaLink]
                                          httpMethod:HTTP_PUT
                                             session:self.bindingSession
                                         inputStream:inputStream
-                                            headers:additionalHeader
+                                            headers:headers
                                       bytesExpected:bytesExpected
+                                        cmisRequest:request
                                     completionBlock:^(CMISHttpResponse *httpResponse, NSError *error) {
              // Check response status
              if (httpResponse) {
@@ -288,8 +317,7 @@
                  completionBlock(error);
              }
          }
-           progressBlock:progressBlock
-           requestObject:request];
+           progressBlock:progressBlock];
     }];
     
     return request;
@@ -314,7 +342,7 @@
     }
     
     NSError *fileError = nil;
-    unsigned long long bytesExpected = [FileUtil fileSizeForFileAtPath:filePath error:&fileError];
+    unsigned long long bytesExpected = [CMISFileUtil fileSizeForFileAtPath:filePath error:&fileError];
     if (fileError) {
         log(@"Could not determine size of file %@: %@", filePath, [fileError description]);
     }
@@ -359,6 +387,7 @@
     [self loadLinkForObjectId:folderObjectId
                      relation:kCMISLinkRelationDown
                          type:kCMISMediaTypeChildren
+                  cmisRequest:request
               completionBlock:^(NSString *downLink, NSError *error) {
                           if (error) {
                               log(@"Could not retrieve down link: %@", error.description);
@@ -374,57 +403,64 @@
                                     contentInputStream:inputStream
                                        contentMimeType:mimeType
                                          bytesExpected:bytesExpected
+                                           cmisRequest:request
                                        completionBlock:completionBlock
-                                         progressBlock:progressBlock
-                                         requestObject:request];
+                                         progressBlock:progressBlock];
                       }];
     return request;
 }
 
 
-- (void)deleteObject:(NSString *)objectId
+- (CMISRequest*)deleteObject:(NSString *)objectId
          allVersions:(BOOL)allVersions
      completionBlock:(void (^)(BOOL objectDeleted, NSError *error))completionBlock
 {
-    [self loadLinkForObjectId:objectId relation:kCMISLinkRelationSelf completionBlock:^(NSString *selfLink, NSError *error) {
+    CMISRequest *request = [[CMISRequest alloc] init];
+    [self loadLinkForObjectId:objectId
+                     relation:kCMISLinkRelationSelf 
+                  cmisRequest:request
+              completionBlock:^(NSString *selfLink, NSError *error) {
         if (!selfLink) {
             completionBlock(NO, [CMISErrors createCMISErrorWithCode:kCMISErrorCodeInvalidArgument detailedDescription:nil]);
         } else {
             NSURL *selfUrl = [NSURL URLWithString:selfLink];
             [self.bindingSession.networkProvider invokeDELETE:selfUrl
                                                       session:self.bindingSession
+                                                  cmisRequest:request
                                               completionBlock:^(CMISHttpResponse *httpResponse, NSError *error) {
                        if (httpResponse) {
                            completionBlock(YES, nil);
                        } else {
                            completionBlock(NO, [CMISErrors cmisError:error cmisErrorCode:kCMISErrorCodeUpdateConflict]);
                        }
-                   }];
+                   } ];
         }
     }];
+    return request;
 }
 
-- (void)createFolderInParentFolder:(NSString *)folderObjectId
+- (CMISRequest*)createFolderInParentFolder:(NSString *)folderObjectId
                         properties:(CMISProperties *)properties
                    completionBlock:(void (^)(NSString *, NSError *))completionBlock
 {
     if ([properties propertyValueForId:kCMISPropertyName] == nil || [properties propertyValueForId:kCMISPropertyObjectTypeId] == nil) {
         log(@"Must provide %@ and %@ as properties", kCMISPropertyName, kCMISPropertyObjectTypeId);
         completionBlock(nil,  [CMISErrors createCMISErrorWithCode:kCMISErrorCodeInvalidArgument detailedDescription:nil]);
-        return;
+        return nil;
     }
     
     // Validate parent folder id
     if (!folderObjectId) {
         log(@"Must provide a parent folder object id when creating a new folder");
         completionBlock(nil, [CMISErrors createCMISErrorWithCode:kCMISErrorCodeObjectNotFound detailedDescription:nil]);
-        return;
+        return nil;
     }
-    
+    CMISRequest *request = [[CMISRequest alloc] init];
     // Get Down link
     [self loadLinkForObjectId:folderObjectId
                      relation:kCMISLinkRelationDown
                          type:kCMISMediaTypeChildren
+                  cmisRequest:request
               completionBlock:^(NSString *downLink, NSError *error) {
                           if (error) {
                               log(@"Could not retrieve down link: %@", error.description);
@@ -433,14 +469,16 @@
                               [self sendAtomEntryXmlToLink:downLink
                                          httpRequestMethod:HTTP_POST
                                                 properties:properties
+                                               cmisRequest:request
                                            completionBlock:^(CMISObjectData *objectData, NSError *error) {
                                                completionBlock(objectData.identifier, error);
                                            }];
                           }
                       }];
+    return request;
 }
 
-- (void)deleteTree:(NSString *)folderObjectId
+- (CMISRequest*)deleteTree:(NSString *)folderObjectId
         allVersion:(BOOL)allVersions
      unfileObjects:(CMISUnfileObject)unfileObjects
  continueOnFailure:(BOOL)continueOnFailure
@@ -450,12 +488,14 @@
     if (!folderObjectId) {
         log(@"Must provide a folder object id when deleting a folder tree");
         completionBlock(nil, [CMISErrors createCMISErrorWithCode:kCMISErrorCodeObjectNotFound detailedDescription:nil]);
-        return;
+        return nil;
     }
+    CMISRequest *request = [[CMISRequest alloc] init];
     
     [self loadLinkForObjectId:folderObjectId
                      relation:kCMISLinkRelationDown
                          type:kCMISMediaTypeDescendants
+                  cmisRequest:request
               completionBlock:^(NSString *link, NSError *error) {
         if (error) {
             log(@"Error while fetching %@ link : %@", kCMISLinkRelationDown, error.description);
@@ -469,8 +509,9 @@
             link = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterContinueOnFailure value:(continueOnFailure ? @"true" : @"false") urlString:link];
             
             [self.bindingSession.networkProvider invokeDELETE:[NSURL URLWithString:link]
-                       session:self.bindingSession
-                   completionBlock:^(CMISHttpResponse *httpResponse, NSError *error) {
+                                                      session:self.bindingSession
+                                                  cmisRequest:request
+                                              completionBlock:^(CMISHttpResponse *httpResponse, NSError *error) {
                        if (httpResponse) {
                            // TODO: retrieve failed folders and files and return
                            completionBlock([NSArray array], nil);
@@ -483,6 +524,7 @@
         if (link == nil) {
             [self loadLinkForObjectId:folderObjectId
                              relation:kCMISLinkRelationFolderTree
+                          cmisRequest:request
                       completionBlock:^(NSString *link, NSError *error) {
                 if (error) {
                     log(@"Error while fetching %@ link : %@", kCMISLinkRelationFolderTree, error.description);
@@ -498,9 +540,10 @@
             continueWithLink(link);
         }
     }];
+    return request;
 }
 
-- (void)updatePropertiesForObject:(CMISStringInOutParameter *)objectIdParam
+- (CMISRequest*)updatePropertiesForObject:(CMISStringInOutParameter *)objectIdParam
                        properties:(CMISProperties *)properties
                       changeToken:(CMISStringInOutParameter *)changeTokenParam
                   completionBlock:(void (^)(NSError *error))completionBlock
@@ -509,12 +552,14 @@
     if (objectIdParam == nil || objectIdParam.inParameter == nil) {
         log(@"Object id is nil or inParameter of objectId is nil");
         completionBlock([[NSError alloc] init]); // TODO: properly init error (CmisInvalidArgumentException)
-        return;
+        return nil;
     }
     
+    CMISRequest *request = [[CMISRequest alloc] init];
     // Get self link
     [self loadLinkForObjectId:objectIdParam.inParameter
                      relation:kCMISLinkRelationSelf
+                  cmisRequest:request
               completionBlock:^(NSString *selfLink, NSError *error) {
         if (selfLink == nil) {
             log(@"Could not retrieve %@ link", kCMISLinkRelationSelf);
@@ -532,6 +577,7 @@
         [self sendAtomEntryXmlToLink:selfLink
                    httpRequestMethod:HTTP_PUT
                           properties:properties
+                         cmisRequest:request
                      completionBlock:^(CMISObjectData *objectData, NSError *error) {
                          // Create XML needed as body of html
                          
@@ -541,8 +587,9 @@
                          
                          [self.bindingSession.networkProvider invokePUT:[NSURL URLWithString:selfLink]
                                                                 session:self.bindingSession
-                                        body:[xmlWriter.generateAtomEntryXml dataUsingEncoding:NSUTF8StringEncoding]
-                                     headers:[NSDictionary dictionaryWithObject:kCMISMediaTypeEntry forKey:@"Content-type"]
+                                                                   body:[xmlWriter.generateAtomEntryXml dataUsingEncoding:NSUTF8StringEncoding]
+                                                                headers:[NSDictionary dictionaryWithObject:kCMISMediaTypeEntry forKey:@"Content-type"]
+                                                            cmisRequest:request
                              completionBlock:^(CMISHttpResponse *httpResponse, NSError *error) {
                                  if (httpResponse) {
                                      // Object id and changeToken might have changed because of this operation
@@ -559,22 +606,30 @@
                                  } else {
                                      completionBlock([CMISErrors cmisError:error cmisErrorCode:kCMISErrorCodeConnection]);
                                  }
-                             }];
+                             } ];
                      }];
     }];
+    return request;
 }
 
 
-- (void)retrieveRenditions:(NSString *)objectId
+- (CMISRequest*)retrieveRenditions:(NSString *)objectId
            renditionFilter:(NSString *)renditionFilter
                   maxItems:(NSNumber *)maxItems
                  skipCount:(NSNumber *)skipCount
            completionBlock:(void (^)(NSArray *renditions, NSError *error))completionBlock
 {
     // Only fetching the bare minimum
-    [self retrieveObjectInternal:objectId returnVersion:LATEST filter:kCMISPropertyObjectId
-         relationShips:CMISIncludeRelationshipNone includePolicyIds:NO
-              renditionFilder:renditionFilter includeACL:NO includeAllowableActions:NO
+    CMISRequest *cmisRequest = [[CMISRequest alloc] init];
+    [self retrieveObjectInternal:objectId
+                   returnVersion:LATEST
+                          filter:kCMISPropertyObjectId
+                   relationships:CMISIncludeRelationshipNone
+                includePolicyIds:NO
+                 renditionFilder:renditionFilter
+                      includeACL:NO
+         includeAllowableActions:NO
+                     cmisRequest:cmisRequest
                  completionBlock:^(CMISObjectData *objectData, NSError *error) {
                      if (error) {
                          completionBlock(nil, [CMISErrors cmisError:error cmisErrorCode:kCMISErrorCodeObjectNotFound]);
@@ -582,6 +637,7 @@
                          completionBlock(objectData.renditions, nil);
                      }
                  }];
+    return cmisRequest;
 }
 
 #pragma mark Helper methods
@@ -589,6 +645,7 @@
 - (void)sendAtomEntryXmlToLink:(NSString *)link
              httpRequestMethod:(CMISHttpRequestMethod)httpRequestMethod
                     properties:(CMISProperties *)properties
+                   cmisRequest:(CMISRequest *)request
                completionBlock:(void (^)(CMISObjectData *objectData, NSError *error))completionBlock
 {
     // Validate params
@@ -612,6 +669,7 @@
                                         session:self.bindingSession
                                            body:[writeResult dataUsingEncoding:NSUTF8StringEncoding]
                                         headers:[NSDictionary dictionaryWithObject:kCMISMediaTypeEntry forKey:@"Content-type"]
+                                    cmisRequest:request
                                 completionBlock:^(CMISHttpResponse *response, NSError *error) {
          if (error) {
              log(@"HTTP error when creating/uploading content: %@", error);
@@ -647,9 +705,9 @@
             contentInputStream:(NSInputStream *)contentInputStream
                contentMimeType:(NSString *)contentMimeType
                  bytesExpected:(unsigned long long)bytesExpected
+                   cmisRequest:(CMISRequest*)request
                completionBlock:(void (^)(NSString *objectId, NSError *error))completionBlock
                  progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal))progressBlock
-                 requestObject:(CMISRequest*)request
 {
     // Validate param
     if (link == nil) {
@@ -670,7 +728,7 @@
     NSInputStream *inputStream = [NSInputStream inputStreamWithFileAtPath:writeResult];
     
     NSError *fileSizeError = nil;
-    unsigned long long fileSize = [FileUtil fileSizeForFileAtPath:writeResult error:&fileSizeError];
+    unsigned long long fileSize = [CMISFileUtil fileSizeForFileAtPath:writeResult error:&fileSizeError];
     if (fileSizeError) {
         log(@"Could not determine file size of %@ : %@", writeResult, [fileSizeError description]);
     }
@@ -681,6 +739,7 @@
                                     inputStream:inputStream
                                         headers:[NSDictionary dictionaryWithObject:kCMISMediaTypeEntry forKey:@"Content-type"]
                                   bytesExpected:fileSize
+                                    cmisRequest:request
                                 completionBlock:^(CMISHttpResponse *response, NSError *error) {
          // close stream to and delete temporary file
          [inputStream close];
@@ -717,8 +776,7 @@
              }
          }
      }
-       progressBlock:progressBlock
-       requestObject:request];
+       progressBlock:progressBlock];
 }
 
 
