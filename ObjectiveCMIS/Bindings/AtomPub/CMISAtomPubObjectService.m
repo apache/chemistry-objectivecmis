@@ -395,17 +395,16 @@
                                   completionBlock(nil, [CMISErrors cmisError:error cmisErrorCode:kCMISErrorCodeObjectNotFound]);
                               }
                           } else {
-                              
+                              [self sendAtomEntryXmlToLink:downLink
+                                         httpRequestMethod:HTTP_POST
+                                                properties:properties
+                                        contentInputStream:inputStream
+                                           contentMimeType:mimeType
+                                             bytesExpected:bytesExpected
+                                               cmisRequest:request
+                                           completionBlock:completionBlock
+                                             progressBlock:progressBlock];
                           }
-                          [self sendAtomEntryXmlToLink:downLink
-                                     httpRequestMethod:HTTP_POST
-                                            properties:properties
-                                    contentInputStream:inputStream
-                                       contentMimeType:mimeType
-                                         bytesExpected:bytesExpected
-                                           cmisRequest:request
-                                       completionBlock:completionBlock
-                                         progressBlock:progressBlock];
                       }];
     return request;
 }
