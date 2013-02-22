@@ -21,6 +21,7 @@
 #import "CMISDocument.h"
 #import "CMISOperationContext.h"
 #import "CMISSession.h"
+#import "CMISRequest.h"
 
 @interface CMISRendition ()
 
@@ -42,21 +43,21 @@
     return self;
 }
 
-- (void)retrieveRenditionDocumentWithCompletionBlock:(void (^)(CMISDocument *document, NSError *error))completionBlock
+- (CMISRequest*)retrieveRenditionDocumentWithCompletionBlock:(void (^)(CMISDocument *document, NSError *error))completionBlock
 {
-    [self retrieveRenditionDocumentWithOperationContext:[CMISOperationContext defaultOperationContext] completionBlock:completionBlock];
+    return [self retrieveRenditionDocumentWithOperationContext:[CMISOperationContext defaultOperationContext] completionBlock:completionBlock];
 }
 
-- (void)retrieveRenditionDocumentWithOperationContext:(CMISOperationContext *)operationContext
+- (CMISRequest*)retrieveRenditionDocumentWithOperationContext:(CMISOperationContext *)operationContext
                                       completionBlock:(void (^)(CMISDocument *document, NSError *error))completionBlock
 {
     if (self.renditionDocumentId == nil) {
         log(@"Cannot retrieve rendition document: no renditionDocumentId was returned by the server.");
         completionBlock(nil, nil);
-        return;
+        return nil;
     }
 
-    [self.session retrieveObject:self.renditionDocumentId operationContext:operationContext completionBlock:^(CMISObject *renditionDocument, NSError *error) {
+    return [self.session retrieveObject:self.renditionDocumentId operationContext:operationContext completionBlock:^(CMISObject *renditionDocument, NSError *error) {
         if (renditionDocument != nil && !([[renditionDocument class] isKindOfClass:[CMISDocument class]])) {
             completionBlock(nil, nil);
             return;
@@ -66,36 +67,36 @@
     }];
 }
 
-- (void)downloadRenditionContentToFile:(NSString *)filePath
+- (CMISRequest*)downloadRenditionContentToFile:(NSString *)filePath
                        completionBlock:(void (^)(NSError *error))completionBlock
                          progressBlock:(void (^)(unsigned long long bytesDownloaded, unsigned long long bytesTotal))progressBlock
 {
     if (self.objectId == nil || self.streamId == nil) {
         log(@"Object id or stream id is nil. Both are needed when fetching the content of a rendition");
-        return;
+        return nil;
     }
 
-    [self.session.binding.objectService downloadContentOfObject:self.objectId
-                                                       streamId:self.streamId
-                                                         toFile:filePath
-                                                completionBlock:completionBlock
-                                                  progressBlock:progressBlock];
+    return [self.session.binding.objectService downloadContentOfObject:self.objectId
+                                                              streamId:self.streamId
+                                                                toFile:filePath
+                                                       completionBlock:completionBlock
+                                                         progressBlock:progressBlock];
 }
 
-- (void)downloadRenditionContentToOutputStream:(NSOutputStream *)outputStream
+- (CMISRequest*)downloadRenditionContentToOutputStream:(NSOutputStream *)outputStream
                                completionBlock:(void (^)(NSError *error))completionBlock
                                  progressBlock:(void (^)(unsigned long long bytesDownloaded, unsigned long long bytesTotal))progressBlock
 {
     if (self.objectId == nil || self.streamId == nil) {
         log(@"Object id or stream id is nil. Both are needed when fetching the content of a rendition");
-        return;
+        return nil;
     }
     
-    [self.session.binding.objectService downloadContentOfObject:self.objectId
-                                                       streamId:self.streamId
-                                                         toOutputStream:outputStream
-                                                completionBlock:completionBlock
-                                                  progressBlock:progressBlock];
+    return [self.session.binding.objectService downloadContentOfObject:self.objectId
+                                                              streamId:self.streamId
+                                                        toOutputStream:outputStream
+                                                       completionBlock:completionBlock
+                                                         progressBlock:progressBlock];
 }
 
 @end

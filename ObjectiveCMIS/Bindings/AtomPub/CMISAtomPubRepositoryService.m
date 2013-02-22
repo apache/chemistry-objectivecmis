@@ -48,7 +48,8 @@
     }];
 }
 
-- (CMISRequest*)retrieveRepositoryInfoForId:(NSString *)repositoryId completionBlock:(void (^)(CMISRepositoryInfo *repositoryInfo, NSError *error))completionBlock
+- (CMISRequest*)retrieveRepositoryInfoForId:(NSString *)repositoryId
+                            completionBlock:(void (^)(CMISRepositoryInfo *repositoryInfo, NSError *error))completionBlock
 {
     return [self internalRetrieveRepositoriesWithCompletionBlock:^(NSError *error) {
         if (error) {
@@ -63,7 +64,7 @@
 {
     self.repositories = [NSMutableDictionary dictionary];
     CMISRequest *request = [[CMISRequest alloc] init];
-    [self retrieveCMISWorkspacesWithCancellableRequest:request completionBlock:^(NSArray *cmisWorkSpaces, NSError *error) {
+    [self retrieveCMISWorkspacesWithCMISRequest:request completionBlock:^(NSArray *cmisWorkSpaces, NSError *error) {
         if (cmisWorkSpaces != nil) {
             for (CMISWorkspace *workspace in cmisWorkSpaces) {
                 [self.repositories setObject:workspace.repositoryInfo forKey:workspace.repositoryInfo.identifier];
@@ -73,7 +74,8 @@
     }];
     return request;
 }
-- (CMISRequest*)retrieveTypeDefinition:(NSString *)typeId completionBlock:(void (^)(CMISTypeDefinition *typeDefinition, NSError *error))completionBlock
+- (CMISRequest*)retrieveTypeDefinition:(NSString *)typeId
+                       completionBlock:(void (^)(CMISTypeDefinition *typeDefinition, NSError *error))completionBlock
 {
     if (typeId == nil) {
         log(@"Parameter typeId is required");

@@ -127,8 +127,8 @@
 }
 
 - (CMISRequest*)retrieveObjectOfLatestVersionWithMajorVersion:(BOOL)major
-                                     operationContext:(CMISOperationContext *)operationContext
-                                      completionBlock:(void (^)(CMISDocument *document, NSError *error))completionBlock
+                                             operationContext:(CMISOperationContext *)operationContext
+                                              completionBlock:(void (^)(CMISDocument *document, NSError *error))completionBlock
 {
     return [self.binding.versioningService retrieveObjectOfLatestVersion:self.identifier
                                                                    major:major filter:operationContext.filterString

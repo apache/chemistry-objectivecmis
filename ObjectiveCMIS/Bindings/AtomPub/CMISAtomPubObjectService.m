@@ -86,7 +86,7 @@
                                streamId:(NSString *)streamId
                                  toFile:(NSString *)filePath
                         completionBlock:(void (^)(NSError *error))completionBlock
-                          progressBlock:(void (^)(unsigned long long bytesDownloaded, unsigned long long bytesTotal))progressBlock;
+                          progressBlock:(void (^)(unsigned long long bytesDownloaded, unsigned long long bytesTotal))progressBlock
 {
     NSOutputStream *outputStream = [NSOutputStream outputStreamToFileAtPath:filePath append:NO];
     return [self downloadContentOfObject:objectId
@@ -100,7 +100,7 @@
                                streamId:(NSString *)streamId
                          toOutputStream:(NSOutputStream *)outputStream
                         completionBlock:(void (^)(NSError *error))completionBlock
-                          progressBlock:(void (^)(unsigned long long bytesDownloaded, unsigned long long bytesTotal))progressBlock;
+                          progressBlock:(void (^)(unsigned long long bytesDownloaded, unsigned long long bytesTotal))progressBlock
 {
     CMISRequest *request = [[CMISRequest alloc] init];
     
@@ -147,8 +147,8 @@
 }
 
 - (CMISRequest*)deleteContentOfObject:(CMISStringInOutParameter *)objectIdParam
-                  changeToken:(CMISStringInOutParameter *)changeTokenParam
-              completionBlock:(void (^)(NSError *error))completionBlock
+                          changeToken:(CMISStringInOutParameter *)changeTokenParam
+                      completionBlock:(void (^)(NSError *error))completionBlock
 {
     // Validate object id param
     if (objectIdParam == nil || objectIdParam.inParameter == nil) {
@@ -478,10 +478,10 @@
 }
 
 - (CMISRequest*)deleteTree:(NSString *)folderObjectId
-        allVersion:(BOOL)allVersions
-     unfileObjects:(CMISUnfileObject)unfileObjects
- continueOnFailure:(BOOL)continueOnFailure
-   completionBlock:(void (^)(NSArray *failedObjects, NSError *error))completionBlock
+                allVersion:(BOOL)allVersions
+             unfileObjects:(CMISUnfileObject)unfileObjects
+         continueOnFailure:(BOOL)continueOnFailure
+           completionBlock:(void (^)(NSArray *failedObjects, NSError *error))completionBlock
 {
     // Validate params
     if (!folderObjectId) {

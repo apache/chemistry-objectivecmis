@@ -64,7 +64,7 @@
         return;
     } else {
          // if object is nil, first populate cache
-        [self fetchRepositoryInfoWithCancellableRequest:cmisRequest completionBlock:^(NSError *error) {
+        [self fetchRepositoryInfoWithCMISRequest:cmisRequest completionBlock:^(NSError *error) {
             id object = [self.bindingSession objectForKey:cacheKey];
             if (!object && !error) {
                 // TODO: proper error initialisation
@@ -76,10 +76,10 @@
     }
 }
 
-- (void)fetchRepositoryInfoWithCancellableRequest:(CMISRequest *)cmisRequest
-                                  completionBlock:(void (^)(NSError *error))completionBlock
+- (void)fetchRepositoryInfoWithCMISRequest:(CMISRequest *)cmisRequest
+                           completionBlock:(void (^)(NSError *error))completionBlock
 {
-    [self retrieveCMISWorkspacesWithCancellableRequest:cmisRequest completionBlock:^(NSArray *cmisWorkSpaces, NSError *error) {
+    [self retrieveCMISWorkspacesWithCMISRequest:cmisRequest completionBlock:^(NSArray *cmisWorkSpaces, NSError *error) {
         if (!error) {
             BOOL repositoryFound = NO;
             for (CMISWorkspace *workspace in cmisWorkSpaces) {
@@ -118,8 +118,8 @@
     }];
 }
 
-- (void)retrieveCMISWorkspacesWithCancellableRequest:(CMISRequest *)cmisRequest
-                                     completionBlock:(void (^)(NSArray *workspaces, NSError *error))completionBlock
+- (void)retrieveCMISWorkspacesWithCMISRequest:(CMISRequest *)cmisRequest
+                              completionBlock:(void (^)(NSArray *workspaces, NSError *error))completionBlock
 {
     if ([self.bindingSession objectForKey:kCMISSessionKeyWorkspaces]) {
         completionBlock([self.bindingSession objectForKey:kCMISSessionKeyWorkspaces], nil);
@@ -153,8 +153,8 @@
 }
 
 - (void)retrieveObjectInternal:(NSString *)objectId
-                           cmisRequest:(CMISRequest *)cmisRequest
-                       completionBlock:(void (^)(CMISObjectData *objectData, NSError *error))completionBlock
+                   cmisRequest:(CMISRequest *)cmisRequest
+               completionBlock:(void (^)(CMISObjectData *objectData, NSError *error))completionBlock
 {
     return [self retrieveObjectInternal:objectId
                           returnVersion:NOT_PROVIDED
@@ -268,7 +268,8 @@
     }];
 }
 
-- (CMISLinkCache *)linkCache{
+- (CMISLinkCache *)linkCache
+{
     CMISLinkCache *linkCache = [self.bindingSession objectForKey:kCMISBindingSessionKeyLinkCache];
     if (linkCache == nil) {
         linkCache = [[CMISLinkCache alloc] initWithBindingSession:self.bindingSession];

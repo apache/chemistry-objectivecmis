@@ -40,7 +40,7 @@
                            bytesExpected:(unsigned long long)bytesExpected
                   authenticationProvider:(id<CMISAuthenticationProvider>) authenticationProvider
                          completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))completionBlock
-                           progressBlock:(void (^)(unsigned long long bytesDownloaded, unsigned long long bytesTotal))progressBlock;
+                           progressBlock:(void (^)(unsigned long long bytesDownloaded, unsigned long long bytesTotal))progressBlock
 {
     CMISHttpDownloadRequest *httpRequest = [[self alloc] initWithHttpMethod:httpRequestMethod
                                                             completionBlock:completionBlock

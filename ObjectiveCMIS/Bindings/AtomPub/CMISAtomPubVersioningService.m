@@ -28,14 +28,14 @@
 @implementation CMISAtomPubVersioningService
 
 - (CMISRequest*)retrieveObjectOfLatestVersion:(NSString *)objectId
-                                major:(BOOL)major
-                               filter:(NSString *)filter
-                        relationships:(CMISIncludeRelationship)relationships
-                     includePolicyIds:(BOOL)includePolicyIds
-                      renditionFilter:(NSString *)renditionFilter
-                           includeACL:(BOOL)includeACL
-              includeAllowableActions:(BOOL)includeAllowableActions
-                      completionBlock:(void (^)(CMISObjectData *objectData, NSError *error))completionBlock
+                                        major:(BOOL)major
+                                       filter:(NSString *)filter
+                                relationships:(CMISIncludeRelationship)relationships
+                             includePolicyIds:(BOOL)includePolicyIds
+                              renditionFilter:(NSString *)renditionFilter
+                                   includeACL:(BOOL)includeACL
+                      includeAllowableActions:(BOOL)includeAllowableActions
+                              completionBlock:(void (^)(CMISObjectData *objectData, NSError *error))completionBlock
 {
     CMISRequest *request = [[CMISRequest alloc] init];
     [self retrieveObjectInternal:objectId
@@ -54,9 +54,9 @@
 }
 
 - (CMISRequest*)retrieveAllVersions:(NSString *)objectId
-                     filter:(NSString *)filter
-    includeAllowableActions:(BOOL)includeAllowableActions
-            completionBlock:(void (^)(NSArray *objects, NSError *error))completionBlock
+                             filter:(NSString *)filter
+            includeAllowableActions:(BOOL)includeAllowableActions
+                    completionBlock:(void (^)(NSArray *objects, NSError *error))completionBlock
 {
     // Validate params
     if (!objectId) {

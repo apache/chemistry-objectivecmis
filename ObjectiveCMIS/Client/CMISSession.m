@@ -41,7 +41,7 @@
 - (id)initWithSessionParameters:(CMISSessionParameters *)sessionParameters;
 
 // Authenticates using the CMISSessionParameters and returns if the authentication was succesful
-- (void)authenticateWithCompletionBlock:(void (^)(CMISSession *session, NSError * error))completionBlock;
+- (CMISRequest*)authenticateWithCompletionBlock:(void (^)(CMISSession *session, NSError * error))completionBlock;
 @end
 
 @interface CMISSession (PrivateMethods)
@@ -53,25 +53,26 @@
 #pragma mark -
 #pragma mark Setup
 
-+ (void)arrayOfRepositories:(CMISSessionParameters *)sessionParameters completionBlock:(void (^)(NSArray *repositories, NSError *error))completionBlock
++ (CMISRequest*)arrayOfRepositories:(CMISSessionParameters *)sessionParameters completionBlock:(void (^)(NSArray *repositories, NSError *error))completionBlock
 {
     CMISSession *session = [[CMISSession alloc] initWithSessionParameters:sessionParameters];
     
     // TODO: validate session parameters?
     
     // return list of repositories
-    [session.binding.repositoryService retrieveRepositoriesWithCompletionBlock:completionBlock];
+    return [session.binding.repositoryService retrieveRepositoriesWithCompletionBlock:completionBlock];
 }
 
-+ (void)connectWithSessionParameters:(CMISSessionParameters *)sessionParameters
++ (CMISRequest*)connectWithSessionParameters:(CMISSessionParameters *)sessionParameters
                      completionBlock:(void (^)(CMISSession *session, NSError * error))completionBlock
 {
     CMISSession *session = [[CMISSession alloc] initWithSessionParameters:sessionParameters];
     if (session) {
-        [session authenticateWithCompletionBlock:completionBlock];
+        return [session authenticateWithCompletionBlock:completionBlock];
     } else {
         completionBlock(nil, [CMISErrors createCMISErrorWithCode:kCMISErrorCodeInvalidArgument
                                              detailedDescription:@"Not enough session parameters to connect"]);
+        return nil;
     }
 }
 
@@ -122,7 +123,7 @@
     return self;
 }
 
-- (void)authenticateWithCompletionBlock:(void (^)(CMISSession *session, NSError * error))completionBlock
+- (CMISRequest*)authenticateWithCompletionBlock:(void (^)(CMISSession *session, NSError * error))completionBlock
 {
     // TODO: validate session parameters, extract the checks below?
     
@@ -132,20 +133,20 @@
                                          detailedDescription:@"Must provide repository id"];
         log(@"Error: %@", error.description);
         completionBlock(nil, error);
-        return;
+        return nil;
     }
     
     if (self.sessionParameters.authenticationProvider == nil) {
         NSError *error = [CMISErrors createCMISErrorWithCode:kCMISErrorCodeUnauthorized detailedDescription:@"Must provide authentication provider"];
         log(@"Error: %@", error.description);
         completionBlock(nil, error);
-        return;
+        return nil;
     }
     
     // TODO: use authentication provider to make sure we have enough credentials, it may need to make another call to get a ticket or do handshake i.e. NTLM.
     
     // get repository info
-    [self.binding.repositoryService retrieveRepositoryInfoForId:self.sessionParameters.repositoryId completionBlock:^(CMISRepositoryInfo *repositoryInfo, NSError *error) {
+    return [self.binding.repositoryService retrieveRepositoryInfoForId:self.sessionParameters.repositoryId completionBlock:^(CMISRepositoryInfo *repositoryInfo, NSError *error) {
         self.repositoryInfo = repositoryInfo;
         if (self.repositoryInfo == nil) {
             if (error) {

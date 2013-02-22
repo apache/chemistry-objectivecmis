@@ -27,13 +27,14 @@
 
 @implementation CMISAtomPubDiscoveryService
 
-- (CMISRequest*)query:(NSString *)statement searchAllVersions:(BOOL)searchAllVersions
-                                        relationships:(CMISIncludeRelationship)relationships
-                                      renditionFilter:(NSString *)renditionFilter
-                              includeAllowableActions:(BOOL)includeAllowableActions
-                                             maxItems:(NSNumber *)maxItems
-                                            skipCount:(NSNumber *)skipCount
-                                      completionBlock:(void (^)(CMISObjectList *objectList, NSError *error))completionBlock;
+- (CMISRequest*)query:(NSString *)statement
+    searchAllVersions:(BOOL)searchAllVersions
+        relationships:(CMISIncludeRelationship)relationships
+      renditionFilter:(NSString *)renditionFilter
+includeAllowableActions:(BOOL)includeAllowableActions
+             maxItems:(NSNumber *)maxItems
+            skipCount:(NSNumber *)skipCount
+      completionBlock:(void (^)(CMISObjectList *objectList, NSError *error))completionBlock
 {
     // Validate params
     if (statement == nil) {
