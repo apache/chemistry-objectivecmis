@@ -22,6 +22,7 @@
 #import "CMISOperationContext.h"
 #import "CMISSession.h"
 #import "CMISRequest.h"
+#import "CMISLog.h"
 
 @interface CMISRendition ()
 
@@ -52,7 +53,7 @@
                                       completionBlock:(void (^)(CMISDocument *document, NSError *error))completionBlock
 {
     if (self.renditionDocumentId == nil) {
-        log(@"Cannot retrieve rendition document: no renditionDocumentId was returned by the server.");
+        CMISLogError(@"Cannot retrieve rendition document: no renditionDocumentId was returned by the server.");
         completionBlock(nil, nil);
         return nil;
     }
@@ -72,7 +73,7 @@
                          progressBlock:(void (^)(unsigned long long bytesDownloaded, unsigned long long bytesTotal))progressBlock
 {
     if (self.objectId == nil || self.streamId == nil) {
-        log(@"Object id or stream id is nil. Both are needed when fetching the content of a rendition");
+        CMISLogError(@"Object id or stream id is nil. Both are needed when fetching the content of a rendition");
         return nil;
     }
 
@@ -88,7 +89,7 @@
                                  progressBlock:(void (^)(unsigned long long bytesDownloaded, unsigned long long bytesTotal))progressBlock
 {
     if (self.objectId == nil || self.streamId == nil) {
-        log(@"Object id or stream id is nil. Both are needed when fetching the content of a rendition");
+        CMISLogError(@"Object id or stream id is nil. Both are needed when fetching the content of a rendition");
         return nil;
     }
     

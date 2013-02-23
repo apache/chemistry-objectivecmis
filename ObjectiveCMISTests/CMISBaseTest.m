@@ -21,10 +21,9 @@
 #import "CMISFolder.h"
 #import "CMISSession.h"
 #import "CMISConstants.h"
-
+#import "CMISLog.h"
 
 @implementation CMISBaseTest
-
 
 - (void) runTest:(CMISTestBlock)testBlock
 {
@@ -55,7 +54,7 @@
         [self setupCmisSession:url repositoryId:repositoryId username:username password:password extraSessionParameters:extraSessionParameters completionBlock:^{
             self.testCompleted = NO;
             
-            log(@">------------------- Running test against %@ -------------------<", url);
+            CMISLogDebug(@">------------------- Running test against %@ -------------------<", url);
             
             testBlock();
         }];

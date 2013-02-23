@@ -20,6 +20,7 @@
 #import "CMISRepositoryInfoParser.h"
 #import "CMISAtomPubConstants.h"
 #import "CMISAtomCollection.h"
+#import "CMISLog.h"
 
 @interface CMISRepositoryInfoParser ()
 
@@ -132,7 +133,7 @@
                 kCMISCorePrincipalAnyone;
              */
             
-            //log(@"TODO Cmis-Core Element was ignored: ElementName=%@, Value=%@",elementName, self.currentString);
+            //CMISLogWarning(@"TODO Cmis-Core Element was ignored: ElementName=%@, Value=%@",elementName, self.currentString);
         } 
     } else if ([namespaceURI isEqualToString:kCMISNamespaceCmisRestAtom]) {
         if ([elementName isEqualToString:kCMISRestAtomRepositoryInfo] && self.parentDelegate) {
@@ -145,7 +146,7 @@
             self.parentDelegate = nil;
         }
     } else if ([namespaceURI isEqualToString:kCMISNamespaceApp] || [namespaceURI isEqualToString:kCMISNamespaceAtom]) {
-        log(@"WARNING: We should not get here");
+        CMISLogWarning(@"WARNING: We should not get here");
     } else if (self.isParsingExtensionElement) {
         self.parsingExtensionElement = NO;
     }

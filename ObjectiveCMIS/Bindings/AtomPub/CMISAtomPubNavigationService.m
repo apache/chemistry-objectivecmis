@@ -24,6 +24,7 @@
 #import "CMISErrors.h"
 #import "CMISURLUtil.h"
 #import "CMISObjectList.h"
+#import "CMISLog.h"
 
 @implementation CMISAtomPubNavigationService
 
@@ -47,7 +48,7 @@
                   cmisRequest:request
               completionBlock:^(NSString *downLink, NSError *error) {
                           if (error) {
-                              log(@"Could not retrieve down link: %@", error.description);
+                              CMISLogError(@"Could not retrieve down link: %@", error.description);
                               completionBlock(nil, error);
                               return;
                           }
@@ -113,7 +114,7 @@
                   cmisRequest:request
               completionBlock:^(NSString *upLink, NSError *error) {
         if (upLink == nil) {
-            log(@"Failing because the NSString upLink is nil");
+            CMISLogError(@"Failing because the NSString upLink is nil");
             completionBlock([NSArray array], nil); // TODO: shouldn't this return an error if the log talks about 'failing'?
             return;
         }
@@ -140,13 +141,13 @@
                     NSError *internalError;
                     if (![parser parseAndReturnError:&internalError]) {
                         NSError *error = [CMISErrors cmisError:internalError cmisErrorCode:kCMISErrorCodeRuntime];
-                        log(@"Failing because parsing the Atom Feed XML returns an error");
+                        CMISLogError(@"Failing because parsing the Atom Feed XML returns an error");
                         completionBlock([NSArray array], error);
                     } else {
                         completionBlock(parser.entries, nil);
                     }
                 } else {
-                    log(@"Failing because the invokeGET returns an error");
+                    CMISLogError(@"Failing because the invokeGET returns an error");
                     completionBlock([NSArray array], error);
                 }
             }];

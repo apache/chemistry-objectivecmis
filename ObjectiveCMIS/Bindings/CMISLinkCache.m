@@ -19,6 +19,7 @@
 
 #import "CMISLinkCache.h"
 #import "CMISBindingSession.h"
+#import "CMISLog.h"
 
 // Default link cache size is 50 entries
 #define DEFAULT_LINK_CACHE_SIZE 50
@@ -55,7 +56,7 @@
         if ([[linkCacheSize class] isEqual:[NSNumber class]]) {
             self.linkCache.countLimit = [(NSNumber *) linkCacheSize unsignedIntValue];
         } else {
-            log(@"Invalid object set for %@ session parameter. Ignoring and using default instead", kCMISSessionParameterLinkCacheSize);
+            CMISLogError(@"Invalid object set for %@ session parameter. Ignoring and using default instead", kCMISSessionParameterLinkCacheSize);
         }
     }
 
@@ -98,7 +99,7 @@
 // Debugging
 //- (void)cache:(NSCache *)cache willEvictObject:(id)obj
 //{
-//    log(@"Link cache will evict cached links for object '%@'", obj);
+//    CMISLogDebug(@"Link cache will evict cached links for object '%@'", obj);
 //}
 
 @end

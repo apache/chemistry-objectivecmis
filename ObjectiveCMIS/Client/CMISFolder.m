@@ -26,6 +26,7 @@
 #import "CMISObjectList.h"
 #import "CMISSession.h"
 #import "CMISRequest.h"
+#import "CMISLog.h"
 
 @interface CMISFolder ()
 
@@ -144,7 +145,7 @@
                                     forObjectTypeId:[properties objectForKey:kCMISPropertyObjectTypeId]
                                     completionBlock:^(CMISProperties *convertedProperties, NSError *error) {
         if (error) {
-            log(@"Could not convert properties: %@", error.description);
+            CMISLogError(@"Could not convert properties: %@", error.description);
             if (completionBlock) {
                 completionBlock(nil, [CMISErrors cmisError:error cmisErrorCode:kCMISErrorCodeRuntime]);
             }
@@ -170,7 +171,7 @@
     __block CMISRequest *request = [[CMISRequest alloc] init];
     [self.session.objectConverter convertProperties:properties forObjectTypeId:kCMISPropertyObjectTypeIdValueDocument completionBlock:^(CMISProperties *convertedProperties, NSError *error){
         if (nil == convertedProperties){
-            log(@"Could not convert properties: %@", error.description);
+            CMISLogError(@"Could not convert properties: %@", error.description);
             if (completionBlock) {
                 completionBlock(nil, [CMISErrors cmisError:error cmisErrorCode:kCMISErrorCodeRuntime]);
             }

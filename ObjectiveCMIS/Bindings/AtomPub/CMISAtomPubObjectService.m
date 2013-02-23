@@ -28,6 +28,7 @@
 #import "CMISURLUtil.h"
 #import "CMISFileUtil.h"
 #import "CMISRequest.h"
+#import "CMISLog.h"
 
 @implementation CMISAtomPubObjectService
 
@@ -108,7 +109,7 @@
                      cmisRequest:request
                  completionBlock:^(CMISObjectData *objectData, NSError *error) {
         if (error) {
-            log(@"Error while retrieving CMIS object for object id '%@' : %@", objectId, error.description);
+            CMISLogError(@"Error while retrieving CMIS object for object id '%@' : %@", objectId, error.description);
             if (completionBlock) {
                 completionBlock([CMISErrors cmisError:error cmisErrorCode:kCMISErrorCodeObjectNotFound]);
             }
@@ -152,7 +153,7 @@
 {
     // Validate object id param
     if (objectIdParam == nil || objectIdParam.inParameter == nil) {
-        log(@"Object id is nil or inParameter of objectId is nil");
+        CMISLogError(@"Object id is nil or inParameter of objectId is nil");
         completionBlock([[NSError alloc] init]); // TODO: properly init error (CmisInvalidArgumentException)
         return nil;
     }
@@ -164,7 +165,7 @@
                   cmisRequest:request
               completionBlock:^(NSString *editMediaLink, NSError *error) {
         if (editMediaLink == nil){
-            log(@"Could not retrieve %@ link for object '%@'", kCMISLinkEditMedia, objectIdParam.inParameter);
+            CMISLogError(@"Could not retrieve %@ link for object '%@'", kCMISLinkEditMedia, objectIdParam.inParameter);
             completionBlock(error);
             return;
         }
@@ -203,7 +204,7 @@
 {
     NSInputStream *inputStream = [NSInputStream inputStreamWithFileAtPath:filePath];
     if (inputStream == nil) {
-        log(@"Could not find file %@", filePath);
+        CMISLogError(@"Could not find file %@", filePath);
         if (completionBlock) {
             completionBlock([CMISErrors createCMISErrorWithCode:kCMISErrorCodeInvalidArgument detailedDescription:nil]);
         }
@@ -213,7 +214,7 @@
     NSError *fileError = nil;
     unsigned long long fileSize = [CMISFileUtil fileSizeForFileAtPath:filePath error:&fileError];
     if (fileError) {
-        log(@"Could not determine size of file %@: %@", filePath, [fileError description]);
+        CMISLogError(@"Could not determine size of file %@: %@", filePath, [fileError description]);
     }
     
     return [self changeContentOfObject:objectIdParam
@@ -240,7 +241,7 @@
     CMISRequest *request = [[CMISRequest alloc] init];
     // Validate object id param
     if (objectIdParam == nil || objectIdParam.inParameter == nil) {
-        log(@"Object id is nil or inParameter of objectId is nil");
+        CMISLogError(@"Object id is nil or inParameter of objectId is nil");
         if (completionBlock) {
             completionBlock([CMISErrors createCMISErrorWithCode:kCMISErrorCodeInvalidArgument detailedDescription:@"Must provide object id"]);
         }
@@ -248,7 +249,7 @@
     }
     
     if (inputStream == nil) {
-        log(@"Invalid input stream");
+        CMISLogError(@"Invalid input stream");
         if (completionBlock) {
             completionBlock([CMISErrors createCMISErrorWithCode:kCMISErrorCodeInvalidArgument detailedDescription:@"Invalid input stream"]);
         }
@@ -271,7 +272,7 @@
                   cmisRequest:request
               completionBlock:^(NSString *editMediaLink, NSError *error) {
         if (editMediaLink == nil){
-            log(@"Could not retrieve %@ link for object '%@'", kCMISLinkEditMedia, objectIdParam.inParameter);
+            CMISLogError(@"Could not retrieve %@ link for object '%@'", kCMISLinkEditMedia, objectIdParam.inParameter);
             if (completionBlock) {
                 completionBlock([CMISErrors cmisError:error cmisErrorCode:kCMISErrorCodeObjectNotFound]);
             }
@@ -308,7 +309,7 @@
                  if (httpResponse.statusCode == 200 || httpResponse.statusCode == 201 || httpResponse.statusCode == 204) {
                      error = nil;
                  } else {
-                     log(@"Invalid http response status code when updating content: %d", httpResponse.statusCode);
+                     CMISLogError(@"Invalid http response status code when updating content: %d", httpResponse.statusCode);
                      error = [CMISErrors createCMISErrorWithCode:kCMISErrorCodeRuntime
                                              detailedDescription:[NSString stringWithFormat:@"Could not update content: http status code %d", httpResponse.statusCode]];
                  }
@@ -333,7 +334,7 @@
 {
     NSInputStream *inputStream = [NSInputStream inputStreamWithFileAtPath:filePath];
     if (inputStream == nil) {
-        log(@"Could not find file %@", filePath);
+        CMISLogError(@"Could not find file %@", filePath);
         if (completionBlock) {
             completionBlock(nil, [CMISErrors createCMISErrorWithCode:kCMISErrorCodeInvalidArgument
                                                  detailedDescription:@"Invalid file"]);
@@ -344,7 +345,7 @@
     NSError *fileError = nil;
     unsigned long long bytesExpected = [CMISFileUtil fileSizeForFileAtPath:filePath error:&fileError];
     if (fileError) {
-        log(@"Could not determine size of file %@: %@", filePath, [fileError description]);
+        CMISLogError(@"Could not determine size of file %@: %@", filePath, [fileError description]);
     }
     
     return [self createDocumentFromInputStream:inputStream
@@ -366,7 +367,7 @@
 {
     // Validate properties
     if ([properties propertyValueForId:kCMISPropertyName] == nil || [properties propertyValueForId:kCMISPropertyObjectTypeId] == nil) {
-        log(@"Must provide %@ and %@ as properties", kCMISPropertyName, kCMISPropertyObjectTypeId);
+        CMISLogError(@"Must provide %@ and %@ as properties", kCMISPropertyName, kCMISPropertyObjectTypeId);
         if (completionBlock) {
             completionBlock(nil, [CMISErrors createCMISErrorWithCode:kCMISErrorCodeInvalidArgument detailedDescription:nil]);
         }
@@ -375,7 +376,7 @@
     
     // Validate mimetype
     if (inputStream && !mimeType) {
-        log(@"Must provide a mimetype when creating a cmis document");
+        CMISLogError(@"Must provide a mimetype when creating a cmis document");
         if (completionBlock) {
             completionBlock(nil, [CMISErrors createCMISErrorWithCode:kCMISErrorCodeInvalidArgument detailedDescription:nil]);
         }
@@ -390,7 +391,7 @@
                   cmisRequest:request
               completionBlock:^(NSString *downLink, NSError *error) {
                           if (error) {
-                              log(@"Could not retrieve down link: %@", error.description);
+                              CMISLogError(@"Could not retrieve down link: %@", error.description);
                               if (completionBlock) {
                                   completionBlock(nil, [CMISErrors cmisError:error cmisErrorCode:kCMISErrorCodeObjectNotFound]);
                               }
@@ -443,14 +444,14 @@
                    completionBlock:(void (^)(NSString *, NSError *))completionBlock
 {
     if ([properties propertyValueForId:kCMISPropertyName] == nil || [properties propertyValueForId:kCMISPropertyObjectTypeId] == nil) {
-        log(@"Must provide %@ and %@ as properties", kCMISPropertyName, kCMISPropertyObjectTypeId);
+        CMISLogError(@"Must provide %@ and %@ as properties", kCMISPropertyName, kCMISPropertyObjectTypeId);
         completionBlock(nil,  [CMISErrors createCMISErrorWithCode:kCMISErrorCodeInvalidArgument detailedDescription:nil]);
         return nil;
     }
     
     // Validate parent folder id
     if (!folderObjectId) {
-        log(@"Must provide a parent folder object id when creating a new folder");
+        CMISLogError(@"Must provide a parent folder object id when creating a new folder");
         completionBlock(nil, [CMISErrors createCMISErrorWithCode:kCMISErrorCodeObjectNotFound detailedDescription:nil]);
         return nil;
     }
@@ -462,7 +463,7 @@
                   cmisRequest:request
               completionBlock:^(NSString *downLink, NSError *error) {
                           if (error) {
-                              log(@"Could not retrieve down link: %@", error.description);
+                              CMISLogError(@"Could not retrieve down link: %@", error.description);
                               completionBlock(nil, [CMISErrors cmisError:error cmisErrorCode:kCMISErrorCodeConnection]);
                           } else {
                               [self sendAtomEntryXmlToLink:downLink
@@ -485,7 +486,7 @@
 {
     // Validate params
     if (!folderObjectId) {
-        log(@"Must provide a folder object id when deleting a folder tree");
+        CMISLogError(@"Must provide a folder object id when deleting a folder tree");
         completionBlock(nil, [CMISErrors createCMISErrorWithCode:kCMISErrorCodeObjectNotFound detailedDescription:nil]);
         return nil;
     }
@@ -497,7 +498,7 @@
                   cmisRequest:request
               completionBlock:^(NSString *link, NSError *error) {
         if (error) {
-            log(@"Error while fetching %@ link : %@", kCMISLinkRelationDown, error.description);
+            CMISLogError(@"Error while fetching %@ link : %@", kCMISLinkRelationDown, error.description);
             completionBlock(nil, [CMISErrors cmisError:error cmisErrorCode:kCMISErrorCodeRuntime]);
             return;
         }
@@ -526,10 +527,10 @@
                           cmisRequest:request
                       completionBlock:^(NSString *link, NSError *error) {
                 if (error) {
-                    log(@"Error while fetching %@ link : %@", kCMISLinkRelationFolderTree, error.description);
+                    CMISLogError(@"Error while fetching %@ link : %@", kCMISLinkRelationFolderTree, error.description);
                     completionBlock(nil, [CMISErrors cmisError:error cmisErrorCode:kCMISErrorCodeRuntime]);
                 } else if (link == nil) {
-                    log(@"Could not retrieve %@ nor %@ link", kCMISLinkRelationDown, kCMISLinkRelationFolderTree);
+                    CMISLogError(@"Could not retrieve %@ nor %@ link", kCMISLinkRelationDown, kCMISLinkRelationFolderTree);
                     completionBlock(nil, [CMISErrors cmisError:error cmisErrorCode:kCMISErrorCodeRuntime]);
                 } else {
                     continueWithLink(link);
@@ -549,7 +550,7 @@
 {
     // Validate params
     if (objectIdParam == nil || objectIdParam.inParameter == nil) {
-        log(@"Object id is nil or inParameter of objectId is nil");
+        CMISLogError(@"Object id is nil or inParameter of objectId is nil");
         completionBlock([[NSError alloc] init]); // TODO: properly init error (CmisInvalidArgumentException)
         return nil;
     }
@@ -561,7 +562,7 @@
                   cmisRequest:request
               completionBlock:^(NSString *selfLink, NSError *error) {
         if (selfLink == nil) {
-            log(@"Could not retrieve %@ link", kCMISLinkRelationSelf);
+            CMISLogError(@"Could not retrieve %@ link", kCMISLinkRelationSelf);
             completionBlock([CMISErrors cmisError:error cmisErrorCode:kCMISErrorCodeConnection]);
             return;
         }
@@ -649,7 +650,7 @@
 {
     // Validate params
     if (link == nil) {
-        log(@"Could not retrieve link from object to do creation or update");
+        CMISLogError(@"Could not retrieve link from object to do creation or update");
         if (completionBlock) {
             completionBlock(nil, [CMISErrors createCMISErrorWithCode:kCMISErrorCodeInvalidArgument detailedDescription:nil]);
         }
@@ -671,7 +672,7 @@
                                     cmisRequest:request
                                 completionBlock:^(CMISHttpResponse *response, NSError *error) {
          if (error) {
-             log(@"HTTP error when creating/uploading content: %@", error);
+             CMISLogError(@"HTTP error when creating/uploading content: %@", error);
              if (completionBlock) {
                  completionBlock(nil, error);
              }
@@ -683,13 +684,13 @@
                  if (parseError == nil) {
                      completionBlock(atomEntryParser.objectData, nil);
                  } else {
-                     log(@"Error while parsing response: %@", [parseError description]);
+                     CMISLogError(@"Error while parsing response: %@", [parseError description]);
                      completionBlock(nil, [CMISErrors cmisError:parseError cmisErrorCode:kCMISErrorCodeUpdateConflict]);
                  }
              }
          } else {
-             log(@"Invalid http response status code when creating/uploading content: %d", response.statusCode);
-             log(@"Error content: %@", [[NSString alloc] initWithData:response.data encoding:NSUTF8StringEncoding]);
+             CMISLogError(@"Invalid http response status code when creating/uploading content: %d", response.statusCode);
+             CMISLogError(@"Error content: %@", [[NSString alloc] initWithData:response.data encoding:NSUTF8StringEncoding]);
              if (completionBlock) {
                  completionBlock(nil, [CMISErrors cmisError:error cmisErrorCode:kCMISErrorCodeConnection]);
              }
@@ -710,7 +711,7 @@
 {
     // Validate param
     if (link == nil) {
-        log(@"Could not retrieve link from object to do creation or update");
+        CMISLogError(@"Could not retrieve link from object to do creation or update");
         if (completionBlock) {
             completionBlock(nil, [CMISErrors createCMISErrorWithCode:kCMISErrorCodeInvalidArgument detailedDescription:nil]);
         }
@@ -729,7 +730,7 @@
     NSError *fileSizeError = nil;
     unsigned long long fileSize = [CMISFileUtil fileSizeForFileAtPath:writeResult error:&fileSizeError];
     if (fileSizeError) {
-        log(@"Could not determine file size of %@ : %@", writeResult, [fileSizeError description]);
+        CMISLogError(@"Could not determine file size of %@ : %@", writeResult, [fileSizeError description]);
     }
     
     [self.bindingSession.networkProvider invoke:[NSURL URLWithString:link]
@@ -746,11 +747,11 @@
          [[NSFileManager defaultManager] removeItemAtPath:writeResult error:&fileError];
          if (fileError) {
              // the upload itself is not impacted by this error, so do not report it in the completion block
-             log(@"Could not delete temporary file %@: %@", writeResult, [fileError description]);
+             CMISLogError(@"Could not delete temporary file %@: %@", writeResult, [fileError description]);
          }
          
          if (error) {
-             log(@"HTTP error when creating/uploading content: %@", error);
+             CMISLogError(@"HTTP error when creating/uploading content: %@", error);
              if (completionBlock) {
                  completionBlock(nil, error);
              }
@@ -762,13 +763,13 @@
                  if (parseError == nil) {
                      completionBlock(atomEntryParser.objectData.identifier, nil);
                  } else {
-                     log(@"Error while parsing response: %@", [parseError description]);
+                     CMISLogError(@"Error while parsing response: %@", [parseError description]);
                      completionBlock(nil, [CMISErrors cmisError:parseError cmisErrorCode:kCMISErrorCodeUpdateConflict]);
                  }
              }
          } else {
-             log(@"Invalid http response status code when creating/uploading content: %d", response.statusCode);
-             log(@"Error content: %@", [[NSString alloc] initWithData:response.data encoding:NSUTF8StringEncoding]);
+             CMISLogError(@"Invalid http response status code when creating/uploading content: %d", response.statusCode);
+             CMISLogError(@"Error content: %@", [[NSString alloc] initWithData:response.data encoding:NSUTF8StringEncoding]);
              if (completionBlock) {
                  completionBlock(nil, [CMISErrors createCMISErrorWithCode:kCMISErrorCodeRuntime
                                                   detailedDescription:[NSString stringWithFormat:@"Could not create content: http status code %d", response.statusCode]]);

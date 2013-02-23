@@ -18,6 +18,7 @@
  */
 
 #import "CMISEnums.h"
+#import "CMISLog.h"
 
 @implementation CMISEnums
 
@@ -38,7 +39,7 @@
             includeRelationShipString = @"both";
             break;
         default:
-            log(@"Invalid enum type %d", includeRelationship);
+            CMISLogError(@"Invalid enum type %d", includeRelationship);
             break;
     }
     return includeRelationShipString;
@@ -58,7 +59,7 @@
             unfileObjectString = @"delete";
             break;
         default:
-            log(@"Inavlid enum type %d", unfileObject);
+            CMISLogError(@"Inavlid enum type %d", unfileObject);
             break;
     }
     return unfileObjectString;

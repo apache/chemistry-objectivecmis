@@ -28,6 +28,7 @@
 #import "CMISObjectByPathUriBuilder.h"
 #import "CMISTypeByIdUriBuilder.h"
 #import "CMISLinkCache.h"
+#import "CMISLog.h"
 
 @interface CMISAtomPubBaseService ()
 
@@ -69,7 +70,7 @@
             if (!object && !error) {
                 // TODO: proper error initialisation
                 error = [[NSError alloc] init];
-                log(@"Could not get object from cache with key '%@'", cacheKey);
+                CMISLogDebug(@"Could not get object from cache with key '%@'", cacheKey);
             }
             completionBlock(object, error);
         }];        
@@ -108,7 +109,7 @@
             }
             
             if (!repositoryFound) {
-                log(@"No matching repository found for repository id %@", self.bindingSession.repositoryId);
+                CMISLogError(@"No matching repository found for repository id %@", self.bindingSession.repositoryId);
                 // TODO: populate error properly
                 NSString *detailedDescription = [NSString stringWithFormat:@"No matching repository found for repository id %@", self.bindingSession.repositoryId];
                 error = [CMISErrors createCMISErrorWithCode:kCMISErrorCodeNoRepositoryFound detailedDescription:detailedDescription];
@@ -132,7 +133,7 @@
                                                NSData *data = httpResponse.data;
                                                // Uncomment to see the service document
                                                //        NSString *dataString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-                                               //        log(@"Service document: %@", dataString);
+                                               //        CMISLogDebug(@"Service document: %@", dataString);
                                                
                                                // Parse the cmis service document
                                                if (data) {
@@ -141,7 +142,7 @@
                                                    if ([parser parseAndReturnError:&error]) {
                                                        [self.bindingSession setObject:parser.workspaces forKey:kCMISSessionKeyWorkspaces];
                                                    } else {
-                                                       log(@"Error while parsing service document: %@", error.description);
+                                                       CMISLogError(@"Error while parsing service document: %@", error.description);
                                                    }
                                                    completionBlock(parser.workspaces, error);
                                                }
@@ -314,7 +315,7 @@
                                       cmisRequest:cmisRequest
                                   completionBlock:^(CMISObjectData *objectData, NSError *error) {
             if (error) {
-                log(@"Could not retrieve object with id %@", objectId);
+                CMISLogDebug(@"Could not retrieve object with id %@", objectId);
                 completionBlock(nil, [CMISErrors cmisError:error cmisErrorCode:kCMISErrorCodeObjectNotFound]);
             } else {
                 NSString *link = [linkCache linkForObjectId:objectId relation:rel type:type];

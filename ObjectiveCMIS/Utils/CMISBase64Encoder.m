@@ -19,6 +19,7 @@
 
 #import "CMISBase64Encoder.h"
 #import "CMISFileUtil.h"
+#import "CMISLog.h"
 
 static char *alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
@@ -89,7 +90,7 @@ static char *alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz012
         // Release the file handle
         [fileHandle closeFile];
     } else {
-        log(@"Could not create a file handle for %@", sourceFilePath);
+        CMISLogError(@"Could not create a file handle for %@", sourceFilePath);
     }
 
     return result;
@@ -139,7 +140,7 @@ static char *alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz012
         // Release the file handle
         [fileHandle closeFile];
     } else {
-        log(@"Could not create a file handle for %@", sourceFilePath);
+        CMISLogError(@"Could not create a file handle for %@", sourceFilePath);
     }
 }
 

@@ -24,6 +24,7 @@
 #import "CMISTypeByIdUriBuilder.h"
 #import "CMISHttpResponse.h"
 #import "CMISTypeDefinitionAtomEntryParser.h"
+#import "CMISLog.h"
 
 @interface CMISAtomPubRepositoryService ()
 @property (nonatomic, strong) NSMutableDictionary *repositories;
@@ -78,7 +79,7 @@
                        completionBlock:(void (^)(CMISTypeDefinition *typeDefinition, NSError *error))completionBlock
 {
     if (typeId == nil) {
-        log(@"Parameter typeId is required");
+        CMISLogError(@"Parameter typeId is required");
         NSError *error = [[NSError alloc] init]; // TODO: proper error init
         completionBlock(nil, error);
         return nil;

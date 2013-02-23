@@ -126,6 +126,7 @@
 		8280732B1515407000EF635C /* CMISObjectConverter.h in Headers */ = {isa = PBXBuildFile; fileRef = 828073291515407000EF635C /* CMISObjectConverter.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		8280732C1515407000EF635C /* CMISObjectConverter.m in Sources */ = {isa = PBXBuildFile; fileRef = 8280732A1515407000EF635C /* CMISObjectConverter.m */; };
 		828073DE15154F9400EF635C /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 82807383151542F400EF635C /* MobileCoreServices.framework */; };
+		82895A1B16D8A8C5007BC80A /* CMISLog.m in Sources */ = {isa = PBXBuildFile; fileRef = 82895A1A16D8A8C5007BC80A /* CMISLog.m */; };
 		82ABA0481554655A00935225 /* CMISBindingSession.h in Headers */ = {isa = PBXBuildFile; fileRef = 82ABA0461554655900935225 /* CMISBindingSession.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		82ABA0491554655A00935225 /* CMISBindingSession.m in Sources */ = {isa = PBXBuildFile; fileRef = 82ABA0471554655A00935225 /* CMISBindingSession.m */; };
 		82ABA04C1554819300935225 /* CMISAtomPubBaseService+Protected.h in Headers */ = {isa = PBXBuildFile; fileRef = 82ABA04A1554819100935225 /* CMISAtomPubBaseService+Protected.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -317,6 +318,7 @@
 		828073291515407000EF635C /* CMISObjectConverter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = CMISObjectConverter.h; path = Utils/CMISObjectConverter.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		8280732A1515407000EF635C /* CMISObjectConverter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; name = CMISObjectConverter.m; path = Utils/CMISObjectConverter.m; sourceTree = "<group>"; };
 		82807383151542F400EF635C /* MobileCoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileCoreServices.framework; path = System/Library/Frameworks/MobileCoreServices.framework; sourceTree = SDKROOT; };
+		82895A1A16D8A8C5007BC80A /* CMISLog.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CMISLog.m; path = Utils/CMISLog.m; sourceTree = "<group>"; };
 		82ABA0461554655900935225 /* CMISBindingSession.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CMISBindingSession.h; path = Bindings/CMISBindingSession.h; sourceTree = "<group>"; };
 		82ABA0471554655A00935225 /* CMISBindingSession.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CMISBindingSession.m; path = Bindings/CMISBindingSession.m; sourceTree = "<group>"; };
 		82ABA04A1554819100935225 /* CMISAtomPubBaseService+Protected.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "CMISAtomPubBaseService+Protected.h"; sourceTree = "<group>"; };
@@ -616,7 +618,6 @@
 		828072D615153F1300EF635C /* Utils */ = {
 			isa = PBXGroup;
 			children = (
-				4E9CE52E16D50083004C7934 /* CMISLog.h */,
 				8276E129155E355D00344A29 /* CMISBase64Encoder.h */,
 				8276E12A155E355D00344A29 /* CMISBase64Encoder.m */,
 				4E39DF5A163A72B400F21DE6 /* CMISDateUtil.h */,
@@ -633,6 +634,8 @@
 				BD5C970D16282977002DDC6E /* CMISHttpDownloadRequest.m */,
 				BD5C97071628293F002DDC6E /* CMISHttpUploadRequest.h */,
 				BD5C97081628293F002DDC6E /* CMISHttpUploadRequest.m */,
+				4E9CE52E16D50083004C7934 /* CMISLog.h */,
+				82895A1A16D8A8C5007BC80A /* CMISLog.m */,
 				828073291515407000EF635C /* CMISObjectConverter.h */,
 				8280732A1515407000EF635C /* CMISObjectConverter.m */,
 				4EA61BD31564F70C00C759E4 /* CMISStringInOutParameter.h */,
@@ -1005,6 +1008,7 @@
 				4E39DF61163A767B00F21DE6 /* CMISAtomParserUtil.m in Sources */,
 				4E10AC0016B916B500E2287E /* CMISDefaultNetworkProvider.m in Sources */,
 				4E3C32A916C4EF190099B21E /* CMISAtomPubVersioningService.m in Sources */,
+				82895A1B16D8A8C5007BC80A /* CMISLog.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

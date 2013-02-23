@@ -24,6 +24,7 @@
 #import "CMISAtomFeedParser.h"
 #import "CMISErrors.h"
 #import "CMISURLUtil.h"
+#import "CMISLog.h"
 
 @implementation CMISAtomPubVersioningService
 
@@ -60,7 +61,7 @@
 {
     // Validate params
     if (!objectId) {
-        log(@"Must provide an objectId when retrieving all versions");
+        CMISLogError(@"Must provide an objectId when retrieving all versions");
         completionBlock(nil, [CMISErrors createCMISErrorWithCode:kCMISErrorCodeObjectNotFound detailedDescription:nil]);
         return nil;
     }

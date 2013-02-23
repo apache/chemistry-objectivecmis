@@ -19,6 +19,7 @@
 
 #import "CMISHttpDownloadRequest.h"
 #import "CMISErrors.h"
+#import "CMISLog.h"
 
 @interface CMISHttpDownloadRequest ()
 
@@ -124,7 +125,7 @@
         do {
             NSUInteger written = [self.outputStream write:&bytes[offset] maxLength:length - offset];
             if (written <= 0) {
-                log(@"Error while writing downloaded data to file");
+                CMISLogError(@"Error while writing downloaded data to file");
                 [connection cancel];
                 return;
             } else {

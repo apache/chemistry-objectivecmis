@@ -31,6 +31,7 @@
 #import "CMISTypeDefinition.h"
 #import "CMISNetworkProvider.h"
 #import "CMISDefaultNetworkProvider.h"
+#import "CMISLog.h"
 
 @interface CMISSession ()
 @property (nonatomic, strong, readwrite) CMISObjectConverter *objectConverter;
@@ -90,7 +91,7 @@
             NSString *username = self.sessionParameters.username;
             NSString *password = self.sessionParameters.password;
             if (username == nil || password == nil) {
-                log(@"No username or password provided for standard authentication provider");
+                CMISLogError(@"No username or password provided for standard authentication provider");
                 return nil;
             }
             
@@ -109,7 +110,7 @@
         id objectConverterClassValue = [self.sessionParameters objectForKey:kCMISSessionParameterObjectConverterClassName];
         if (objectConverterClassValue != nil && [objectConverterClassValue isKindOfClass:[NSString class]]) {
             NSString *objectConverterClassName = (NSString *)objectConverterClassValue;
-            log(@"Using a custom object converter class: %@", objectConverterClassName);
+            CMISLogDebug(@"Using a custom object converter class: %@", objectConverterClassName);
             self.objectConverter = [[NSClassFromString(objectConverterClassName) alloc] initWithSession:self];
         } else { //default
             self.objectConverter = [[CMISObjectConverter alloc] initWithSession:self];
@@ -131,14 +132,14 @@
     if (self.sessionParameters.repositoryId == nil) {
         NSError *error = [CMISErrors createCMISErrorWithCode:kCMISErrorCodeInvalidArgument
                                          detailedDescription:@"Must provide repository id"];
-        log(@"Error: %@", error.description);
+        CMISLogError(@"Error: %@", error.description);
         completionBlock(nil, error);
         return nil;
     }
     
     if (self.sessionParameters.authenticationProvider == nil) {
         NSError *error = [CMISErrors createCMISErrorWithCode:kCMISErrorCodeUnauthorized detailedDescription:@"Must provide authentication provider"];
-        log(@"Error: %@", error.description);
+        CMISLogError(@"Error: %@", error.description);
         completionBlock(nil, error);
         return nil;
     }
@@ -150,7 +151,7 @@
         self.repositoryInfo = repositoryInfo;
         if (self.repositoryInfo == nil) {
             if (error) {
-                log(@"Error because repositoryInfo is nil: %@", error.description);
+                CMISLogError(@"Error because repositoryInfo is nil: %@", error.description);
                 completionBlock(nil, [CMISErrors cmisError:error cmisErrorCode:kCMISErrorCodeInvalidArgument]);
             } else {
                 completionBlock(nil, [CMISErrors createCMISErrorWithCode:kCMISErrorCodeInvalidArgument
@@ -455,7 +456,7 @@
                             forObjectTypeId:[properties objectForKey:kCMISPropertyObjectTypeId]
                             completionBlock:^(CMISProperties *convertedProperties, NSError *error) {
         if (error) {
-            log(@"Could not convert properties: %@", error.description);
+            CMISLogError(@"Could not convert properties: %@", error.description);
             if (completionBlock) {
                 completionBlock(nil, [CMISErrors cmisError:error cmisErrorCode:kCMISErrorCodeRuntime]);
             }
@@ -484,7 +485,7 @@
                             forObjectTypeId:[properties objectForKey:kCMISPropertyObjectTypeId]
                             completionBlock:^(CMISProperties *convertedProperties, NSError *error) {
         if (error) {
-            log(@"Could not convert properties: %@", error.description);
+            CMISLogError(@"Could not convert properties: %@", error.description);
             if (completionBlock) {
                 completionBlock(nil, [CMISErrors cmisError:error cmisErrorCode:kCMISErrorCodeRuntime]);
             }

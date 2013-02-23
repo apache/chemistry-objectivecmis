@@ -42,6 +42,7 @@
 #import "CMISRequest.h"
 #import "CMISErrors.h"
 #import "CMISDateUtil.h"
+#import "CMISLog.h"
 
 @interface ObjectiveCMISTests ()
 
@@ -52,6 +53,74 @@
 
 @implementation ObjectiveCMISTests
 
+- (void)testLogging
+{
+    // grab the singleton instance of the logger
+    CMISLog *logger = [CMISLog sharedInstance];
+    
+    // remember the current log level so we can reset it later
+    CMISLogLevel startingLogLevel = logger.logLevel;
+    
+    // set level to off, message should not appear
+    logger.logLevel = CMISLogLevelOff;
+    [logger logTrace:@"** FAIL ** This message should not appear **"];
+    
+    // set level to error, message should not appear
+    logger.logLevel = CMISLogLevelError;
+    [logger logTrace:@"** FAIL ** This message should not appear **"];
+    
+    // set level to warning, message should not appear
+    logger.logLevel = CMISLogLevelWarning;
+    [logger logTrace:@"** FAIL ** This message should not appear **"];
+    
+    // set level to info, message should not appear
+    logger.logLevel = CMISLogLevelInfo;
+    [logger logTrace:@"** FAIL ** This message should not appear **"];
+    
+    // set level to debug, message should not appear
+    logger.logLevel = CMISLogLevelDebug;
+    [logger logTrace:@"** FAIL ** This message should not appear **"];
+    
+    // set level to trace, message should appear
+    logger.logLevel = CMISLogLevelTrace;
+    [logger logTrace:@"This is a TRACE level message so should appear"];
+
+    // set level to Trace so all messages appear
+    logger.logLevel = CMISLogLevelTrace;
+    
+    CMISLogError(@"This is an ERROR message");
+    CMISLogWarning(@"This is a WARNING message");
+    CMISLogInfo(@"This is an INFO message");
+    CMISLogDebug(@"This is a DEBUG message");
+    CMISLogTrace(@"This is a TRACE message");
+    
+    // set level to Trace so all messages appear
+    logger.logLevel = CMISLogLevelTrace;
+    
+    NSString *str = @"A string";
+    
+    CMISLogError(@"ERROR message with parameter: %@", str);
+    CMISLogWarning(@"WARNING message with parameter: %@", str);
+    CMISLogInfo(@"INFO message with parameter: %@", str);
+    CMISLogDebug(@"DEBUG message with parameter: %@", str);
+    CMISLogTrace(@"TRACE message with parameter: %@", str);
+    
+    [logger logError:@"ERROR message with parameter: %@", str];
+    [logger logWarning:@"WARNING message with parameter: %@", str];
+    [logger logInfo:@"INFO message with parameter: %@", str];
+    [logger logDebug:@"DEBUG message with parameter: %@", str];
+    [logger logTrace:@"DEBUG message with parameter: %@", str];
+    
+    // create an NSError object
+    NSMutableDictionary *errorInfo = [NSMutableDictionary dictionary];
+    [errorInfo setValue:@"Error description" forKey:NSLocalizedDescriptionKey];
+    NSError *error = [NSError errorWithDomain:kCMISErrorDomainName code:kCMISErrorCodeRuntime userInfo:errorInfo];
+    
+    [logger logErrorFromError:error];
+    
+    // reset the log level to what it was at the beginning
+    logger.logLevel = startingLogLevel;
+}
 
 - (void)testRepositories
 {
@@ -62,7 +131,7 @@
             STAssertTrue(repos.count > 0, @"There should be at least one repository");
             
             for (CMISRepositoryInfo *repoInfo in repos) {
-                NSLog(@"Repo id: %@", repoInfo.identifier);
+                CMISLogDebug(@"Repo id: %@", repoInfo.identifier);
             }
             self.testCompleted = YES;
         }];
@@ -81,10 +150,10 @@
         [CMISSession connectWithSessionParameters:bogusParams completionBlock:^(CMISSession *session, NSError *error){
             STAssertNil(session, @"we should not get back a valid session");
             if (nil == session) {
-                log(@"*** testAuthenticateWithInvalidCredentials: error domain is %@, error code is %d and error description is %@",[error domain], [error code], [error description]);
+                CMISLogDebug(@"*** testAuthenticateWithInvalidCredentials: error domain is %@, error code is %d and error description is %@",[error domain], [error code], [error description]);
                 NSError *underlyingError = [[error userInfo] valueForKey:NSUnderlyingErrorKey];
                 if (underlyingError) {
-                    log(@"There is an underlying error with reason %@ and error code %d",[underlyingError localizedDescription], [underlyingError code]);
+                    CMISLogDebug(@"There is an underlying error with reason %@ and error code %d",[underlyingError localizedDescription], [underlyingError code]);
                 }
             }
             self.testCompleted = YES;
@@ -129,7 +198,7 @@
                 
                 NSArray *children = pagedResult.resultArray;
                 STAssertNotNil(children, @"children should not be nil");
-                NSLog(@"There are %d children", [children count]);
+                CMISLogDebug(@"There are %d children", [children count]);
                 STAssertTrue([children count] >= 3, @"There should be at least 3 children");
                 
                 self.testCompleted = YES;
@@ -271,7 +340,7 @@
                 }
                 
                 STAssertNotNil(randomDoc, @"Can only continue test if test folder contains at least one document");
-                NSLog(@"Fetching content stream for document %@", randomDoc.name);
+                CMISLogDebug(@"Fetching content stream for document %@", randomDoc.name);
                 
                 // Writing content of CMIS document to local file
                 NSString *filePath = [NSString stringWithFormat:@"%@/testfile", NSTemporaryDirectory()];
@@ -454,7 +523,7 @@
                                          properties:documentProperties
                                     completionBlock:^(NSString *newObjectId, NSError *error) {
                    if (newObjectId) {
-                       NSLog(@"File upload completed");
+                       CMISLogDebug(@"File upload completed");
                        
                        objectId = newObjectId;
                        STAssertNotNil(objectId, @"Object id received should be non-nil");
@@ -470,7 +539,7 @@
 //                           NSString *downloadedFilePath = @"testfile.pdf";
                            [document downloadContentToFile:downloadedFilePath completionBlock:^(NSError *error) {
                                if (error == nil) {
-                                   NSLog(@"File download completed");
+                                   CMISLogDebug(@"File download completed");
                                    
                                    // Compare file sizes
                                    NSError *fileError;
@@ -558,7 +627,7 @@
                 // Print out the version labels and verify them, while also verifying that they are ordered by creation date, descending
                 NSDate *previousModifiedDate = document.lastModificationDate;
                 for (CMISDocument *versionOfDocument in allVersionsOfDocument.items) {
-                    NSLog(@"%@ - version %@", versionOfDocument.name, versionOfDocument.versionLabel);
+                    CMISLogDebug(@"%@ - version %@", versionOfDocument.name, versionOfDocument.versionLabel);
                     
                     if (!versionOfDocument.isLatestVersion) {// latest version is the one we got originally
                         STAssertTrue([document.name isEqualToString:versionOfDocument.name], @"Other version of same document does not have the same name");
@@ -931,7 +1000,7 @@
                         changeToken:nil
                     completionBlock: ^(NSError *error) {
                   if (error == nil) {
-                      NSLog(@"Content has been successfully changed");
+                      CMISLogDebug(@"Content has been successfully changed");
                       
                       // Verify content of document
                       NSString *tempDownloadFilePath = [NSString stringWithFormat:@"%@/temp_download_file.txt", NSTemporaryDirectory()];
@@ -1135,7 +1204,7 @@
 - (void)checkExtensionElement:(CMISExtensionElement *)extElement withName:(NSString *)expectedName namespaceUri:(NSString *)expectedNamespaceUri
                attributeCount:(NSUInteger)expectedAttrCount childrenCount:(NSUInteger)expectedChildCount hasValue:(BOOL)hasValue
 {
-    NSLog(@"Checking Extension Element: %@", extElement);
+    CMISLogDebug(@"Checking Extension Element: %@", extElement);
     STAssertTrue([extElement.name isEqualToString:expectedName], @"Expected extension element name '%@', but name is '%@'", expectedName, extElement.name);
     STAssertTrue([extElement.namespaceUri isEqualToString:expectedNamespaceUri], @"Expected namespaceUri=%@, but actual namespaceUri=%@", expectedNamespaceUri, extElement.namespaceUri);
     STAssertTrue(extElement.attributes.count == expectedAttrCount, @"Expected %d attributes, but found %d", expectedAttrCount, extElement.attributes.count);

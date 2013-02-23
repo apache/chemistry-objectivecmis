@@ -20,7 +20,7 @@
 #import "CMISPropertyDefinitionParser.h"
 #import "CMISPropertyDefinition.h"
 #import "CMISAtomPubConstants.h"
-
+#import "CMISLog.h"
 
 @interface CMISPropertyDefinitionParser ()
 
@@ -130,7 +130,7 @@
         } else if ([self.currentString isEqualToString:@"single"]) {
             self.propertyDefinition.cardinality = CMISCardinalitySingle;
         } else {
-            log(@"Invalid value for property definition cardinality : '%@'", self.currentString);
+            CMISLogError(@"Invalid value for property definition cardinality : '%@'", self.currentString);
         }
 
     } else if ([elementName isEqualToString:kCMISCoreUpdatability]) {
@@ -143,7 +143,7 @@
         } else if ([self.currentString.lowercaseString isEqualToString:@"oncreate"]) {
             self.propertyDefinition.updatability = CMISUpdatabilityOnCreate;
         } else {
-            log(@"Invalid value for property definition updatability : '%@'", self.currentString);
+            CMISLogError(@"Invalid value for property definition updatability : '%@'", self.currentString);
         }
     } else if ([elementName isEqualToString:kCMISCoreInherited]) {
         self.propertyDefinition.inherited = [self parseBooleanValue:self.currentString];

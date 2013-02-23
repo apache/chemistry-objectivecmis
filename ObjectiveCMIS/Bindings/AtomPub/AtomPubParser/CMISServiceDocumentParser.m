@@ -23,6 +23,7 @@
 #import "CMISAtomLink.h"
 #import "CMISAtomPubConstants.h"
 #import "CMISLinkRelations.h"
+#import "CMISLog.h"
 
 @interface CMISServiceDocumentParser ()
 
@@ -79,7 +80,7 @@
     
     if (!parseSuccessful){
         NSError *parserError = [parser parserError];
-        log(@"Parsing error : %@", parserError);
+        CMISLogError(@"Parsing error : %@", parserError);
         if (error) {
             *error = parserError;
         }

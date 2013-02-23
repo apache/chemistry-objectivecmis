@@ -21,6 +21,7 @@
 #import "CMISRequest.h"
 #import "CMISSessionParameters.h"
 #import "CMISNetworkProvider.h"
+#import "CMISLog.h"
 
 @interface CMISDefaultNetworkProvider ()
 + (NSMutableURLRequest *)createRequestForUrl:(NSURL *)url
@@ -246,12 +247,12 @@ completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))comple
             httpMethod = @"PUT";
             break;
         default:
-            log(@"Invalid http request method: %d", httpRequestMethod);
+            CMISLogError(@"Invalid http request method: %d", httpRequestMethod);
             return nil;
     }
     
     [request setHTTPMethod:httpMethod];
-    log(@"HTTP %@: %@", httpMethod, [url absoluteString]);
+    CMISLogDebug(@"HTTP %@: %@", httpMethod, [url absoluteString]);
     
     return request;
 }

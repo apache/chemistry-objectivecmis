@@ -21,7 +21,7 @@
 // CMISDateUtil
 //
 #import "CMISDateUtil.h"
-
+#import "CMISLog.h"
 
 @implementation CMISDateUtil
 
@@ -61,7 +61,7 @@
     
     // format 1: year
     if (![scanner scanInteger:&integer]) {
-        log(@"No year found in time string '%@'", string);
+        CMISLogDebug(@"No year found in time string '%@'", string);
         return nil;
     }
     components.year = integer;
@@ -69,7 +69,7 @@
     if ([scanner scanString:@"-" intoString:nil]) {
         // format 2: year and month
         if (![scanner scanInteger:&integer]) {
-            log(@"No month found in time string '%@'", string);
+            CMISLogDebug(@"No month found in time string '%@'", string);
             return nil;
         }
         components.month = integer;
@@ -77,7 +77,7 @@
         if ([scanner scanString:@"-" intoString:nil]) {
             // format 3: complete date
             if (![scanner scanInteger:&integer]) {
-                log(@"No day found in time string '%@'", string);
+                CMISLogDebug(@"No day found in time string '%@'", string);
                 return nil;
             }
             components.day = integer;
@@ -86,18 +86,18 @@
         if ([scanner scanString:@"T" intoString:nil]) {
             // format 4: complete date plus hours and minutes
             if (![scanner scanInteger:&integer]) {
-                log(@"No hour found in time string '%@'", string);
+                CMISLogDebug(@"No hour found in time string '%@'", string);
                 return nil;
             }
             components.hour = integer;
             
             if (![scanner scanString:@":" intoString:nil]) {
-                log(@"No minute found in time string '%@'", string);
+                CMISLogDebug(@"No minute found in time string '%@'", string);
                 return nil;
             }
             
             if (![scanner scanInteger:&integer]) {
-                log(@"No minute found in time string '%@'", string);
+                CMISLogDebug(@"No minute found in time string '%@'", string);
                 return nil;
             }
             components.minute = integer;
@@ -105,7 +105,7 @@
             if ([scanner scanString:@":" intoString:nil]) {
                 // format 5: complete date plus hours, minutes and seconds
                 if (![scanner scanInteger:&integer]) {
-                    log(@"No second found in time string '%@'", string);
+                    CMISLogDebug(@"No second found in time string '%@'", string);
                     return nil;
                 }
                 components.second = integer;
@@ -113,7 +113,7 @@
                 if ([scanner scanString:@"." intoString:nil]) {
                     // format 6: complete date plus hours, minutes, seconds and a decimal fraction of a	second
                     if (![scanner scanInteger:nil]) {
-                        log(@"No fraction of a second found in time string '%@'", string);
+                        CMISLogDebug(@"No fraction of a second found in time string '%@'", string);
                         return nil;
                     }
                     // ignore fraction of a second
@@ -134,17 +134,17 @@
                 
                 if (tzSign != 0) {
                     if (![scanner scanInteger:&tzHour]) {
-                        log(@"No timezone hour found in time string '%@'", string);
+                        CMISLogDebug(@"No timezone hour found in time string '%@'", string);
                         return nil;
                     }
                     
                     if (![scanner scanString:@":" intoString:nil]) {
-                        log(@"No timezone minute found in time string '%@'", string);
+                        CMISLogDebug(@"No timezone minute found in time string '%@'", string);
                         return nil;
                     }
                     
                     if (![scanner scanInteger:&tzMinute]) {
-                        log(@"No timezone minute found in time string '%@'", string);
+                        CMISLogDebug(@"No timezone minute found in time string '%@'", string);
                         return nil;
                     }
                     components.timeZone = [NSTimeZone timeZoneForSecondsFromGMT:(tzSign * (tzHour * 3600 + tzMinute * 60))];
@@ -156,7 +156,7 @@
     }
     
     if (![scanner isAtEnd]) {
-        log(@"Unexpected characters found at end of time string '%@'", string);
+        CMISLogDebug(@"Unexpected characters found at end of time string '%@'", string);
         return nil;
     }
     

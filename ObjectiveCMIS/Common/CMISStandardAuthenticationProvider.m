@@ -19,6 +19,7 @@
 
 #import "CMISBase64Encoder.h"
 #import "CMISStandardAuthenticationProvider.h"
+#import "CMISLog.h"
 
 @interface CMISStandardAuthenticationProvider ()
 @property (nonatomic, strong) NSString *username;
@@ -89,21 +90,21 @@
     if (challenge.previousFailureCount == 0) {
         if ([challenge.protectionSpace.authenticationMethod isEqualToString:NSURLAuthenticationMethodClientCertificate] &&
             self.credential.identity) {
-            log(@"Authenticating with client certificate");
+            CMISLogDebug(@"Authenticating with client certificate");
             [challenge.sender useCredential:self.credential forAuthenticationChallenge:challenge];
         } else if ([challenge.protectionSpace.authenticationMethod isEqualToString:NSURLAuthenticationMethodHTTPBasic] &&
                    self.credential.user && self.credential.hasPassword) {
-            log(@"Authenticating with username and password");
+            CMISLogDebug(@"Authenticating with username and password");
             [challenge.sender useCredential:self.credential forAuthenticationChallenge:challenge];
         } else if (challenge.proposedCredential) {
-            log(@"Authenticating with proposed credential");
+            CMISLogDebug(@"Authenticating with proposed credential");
             [challenge.sender useCredential:challenge.proposedCredential forAuthenticationChallenge:challenge];
         } else {
-            log(@"Authenticating without credential");
+            CMISLogDebug(@"Authenticating without credential");
             [challenge.sender continueWithoutCredentialForAuthenticationChallenge:challenge];
         }
     } else {
-        log(@"Authentication failed, cancelling logon");
+        CMISLogDebug(@"Authentication failed, cancelling logon");
         [challenge.sender cancelAuthenticationChallenge:challenge];
     }
 }

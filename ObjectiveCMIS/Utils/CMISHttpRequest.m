@@ -21,6 +21,7 @@
 #import "CMISHttpResponse.h"
 #import "CMISErrors.h"
 #import "CMISAuthenticationProvider.h"
+#import "CMISLog.h"
 
 //Exception names as returned in the <!--exception> tag
 NSString * const kCMISExceptionInvalidArgument         = @"invalidArgument";
@@ -189,12 +190,14 @@ NSString * const kCMISExceptionVersioning              = @"versioning";
 
 - (BOOL)checkStatusCodeForResponse:(CMISHttpResponse *)response httpRequestMethod:(CMISHttpRequestMethod)httpRequestMethod error:(NSError **)error
 {
+    if ([CMISLog sharedInstance].logLevel == CMISLogLevelTrace) {
+        CMISLogTrace(@"Response body: %@", [[NSString alloc] initWithData:response.data encoding:NSUTF8StringEncoding]);
+    }
+    
     if ( (httpRequestMethod == HTTP_GET && response.statusCode != 200)
         || (httpRequestMethod == HTTP_POST && response.statusCode != 201)
         || (httpRequestMethod == HTTP_DELETE && response.statusCode != 204)
         || (httpRequestMethod == HTTP_PUT && ((response.statusCode < 200 || response.statusCode > 299)))) {
-        log(@"Error content: %@", [[NSString alloc] initWithData:response.data encoding:NSUTF8StringEncoding]);
-        
         if (error) {
             NSString *exception = response.exception;
             NSString *errorMessage = response.errorMessage;

@@ -23,7 +23,7 @@
 #import "CMISAtomParserUtil.h"
 #import "CMISAtomPubConstants.h"
 #import "CMISDateUtil.h"
-
+#import "CMISLog.h"
 
 @implementation CMISAtomParserUtil
 
@@ -46,7 +46,7 @@
     } else if ([atomPubType isEqualToString:kCMISAtomEntryPropertyUri]) {
         return CMISPropertyTypeUri;
     } else {
-        log(@"Unknow property type %@. Go tell a developer to fix this.", atomPubType);
+        CMISLogDebug(@"Unknow property type %@. Go tell a developer to fix this.", atomPubType);
         return CMISPropertyTypeString;
     }
 }
@@ -68,7 +68,7 @@
     } else if ([propertyType isEqualToString:kCMISAtomEntryPropertyUri]) {
         [array addObject:[NSURL URLWithString:stringValue]];
     } else {
-        log(@"Unknow property type %@. Go tell a developer to fix this.", propertyType);
+        CMISLogDebug(@"Unknow property type %@. Go tell a developer to fix this.", propertyType);
     }
 }
 

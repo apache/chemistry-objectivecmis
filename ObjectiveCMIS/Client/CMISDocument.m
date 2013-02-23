@@ -26,6 +26,7 @@
 #import "CMISErrors.h"
 #import "CMISRequest.h"
 #import "CMISSession.h"
+#import "CMISLog.h"
 
 @interface CMISDocument()
 
@@ -72,7 +73,7 @@
     return [self.binding.versioningService retrieveAllVersions:self.identifier
            filter:operationContext.filterString includeAllowableActions:operationContext.includeAllowableActions completionBlock:^(NSArray *objects, NSError *error) {
                if (error) {
-                   log(@"Error while retrieving all versions: %@", error.description);
+                   CMISLogError(@"Error while retrieving all versions: %@", error.description);
                    completionBlock(nil, [CMISErrors cmisError:error cmisErrorCode:kCMISErrorCodeRuntime]);
                } else {
                    completionBlock([self.session.objectConverter convertObjects:objects], nil);

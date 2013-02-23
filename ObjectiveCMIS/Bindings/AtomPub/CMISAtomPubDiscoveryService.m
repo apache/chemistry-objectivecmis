@@ -24,6 +24,7 @@
 #import "CMISAtomFeedParser.h"
 #import "CMISObjectList.h"
 #import "CMISErrors.h"
+#import "CMISLog.h"
 
 @implementation CMISAtomPubDiscoveryService
 
@@ -38,7 +39,7 @@ includeAllowableActions:(BOOL)includeAllowableActions
 {
     // Validate params
     if (statement == nil) {
-        log(@"Must provide 'statement' parameter when executing a cmis query");
+        CMISLogError(@"Must provide 'statement' parameter when executing a cmis query");
         completionBlock(nil, [CMISErrors createCMISErrorWithCode:kCMISErrorCodeInvalidArgument detailedDescription:nil]);
         return nil;
     }
@@ -46,7 +47,7 @@ includeAllowableActions:(BOOL)includeAllowableActions
     // Validate query uri
     NSString *queryUrlString = [self.bindingSession objectForKey:kCMISBindingSessionKeyQueryCollection];
     if (queryUrlString == nil) {
-        log(@"Unknown repository or query not supported!");
+        CMISLogDebug(@"Unknown repository or query not supported!");
         completionBlock(nil, [CMISErrors createCMISErrorWithCode:kCMISErrorCodeObjectNotFound detailedDescription:nil]);
         return nil;
     }

@@ -24,6 +24,7 @@
 #import "CMISFileUtil.h"
 #import "CMISProperties.h"
 #import "CMISDateUtil.h"
+#import "CMISLog.h"
 
 
 @implementation NSString (XMLEntities)
@@ -238,7 +239,7 @@
             }
             default:
             {
-                log(@"Property type did not match: %u", propertyData.type);
+                CMISLogDebug(@"Property type did not match: %u", propertyData.type);
                 break;
             }
         }
@@ -333,7 +334,7 @@
                                                                  attributes:nil];
         if (!fileCreated)
         {
-            log(@"Error: could not create file %@", self.internalFilePath);
+            CMISLogError(@"Error: could not create file %@", self.internalFilePath);
         }
     }
     else {
