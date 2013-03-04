@@ -28,6 +28,7 @@
 #import "CMISURLUtil.h"
 #import "CMISFileUtil.h"
 #import "CMISRequest.h"
+#import "CMISBase64InputStream.h"
 #import "CMISLog.h"
 
 @implementation CMISAtomPubObjectService
@@ -698,7 +699,10 @@
      }];
 }
 
-
+/**
+ This method uses a new invoke call on the CMISNetworkProvider. This new method was introduced to allow for base64 encoding while
+ streaming. See CMISHttpUploadRequest for more details on how it is done.
+ */
 - (void)sendAtomEntryXmlToLink:(NSString *)link
              httpRequestMethod:(CMISHttpRequestMethod)httpRequestMethod
                     properties:(CMISProperties *)properties
@@ -718,38 +722,17 @@
         return;
     }
     
-    // Generate XML
-    NSString *writeResult = [self createAtomEntryWriter:properties
-                                     contentInputStream:contentInputStream
-                                        contentMimeType:contentMimeType
-                                    isXmlStoredInMemory:NO];
-    
-    // Start the asynchronous POST http call
-    NSInputStream *inputStream = [NSInputStream inputStreamWithFileAtPath:writeResult];
-    
-    NSError *fileSizeError = nil;
-    unsigned long long fileSize = [CMISFileUtil fileSizeForFileAtPath:writeResult error:&fileSizeError];
-    if (fileSizeError) {
-        CMISLogError(@"Could not determine file size of %@ : %@", writeResult, [fileSizeError description]);
-    }
-    
+        
     [self.bindingSession.networkProvider invoke:[NSURL URLWithString:link]
                                      httpMethod:HTTP_POST
                                         session:self.bindingSession
-                                    inputStream:inputStream
+                                    inputStream:contentInputStream
                                         headers:[NSDictionary dictionaryWithObject:kCMISMediaTypeEntry forKey:@"Content-type"]
-                                  bytesExpected:fileSize
+                                  bytesExpected:bytesExpected
                                     cmisRequest:request
+                                 cmisProperties:properties
+                                       mimeType:contentMimeType
                                 completionBlock:^(CMISHttpResponse *response, NSError *error) {
-         // close stream to and delete temporary file
-         [inputStream close];
-         NSError *fileError = nil;
-         [[NSFileManager defaultManager] removeItemAtPath:writeResult error:&fileError];
-         if (fileError) {
-             // the upload itself is not impacted by this error, so do not report it in the completion block
-             CMISLogError(@"Could not delete temporary file %@: %@", writeResult, [fileError description]);
-         }
-         
          if (error) {
              CMISLogError(@"HTTP error when creating/uploading content: %@", error);
              if (completionBlock) {
@@ -778,6 +761,162 @@
      }
        progressBlock:progressBlock];
 }
+
+/**
+ This is the original version of the 'sendAtomEntryXmlToLink' method.
+ It creates a temporary file to store the base64 encoded data in. It is from this file that the upload starts
+ */
+- (void)sendAtomEntryXmlToLinkUsingTmpFile:(NSString *)link
+                         httpRequestMethod:(CMISHttpRequestMethod)httpRequestMethod
+                                properties:(CMISProperties *)properties
+                        contentInputStream:(NSInputStream *)contentInputStream
+                           contentMimeType:(NSString *)contentMimeType
+                             bytesExpected:(unsigned long long)bytesExpected
+                               cmisRequest:(CMISRequest*)request
+                           completionBlock:(void (^)(NSString *objectId, NSError *error))completionBlock
+                             progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal))progressBlock
+{
+    // Validate param
+    if (link == nil) {
+        CMISLogError(@"Could not retrieve link from object to do creation or update");
+        if (completionBlock) {
+            completionBlock(nil, [CMISErrors createCMISErrorWithCode:kCMISErrorCodeInvalidArgument detailedDescription:nil]);
+        }
+        return;
+    }
+    
+    
+    // Generate XML
+     NSString *writeResult = [self createAtomEntryWriter:properties
+                                      contentInputStream:contentInputStream
+                                         contentMimeType:contentMimeType
+                                     isXmlStoredInMemory:NO];
+     
+     
+     NSInputStream *inputStream = [NSInputStream inputStreamWithFileAtPath:writeResult];
+     NSError *fileSizeError = nil;
+     unsigned long long fileSize = [CMISFileUtil fileSizeForFileAtPath:writeResult error:&fileSizeError];
+     if (fileSizeError) {
+         CMISLogError(@"Could not determine file size of %@ : %@", writeResult, [fileSizeError description]);
+     }
+    
+    [self.bindingSession.networkProvider invoke:[NSURL URLWithString:link]
+                                     httpMethod:HTTP_POST
+                                        session:self.bindingSession
+                                    inputStream:inputStream
+                                        headers:[NSDictionary dictionaryWithObject:kCMISMediaTypeEntry forKey:@"Content-type"]
+                                  bytesExpected:fileSize
+                                    cmisRequest:request
+                                completionBlock:^(CMISHttpResponse *response, NSError *error) {
+                                    // close stream to and delete temporary file
+                                    [inputStream close];
+                                    
+                                     NSError *fileError = nil;
+                                     [[NSFileManager defaultManager] removeItemAtPath:writeResult error:&fileError];
+                                     if (fileError) {
+                                     // the upload itself is not impacted by this error, so do not report it in the completion block
+                                     CMISLogError(@"Could not delete temporary file %@: %@", writeResult, [fileError description]);
+                                     }
+                                    if (error) {
+                                        CMISLogError(@"HTTP error when creating/uploading content: %@", error);
+                                        if (completionBlock) {
+                                            completionBlock(nil, error);
+                                        }
+                                    } else if (response.statusCode == 200 || response.statusCode == 201 || response.statusCode == 204) {
+                                        if (completionBlock) {
+                                            NSError *parseError = nil;
+                                            CMISAtomEntryParser *atomEntryParser = [[CMISAtomEntryParser alloc] initWithData:response.data];
+                                            [atomEntryParser parseAndReturnError:&parseError];
+                                            if (parseError == nil) {
+                                                completionBlock(atomEntryParser.objectData.identifier, nil);
+                                            } else {
+                                                CMISLogError(@"Error while parsing response: %@", [parseError description]);
+                                                completionBlock(nil, [CMISErrors cmisError:parseError cmisErrorCode:kCMISErrorCodeUpdateConflict]);
+                                            }
+                                        }
+                                    } else {
+                                        CMISLogError(@"Invalid http response status code when creating/uploading content: %d", response.statusCode);
+                                        CMISLogError(@"Error content: %@", [[NSString alloc] initWithData:response.data encoding:NSUTF8StringEncoding]);
+                                        if (completionBlock) {
+                                            completionBlock(nil, [CMISErrors createCMISErrorWithCode:kCMISErrorCodeRuntime
+                                                                                 detailedDescription:[NSString stringWithFormat:@"Could not create content: http status code %d", response.statusCode]]);
+                                        }
+                                    }
+                                }
+                                  progressBlock:progressBlock];
+}
+
+/**
+ This is an alternative implementation of the 'sendAtomEntryXmlToLink' method. It is using base64 streaming. In contrast to the method above
+ it is using a custom class CMISBase64InputStream, which inherits directly from NSInputStream. 
+ The class, however, has to use some of the "private" API functions. See the class for more explanations
+ */
+- (void)sendAtomEntryXmlToLinkUsingBase64InputStream:(NSString *)link
+                                   httpRequestMethod:(CMISHttpRequestMethod)httpRequestMethod
+                                          properties:(CMISProperties *)properties
+                                  contentInputStream:(NSInputStream *)contentInputStream
+                                     contentMimeType:(NSString *)contentMimeType
+                                       bytesExpected:(unsigned long long)bytesExpected
+                                         cmisRequest:(CMISRequest*)request
+                                     completionBlock:(void (^)(NSString *objectId, NSError *error))completionBlock
+                                       progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal))progressBlock
+{
+    // Validate param
+    if (link == nil) {
+        CMISLogError(@"Could not retrieve link from object to do creation or update");
+        if (completionBlock) {
+            completionBlock(nil, [CMISErrors createCMISErrorWithCode:kCMISErrorCodeInvalidArgument detailedDescription:nil]);
+        }
+        return;
+    }
+    
+    
+    // Generate XML
+     CMISBase64InputStream *inputStream = [[CMISBase64InputStream alloc] initWithInputStream:contentInputStream
+                                                                              cmisProperties:properties
+                                                                                    mimeType:contentMimeType
+                                                                             nonEncodedBytes:bytesExpected];
+    
+    [self.bindingSession.networkProvider invoke:[NSURL URLWithString:link]
+                                     httpMethod:HTTP_POST
+                                        session:self.bindingSession
+                                    inputStream:inputStream
+                                        headers:[NSDictionary dictionaryWithObject:kCMISMediaTypeEntry forKey:@"Content-type"]
+                                  bytesExpected:bytesExpected
+                                    cmisRequest:request
+                                completionBlock:^(CMISHttpResponse *response, NSError *error) {
+                                    // close stream to and delete temporary file
+                                    [inputStream close];
+                                    
+                                    if (error) {
+                                        CMISLogError(@"HTTP error when creating/uploading content: %@", error);
+                                        if (completionBlock) {
+                                            completionBlock(nil, error);
+                                        }
+                                    } else if (response.statusCode == 200 || response.statusCode == 201 || response.statusCode == 204) {
+                                        if (completionBlock) {
+                                            NSError *parseError = nil;
+                                            CMISAtomEntryParser *atomEntryParser = [[CMISAtomEntryParser alloc] initWithData:response.data];
+                                            [atomEntryParser parseAndReturnError:&parseError];
+                                            if (parseError == nil) {
+                                                completionBlock(atomEntryParser.objectData.identifier, nil);
+                                            } else {
+                                                CMISLogError(@"Error while parsing response: %@", [parseError description]);
+                                                completionBlock(nil, [CMISErrors cmisError:parseError cmisErrorCode:kCMISErrorCodeUpdateConflict]);
+                                            }
+                                        }
+                                    } else {
+                                        CMISLogError(@"Invalid http response status code when creating/uploading content: %d", response.statusCode);
+                                        CMISLogError(@"Error content: %@", [[NSString alloc] initWithData:response.data encoding:NSUTF8StringEncoding]);
+                                        if (completionBlock) {
+                                            completionBlock(nil, [CMISErrors createCMISErrorWithCode:kCMISErrorCodeRuntime
+                                                                                 detailedDescription:[NSString stringWithFormat:@"Could not create content: http status code %d", response.statusCode]]);
+                                        }
+                                    }
+                                }
+                                  progressBlock:progressBlock];
+}
+
 
 
 /**

@@ -134,6 +134,45 @@ completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))comple
 - (void)invoke:(NSURL *)url
     httpMethod:(CMISHttpRequestMethod)httpRequestMethod
        session:(CMISBindingSession *)session
+   inputStream:(NSInputStream *)inputStream
+       headers:(NSDictionary *)additionalHeaders
+ bytesExpected:(unsigned long long)bytesExpected
+   cmisRequest:(CMISRequest *)cmisRequest
+cmisProperties:(CMISProperties *)cmisProperties
+      mimeType:(NSString *)mimeType
+completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))completionBlock
+ progressBlock:(void (^)(unsigned long long bytesDownloaded, unsigned long long bytesTotal))progressBlock
+{
+    if (!cmisRequest.isCancelled) {
+        NSMutableURLRequest *urlRequest = [CMISDefaultNetworkProvider createRequestForUrl:url
+                                                                               httpMethod:httpRequestMethod
+                                                                                  session:session];
+        
+        CMISHttpUploadRequest* request = [CMISHttpUploadRequest startRequest:urlRequest
+                                                                  httpMethod:httpRequestMethod
+                                                                 inputStream:inputStream
+                                                                     headers:additionalHeaders
+                                                               bytesExpected:bytesExpected
+                                                      authenticationProvider:session.authenticationProvider
+                                                              cmisProperties:cmisProperties
+                                                                    mimeType:mimeType
+                                                             completionBlock:completionBlock
+                                                               progressBlock:progressBlock];
+        if (request){
+            cmisRequest.httpRequest = request;
+        }
+    } else {
+        if (completionBlock) {
+            completionBlock(nil, [CMISErrors createCMISErrorWithCode:kCMISErrorCodeCancelled
+                                                 detailedDescription:@"Request was cancelled"]);
+        }
+    }
+}
+
+
+- (void)invoke:(NSURL *)url
+    httpMethod:(CMISHttpRequestMethod)httpRequestMethod
+       session:(CMISBindingSession *)session
   outputStream:(NSOutputStream *)outputStream
  bytesExpected:(unsigned long long)bytesExpected
    cmisRequest:(CMISRequest *)cmisRequest

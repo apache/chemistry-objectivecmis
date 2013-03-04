@@ -462,11 +462,11 @@
             }
         } else {
             request = [self.binding.objectService createDocumentFromFilePath:filePath
-                                                          mimeType:mimeType
-                                                        properties:convertedProperties
-                                                      inFolder:folderObjectId
-                                                   completionBlock:completionBlock
-                                                     progressBlock:progressBlock];
+                                                                    mimeType:mimeType
+                                                                  properties:convertedProperties
+                                                                    inFolder:folderObjectId
+                                                             completionBlock:completionBlock
+                                                               progressBlock:progressBlock];
         }
     }];
     return request;

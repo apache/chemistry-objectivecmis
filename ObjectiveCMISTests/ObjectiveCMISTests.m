@@ -502,6 +502,48 @@
     }];
 }
 
+- (void)testVerySmallDocument
+{
+    [self runTest:^{
+        NSString *fileToUploadPath = [[NSBundle bundleForClass:[self class]] pathForResource:@"small_test.txt" ofType:nil];
+        NSString *documentName = [NSString stringWithFormat:@"small_test_%@.txt", [self stringFromCurrentDate]];
+        
+        NSMutableDictionary *properties = [NSMutableDictionary dictionary];
+        [properties setObject:documentName forKey:kCMISPropertyName];
+        [properties setObject:kCMISPropertyObjectTypeIdValueDocument forKey:kCMISPropertyObjectTypeId];
+        __block NSString * smallObjectId;
+        [self.rootFolder createDocumentFromFilePath:fileToUploadPath mimeType:@"text/plain" properties:properties completionBlock:^(NSString *objectId, NSError *error){
+            if (objectId) {
+                CMISLogDebug(@"File upload completed");
+                STAssertNotNil(objectId, @"Object id received should be non-nil");
+                smallObjectId = objectId;
+                [self.session retrieveObject:smallObjectId completionBlock:^(CMISObject *object, NSError *objError){
+                    if (object) {
+                        CMISDocument *doc = (CMISDocument *)object;
+                        [doc deleteAllVersionsWithCompletionBlock:^(BOOL deleted, NSError *deleteError){
+                            STAssertTrue(deleted, @"should have successfully deleted file");
+                            if (deleteError) {
+                                CMISLogDebug(@"we have an error deleting the file %@ with message %@ and code %d", documentName, [deleteError localizedDescription], [deleteError code]);
+                            }
+                            self.testCompleted = YES;
+                        }];
+                    }
+                    else{
+                        STAssertNil(error, @"Got error while retrieving document: %@", [objError description]);
+                        self.testCompleted = YES;
+                        
+                    }
+                }];
+            }
+            else{
+                STAssertNil(error, @"Got error while creating document: %@", [error description]);
+                self.testCompleted = YES;
+            }
+        } progressBlock:^(unsigned long long bytesUploaded, unsigned long long total){}];
+        
+    }];
+}
+
 - (void)testCreateBigDocument
 {
     [self runTest:^ {
@@ -1019,10 +1061,13 @@
                                   [[NSFileManager defaultManager] removeItemAtPath:tempDownloadFilePath error:&fileError];
                                   STAssertNil(fileError, @"Error when deleting temporary downloaded file: %@", [fileError description]);
                                   
+//                                  self.testCompleted = YES;
                                   // Delete test document from server
+                                  
                                   [self deleteDocumentAndVerify:originalDocument completionBlock:^{
                                       self.testCompleted = YES;
                                   }];
+                                
                               } else {
                                   STAssertNil(error, @"Error while writing content: %@", [error description]);
                                   
