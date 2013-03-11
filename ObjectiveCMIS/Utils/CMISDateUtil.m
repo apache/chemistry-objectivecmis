@@ -139,14 +139,15 @@
                     }
                     
                     if (![scanner scanString:@":" intoString:nil]) {
-                        CMISLogDebug(@"No timezone minute found in time string '%@'", string);
-                        return nil;
+                        tzMinute = 0;
+                    }
+                    else{
+                        if (![scanner scanInteger:&tzMinute]) {
+                            CMISLogDebug(@"No timezone minute found in time string '%@'", string);
+                            return nil;
+                        }
                     }
                     
-                    if (![scanner scanInteger:&tzMinute]) {
-                        CMISLogDebug(@"No timezone minute found in time string '%@'", string);
-                        return nil;
-                    }
                     components.timeZone = [NSTimeZone timeZoneForSecondsFromGMT:(tzSign * (tzHour * 3600 + tzMinute * 60))];
                 } else { // no time zone specified, assume local time
                     components.timeZone = [NSTimeZone defaultTimeZone];

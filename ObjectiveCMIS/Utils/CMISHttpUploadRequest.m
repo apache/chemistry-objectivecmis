@@ -197,6 +197,7 @@ authenticationProvider:(id<CMISAuthenticationProvider>) authenticationProvider
             NSMutableDictionary *headers = [NSMutableDictionary dictionaryWithDictionary:self.additionalHeaders];
             [headers setValue:[NSString stringWithFormat:@"%llu", self.encodedLength] forKey:@"Content-Length"];
             self.additionalHeaders = [NSDictionary dictionaryWithDictionary:headers];
+//            [self.encoderStream open];
         }
     }
     else
@@ -205,9 +206,12 @@ authenticationProvider:(id<CMISAuthenticationProvider>) authenticationProvider
             urlRequest.HTTPBodyStream = self.inputStream;
         }
     }
-    
+    BOOL startSuccess = [super startRequest:urlRequest];
+    if (self.base64Encoding) {
+        [self.encoderStream open];
+    }
 
-    return [super startRequest:urlRequest];
+    return startSuccess;
 }
 
 #pragma CMISCancellableRequest method
@@ -315,6 +319,21 @@ totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite
              first we check if we can fill the output stream buffer with data
              the criteria for that is that bufferOffset equals the buffer limit
              */
+            if (self.base64InputStream) {
+                NSStreamStatus inputStatus = self.base64InputStream.streamStatus;
+                if (inputStatus == NSStreamStatusNotOpen || inputStatus == NSStreamStatusClosed) {
+                    CMISLogDebug(@"*** Base 64 Input Stream is not yet open or closed. The status is %d ***", inputStatus);
+                }
+                else if (inputStatus == NSStreamStatusAtEnd){
+                    CMISLogDebug(@"*** Base 64 Input Stream has reached the end ***");
+                }
+                else if (inputStatus == NSStreamStatusError){
+                    CMISLogDebug(@"Input stream error");
+                    [self stopSendWithStatus:@"Network read error"];
+                }
+            }
+            
+            
             if (self.bufferOffset == self.bufferLimit) {
                 if (self.streamStartData != nil) {
                     self.streamStartData = nil;
@@ -433,7 +452,6 @@ totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite
     self.encoderStream = outputStream;
     self.encoderStream.delegate = self;
     [self.encoderStream scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
-    [self.encoderStream open];
 }
 
 
