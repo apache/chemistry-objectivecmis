@@ -31,8 +31,6 @@
 		4E3C32A916C4EF190099B21E /* CMISAtomPubVersioningService.m in Sources */ = {isa = PBXBuildFile; fileRef = 4E3C32A716C4EF190099B21E /* CMISAtomPubVersioningService.m */; };
 		4E3E14B316AFFB190057CE22 /* CMISNetworkProvider.h in Headers */ = {isa = PBXBuildFile; fileRef = 4E3E14B116AFFB190057CE22 /* CMISNetworkProvider.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4E41596F16E0A06200B52587 /* small_test.txt in Resources */ = {isa = PBXBuildFile; fileRef = 4E41596E16E0A06200B52587 /* small_test.txt */; };
-		4E785C2916D7D76F00FC36FB /* CMISBase64InputStream.h in Headers */ = {isa = PBXBuildFile; fileRef = 4E785C2716D7D76F00FC36FB /* CMISBase64InputStream.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		4E785C2A16D7D76F00FC36FB /* CMISBase64InputStream.m in Sources */ = {isa = PBXBuildFile; fileRef = 4E785C2816D7D76F00FC36FB /* CMISBase64InputStream.m */; };
 		4E9CE52F16D50083004C7934 /* CMISLog.h in Headers */ = {isa = PBXBuildFile; fileRef = 4E9CE52E16D50083004C7934 /* CMISLog.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4EA61BD71564F70C00C759E4 /* CMISStringInOutParameter.h in Headers */ = {isa = PBXBuildFile; fileRef = 4EA61BD31564F70C00C759E4 /* CMISStringInOutParameter.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4EA61BD81564F70C00C759E4 /* CMISStringInOutParameter.m in Sources */ = {isa = PBXBuildFile; fileRef = 4EA61BD41564F70C00C759E4 /* CMISStringInOutParameter.m */; };
@@ -227,8 +225,6 @@
 		4E3C32A716C4EF190099B21E /* CMISAtomPubVersioningService.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CMISAtomPubVersioningService.m; sourceTree = "<group>"; };
 		4E3E14B116AFFB190057CE22 /* CMISNetworkProvider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CMISNetworkProvider.h; path = Common/CMISNetworkProvider.h; sourceTree = "<group>"; };
 		4E41596E16E0A06200B52587 /* small_test.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = small_test.txt; sourceTree = "<group>"; };
-		4E785C2716D7D76F00FC36FB /* CMISBase64InputStream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CMISBase64InputStream.h; path = Utils/CMISBase64InputStream.h; sourceTree = "<group>"; };
-		4E785C2816D7D76F00FC36FB /* CMISBase64InputStream.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CMISBase64InputStream.m; path = Utils/CMISBase64InputStream.m; sourceTree = "<group>"; };
 		4E9CE52E16D50083004C7934 /* CMISLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CMISLog.h; path = Utils/CMISLog.h; sourceTree = "<group>"; };
 		4EA61BD31564F70C00C759E4 /* CMISStringInOutParameter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CMISStringInOutParameter.h; path = Utils/CMISStringInOutParameter.h; sourceTree = "<group>"; };
 		4EA61BD41564F70C00C759E4 /* CMISStringInOutParameter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CMISStringInOutParameter.m; path = Utils/CMISStringInOutParameter.m; sourceTree = "<group>"; };
@@ -649,8 +645,6 @@
 				4EA61BD41564F70C00C759E4 /* CMISStringInOutParameter.m */,
 				4EA61BD51564F70C00C759E4 /* CMISURLUtil.h */,
 				4EA61BD61564F70C00C759E4 /* CMISURLUtil.m */,
-				4E785C2716D7D76F00FC36FB /* CMISBase64InputStream.h */,
-				4E785C2816D7D76F00FC36FB /* CMISBase64InputStream.m */,
 			);
 			name = Utils;
 			sourceTree = "<group>";
@@ -807,7 +801,6 @@
 				4E3E14B316AFFB190057CE22 /* CMISNetworkProvider.h in Headers */,
 				4E10ABFF16B916B500E2287E /* CMISDefaultNetworkProvider.h in Headers */,
 				4E9CE52F16D50083004C7934 /* CMISLog.h in Headers */,
-				4E785C2916D7D76F00FC36FB /* CMISBase64InputStream.h in Headers */,
 				4E3C32A816C4EF190099B21E /* CMISAtomPubVersioningService.h in Headers */,
 				BD30D33D162D7DD7001FFF80 /* CMISRequest.h in Headers */,
 			);
@@ -1019,7 +1012,6 @@
 				4E39DF61163A767B00F21DE6 /* CMISAtomParserUtil.m in Sources */,
 				4E10AC0016B916B500E2287E /* CMISDefaultNetworkProvider.m in Sources */,
 				4E3C32A916C4EF190099B21E /* CMISAtomPubVersioningService.m in Sources */,
-				4E785C2A16D7D76F00FC36FB /* CMISBase64InputStream.m in Sources */,
 				82895A1B16D8A8C5007BC80A /* CMISLog.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
