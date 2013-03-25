@@ -78,6 +78,10 @@ NSString * const kCMISExceptionVersioning              = @"versioning";
 - (BOOL)startRequest:(NSMutableURLRequest*)urlRequest
 {
     if (self.requestBody) {
+        if ([CMISLog sharedInstance].logLevel == CMISLogLevelTrace) {
+            CMISLogTrace(@"Request body: %@", [[NSString alloc] initWithData:self.requestBody encoding:NSUTF8StringEncoding]);
+        }
+        
         [urlRequest setHTTPBody:self.requestBody];
     }
     
@@ -191,6 +195,7 @@ NSString * const kCMISExceptionVersioning              = @"versioning";
 - (BOOL)checkStatusCodeForResponse:(CMISHttpResponse *)response httpRequestMethod:(CMISHttpRequestMethod)httpRequestMethod error:(NSError **)error
 {
     if ([CMISLog sharedInstance].logLevel == CMISLogLevelTrace) {
+        CMISLogTrace(@"Response status code: %d", response.statusCode);
         CMISLogTrace(@"Response body: %@", [[NSString alloc] initWithData:response.data encoding:NSUTF8StringEncoding]);
     }
     

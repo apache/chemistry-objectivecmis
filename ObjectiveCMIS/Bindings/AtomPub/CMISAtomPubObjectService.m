@@ -579,34 +579,17 @@
                           properties:properties
                          cmisRequest:request
                      completionBlock:^(CMISObjectData *objectData, NSError *error) {
-                         // Create XML needed as body of html
-                         
-                         CMISAtomEntryWriter *xmlWriter = [[CMISAtomEntryWriter alloc] init];
-                         xmlWriter.cmisProperties = properties;
-                         xmlWriter.generateXmlInMemory = YES;
-                         
-                         [self.bindingSession.networkProvider invokePUT:[NSURL URLWithString:selfLink]
-                                                                session:self.bindingSession
-                                                                   body:[xmlWriter.generateAtomEntryXml dataUsingEncoding:NSUTF8StringEncoding]
-                                                                headers:[NSDictionary dictionaryWithObject:kCMISMediaTypeEntry forKey:@"Content-type"]
-                                                            cmisRequest:request
-                             completionBlock:^(CMISHttpResponse *httpResponse, NSError *error) {
-                                 if (httpResponse) {
-                                     // Object id and changeToken might have changed because of this operation
-                                     CMISAtomEntryParser *atomEntryParser = [[CMISAtomEntryParser alloc] initWithData:httpResponse.data];
-                                     NSError *error = nil;
-                                     if ([atomEntryParser parseAndReturnError:&error]) {
-                                         objectIdParam.outParameter = [[atomEntryParser.objectData.properties propertyForId:kCMISPropertyObjectId] firstValue];
-                                         
-                                         if (changeTokenParam != nil) {
-                                             changeTokenParam.outParameter = [[atomEntryParser.objectData.properties propertyForId:kCMISPropertyChangeToken] firstValue];
-                                         }
-                                     }
-                                     completionBlock(nil);
-                                 } else {
-                                     completionBlock([CMISErrors cmisError:error cmisErrorCode:kCMISErrorCodeConnection]);
-                                 }
-                             } ];
+                         if (objectData == nil) {
+                             completionBlock([CMISErrors cmisError:error cmisErrorCode:kCMISErrorCodeConnection]);
+                         }
+                         else {
+                             // update the out parameter as the objectId may have changed
+                             objectIdParam.outParameter = [[objectData.properties propertyForId:kCMISPropertyObjectId] firstValue];
+                             if (changeTokenParam != nil) {
+                                 changeTokenParam.outParameter = [[objectData.properties propertyForId:kCMISPropertyChangeToken] firstValue];
+                             }
+                             completionBlock(nil);
+                         }
                      }];
     }];
     return request;
