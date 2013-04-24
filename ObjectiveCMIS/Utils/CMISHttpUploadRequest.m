@@ -90,10 +90,8 @@ const NSUInteger kRawBufferSize = 24576;
 @property (nonatomic, strong) NSOutputStream * encoderStream;
 @property (nonatomic, strong) NSData * streamStartData;
 @property (nonatomic, strong) NSData * streamEndData;
-@property (nonatomic, strong) NSMutableData * residualDataBuffer;
 @property (nonatomic, assign) unsigned long long encodedLength;
-@property (nonatomic, assign, readwrite) const uint8_t *    buffer;
-@property (nonatomic, assign, readwrite) uint8_t *          bufferOnHeap;
+@property (nonatomic, strong) NSData                    *   dataBuffer;
 @property (nonatomic, assign, readwrite) size_t             bufferOffset;
 @property (nonatomic, assign, readwrite) size_t             bufferLimit;
 
@@ -339,10 +337,6 @@ totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite
                     self.streamStartData = nil;
                     self.bufferOffset = 0;
                     self.bufferLimit = 0;
-                    self.bufferOnHeap = malloc(kFullBufferSize);
-                    if (NULL != self.bufferOnHeap) {
-                        self.buffer = self.bufferOnHeap;
-                    }
                 }
                 if (self.inputStream != nil) {
                     NSInteger rawBytesRead;
@@ -353,24 +347,16 @@ totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite
                     }
                     else if (0 != rawBytesRead){
                         NSData *encodedBuffer = [CMISBase64Encoder dataByEncodingText:[NSData dataWithBytes:rawBuffer length:rawBytesRead]];
-                        NSUInteger encodedLength = (encodedBuffer.length <= kFullBufferSize) ? encodedBuffer.length : kFullBufferSize;
-                        if (encodedBuffer.length > kFullBufferSize) {
-                            NSLog(@"encoded buffer length is %d but we should only have %d", encodedBuffer.length, kFullBufferSize);
-                        }
-                        [encodedBuffer getBytes:self.bufferOnHeap length:encodedLength];
+                        self.dataBuffer = [NSData dataWithData:encodedBuffer];
                         self.bufferOffset = 0;
-                        self.bufferLimit = encodedLength;
+                        self.bufferLimit = encodedBuffer.length;
                     }
                     else{
                         [self.inputStream close];
                         self.inputStream = nil;
-                        if (self.bufferOnHeap != NULL) {
-                            free(self.bufferOnHeap);
-                        }
-                        self.bufferOnHeap = NULL;
-                        self.buffer = [self.streamEndData bytes];
                         self.bufferOffset = 0;
                         self.bufferLimit = self.streamEndData.length;
+                        self.dataBuffer = [NSData dataWithData:self.streamEndData];
                     }
                     if ((self.bufferLimit == self.bufferOffset) && self.encoderStream != nil) {
                         self.encoderStream.delegate = nil;
@@ -385,8 +371,11 @@ totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite
                 
             }
             if (self.bufferOffset != self.bufferLimit) {
+                NSUInteger length = self.dataBuffer.length;
+                uint8_t buffer[length];
+                [self.dataBuffer getBytes:buffer length:length];
                 NSInteger bytesWritten;
-                bytesWritten = [self.encoderStream write:&self.buffer[self.bufferOffset] maxLength:self.bufferLimit - self.bufferOffset];
+                bytesWritten = [self.encoderStream write:&buffer[self.bufferOffset] maxLength:self.bufferLimit - self.bufferOffset];
                 if (bytesWritten <= 0) {
                     [self stopSendWithStatus:@"Network write error"];
                 }
@@ -420,9 +409,8 @@ totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite
     
     NSString *start = [NSString stringWithFormat:@"%@%@", xmlStart, xmlContentStart];
     self.streamStartData = [NSMutableData dataWithData:[start dataUsingEncoding:NSUTF8StringEncoding]];
-    self.buffer = [self.streamStartData bytes];
     self.bufferLimit = self.streamStartData.length;
-    self.bufferOnHeap = NULL;
+    self.dataBuffer = [NSData dataWithData:self.streamStartData];
     
     NSString *xmlContentEnd = [writer xmlContentEndElement];
     NSString *xmlProperties = [writer xmlPropertiesElements];
@@ -470,13 +458,9 @@ totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite
 {
     if(nil != statusString)
         CMISLogDebug([NSString stringWithFormat:@"Upload request terminated: Message is %@", statusString]);
-    if (self.bufferOnHeap) {
-        free(self.bufferOnHeap);
-        self.bufferOnHeap = NULL;
-    }
-    self.buffer = NULL;
     self.bufferOffset = 0;
     self.bufferLimit  = 0;
+    self.dataBuffer = nil;
     if (self.connection != nil) {
         [self.connection cancel];
         self.connection = nil;

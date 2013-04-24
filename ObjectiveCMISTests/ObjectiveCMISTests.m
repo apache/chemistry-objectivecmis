@@ -664,7 +664,7 @@
             // Get all the versions of the document
             [document retrieveAllVersionsWithCompletionBlock:^(CMISCollection *allVersionsOfDocument, NSError *error) {
                 STAssertNil(error, @"Error while retrieving all versions of document : %@", [error description]);
-                STAssertTrue(allVersionsOfDocument.items.count == 6, @"Expected 6 versions of document, but was %d", allVersionsOfDocument.items.count);
+                STAssertTrue(allVersionsOfDocument.items.count >= 5, @"Expected at least 5 versions of document, but was %d", allVersionsOfDocument.items.count);
                 
                 // Print out the version labels and verify them, while also verifying that they are ordered by creation date, descending
                 NSDate *previousModifiedDate = document.lastModificationDate;
@@ -1612,7 +1612,7 @@
 {
     [self runTest:^ {
          // Fetch test document
-         NSString *path = [NSString stringWithFormat:@"%@ios-test/test-word-doc.docx", self.rootFolder.path];
+         NSString *path = [NSString stringWithFormat:@"%@ios-test/millenium-dome-exif.jpg", self.rootFolder.path];
          CMISOperationContext *operationContext = [CMISOperationContext defaultOperationContext];
          operationContext.renditionFilterString = @"*";
          [self.session retrieveObjectByPath:path operationContext:operationContext completionBlock:^(CMISObject *object, NSError *error) {
@@ -1662,7 +1662,7 @@
 {
     [self runTest:^ {
          // Fetch test document
-         NSString *path = [NSString stringWithFormat:@"%@ios-test/test-word-doc.docx", self.rootFolder.path];
+         NSString *path = [NSString stringWithFormat:@"%@ios-test/millenium-dome-exif.jpg", self.rootFolder.path];
          CMISOperationContext *operationContext = [CMISOperationContext defaultOperationContext];
          operationContext.renditionFilterString = @"*";
          [self.session retrieveObjectByPath:path operationContext:operationContext completionBlock:^(CMISObject *object, NSError *error) {
