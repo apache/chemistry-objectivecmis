@@ -71,10 +71,12 @@
     if ([authenticationMethod isEqualToString:NSURLAuthenticationMethodClientCertificate] && self.credential.identity) {
         return YES; // client certificat requested and certificate identity available
     }
+    if ([authenticationMethod isEqualToString:NSURLAuthenticationMethodServerTrust]) {
+        return YES;
+    }
     if ([authenticationMethod isEqualToString:NSURLAuthenticationMethodHTTPBasic] && self.credential.user && self.credential.hasPassword) {
         return YES; // basic authentication requested and username & password available
     }
-    
     return NO;
 }
 
@@ -99,6 +101,9 @@
         } else if (challenge.proposedCredential) {
             CMISLogDebug(@"Authenticating with proposed credential");
             [challenge.sender useCredential:challenge.proposedCredential forAuthenticationChallenge:challenge];
+        } else if([challenge.protectionSpace.authenticationMethod isEqualToString:NSURLAuthenticationMethodServerTrust]){
+            [challenge.sender useCredential:[NSURLCredential credentialForTrust:challenge.protectionSpace.serverTrust] forAuthenticationChallenge:challenge];
+            [challenge.sender continueWithoutCredentialForAuthenticationChallenge:challenge];
         } else {
             CMISLogDebug(@"Authenticating without credential");
             [challenge.sender continueWithoutCredentialForAuthenticationChallenge:challenge];

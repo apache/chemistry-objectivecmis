@@ -69,7 +69,7 @@
         urlString = [NSString stringWithFormat:@"%@&returnVersion=%@", urlString, returnVersionParam];
     }
 
-    return [NSURL URLWithString:[urlString stringByAddingPercentEscapesUsingEncoding:NSASCIIStringEncoding]];
+    return [NSURL URLWithString:[urlString stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
 }
 
 @end

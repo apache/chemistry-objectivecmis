@@ -27,7 +27,7 @@ static char *alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz012
 
 +(NSString *)stringByEncodingText:(NSData *)plainText
 {
-    NSString *result = [[NSString alloc] initWithData:[self dataByEncodingText:plainText] encoding:NSASCIIStringEncoding];
+    NSString *result = [[NSString alloc] initWithData:[self dataByEncodingText:plainText] encoding:NSUTF8StringEncoding];
     return result;
 }
 

@@ -41,7 +41,7 @@
     // Append param
     [result appendString:parameterName];
     [result appendString:@"="];
-    [result appendString:[parameterValue stringByAddingPercentEscapesUsingEncoding:NSASCIIStringEncoding]];
+    [result appendString:[parameterValue stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
 
     return result;
 }
