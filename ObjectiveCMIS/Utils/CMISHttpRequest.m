@@ -47,6 +47,7 @@ NSString * const kCMISExceptionVersioning              = @"versioning";
                      requestBody:(NSData*)requestBody
                          headers:(NSDictionary*)additionalHeaders
           authenticationProvider:(id<CMISAuthenticationProvider>) authenticationProvider
+                trustedSSLServer:(BOOL)trustedSSLServer
                  completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))completionBlock
 {
     CMISHttpRequest *httpRequest = [[self alloc] initWithHttpMethod:httpRequestMethod
@@ -54,7 +55,7 @@ NSString * const kCMISExceptionVersioning              = @"versioning";
     httpRequest.requestBody = requestBody;
     httpRequest.additionalHeaders = additionalHeaders;
     httpRequest.authenticationProvider = authenticationProvider;
-    
+    httpRequest.trustedSSLServer = trustedSSLServer;
     if ([httpRequest startRequest:urlRequest] == NO) {
         httpRequest = nil;
     }
@@ -126,7 +127,14 @@ NSString * const kCMISExceptionVersioning              = @"versioning";
 
 - (BOOL)connection:(NSURLConnection *)connection canAuthenticateAgainstProtectionSpace:(NSURLProtectionSpace *)protectionSpace
 {
-    return [self.authenticationProvider canAuthenticateAgainstProtectionSpace:(NSURLProtectionSpace *)protectionSpace];
+    if ([protectionSpace.authenticationMethod isEqualToString:NSURLAuthenticationMethodServerTrust] && !self.trustedSSLServer)
+    {
+            return NO;
+    }
+    else
+    {
+        return [self.authenticationProvider canAuthenticateAgainstProtectionSpace:(NSURLProtectionSpace *)protectionSpace];        
+    }    
 }
 
 
@@ -138,6 +146,11 @@ NSString * const kCMISExceptionVersioning              = @"versioning";
 
 - (void)connection:(NSURLConnection *)connection didReceiveAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge
 {
+    if ([challenge.protectionSpace.authenticationMethod isEqualToString:NSURLAuthenticationMethodServerTrust] && !self.trustedSSLServer)
+    {
+        [challenge.sender cancelAuthenticationChallenge:challenge];
+        return;
+    }
     [self.authenticationProvider didReceiveAuthenticationChallenge:challenge];
 }
 

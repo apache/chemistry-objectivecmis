@@ -25,6 +25,9 @@ NSString * const kCMISSessionParameterLinkCacheSize =@"session_param_cache_size_
 
 NSString * const kCMISSessionParameterMode = @"session_param_mode";
 
+
+NSString * const kCMISSessionTrustedSSLServerFlag = @"session_param_trusted_ssl_server_flag";
+
 @interface CMISSessionParameters ()
 @property (nonatomic, assign, readwrite) CMISBindingType bindingType;
 @property (nonatomic, strong, readwrite) NSMutableDictionary *sessionData;

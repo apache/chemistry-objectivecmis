@@ -116,6 +116,7 @@ const NSUInteger kRawBufferSize = 24576;
                                headers:(NSDictionary*)additionalHeaders
                          bytesExpected:(unsigned long long)bytesExpected
                 authenticationProvider:(id<CMISAuthenticationProvider>) authenticationProvider
+                      trustedSSLServer:(BOOL)trustedSSLServer
                        completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))completionBlock
                          progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal))progressBlock
 {
@@ -129,6 +130,7 @@ const NSUInteger kRawBufferSize = 24576;
     httpRequest.base64Encoding = NO;
     httpRequest.base64InputStream = nil;
     httpRequest.encoderStream = nil;
+    httpRequest.trustedSSLServer = trustedSSLServer;
     
     if ([httpRequest startRequest:urlRequest] == NO) {
         httpRequest = nil;
@@ -145,6 +147,7 @@ const NSUInteger kRawBufferSize = 24576;
 authenticationProvider:(id<CMISAuthenticationProvider>) authenticationProvider
     cmisProperties:(CMISProperties *)cmisProperties
           mimeType:(NSString *)mimeType
+  trustedSSLServer:(BOOL)trustedSSLServer
    completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))completionBlock
      progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal))progressBlock
 {
@@ -157,6 +160,7 @@ authenticationProvider:(id<CMISAuthenticationProvider>) authenticationProvider
     httpRequest.bytesExpected = bytesExpected;
     httpRequest.base64Encoding = YES;
     httpRequest.authenticationProvider = authenticationProvider;
+    httpRequest.trustedSSLServer = trustedSSLServer;
     
     [httpRequest prepareStreams];
     [httpRequest prepareXMLWithCMISProperties:cmisProperties mimeType:mimeType];

@@ -40,6 +40,7 @@
                             outputStream:(NSOutputStream*)outputStream
                            bytesExpected:(unsigned long long)bytesExpected
                   authenticationProvider:(id<CMISAuthenticationProvider>) authenticationProvider
+                        trustedSSLServer:(BOOL)trustedSSLServer
                          completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))completionBlock
                            progressBlock:(void (^)(unsigned long long bytesDownloaded, unsigned long long bytesTotal))progressBlock
 {
@@ -49,6 +50,7 @@
     httpRequest.outputStream = outputStream;
     httpRequest.bytesExpected = bytesExpected;
     httpRequest.authenticationProvider = authenticationProvider;
+    httpRequest.trustedSSLServer = trustedSSLServer;
     
     if ([httpRequest startRequest:urlRequest] == NO) {
         httpRequest = nil;
