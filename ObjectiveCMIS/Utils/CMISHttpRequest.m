@@ -132,7 +132,7 @@ NSString * const kCMISExceptionVersioning              = @"versioning";
  */
 - (BOOL)connection:(NSURLConnection *)connection canAuthenticateAgainstProtectionSpace:(NSURLProtectionSpace *)protectionSpace
 {
-    BOOL isTrusted = (self.trustedSSLServer && [[self.requestURL absoluteString] hasSuffix:protectionSpace.host]);
+    BOOL isTrusted = (self.trustedSSLServer && [[self.requestURL host] isEqualToString:protectionSpace.host]);
     if ([protectionSpace.authenticationMethod isEqualToString:NSURLAuthenticationMethodServerTrust] && !isTrusted)
     {
             return NO;
@@ -156,7 +156,7 @@ NSString * const kCMISExceptionVersioning              = @"versioning";
  */
 - (void)connection:(NSURLConnection *)connection didReceiveAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge
 {
-    BOOL isTrusted = (self.trustedSSLServer && [[self.requestURL absoluteString] hasSuffix:challenge.protectionSpace.host]);
+    BOOL isTrusted = (self.trustedSSLServer && [[self.requestURL host] isEqualToString:challenge.protectionSpace.host]);
     if ([challenge.protectionSpace.authenticationMethod isEqualToString:NSURLAuthenticationMethodServerTrust] && !isTrusted)
     {
         [challenge.sender cancelAuthenticationChallenge:challenge];
