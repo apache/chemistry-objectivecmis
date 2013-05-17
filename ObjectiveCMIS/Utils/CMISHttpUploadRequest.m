@@ -116,7 +116,7 @@ const NSUInteger kRawBufferSize = 24576;
                                headers:(NSDictionary*)additionalHeaders
                          bytesExpected:(unsigned long long)bytesExpected
                 authenticationProvider:(id<CMISAuthenticationProvider>) authenticationProvider
-                      trustedSSLServer:(BOOL)trustedSSLServer
+                      useTrustedSSLServer:(BOOL)trustedSSLServer
                        completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))completionBlock
                          progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal))progressBlock
 {
@@ -147,7 +147,7 @@ const NSUInteger kRawBufferSize = 24576;
 authenticationProvider:(id<CMISAuthenticationProvider>) authenticationProvider
     cmisProperties:(CMISProperties *)cmisProperties
           mimeType:(NSString *)mimeType
-  trustedSSLServer:(BOOL)trustedSSLServer
+  useTrustedSSLServer:(BOOL)trustedSSLServer
    completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))completionBlock
      progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal))progressBlock
 {

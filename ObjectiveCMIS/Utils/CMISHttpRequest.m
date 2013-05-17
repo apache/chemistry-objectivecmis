@@ -47,7 +47,7 @@ NSString * const kCMISExceptionVersioning              = @"versioning";
                      requestBody:(NSData*)requestBody
                          headers:(NSDictionary*)additionalHeaders
           authenticationProvider:(id<CMISAuthenticationProvider>) authenticationProvider
-                trustedSSLServer:(BOOL)trustedSSLServer
+             useTrustedSSLServer:(BOOL)trustedSSLServer
                  completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))completionBlock
 {
     CMISHttpRequest *httpRequest = [[self alloc] initWithHttpMethod:httpRequestMethod
@@ -78,6 +78,7 @@ NSString * const kCMISExceptionVersioning              = @"versioning";
 
 - (BOOL)startRequest:(NSMutableURLRequest*)urlRequest
 {
+    self.requestURL = urlRequest.URL;
     if (self.requestBody) {
         if ([CMISLog sharedInstance].logLevel == CMISLogLevelTrace) {
             CMISLogTrace(@"Request body: %@", [[NSString alloc] initWithData:self.requestBody encoding:NSUTF8StringEncoding]);
@@ -124,10 +125,15 @@ NSString * const kCMISExceptionVersioning              = @"versioning";
     }
 }
 
-
+/**
+ In case of SSL self certification: developers need to set the appropriate session parameter flag to mark the SSL server as trusted. If it is, and if the
+ host URL is what we expect, then we pass on the request to the authenticationProvider, which handles all authentication challenges. If not, we return NO.
+ For all other requests, we pass this on to the authenticationProvider
+ */
 - (BOOL)connection:(NSURLConnection *)connection canAuthenticateAgainstProtectionSpace:(NSURLProtectionSpace *)protectionSpace
 {
-    if ([protectionSpace.authenticationMethod isEqualToString:NSURLAuthenticationMethodServerTrust] && !self.trustedSSLServer)
+    BOOL isTrusted = (self.trustedSSLServer && [[self.requestURL absoluteString] hasSuffix:protectionSpace.host]);
+    if ([protectionSpace.authenticationMethod isEqualToString:NSURLAuthenticationMethodServerTrust] && !isTrusted)
     {
             return NO;
     }
@@ -143,10 +149,15 @@ NSString * const kCMISExceptionVersioning              = @"versioning";
     [self.authenticationProvider didCancelAuthenticationChallenge:challenge];
 }
 
-
+/**
+ this method gets called if the canAuthenticateAgainstProtectionSpace call has returned YES previously. For SSL server certificates, we check if the server is trusted
+ (a parameter that developers must set when creating a CMISSession) and the host URL matches the one we actually requested
+ If all this passes, we delegate the handling to the authenticationProvider
+ */
 - (void)connection:(NSURLConnection *)connection didReceiveAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge
 {
-    if ([challenge.protectionSpace.authenticationMethod isEqualToString:NSURLAuthenticationMethodServerTrust] && !self.trustedSSLServer)
+    BOOL isTrusted = (self.trustedSSLServer && [[self.requestURL absoluteString] hasSuffix:challenge.protectionSpace.host]);
+    if ([challenge.protectionSpace.authenticationMethod isEqualToString:NSURLAuthenticationMethodServerTrust] && !isTrusted)
     {
         [challenge.sender cancelAuthenticationChallenge:challenge];
         return;
