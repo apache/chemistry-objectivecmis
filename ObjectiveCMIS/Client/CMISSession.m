@@ -180,7 +180,7 @@
         if (rootFolder != nil && ![rootFolder isKindOfClass:[CMISFolder class]]) {
             completionBlock(nil, [CMISErrors createCMISErrorWithCode:kCMISErrorCodeRuntime detailedDescription:@"Root folder object is not a folder!"]);
         } else {
-            completionBlock((CMISFolder *)rootFolder, nil);
+            completionBlock((CMISFolder *)rootFolder, error);
         }
     }];
 }
@@ -242,7 +242,8 @@
                                              completionBlock([self.objectConverter convertObject:objectData], nil);
                                          } else {
                                              if (error == nil) {
-                                                 error = [[NSError alloc] init]; // TODO: create a proper error object
+                                                 NSError *error = [[NSError alloc] init];
+                                                 error = [CMISErrors cmisError:error cmisErrorCode:kCMISErrorCodeObjectNotFound]; 
                                              }
                                              completionBlock(nil, error);
                                          }
