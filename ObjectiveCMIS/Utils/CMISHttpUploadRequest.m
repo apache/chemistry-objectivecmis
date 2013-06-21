@@ -362,6 +362,11 @@ totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite
                         self.encoderStream.delegate = nil;
                         [self.encoderStream close];
                     }
+                } else if (self.streamEndData != nil) {
+                    self.bufferOffset = 0;
+                    self.bufferLimit = self.streamEndData.length;
+                    self.dataBuffer = [NSData dataWithData:self.streamEndData];
+                    self.streamEndData = nil;
                 }
                 
                 if ((self.bufferOffset == self.bufferLimit) && (self.encoderStream != nil)) {
