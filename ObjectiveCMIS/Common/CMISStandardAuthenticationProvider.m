@@ -63,10 +63,7 @@
     }
 }
 
-/**
- This checks whether a request can be authenticated. It gets called from the CMISHttpRequest. For SSL servers we filter the call directly in HttpRequest.
- So that when we reach this call, we know, the SSL server can be trusted.
- */
+
 - (BOOL)canAuthenticateAgainstProtectionSpace:(NSURLProtectionSpace *)protectionSpace
 {
     // default implementation mimics default NSURLConnectionDelegate behavior
@@ -74,12 +71,10 @@
     if ([authenticationMethod isEqualToString:NSURLAuthenticationMethodClientCertificate] && self.credential.identity) {
         return YES; // client certificat requested and certificate identity available
     }
-    if ([authenticationMethod isEqualToString:NSURLAuthenticationMethodServerTrust]) {
-        return YES;
-    }
     if ([authenticationMethod isEqualToString:NSURLAuthenticationMethodHTTPBasic] && self.credential.user && self.credential.hasPassword) {
         return YES; // basic authentication requested and username & password available
     }
+    
     return NO;
 }
 
@@ -89,10 +84,7 @@
     // nothing to do in the default implementation
 }
 
-/**
- This gets called from CMISHttpRequest. CMISHttpRequest also filters out any unauthorised calls to SSL server. We only get called here, if the SSL server
- is actually trusted.
- */
+
 - (void)didReceiveAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge
 {
     if (challenge.previousFailureCount == 0) {
@@ -107,9 +99,6 @@
         } else if (challenge.proposedCredential) {
             CMISLogDebug(@"Authenticating with proposed credential");
             [challenge.sender useCredential:challenge.proposedCredential forAuthenticationChallenge:challenge];
-        } else if([challenge.protectionSpace.authenticationMethod isEqualToString:NSURLAuthenticationMethodServerTrust]){
-            [challenge.sender useCredential:[NSURLCredential credentialForTrust:challenge.protectionSpace.serverTrust] forAuthenticationChallenge:challenge];
-            [challenge.sender continueWithoutCredentialForAuthenticationChallenge:challenge];
         } else {
             CMISLogDebug(@"Authenticating without credential");
             [challenge.sender continueWithoutCredentialForAuthenticationChallenge:challenge];

@@ -46,13 +46,11 @@ completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))comple
                                                                               session:session];
     if (!cmisRequest.isCancelled)
     {
-        BOOL useTrustedSSLServer = [[session objectForKey:kCMISSessionAllowUntrustedSSLCertificate defaultValue:[NSNumber numberWithBool:NO]] boolValue];
         CMISHttpRequest* request = [CMISHttpRequest startRequest:urlRequest
                                                       httpMethod:httpRequestMethod
                                                      requestBody:body
                                                          headers:additionalHeaders
                                           authenticationProvider:session.authenticationProvider
-                                             useTrustedSSLServer:useTrustedSSLServer
                                                  completionBlock:completionBlock];
         if (request)
         {
@@ -79,16 +77,14 @@ completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))comple
                                                                                httpMethod:httpRequestMethod
                                                                                   session:session];
         
-        BOOL useTrustedSSLServer = [[session objectForKey:kCMISSessionAllowUntrustedSSLCertificate defaultValue:[NSNumber numberWithBool:NO]] boolValue];
         CMISHttpUploadRequest* request = [CMISHttpUploadRequest startRequest:urlRequest
-                                                                  httpMethod:httpRequestMethod
-                                                                 inputStream:inputStream
-                                                                     headers:additionalHeaders
-                                                               bytesExpected:0
-                                                      authenticationProvider:session.authenticationProvider
-                                                         useTrustedSSLServer:useTrustedSSLServer
-                                                             completionBlock:completionBlock
-                                                               progressBlock:nil];
+                                                           httpMethod:httpRequestMethod
+                                                          inputStream:inputStream
+                                                              headers:additionalHeaders
+                                                        bytesExpected:0
+                                               authenticationProvider:session.authenticationProvider
+                                                      completionBlock:completionBlock
+                                                        progressBlock:nil];
         if (request)
         {
             cmisRequest.httpRequest = request;
@@ -116,16 +112,14 @@ completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))comple
                                                                                httpMethod:httpRequestMethod
                                                                                   session:session];
         
-        BOOL useTrustedSSLServer = [[session objectForKey:kCMISSessionAllowUntrustedSSLCertificate defaultValue:[NSNumber numberWithBool:NO]] boolValue];
         CMISHttpUploadRequest* request = [CMISHttpUploadRequest startRequest:urlRequest
-                                                                  httpMethod:httpRequestMethod
-                                                                 inputStream:inputStream
-                                                                     headers:additionalHeaders
-                                                               bytesExpected:bytesExpected
-                                                      authenticationProvider:session.authenticationProvider
-                                                         useTrustedSSLServer:useTrustedSSLServer
-                                                             completionBlock:completionBlock
-                                                               progressBlock:progressBlock];
+                                                           httpMethod:httpRequestMethod
+                                                          inputStream:inputStream
+                                                              headers:additionalHeaders
+                                                        bytesExpected:bytesExpected
+                                               authenticationProvider:session.authenticationProvider
+                                                      completionBlock:completionBlock
+                                                        progressBlock:progressBlock];
         if (request){
             cmisRequest.httpRequest = request;
         }
@@ -154,7 +148,6 @@ completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))comple
                                                                                httpMethod:httpRequestMethod
                                                                                   session:session];
         
-        BOOL useTrustedSSLServer = [[session objectForKey:kCMISSessionAllowUntrustedSSLCertificate defaultValue:[NSNumber numberWithBool:NO]] boolValue];
         CMISHttpUploadRequest* request = [CMISHttpUploadRequest startRequest:urlRequest
                                                                   httpMethod:httpRequestMethod
                                                                  inputStream:inputStream
@@ -163,7 +156,6 @@ completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))comple
                                                       authenticationProvider:session.authenticationProvider
                                                               cmisProperties:cmisProperties
                                                                     mimeType:mimeType
-                                                         useTrustedSSLServer:useTrustedSSLServer
                                                              completionBlock:completionBlock
                                                                progressBlock:progressBlock];
         if (request){
@@ -192,15 +184,13 @@ completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))comple
                                                                                httpMethod:HTTP_GET
                                                                                   session:session];
         
-        BOOL useTrustedSSLServer = [[session objectForKey:kCMISSessionAllowUntrustedSSLCertificate defaultValue:[NSNumber numberWithBool:NO]] boolValue];
         CMISHttpDownloadRequest* request = [CMISHttpDownloadRequest startRequest:urlRequest
-                                                                      httpMethod:httpRequestMethod
-                                                                    outputStream:outputStream
-                                                                   bytesExpected:bytesExpected
-                                                          authenticationProvider:session.authenticationProvider
-                                                             useTrustedSSLServer:useTrustedSSLServer
-                                                                 completionBlock:completionBlock
-                                                                   progressBlock:progressBlock];
+                                                             httpMethod:httpRequestMethod
+                                                           outputStream:outputStream
+                                                          bytesExpected:bytesExpected
+                                                 authenticationProvider:session.authenticationProvider
+                                                        completionBlock:completionBlock
+                                                          progressBlock:progressBlock];
         if (request) {
             cmisRequest.httpRequest = request;
         }
