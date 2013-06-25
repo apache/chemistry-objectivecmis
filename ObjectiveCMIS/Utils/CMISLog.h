@@ -13,15 +13,6 @@
  */
 
 /**
- * Convenience macros
- */
-#define CMISLogError(...)   [[CMISLog sharedInstance] logError:__VA_ARGS__]
-#define CMISLogWarning(...) [[CMISLog sharedInstance] logWarning:__VA_ARGS__]
-#define CMISLogInfo(...)    [[CMISLog sharedInstance] logInfo:__VA_ARGS__]
-#define CMISLogDebug(...)   [[CMISLog sharedInstance] logDebug:__VA_ARGS__]
-#define CMISLogTrace(...)   [[CMISLog sharedInstance] logTrace:__VA_ARGS__]
-
-/**
  * Default logging level
  *
  * The default logging level is Info for release builds and Debug for debug builds.

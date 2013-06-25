@@ -195,7 +195,6 @@ authenticationProvider:(id<CMISAuthenticationProvider>) authenticationProvider
             NSMutableDictionary *headers = [NSMutableDictionary dictionaryWithDictionary:self.additionalHeaders];
             [headers setValue:[NSString stringWithFormat:@"%llu", self.encodedLength] forKey:@"Content-Length"];
             self.additionalHeaders = [NSDictionary dictionaryWithDictionary:headers];
-//            [self.encoderStream open];
         }
     }
     else
@@ -461,8 +460,9 @@ totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite
 
 - (void)stopSendWithStatus:(NSString *)statusString
 {
-    if(nil != statusString)
-        CMISLogDebug([NSString stringWithFormat:@"Upload request terminated: Message is %@", statusString]);
+    if (nil != statusString) {
+        CMISLogDebug(@"Upload request terminated: Message is %@", statusString);
+    }
     self.bufferOffset = 0;
     self.bufferLimit  = 0;
     self.dataBuffer = nil;
