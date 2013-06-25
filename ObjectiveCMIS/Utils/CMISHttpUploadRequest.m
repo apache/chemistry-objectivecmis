@@ -305,6 +305,9 @@ totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite
 {
     switch (eventCode){
         case NSStreamEventOpenCompleted:{
+            if (self.base64InputStream.streamStatus != NSStreamStatusOpen) {
+                [self.base64InputStream open]; // this seems to work around the 'Stream ... is sending an event before being opened' Apple bug
+            }
             if (self.inputStream.streamStatus != NSStreamStatusOpen) {
                 [self.inputStream open];
             }
@@ -313,20 +316,16 @@ totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite
         case NSStreamEventHasBytesAvailable: {
         } break;
         case NSStreamEventHasSpaceAvailable: {
-            /*
-             first we check if we can fill the output stream buffer with data
-             the criteria for that is that bufferOffset equals the buffer limit
-             */
             if (self.base64InputStream) {
                 NSStreamStatus inputStatus = self.base64InputStream.streamStatus;
-                if (inputStatus == NSStreamStatusNotOpen || inputStatus == NSStreamStatusClosed) {
-                    CMISLogDebug(@"*** Base 64 Input Stream is not yet open or closed. The status is %d ***", inputStatus);
+                if (inputStatus == NSStreamStatusClosed) {
+                    CMISLogDebug(@"Base64InputStream %@ is closed", self.base64InputStream);
                 }
                 else if (inputStatus == NSStreamStatusAtEnd){
-                    CMISLogDebug(@"*** Base 64 Input Stream has reached the end ***");
+                    CMISLogDebug(@"Base64InputStream %@ has reached the end", self.base64InputStream);
                 }
                 else if (inputStatus == NSStreamStatusError){
-                    CMISLogDebug(@"Input stream error");
+                    CMISLogDebug(@"Base64InputStream %@ input stream error: %@", self.base64InputStream, self.base64InputStream.streamError);
                     [self stopSendWithStatus:@"Network read error"];
                 }
             }
@@ -357,6 +356,7 @@ totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite
                         self.bufferOffset = 0;
                         self.bufferLimit = self.streamEndData.length;
                         self.dataBuffer = [NSData dataWithData:self.streamEndData];
+                        self.streamEndData = nil;
                     }
                     if ((self.bufferLimit == self.bufferOffset) && self.encoderStream != nil) {
                         self.encoderStream.delegate = nil;
