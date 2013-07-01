@@ -13,14 +13,35 @@
  */
 
 /**
- * Default logging level
+ * Default logging macros and log level
  *
+ * The default logging writes to NSLog.
  * The default logging level is Info for release builds and Debug for debug builds.
- * The recommended way to override the default is to #include this header file in your app's .pch file
+ * The recommended way to override the default is to #import this header file in your app's .pch file
  * and then redefine the CMIS_LOG_LEVEL macro to suit, e.g.
  *     #undef CMIS_LOG_LEVEL
  *     #define CMIS_LOG_LEVEL CMISLogLevelTrace
  */
+#if !defined(CMISLogError)
+    #define CMISLogError(...)   [[CMISLog sharedInstance] logError:__VA_ARGS__]
+#endif
+
+#if !defined(CMISLogWarning)
+    #define CMISLogWarning(...) [[CMISLog sharedInstance] logWarning:__VA_ARGS__]
+#endif
+
+#if !defined(CMISLogInfo)
+    #define CMISLogInfo(...)    [[CMISLog sharedInstance] logInfo:__VA_ARGS__]
+#endif
+
+#if !defined(CMISLogDebug)
+    #define CMISLogDebug(...)   [[CMISLog sharedInstance] logDebug:__VA_ARGS__]
+#endif
+
+#if !defined(CMISLogTrace)
+    #define CMISLogTrace(...)   [[CMISLog sharedInstance] logTrace:__VA_ARGS__]
+#endif
+
 #if !defined(CMIS_LOG_LEVEL)
     #if DEBUG
         #define CMIS_LOG_LEVEL CMISLogLevelDebug
