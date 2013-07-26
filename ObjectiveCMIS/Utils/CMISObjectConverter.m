@@ -328,17 +328,16 @@
                               completionBlock:completionBlock];
         
     } else {
-        [self.session.binding.repositoryService
-         retrieveTypeDefinition:objectTypeId
-         completionBlock:^(CMISTypeDefinition *typeDefinition, NSError *error) {
-             if (error) {
-                 completionBlock(nil, [CMISErrors cmisError:error cmisErrorCode:kCMISErrorCodeRuntime]);
-             } else {
-                 [self internalNormalConvertProperties:properties
-                                        typeDefinition:typeDefinition
-                                       completionBlock:completionBlock];
-             }
-         }];
+        [self.session retrieveTypeDefinition:objectTypeId
+                             completionBlock:^(CMISTypeDefinition *typeDefinition, NSError *error) {
+                                 if (error) {
+                                     completionBlock(nil, [CMISErrors cmisError:error cmisErrorCode:kCMISErrorCodeRuntime]);
+                                 } else {
+                                     [self internalNormalConvertProperties:properties
+                                                            typeDefinition:typeDefinition
+                                                           completionBlock:completionBlock];
+                                 }
+                             }];
     }
 }
 

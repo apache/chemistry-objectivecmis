@@ -38,6 +38,7 @@
 @property (nonatomic, assign, readwrite, getter = isAuthenticated) BOOL authenticated;
 @property (nonatomic, strong, readwrite) id<CMISBinding> binding;
 @property (nonatomic, strong, readwrite) CMISRepositoryInfo *repositoryInfo;
+@property (nonatomic, strong, readwrite) NSMutableDictionary *typeCache;
 // Returns a CMISSession using the given session parameters.
 - (id)initWithSessionParameters:(CMISSessionParameters *)sessionParameters;
 
@@ -115,6 +116,8 @@
         } else { //default
             self.objectConverter = [[CMISObjectConverter alloc] initWithSession:self];
         }
+        
+        self.typeCache = [[NSMutableDictionary alloc] init];
     
         // TODO: setup locale
         // TODO: setup default session parameters
@@ -252,7 +255,18 @@
 
 - (CMISRequest*)retrieveTypeDefinition:(NSString *)typeId completionBlock:(void (^)(CMISTypeDefinition *typeDefinition, NSError *error))completionBlock
 {
-    return [self.binding.repositoryService retrieveTypeDefinition:typeId completionBlock:completionBlock];
+    CMISTypeDefinition *typeDefinition = [self.typeCache objectForKey:typeId];
+    if (typeDefinition) {
+        completionBlock(typeDefinition, nil);
+        return nil;
+    }
+    
+    return [self.binding.repositoryService retrieveTypeDefinition:typeId completionBlock:^(CMISTypeDefinition *typeDefinition, NSError *error) {
+        if (typeDefinition) {
+            [self.typeCache setObject:typeDefinition forKey:typeId];
+        }
+        completionBlock(typeDefinition, error);
+    }];
 }
 
 - (CMISRequest*)query:(NSString *)statement searchAllVersions:(BOOL)searchAllVersion completionBlock:(void (^)(CMISPagedResult *pagedResult, NSError *error))completionBlock
