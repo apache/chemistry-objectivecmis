@@ -70,12 +70,21 @@
 
 - (NSString *)xmlStartElement
 {
-    return [NSString stringWithFormat:
-                                   @"<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
-                                   "<entry xmlns=\"http://www.w3.org/2005/Atom\" xmlns:cmis=\"http://docs.oasis-open.org/ns/cmis/core/200908/\" xmlns:cmisra=\"http://docs.oasis-open.org/ns/cmis/restatom/200908/\"  >"
-                                   "<id>urn:uuid:00000000-0000-0000-0000-00000000000</id>"
-                                   "<title>%@</title>",
-                                   [self.cmisProperties propertyValueForId:kCMISPropertyName]];
+    NSString *startElement = @"<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+                            "<entry xmlns=\"http://www.w3.org/2005/Atom\" xmlns:cmis=\"http://docs.oasis-open.org/ns/cmis/core/200908/\" xmlns:cmisra=\"http://docs.oasis-open.org/ns/cmis/restatom/200908/\"  >"
+                            "<id>urn:uuid:00000000-0000-0000-0000-00000000000</id>";
+    NSString *namePropertyValue = [self.cmisProperties propertyValueForId:kCMISPropertyName];
+    
+    // Determine format of title element depending on nil status of namePropertyValue
+    if (nil != namePropertyValue)
+    {
+        startElement = [startElement stringByAppendingFormat:@"<title>%@</title>", namePropertyValue];
+    }
+    else
+    {
+        startElement = [startElement stringByAppendingString:@"<title/>"];
+    }
+    return startElement;
 }
 
 - (NSString *)xmlContentStartElement
