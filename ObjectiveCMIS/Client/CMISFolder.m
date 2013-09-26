@@ -96,8 +96,11 @@
                                                  result.hasMoreItems = objectList.hasMoreItems;
                                                  result.numItems = objectList.numItems;
                                              
-                                                 result.resultArray = [self.session.objectConverter convertObjects:objectList.objects].items;
-                                                 pageBlockCompletionBlock(result, nil);
+                                                 [self.session.objectConverter convertObjects:objectList.objects
+                                                                              completionBlock:^(NSArray *objects, NSError *error) {
+                                                     result.resultArray = objects;
+                                                     pageBlockCompletionBlock(result, error);
+                                                 }];
                                              }
                                          }];
     };

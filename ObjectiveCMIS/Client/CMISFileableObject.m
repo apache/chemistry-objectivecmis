@@ -40,13 +40,10 @@
                                      includeAllowableActions:operationContext.includeAllowableActions
                                   includeRelativePathSegment:operationContext.includePathSegments
                                              completionBlock:^(NSArray *parentObjectDataArray, NSError *error) {
-                                                 NSMutableArray *parentFolders = [NSMutableArray array];
-                                                 for (CMISObjectData *parentObjectData in parentObjectDataArray){
-                                                     [parentFolders addObject:[self.session.objectConverter convertObject:parentObjectData]];
-                                                 }
-                                                 
-                                                 completionBlock(parentFolders, error);
-                                                 
+                                                 [self.session.objectConverter convertObjects:parentObjectDataArray
+                                                                              completionBlock:^(NSArray *objects, NSError *error) {
+                                                                                  completionBlock(objects, error);
+                                                                              }];
                                              }];
 }
 

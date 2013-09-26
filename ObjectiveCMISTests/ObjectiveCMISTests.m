@@ -353,7 +353,7 @@
                         NSError *fileError = nil;
                         NSDictionary *fileAttributes = [[NSFileManager defaultManager] attributesOfItemAtPath:filePath error:&fileError];
                         STAssertNil(fileError, @"Could not verify attributes of file %@: %@", filePath, [fileError description]);
-                        STAssertTrue([fileAttributes fileSize] > 10, @"Expected a file of at least 10 bytes, but found one of %d bytes", [fileAttributes fileSize]);
+                        STAssertTrue([fileAttributes fileSize] >= 10, @"Expected a file of at least 10 bytes, but found one of %d bytes", [fileAttributes fileSize]);
                         
                         // Nice boys clean up after themselves
                         [[NSFileManager defaultManager] removeItemAtPath:filePath error:&fileError];

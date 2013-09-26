@@ -76,7 +76,10 @@
                    CMISLogError(@"Error while retrieving all versions: %@", error.description);
                    completionBlock(nil, [CMISErrors cmisError:error cmisErrorCode:kCMISErrorCodeRuntime]);
                } else {
-                   completionBlock([self.session.objectConverter convertObjects:objects], nil);
+                   [self.session.objectConverter convertObjects:objects
+                                                completionBlock:^(NSArray *objects, NSError *error) {
+                                                    completionBlock([[CMISCollection alloc] initWithItems:objects], error);
+                                                }];
                }
            }];
 }
@@ -142,7 +145,10 @@
             if (error) {
                 completionBlock(nil, [CMISErrors cmisError:error cmisErrorCode:kCMISErrorCodeRuntime]);
             } else {
-                completionBlock((CMISDocument *) [self.session.objectConverter convertObject:objectData], nil);
+                [self.session.objectConverter convertObject:objectData
+                                            completionBlock:^(CMISObject *object, NSError *error) {
+                                                completionBlock((CMISDocument *)object, error);
+                                            }];
             }
         }];
 }

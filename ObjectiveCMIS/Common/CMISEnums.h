@@ -134,6 +134,14 @@ typedef enum
     CMISDelete,  // default
 } CMISUnfileObject;
 
+// ContentStreamAllowed
+typedef enum
+{
+    CMISContentStreamNotAllowed,
+    CMISContentStreamAllowed,
+    CMISContentStreamRequired
+} CMISContentStreamAllowedType;
+
 @interface CMISEnums : NSObject 
 
 + (NSString *)stringForIncludeRelationShip:(CMISIncludeRelationship)includeRelationship;

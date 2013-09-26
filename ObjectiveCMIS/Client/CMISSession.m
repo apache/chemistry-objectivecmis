@@ -217,9 +217,13 @@
                                             } else {
                                                 CMISObject *object = nil;
                                                 if (objectData) {
-                                                    object = [self.objectConverter convertObject:objectData];
+                                                    [self.objectConverter convertObject:objectData
+                                                                        completionBlock:^(CMISObject *object, NSError *error) {
+                                                                            completionBlock(object, error);
+                                                    }];
+                                                } else {
+                                                    completionBlock(object, nil);
                                                 }
-                                                completionBlock(object, nil);
                                             }
                                         }];
 }
@@ -241,8 +245,11 @@
                                           includeACL:operationContext.includeACLs
                              includeAllowableActions:operationContext.includeAllowableActions
                                      completionBlock:^(CMISObjectData *objectData, NSError *error) {
-                                         if (objectData != nil && error == nil) {
-                                             completionBlock([self.objectConverter convertObject:objectData], nil);
+                                        if (objectData != nil && error == nil) {
+                                            [self.objectConverter convertObject:objectData
+                                                                completionBlock:^(CMISObject *object, NSError *error) {
+                                                                    completionBlock(object, error);
+                                                                }];
                                          } else {
                                              if (error == nil) {
                                                  NSError *error = [[NSError alloc] init];
@@ -368,13 +375,11 @@
                                      result.hasMoreItems = objectList.hasMoreItems;
                                      result.numItems = objectList.numItems;
                                      
-                                     NSMutableArray *resultArray = [[NSMutableArray alloc] init];
-                                     result.resultArray = resultArray;
-                                     for (CMISObjectData *objectData in objectList.objects)
-                                     {
-                                         [resultArray addObject:[self.objectConverter convertObject:objectData]];
-                                     }
-                                     pageBlockCompletionBlock(result, nil);
+                                     [self.objectConverter convertObjects:objectList.objects
+                                                          completionBlock:^(NSArray *objects, NSError *error) {
+                                                              result.resultArray = objects;
+                                                              pageBlockCompletionBlock(result, error);
+                                                          }];
                                  }
                              }];
     };

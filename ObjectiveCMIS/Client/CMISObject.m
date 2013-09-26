@@ -25,6 +25,8 @@
 #import "CMISSession.h"
 #import "CMISRenditionData.h"
 #import "CMISRendition.h"
+#import "CMISLog.h"
+
 
 @interface CMISObject ()
 
@@ -39,6 +41,7 @@
 @property (nonatomic, strong, readwrite) NSDate *lastModificationDate;
 @property (nonatomic, strong, readwrite) NSString *objectType;
 @property (nonatomic, strong, readwrite) NSString *changeToken;
+@property (nonatomic, strong, readwrite) CMISTypeDefinition *typeDefinition;
 
 @property (nonatomic, strong, readwrite) CMISProperties *properties;
 @property (nonatomic, strong, readwrite) CMISAllowableActions *allowableActions;
@@ -88,6 +91,29 @@
     
     return self;
 }
+
+
+- (void)fetchTypeDefinitionWithCompletionBlock:(void (^)(NSError *error))completionBlock
+{
+    if (self.typeDefinition) {
+        if (completionBlock) {
+            completionBlock(nil);
+        }
+    } else {
+        [self.session retrieveTypeDefinition:self.objectType
+                             completionBlock:^(CMISTypeDefinition *typeDefinition, NSError *error) {
+                                 if (error == nil) {
+                                     self.typeDefinition = typeDefinition;
+                                 } else {
+                                     CMISLogError(@"Error while fetching type definiton for object type %@: %@", self.objectType, error.description);
+                                 }
+                                 if (completionBlock) {
+                                     completionBlock(error);
+                                 }
+                             }];
+    }
+}
+
 
 - (NSArray *)nonNilArray:(NSArray *)aArray
 {   // Move to category on NSArray?

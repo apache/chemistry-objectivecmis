@@ -19,6 +19,7 @@
 
 #import "CMISTypeDefinitionAtomEntryParser.h"
 #import "CMISTypeDefinition.h"
+#import "CMISDocumentTypeDefinition.h"
 #import "CMISAtomPubConstants.h"
 #import "CMISConstants.h"
 
@@ -70,7 +71,18 @@
 - (void)parser:(NSXMLParser *)parser didStartElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qName attributes:(NSDictionary *)attributeDict
 {
     if ([elementName isEqualToString:kCMISRestAtomType]) {
-        self.typeDefinition = [[CMISTypeDefinition alloc] init];
+        __block BOOL documentType = NO;
+        [attributeDict enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
+            if ([key hasSuffix:@"type"] && [obj hasSuffix:@"cmisTypeDocumentDefinitionType"]) {
+                documentType = YES;
+            }
+        }];
+        
+        if (documentType) {
+            self.typeDefinition = [[CMISDocumentTypeDefinition alloc] init];
+        } else {
+            self.typeDefinition = [[CMISTypeDefinition alloc] init];
+        }
         self.isParsingTypeDefinition = YES;
     } else if ([elementName isEqualToString:kCMISCorePropertyStringDefinition]
              || [elementName isEqualToString:kCMISCorePropertyIdDefinition]
@@ -156,6 +168,20 @@
     } else if ([elementName isEqualToString:kCMISCoreControllablePolicy]) {
         if (self.isParsingTypeDefinition) {
             self.typeDefinition.controllablePolicy = [self.currentString.lowercaseString isEqualToString:kCMISAtomEntryValueTrue];
+        }
+    } else if ([elementName isEqualToString:kCMISCoreVersionable]) {
+        if (self.isParsingTypeDefinition && [self.typeDefinition isKindOfClass:CMISDocumentTypeDefinition.class]) {
+            ((CMISDocumentTypeDefinition*)self.typeDefinition).versionable = [self.currentString.lowercaseString isEqualToString:kCMISAtomEntryValueTrue];
+        }
+    } else if ([elementName isEqualToString:kCMISCoreContentStreamAllowed]) {
+        if (self.isParsingTypeDefinition && [self.typeDefinition isKindOfClass:CMISDocumentTypeDefinition.class]) {
+            if ([self.currentString isEqualToString:kCMISCoreAllowed]) {
+                ((CMISDocumentTypeDefinition*)self.typeDefinition).contentStreamAllowed = CMISContentStreamAllowed;
+            } else if ([self.currentString isEqualToString:kCMISCoreNotAllowed]) {
+                ((CMISDocumentTypeDefinition*)self.typeDefinition).contentStreamAllowed = CMISContentStreamNotAllowed;
+            } else if ([self.currentString isEqualToString:kCMISCoreRequired]) {
+                ((CMISDocumentTypeDefinition*)self.typeDefinition).contentStreamAllowed = CMISContentStreamRequired;
+            }
         }
     }
 

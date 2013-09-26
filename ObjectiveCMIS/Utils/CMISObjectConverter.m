@@ -45,7 +45,7 @@
     return self;
 }
 
-- (CMISObject *)convertObject:(CMISObjectData *)objectData
+- (void)convertObject:(CMISObjectData *)objectData completionBlock:(void (^)(CMISObject *object, NSError *error))completionBlock
 {
     CMISObject *object = nil;
     
@@ -55,21 +55,41 @@
         object = [[CMISFolder alloc] initWithObjectData:objectData session:self.session];
     }
     
-    return object;
+    [object fetchTypeDefinitionWithCompletionBlock:^(NSError *error) {
+        completionBlock(object, error);
+    }];
 }
 
-- (CMISCollection *)convertObjects:(NSArray *)objects
+
+- (void)internalConvertObject:(NSArray *)objectDatas position:(NSInteger)position completionBlock:(void (^)(NSMutableArray *objects, NSError *error))completionBlock
 {
-    NSMutableArray *items = [[NSMutableArray alloc] initWithCapacity:[objects count]];
-    
-    for (CMISObjectData *object in objects)  {
-        [items addObject:[self convertObject:object]];
+    [self convertObject:[objectDatas objectAtIndex:position]
+        completionBlock:^(CMISObject *object, NSError *error) {
+            if (position == 0) {
+                NSMutableArray *objects = [[NSMutableArray alloc] initWithCapacity:objectDatas.count];
+                [objects addObject:object];
+                completionBlock(objects, error);
+            } else {
+                [self internalConvertObject:objectDatas position:(position - 1) completionBlock:^(NSMutableArray *objects, NSError *error) {
+                    [objects addObject:object];
+                    completionBlock(objects, error);
+                }];
+            }
+        }];
+}
+
+
+- (void)convertObjects:(NSArray *)objectDatas completionBlock:(void (^)(NSArray *objects, NSError *error))completionBlock
+{
+    if (objectDatas.count > 0) {
+        [self internalConvertObject:objectDatas
+                           position:(objectDatas.count - 1) // start recursion with last item
+                    completionBlock:^(NSMutableArray *objects, NSError *error) {
+                        completionBlock(objects, error);
+                    }];
+    } else {
+        completionBlock([[NSArray alloc] init], nil);
     }
-    
-    // create the collection
-    CMISCollection *collection = [[CMISCollection alloc] initWithItems:items];
-    
-    return collection;
 }
 
 

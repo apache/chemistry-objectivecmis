@@ -155,6 +155,10 @@ NSString * const kCMISCoreInherited = @"inherited";
 NSString * const kCMISCoreRequired = @"required";
 NSString * const kCMISCoreOrderable = @"queryable";
 NSString * const kCMISCoreOpenChoice = @"openChoice";
+NSString * const kCMISCoreVersionable = @"versionable";
+NSString * const kCMISCoreContentStreamAllowed = @"contentStreamAllowed";
+NSString * const kCMISCoreAllowed = @"allowed";
+NSString * const kCMISCoreNotAllowed = @"notallowed";
 
 NSString * const kCMISCorePropertyStringDefinition = @"propertyStringDefinition";
 NSString * const kCMISCorePropertyIdDefinition = @"propertyIdDefinition";
