@@ -236,6 +236,14 @@ authenticationProvider:(id<CMISAuthenticationProvider>) authenticationProvider
 totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite
 {
     if (self.progressBlock) {
+        if (self.base64Encoding) {
+            // Show the actual transmitted raw data size to the user, not the base64 encoded size
+            totalBytesWritten = [CMISHttpUploadRequest rawEncodedLength:totalBytesWritten];
+            if (totalBytesWritten > totalBytesExpectedToWrite) {
+                totalBytesWritten = totalBytesExpectedToWrite;
+            }
+        }
+        
         if (self.bytesExpected == 0) {
             self.progressBlock((NSUInteger)totalBytesWritten, (NSUInteger)totalBytesExpectedToWrite);
         } else {
@@ -421,7 +429,7 @@ totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite
     NSString *end = [NSString stringWithFormat:@"%@%@", xmlContentEnd, xmlProperties];
     self.streamEndData = [end dataUsingEncoding:NSUTF8StringEncoding];
     
-    NSUInteger encodedLength = [CMISHttpUploadRequest base64EncodedLength:self.bytesExpected];
+    NSUInteger encodedLength = [CMISHttpUploadRequest base64EncodedLength:(NSUInteger)self.bytesExpected];
     encodedLength += start.length;
     encodedLength += end.length;
     self.encodedLength = encodedLength;
@@ -456,6 +464,17 @@ totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite
     NSUInteger adjustedThirdPartOfSize = (contentSize / 3) + ( (0 == contentSize % 3 ) ? 0 : 1 );
     
     return 4 * adjustedThirdPartOfSize;
+}
+
++ (NSUInteger)rawEncodedLength:(NSUInteger)base64EncodedSize
+{
+    if (0 == base64EncodedSize)
+    {
+        return 0;
+    }
+    NSUInteger adjustedFourthPartOfSize = (base64EncodedSize / 4) + ( (0 == base64EncodedSize % 4 ) ? 0 : 1 );
+    
+    return 3 * adjustedFourthPartOfSize;
 }
 
 - (void)stopSendWithStatus:(NSString *)statusString
