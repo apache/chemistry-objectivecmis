@@ -78,7 +78,7 @@
     // Determine format of title element depending on nil status of namePropertyValue
     if (nil != namePropertyValue)
     {
-        startElement = [startElement stringByAppendingFormat:@"<title>%@</title>", namePropertyValue];
+        startElement = [startElement stringByAppendingFormat:@"<title>%@</title>", [namePropertyValue stringByAddingXMLEntities]];
     }
     else
     {

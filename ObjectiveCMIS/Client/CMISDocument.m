@@ -49,7 +49,7 @@
 {
     self = [super initWithObjectData:objectData session:session];
     if (self){
-        self.contentStreamId = [[objectData.properties.propertiesDictionary objectForKey:kCMISProperyContentStreamId] firstValue];
+        self.contentStreamId = [[objectData.properties.propertiesDictionary objectForKey:kCMISPropertyContentStreamId] firstValue];
         self.contentStreamMediaType = [[objectData.properties.propertiesDictionary objectForKey:kCMISPropertyContentStreamMediaType] firstValue];
         self.contentStreamLength = [[[objectData.properties.propertiesDictionary objectForKey:kCMISPropertyContentStreamLength] firstValue] unsignedLongLongValue];
         self.contentStreamFileName = [[objectData.properties.propertiesDictionary objectForKey:kCMISPropertyContentStreamFileName] firstValue];

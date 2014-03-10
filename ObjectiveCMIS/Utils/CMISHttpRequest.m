@@ -93,8 +93,10 @@ NSString * const kCMISExceptionVersioning              = @"versioning";
         [urlRequest addValue:header forHTTPHeaderField:headerName];
     }];
     
-    self.connection = [NSURLConnection connectionWithRequest:urlRequest delegate:self];
+    self.connection = [[NSURLConnection alloc] initWithRequest:urlRequest delegate:self startImmediately:NO];
     if (self.connection) {
+        [self.connection scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:NSRunLoopCommonModes];
+        [self.connection start];
         return YES;
     } else {
         if (self.completionBlock) {
@@ -168,7 +170,6 @@ NSString * const kCMISExceptionVersioning              = @"versioning";
     }
     
     self.completionBlock = nil;
-    
     self.connection = nil;
 }
 
@@ -188,7 +189,6 @@ NSString * const kCMISExceptionVersioning              = @"versioning";
     }
     
     self.completionBlock = nil;
-    
     self.connection = nil;
 }
 
@@ -274,9 +274,8 @@ NSString * const kCMISExceptionVersioning              = @"versioning";
             }
         }
         return NO;
-    } else {
-        return YES;
     }
+    return YES;
 }
 
 @end

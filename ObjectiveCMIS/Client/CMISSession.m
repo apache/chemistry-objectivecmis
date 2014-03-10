@@ -252,7 +252,6 @@
                                                                 }];
                                          } else {
                                              if (error == nil) {
-                                                 NSError *error = [[NSError alloc] init];
                                                  error = [CMISErrors cmisError:error cmisErrorCode:kCMISErrorCodeObjectNotFound]; 
                                              }
                                              completionBlock(nil, error);

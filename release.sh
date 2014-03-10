@@ -81,9 +81,10 @@ echo "Building static library..."
 BUILD_UNIVERSAL_LIB='TRUE'
 export BUILD_UNIVERSAL_LIB
 xcodebuild -project ObjectiveCMIS.xcodeproj -target ObjectiveCMIS -configuration Debug clean build
+xcodebuild -project ObjectiveCMIS.xcodeproj -target ObjectiveCMIS -configuration Release clean build
 
 cp -R build/Debug-universal/* release-pack/bin
-
+cp build/Release-universal/*.a release-pack/bin
 
 echo "Creating package..."
 

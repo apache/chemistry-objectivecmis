@@ -23,29 +23,47 @@
 #import "CMISDateUtil.h"
 #import "CMISLog.h"
 
+static const NSString *kDateFormatterKey = @"CMISDateFormatter";
+static const NSString *kCalendarKey = @"CMISCalendar";
+
 @implementation CMISDateUtil
 
 + (NSDateFormatter *)CMISDateFormatter
 {
-    static dispatch_once_t predicate = 0;
-      __strong static NSDateFormatter *dateFormatter = nil;
-      dispatch_once(&predicate, ^ {
-          dateFormatter = [[NSDateFormatter alloc] init];
-          dateFormatter.locale = [NSLocale systemLocale];
-          dateFormatter.calendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar]; // ISO8601 calendar not available
-          NSTimeZone *timeZone = [NSTimeZone timeZoneForSecondsFromGMT:0];
-          dateFormatter.calendar.timeZone = timeZone;
-          dateFormatter.timeZone = timeZone;
-          dateFormatter.dateFormat = @"yyyy'-'MM'-'dd'T'HH':'mm':'ss'Z'";
-      });
-      return dateFormatter;
+    NSMutableDictionary *threadDictionary = [[NSThread currentThread] threadDictionary];
+    NSDateFormatter *dateFormatter = [threadDictionary objectForKey:kDateFormatterKey];
+    if (dateFormatter == nil) {
+        dateFormatter = [[NSDateFormatter alloc] init];
+        dateFormatter.locale = [NSLocale systemLocale];
+        dateFormatter.calendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar]; // ISO8601 calendar not available
+        NSTimeZone *timeZone = [NSTimeZone timeZoneForSecondsFromGMT:0];
+        dateFormatter.calendar.timeZone = timeZone;
+        dateFormatter.timeZone = timeZone;
+        dateFormatter.dateFormat = @"yyyy'-'MM'-'dd'T'HH':'mm':'ss'Z'";
+
+        [threadDictionary setObject:dateFormatter forKey:kDateFormatterKey];
+    }
+    return dateFormatter;
+}
+
++ (NSCalendar *)CMISCalendar
+{
+    NSMutableDictionary *threadDictionary = [[NSThread currentThread] threadDictionary];
+    NSCalendar *calendar = [threadDictionary objectForKey:kCalendarKey];
+    if (calendar == nil) {
+        calendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar]; // ISO8601 calendar not available
+        calendar.timeZone = [NSTimeZone timeZoneForSecondsFromGMT:0]; // default for formats without time
+        
+        [threadDictionary setObject:calendar forKey:kCalendarKey];
+    }
+    
+    return calendar;
 }
 
 
-+ (NSString*)stringFromDate:(NSDate*)date
++ (NSString *)stringFromDate:(NSDate *)date
 {
-    NSString *string = [[CMISDateUtil CMISDateFormatter] stringFromDate:date];
-    return string;
+    return [[CMISDateUtil CMISDateFormatter] stringFromDate:date];
 }
 
 
@@ -141,7 +159,7 @@
                     if (![scanner scanString:@":" intoString:nil]) {
                         tzMinute = 0;
                     }
-                    else{
+                    else {
                         if (![scanner scanInteger:&tzMinute]) {
                             CMISLogDebug(@"No timezone minute found in time string '%@'", string);
                             return nil;
@@ -161,14 +179,7 @@
         return nil;
     }
     
-    static NSCalendar *gregorianCalendar = nil;
-    if (gregorianCalendar == nil) {
-        gregorianCalendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar]; // ISO8601 calendar not available
-        gregorianCalendar.timeZone = [NSTimeZone timeZoneForSecondsFromGMT:0]; // default for formats without time
-    }
-
-    NSDate *date = [gregorianCalendar dateFromComponents:components];
-    return date;
+    return [[CMISDateUtil CMISCalendar] dateFromComponents:components];
 }
 
 
