@@ -15,18 +15,35 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-BUILD_UNIVERSAL_LIB='TRUE'
-export BUILD_UNIVERSAL_LIB
+PACKAGE_ZIP=ObjectiveCMIS.zip
+PACKAGE_DIR=build/Package
 
-if [[ "$1" == "Debug" ]] ; then
-   BUILD_CONFIG=Debug
-   echo "Building debug version of universal library..."
-else
-   BUILD_CONFIG=Release
-   echo "Building release version of universal library..."
+echo "Preparing package folder structure..."
+
+if [ -d $PACKAGE_DIR ]
+then
+  rm -R $PACKAGE_DIR
 fi
+mkdir -p $PACKAGE_DIR
 
-xcodebuild -project ObjectiveCMIS.xcodeproj -target ObjectiveCMIS -configuration $BUILD_CONFIG ONLY_ACTIVE_ARCH=NO clean build
+cp NOTICE $PACKAGE_DIR
+cp LICENSE $PACKAGE_DIR
+cp README $PACKAGE_DIR
 
-appledoc --project-name ObjectiveCMIS --project-company "Apache Chemistry" --company-id org.apache.chemistry.opencmis --output ./ObjectiveCMISHelp --keep-intermediate-files --exit-threshold 2 --keep-undocumented-objects --keep-undocumented-members --ignore .m --ignore ObjectiveCMISTests --ignore build .
+echo "Building static library..."
+
+export BUILD_UNIVERSAL_LIB='TRUE'
+xcodebuild -project ObjectiveCMIS.xcodeproj -target ObjectiveCMIS -configuration Debug ONLY_ACTIVE_ARCH=NO clean build
+xcodebuild -project ObjectiveCMIS.xcodeproj -target ObjectiveCMIS -configuration Release clean build
+
+cp -R build/Debug-universal/* $PACKAGE_DIR
+cp build/Release-universal/*.a $PACKAGE_DIR
+
+echo "Creating package..."
+
+pushd $PACKAGE_DIR
+jar cvf $PACKAGE_ZIP *
+popd
+
+echo "done!"
 

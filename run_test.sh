@@ -15,4 +15,37 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-xcodebuild -sdk iphonesimulator -project ObjectiveCMIS.xcode.proj -target ObjectiveCMISTests -configuration Debug clean build
+usage ()
+{
+   echo 
+   echo "usage: run_test [-junit]"
+   echo "  -junit : Pipe output through ocunit2junit to allow Bamboo to parse test results"
+   echo
+   exit 1
+}
+
+# check parameters
+for param in $*
+do
+   if [[ "$param" == "-junit" ]] ; then
+      JUNIT_FLAG="true"
+   else
+      # no other parameters supported
+      usage
+   fi
+done
+
+# remove previous test reports
+if [[ -d test-reports ]] ; then
+  echo "Removing previous test-reports folder..."
+  rm -R test-reports
+fi
+
+BUILD_OPTS=(test -scheme ObjectiveCMIS -destination OS=7.0,name="iPhone Retina (4-inch 64-bit)")
+
+if [[ "$JUNIT_FLAG" == "true" ]] ; then
+   echo "Tests are running, output is being piped to ocunit2junit, results will appear soon..."
+   xcodebuild "${BUILD_OPTS[@]}" 2>&1 | ocunit2junit
+else
+   xcodebuild "${BUILD_OPTS[@]}"
+fi
