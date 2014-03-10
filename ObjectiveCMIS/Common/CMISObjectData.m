@@ -18,7 +18,6 @@
  */
 
 #import "CMISObjectData.h"
-#import "CMISRenditionData.h"
 
 @implementation CMISObjectData
 

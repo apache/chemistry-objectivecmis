@@ -29,7 +29,6 @@
 #import "CMISRequest.h"
 #import "CMISPagedResult.h"
 #import "CMISTypeDefinition.h"
-#import "CMISNetworkProvider.h"
 #import "CMISDefaultNetworkProvider.h"
 #import "CMISLog.h"
 
@@ -42,7 +41,7 @@
 // Returns a CMISSession using the given session parameters.
 - (id)initWithSessionParameters:(CMISSessionParameters *)sessionParameters;
 
-// Authenticates using the CMISSessionParameters and returns if the authentication was succesful
+// Authenticates using the CMISSessionParameters and returns if the authentication was successful
 - (CMISRequest*)authenticateWithCompletionBlock:(void (^)(CMISSession *session, NSError * error))completionBlock;
 @end
 

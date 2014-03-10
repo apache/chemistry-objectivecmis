@@ -50,8 +50,8 @@ NSString * const kCMISSessionParameterMode = @"session_param_mode";
 
 - (NSString *)description
 {
-    return [NSString stringWithFormat:@"bindingType: %u, username: %@, password: %@, atomPubUrl: %@",
-            self.bindingType, self.username, self.password, self.atomPubUrl];
+    return [NSString stringWithFormat:@"bindingType: %li, username: %@, password: %@, atomPubUrl: %@",
+            (long)self.bindingType, self.username, self.password, self.atomPubUrl];
 }
 
 - (NSArray *)allKeys

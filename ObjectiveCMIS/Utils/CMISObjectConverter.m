@@ -17,7 +17,6 @@
   under the License.
  */
 
-#import <Foundation/Foundation.h>
 #import "CMISObjectConverter.h"
 #import "CMISDocument.h"
 #import "CMISFolder.h"
@@ -25,7 +24,6 @@
 #import "CMISErrors.h"
 #import "CMISPropertyDefinition.h"
 #import "CMISSession.h"
-#import "CMISConstants.h"
 #import "CMISDateUtil.h"
 
 @interface CMISObjectConverter ()
@@ -294,7 +292,7 @@
                 }
                 default: {
                     NSError *error = [CMISErrors createCMISErrorWithCode:kCMISErrorCodeInvalidArgument
-                                                 detailedDescription:[NSString stringWithFormat:@"Unsupported: cannot convert property type %d", propertyDefinition.propertyType]];
+                                                 detailedDescription:[NSString stringWithFormat:@"Unsupported: cannot convert property type %li", (long)propertyDefinition.propertyType]];
                     completionBlock(nil, error);
                     return;
                 }

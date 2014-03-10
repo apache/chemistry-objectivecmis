@@ -20,7 +20,7 @@
 #import "CMISAllowableActions.h"
 #import "CMISEnums.h"
 
-#define INT_OBJ(x) [NSNumber numberWithInt:x]
+#define INT_OBJ(x) [NSNumber numberWithInteger:x]
 
 @interface CMISAllowableActions ()
 

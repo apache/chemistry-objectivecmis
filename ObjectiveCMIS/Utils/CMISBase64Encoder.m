@@ -33,14 +33,14 @@ static char *alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz012
 
 + (NSData *)dataByEncodingText:(NSData *)plainText
 {
-    uint encodedLength = (4 * (([plainText length] / 3) + (1 - (3 - ([plainText length] % 3)) / 3)));
+    NSUInteger encodedLength = (4 * (([plainText length] / 3) + (1 - (3 - ([plainText length] % 3)) / 3)));
     NSMutableData *encodedData = [[NSMutableData alloc] initWithLength:encodedLength];
     char *outputBuffer = encodedData.mutableBytes;
     unsigned char *inputBuffer = (unsigned char *) [plainText bytes];
 
     NSInteger i;
     NSInteger j = 0;
-    int remain;
+    NSUInteger remain;
 
     for (i = 0; i < [plainText length]; i += 3) {
         remain = [plainText length] - i;

@@ -58,9 +58,8 @@
         NSString *encodedLoginData = [CMISBase64Encoder stringByEncodingText:[loginString dataUsingEncoding:NSUTF8StringEncoding]];
         NSString *authHeader = [NSString stringWithFormat:@"Basic %@", encodedLoginData];
         return [NSDictionary dictionaryWithObject:authHeader forKey:@"Authorization"];
-    } else {
-        return [NSDictionary dictionary];
     }
+    return [NSDictionary dictionary];
 }
 
 
@@ -69,7 +68,7 @@
     // default implementation mimics default NSURLConnectionDelegate behavior
     NSString *authenticationMethod = protectionSpace.authenticationMethod;
     if ([authenticationMethod isEqualToString:NSURLAuthenticationMethodClientCertificate] && self.credential.identity) {
-        return YES; // client certificat requested and certificate identity available
+        return YES; // client certificate requested and certificate identity available
     }
     if ([authenticationMethod isEqualToString:NSURLAuthenticationMethodHTTPBasic] && self.credential.user && self.credential.hasPassword) {
         return YES; // basic authentication requested and username & password available

@@ -21,7 +21,6 @@
 #import "ObjectiveCMISTests.h"
 #import "CMISSession.h"
 #import "CMISConstants.h"
-#import "CMISDocument.h"
 #import "CMISFileUtil.h"
 #import "CMISAtomLink.h"
 #import "CMISAtomPubConstants.h"

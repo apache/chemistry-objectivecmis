@@ -50,7 +50,7 @@
     httpRequest.bytesExpected = bytesExpected;
     httpRequest.authenticationProvider = authenticationProvider;
     
-    if ([httpRequest startRequest:urlRequest] == NO) {
+    if (![httpRequest startRequest:urlRequest]) {
         httpRequest = nil;
     };
     

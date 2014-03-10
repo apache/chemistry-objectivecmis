@@ -18,8 +18,6 @@
  */
 
 #import "CMISWorkspace.h"
-#import "CMISRepositoryInfo.h"
-#import "CMISSessionParameters.h"
 #import "CMISAtomCollection.h"
 
 @implementation CMISWorkspace

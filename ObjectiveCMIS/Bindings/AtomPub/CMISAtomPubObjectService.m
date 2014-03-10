@@ -22,12 +22,10 @@
 #import "CMISHttpResponse.h"
 #import "CMISAtomEntryWriter.h"
 #import "CMISAtomEntryParser.h"
-#import "CMISConstants.h"
 #import "CMISErrors.h"
 #import "CMISStringInOutParameter.h"
 #import "CMISURLUtil.h"
 #import "CMISFileUtil.h"
-#import "CMISRequest.h"
 #import "CMISLog.h"
 
 @implementation CMISAtomPubObjectService
@@ -311,7 +309,7 @@
                  } else {
                      CMISLogError(@"Invalid http response status code when updating content: %d", httpResponse.statusCode);
                      error = [CMISErrors createCMISErrorWithCode:kCMISErrorCodeRuntime
-                                             detailedDescription:[NSString stringWithFormat:@"Could not update content: http status code %d", httpResponse.statusCode]];
+                                             detailedDescription:[NSString stringWithFormat:@"Could not update content: http status code %li", (long)httpResponse.statusCode]];
                  }
              }
              if (completionBlock) {
@@ -737,7 +735,7 @@
              CMISLogError(@"Error content: %@", [[NSString alloc] initWithData:response.data encoding:NSUTF8StringEncoding]);
              if (completionBlock) {
                  completionBlock(nil, [CMISErrors createCMISErrorWithCode:kCMISErrorCodeRuntime
-                                                  detailedDescription:[NSString stringWithFormat:@"Could not create content: http status code %d", response.statusCode]]);
+                                                  detailedDescription:[NSString stringWithFormat:@"Could not create content: http status code %li", (long)response.statusCode]]);
              }
          }
      }
@@ -821,7 +819,7 @@
                                         CMISLogError(@"Error content: %@", [[NSString alloc] initWithData:response.data encoding:NSUTF8StringEncoding]);
                                         if (completionBlock) {
                                             completionBlock(nil, [CMISErrors createCMISErrorWithCode:kCMISErrorCodeRuntime
-                                                                                 detailedDescription:[NSString stringWithFormat:@"Could not create content: http status code %d", response.statusCode]]);
+                                                                                 detailedDescription:[NSString stringWithFormat:@"Could not create content: http status code %li", (long)response.statusCode]]);
                                         }
                                     }
                                 }

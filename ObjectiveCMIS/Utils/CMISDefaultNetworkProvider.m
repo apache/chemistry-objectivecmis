@@ -13,14 +13,10 @@
  */
 
 #import "CMISDefaultNetworkProvider.h"
-#import "CMISAuthenticationProvider.h"
 #import "CMISErrors.h"
 #import "CMISHttpRequest.h"
 #import "CMISHttpDownloadRequest.h"
 #import "CMISHttpUploadRequest.h"
-#import "CMISRequest.h"
-#import "CMISSessionParameters.h"
-#import "CMISNetworkProvider.h"
 #import "CMISLog.h"
 
 @interface CMISDefaultNetworkProvider ()

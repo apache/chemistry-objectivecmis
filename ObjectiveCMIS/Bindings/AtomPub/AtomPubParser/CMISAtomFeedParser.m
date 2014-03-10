@@ -23,7 +23,7 @@
 @interface CMISAtomFeedParser ()
 @property (nonatomic, strong, readwrite) NSData *feedData;
 @property (nonatomic, strong, readwrite) NSMutableArray *internalEntries;
-@property (readwrite) NSInteger numItems;
+@property (readwrite) int numItems;
 @property (nonatomic, strong, readwrite) NSMutableSet *feedLinkRelations;
 @property (nonatomic, strong, readwrite) id childParserDelegate;
 @property (nonatomic, strong) NSMutableString *string;
@@ -105,7 +105,7 @@
 - (void)parser:(NSXMLParser *)parser didEndElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qName 
 {
     if ([elementName isEqualToString:kCMISAtomFeedNumItems]) {
-        self.numItems = [self.string integerValue];
+        self.numItems = [self.string intValue];
     }
 
     self.string = nil;

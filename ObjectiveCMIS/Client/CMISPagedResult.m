@@ -35,9 +35,9 @@
 
 @property (nonatomic, strong, readwrite) NSArray *resultArray;
 @property (readwrite) BOOL hasMoreItems;
-@property (readwrite) NSInteger numItems;
-@property (readwrite) NSInteger maxItems;
-@property (readwrite) NSInteger skipCount;
+@property (readwrite) int numItems;
+@property (readwrite) int maxItems;
+@property (readwrite) int skipCount;
 
 @property (nonatomic, copy) CMISFetchNextPageBlock fetchNextPageBlock;
 
@@ -53,10 +53,10 @@
 /** Internal init */
 - (id)initWithResultArray:(NSArray *)resultArray
  retrievedUsingFetchBlock:(CMISFetchNextPageBlock)fetchNextPageBlock
-                 numItems:(NSInteger)numItems
+                 numItems:(int)numItems
              hasMoreItems:(BOOL)hasMoreItems
-                 maxItems:(NSInteger)maxItems
-                skipCount:(NSInteger)skipCount;
+                 maxItems:(int)maxItems
+                skipCount:(int)skipCount;
 {
     self = [super init];
     if (self) {
@@ -71,8 +71,8 @@
 }
 
 + (void)pagedResultUsingFetchBlock:(CMISFetchNextPageBlock)fetchNextPageBlock
-                   limitToMaxItems:(NSInteger)maxItems
-                startFromSkipCount:(NSInteger)skipCount
+                   limitToMaxItems:(int)maxItems
+                startFromSkipCount:(int)skipCount
                    completionBlock:(void (^)(CMISPagedResult *result, NSError *error))completionBlock
 {
     // Fetch the first requested page
@@ -95,7 +95,7 @@
 {
     [CMISPagedResult pagedResultUsingFetchBlock:self.fetchNextPageBlock
                                 limitToMaxItems:self.maxItems
-                             startFromSkipCount:(self.skipCount + self.resultArray.count)
+                             startFromSkipCount:(self.skipCount + (int)self.resultArray.count)
                                 completionBlock:completionBlock];
 }
 

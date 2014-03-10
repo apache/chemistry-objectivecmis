@@ -57,19 +57,17 @@ const NSUInteger kRawBufferSize = 24576;
 + (void)createBoundInputStream:(NSInputStream **)inputStreamPtr
                   outputStream:(NSOutputStream **)outputStreamPtr
 {
-    CFReadStreamRef     readStream;
-    CFWriteStreamRef    writeStream;
+    CFReadStreamRef readStream;
+    CFWriteStreamRef writeStream;
     
-    assert( (inputStreamPtr != NULL) || (outputStreamPtr != NULL) );
+    assert((inputStreamPtr != NULL) || (outputStreamPtr != NULL));
     
     readStream = NULL;
     writeStream = NULL;
-    CFStreamCreateBoundPair(
-                            NULL,
-                            ((inputStreamPtr  != nil) ? &readStream : NULL),
+    CFStreamCreateBoundPair(NULL,
+                            ((inputStreamPtr != nil) ? &readStream : NULL),
                             ((outputStreamPtr != nil) ? &writeStream : NULL),
-                            (CFIndex) kFullBufferSize
-                            );
+                            (CFIndex)kFullBufferSize);
     
     if (inputStreamPtr != NULL) {
         *inputStreamPtr  = CFBridgingRelease(readStream);
@@ -86,17 +84,17 @@ const NSUInteger kRawBufferSize = 24576;
 @property (nonatomic, assign) unsigned long long bytesUploaded;
 @property (nonatomic, copy) void (^progressBlock)(unsigned long long bytesUploaded, unsigned long long bytesTotal);
 @property (nonatomic, assign) BOOL base64Encoding;
-@property (nonatomic, strong) NSInputStream * base64InputStream;
-@property (nonatomic, strong) NSOutputStream * encoderStream;
-@property (nonatomic, strong) NSData * streamStartData;
-@property (nonatomic, strong) NSData * streamEndData;
+@property (nonatomic, strong) NSInputStream *base64InputStream;
+@property (nonatomic, strong) NSOutputStream *encoderStream;
+@property (nonatomic, strong) NSData *streamStartData;
+@property (nonatomic, strong) NSData *streamEndData;
 @property (nonatomic, assign) unsigned long long encodedLength;
-@property (nonatomic, strong) NSData                    *   dataBuffer;
-@property (nonatomic, assign, readwrite) size_t             bufferOffset;
-@property (nonatomic, assign, readwrite) size_t             bufferLimit;
+@property (nonatomic, strong) NSData *dataBuffer;
+@property (nonatomic, assign, readwrite) size_t bufferOffset;
+@property (nonatomic, assign, readwrite) size_t bufferLimit;
 
 - (void)stopSendWithStatus:(NSString *)statusString;
-+ (NSUInteger)base64EncodedLength:(NSUInteger)contentSize;
++ (unsigned long long)base64EncodedLength:(unsigned long long)contentSize;
 - (void)prepareXMLWithCMISProperties:(CMISProperties *)cmisProperties mimeType:(NSString *)mimeType;
 - (void)prepareStreams;
 
@@ -108,7 +106,6 @@ const NSUInteger kRawBufferSize = 24576;
 
 
 @implementation CMISHttpUploadRequest
-
 
 + (id)startRequest:(NSMutableURLRequest *)urlRequest
                             httpMethod:(CMISHttpRequestMethod)httpRequestMethod
@@ -130,7 +127,7 @@ const NSUInteger kRawBufferSize = 24576;
     httpRequest.base64InputStream = nil;
     httpRequest.encoderStream = nil;
     
-    if ([httpRequest startRequest:urlRequest] == NO) {
+    if (![httpRequest startRequest:urlRequest]) {
         httpRequest = nil;
     }
     
@@ -160,7 +157,7 @@ authenticationProvider:(id<CMISAuthenticationProvider>) authenticationProvider
     
     [httpRequest prepareStreams];
     [httpRequest prepareXMLWithCMISProperties:cmisProperties mimeType:mimeType];
-    if ([httpRequest startRequest:urlRequest] == NO) {
+    if (![httpRequest startRequest:urlRequest]) {
         httpRequest = nil;
     }
     
@@ -245,9 +242,9 @@ totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite
         }
         
         if (self.bytesExpected == 0) {
-            self.progressBlock((NSUInteger)totalBytesWritten, (NSUInteger)totalBytesExpectedToWrite);
+            self.progressBlock((unsigned long long)totalBytesWritten, (unsigned long long)totalBytesExpectedToWrite);
         } else {
-            self.progressBlock((NSUInteger)totalBytesWritten, self.bytesExpected);
+            self.progressBlock((unsigned long long)totalBytesWritten, self.bytesExpected);
         }
     }
 }
@@ -320,23 +317,23 @@ totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite
             }
         }
             break;
+
         case NSStreamEventHasBytesAvailable: {
-        } break;
+        }
+            break;
+
         case NSStreamEventHasSpaceAvailable: {
             if (self.base64InputStream) {
                 NSStreamStatus inputStatus = self.base64InputStream.streamStatus;
                 if (inputStatus == NSStreamStatusClosed) {
                     CMISLogDebug(@"Base64InputStream %@ is closed", self.base64InputStream);
-                }
-                else if (inputStatus == NSStreamStatusAtEnd){
+                } else if (inputStatus == NSStreamStatusAtEnd){
                     CMISLogDebug(@"Base64InputStream %@ has reached the end", self.base64InputStream);
-                }
-                else if (inputStatus == NSStreamStatusError){
+                } else if (inputStatus == NSStreamStatusError){
                     CMISLogDebug(@"Base64InputStream %@ input stream error: %@", self.base64InputStream, self.base64InputStream.streamError);
                     [self stopSendWithStatus:@"Network read error"];
                 }
             }
-            
             
             if (self.bufferOffset == self.bufferLimit) {
                 if (self.streamStartData != nil) {
@@ -350,14 +347,12 @@ totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite
                     rawBytesRead = [self.inputStream read:rawBuffer maxLength:kRawBufferSize];
                     if (-1 == rawBytesRead) {
                         [self stopSendWithStatus:@"Error while reading from source input stream"];
-                    }
-                    else if (0 != rawBytesRead){
+                    } else if (0 != rawBytesRead) {
                         NSData *encodedBuffer = [CMISBase64Encoder dataByEncodingText:[NSData dataWithBytes:rawBuffer length:rawBytesRead]];
                         self.dataBuffer = [NSData dataWithData:encodedBuffer];
                         self.bufferOffset = 0;
                         self.bufferLimit = encodedBuffer.length;
-                    }
-                    else{
+                    } else {
                         [self.inputStream close];
                         self.inputStream = nil;
                         self.bufferOffset = 0;
@@ -390,18 +385,23 @@ totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite
                 bytesWritten = [self.encoderStream write:&buffer[self.bufferOffset] maxLength:self.bufferLimit - self.bufferOffset];
                 if (bytesWritten <= 0) {
                     [self stopSendWithStatus:@"Network write error"];
-                }
-                else{
+                } else {
                     self.bufferOffset += bytesWritten;
                 }
             }
             
-        }break;
+        }
+            break;
+
         case NSStreamEventErrorOccurred: {
             [self stopSendWithStatus:@"Stream open error"];
-        }break;
+        }
+            break;
+
         case NSStreamEventEndEncountered: {
-        }break;
+        }
+            break;
+
         default:
             break;
     }
@@ -429,7 +429,7 @@ totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite
     NSString *end = [NSString stringWithFormat:@"%@%@", xmlContentEnd, xmlProperties];
     self.streamEndData = [end dataUsingEncoding:NSUTF8StringEncoding];
     
-    NSUInteger encodedLength = [CMISHttpUploadRequest base64EncodedLength:(NSUInteger)self.bytesExpected];
+    unsigned long long encodedLength = [CMISHttpUploadRequest base64EncodedLength:self.bytesExpected];
     encodedLength += start.length;
     encodedLength += end.length;
     self.encodedLength = encodedLength;
@@ -437,8 +437,6 @@ totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite
 
 - (void)prepareStreams
 {
-    /*
-     */
     if (self.inputStream.streamStatus != NSStreamStatusOpen) {
         [self.inputStream open];
     }
@@ -455,25 +453,23 @@ totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite
 }
 
 
-+ (NSUInteger)base64EncodedLength:(NSUInteger)contentSize
++ (unsigned long long)base64EncodedLength:(unsigned long long)contentSize
 {
-    if (0 == contentSize)
-    {
+    if (0 == contentSize) {
         return 0;
     }
-    NSUInteger adjustedThirdPartOfSize = (contentSize / 3) + ( (0 == contentSize % 3 ) ? 0 : 1 );
     
+    unsigned long long adjustedThirdPartOfSize = (contentSize / 3) + ( (0 == contentSize % 3 ) ? 0 : 1 );
     return 4 * adjustedThirdPartOfSize;
 }
 
 + (NSUInteger)rawEncodedLength:(NSUInteger)base64EncodedSize
 {
-    if (0 == base64EncodedSize)
-    {
+    if (0 == base64EncodedSize) {
         return 0;
     }
-    NSUInteger adjustedFourthPartOfSize = (base64EncodedSize / 4) + ( (0 == base64EncodedSize % 4 ) ? 0 : 1 );
     
+    NSUInteger adjustedFourthPartOfSize = (base64EncodedSize / 4) + ( (0 == base64EncodedSize % 4 ) ? 0 : 1 );
     return 3 * adjustedFourthPartOfSize;
 }
 

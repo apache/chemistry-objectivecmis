@@ -22,7 +22,6 @@
 #import "CMISObjectConverter.h"
 #import "CMISStringInOutParameter.h"
 #import "CMISOperationContext.h"
-#import "CMISFileUtil.h"
 #import "CMISErrors.h"
 #import "CMISRequest.h"
 #import "CMISSession.h"

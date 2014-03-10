@@ -75,9 +75,9 @@
 
         // Extract Extensions and store in the extensionsDict
         self.extensionsDict = [[NSMutableDictionary alloc] init];
-        [self.extensionsDict setObject:[self nonNilArray:objectData.extensions] forKey:[NSNumber numberWithInt:CMISExtensionLevelObject]];
-        [self.extensionsDict setObject:[self nonNilArray:self.properties.extensions] forKey:[NSNumber numberWithInt:CMISExtensionLevelProperties]];
-        [self.extensionsDict setObject:[self nonNilArray:self.allowableActions.extensions] forKey:[NSNumber numberWithInt:CMISExtensionLevelAllowableActions]];        
+        [self.extensionsDict setObject:[self nonNilArray:objectData.extensions] forKey:[NSNumber numberWithInteger:CMISExtensionLevelObject]];
+        [self.extensionsDict setObject:[self nonNilArray:self.properties.extensions] forKey:[NSNumber numberWithInteger:CMISExtensionLevelProperties]];
+        [self.extensionsDict setObject:[self nonNilArray:self.allowableActions.extensions] forKey:[NSNumber numberWithInteger:CMISExtensionLevelAllowableActions]];
 
         // Renditions must be converted here, because they need access to the session
         if (objectData.renditions != nil) {
@@ -157,7 +157,7 @@
 {
     // TODO Need to implement the following extension levels CMISExtensionLevelAcl, CMISExtensionLevelPolicies, CMISExtensionLevelChangeEvent
     
-    return [self.extensionsDict objectForKey:[NSNumber numberWithInt:extensionLevel]];
+    return [self.extensionsDict objectForKey:[NSNumber numberWithInteger:extensionLevel]];
 }
 
 @end

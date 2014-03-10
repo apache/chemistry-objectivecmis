@@ -14,12 +14,13 @@
 
 #import <Foundation/Foundation.h>
 #import "CMISProperties.h"
-typedef enum {
+typedef NS_ENUM(NSInteger, CMISHttpRequestMethod)
+{
     HTTP_GET,
     HTTP_POST,
     HTTP_PUT,
     HTTP_DELETE
-} CMISHttpRequestMethod;
+};
 
 @class CMISBindingSession, CMISRequest, CMISHttpResponse;
 

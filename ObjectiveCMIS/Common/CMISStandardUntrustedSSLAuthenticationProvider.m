@@ -25,9 +25,8 @@
 {
     if ([protectionSpace.authenticationMethod isEqualToString:NSURLAuthenticationMethodServerTrust]) {
         return YES;
-    } else {
-        return [super canAuthenticateAgainstProtectionSpace:protectionSpace];
     }
+    return [super canAuthenticateAgainstProtectionSpace:protectionSpace];
 }
 
 /**

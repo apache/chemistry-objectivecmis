@@ -267,7 +267,7 @@
                                               withObject:self withObject:self.objectData];
                 }
 
-                // Reseting our parent as the delegate since we're done
+                // Resetting our parent as the delegate since we're done
                 parser.delegate = self.parentDelegate;
                 self.parentDelegate = nil;
             }

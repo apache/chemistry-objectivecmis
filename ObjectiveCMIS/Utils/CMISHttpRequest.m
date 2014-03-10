@@ -20,7 +20,6 @@
 #import "CMISHttpRequest.h"
 #import "CMISHttpResponse.h"
 #import "CMISErrors.h"
-#import "CMISAuthenticationProvider.h"
 #import "CMISLog.h"
 
 //Exception names as returned in the <!--exception> tag
@@ -55,7 +54,7 @@ NSString * const kCMISExceptionVersioning              = @"versioning";
     httpRequest.additionalHeaders = additionalHeaders;
     httpRequest.authenticationProvider = authenticationProvider;
     
-    if ([httpRequest startRequest:urlRequest] == NO) {
+    if (![httpRequest startRequest:urlRequest]) {
         httpRequest = nil;
     }
     
@@ -128,7 +127,7 @@ NSString * const kCMISExceptionVersioning              = @"versioning";
 
 - (BOOL)connection:(NSURLConnection *)connection canAuthenticateAgainstProtectionSpace:(NSURLProtectionSpace *)protectionSpace
 {
-    return [self.authenticationProvider canAuthenticateAgainstProtectionSpace:(NSURLProtectionSpace *)protectionSpace];
+    return [self.authenticationProvider canAuthenticateAgainstProtectionSpace:protectionSpace];
 }
 
 
