@@ -17,7 +17,7 @@
   under the License.
  */
  
-#import <SenTestingKit/SenTestingKit.h>
+#import <XCTest/XCTest.h>
 #import "CMISSessionParameters.h"
 #import "CMISBaseTest.h"
 

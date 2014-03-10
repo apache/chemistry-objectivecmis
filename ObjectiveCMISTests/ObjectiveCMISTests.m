@@ -125,9 +125,9 @@
 {
     [self runTest:^ {
         [CMISSession arrayOfRepositories:self.parameters completionBlock:^(NSArray *repos, NSError *error) {
-            STAssertNil(error, @"Error when calling arrayOfRepositories : %@", [error description]);
-            STAssertNotNil(repos, @"repos object should not be nil");
-            STAssertTrue(repos.count > 0, @"There should be at least one repository");
+            XCTAssertNil(error, @"Error when calling arrayOfRepositories : %@", [error description]);
+            XCTAssertNotNil(repos, @"repos object should not be nil");
+            XCTAssertTrue(repos.count > 0, @"There should be at least one repository");
             
             for (CMISRepositoryInfo *repoInfo in repos) {
                 CMISLogDebug(@"Repo id: %@", repoInfo.identifier);
@@ -147,7 +147,7 @@
         bogusParams.password = @"sugob";
 
         [CMISSession connectWithSessionParameters:bogusParams completionBlock:^(CMISSession *session, NSError *error){
-            STAssertNil(session, @"we should not get back a valid session");
+            XCTAssertNil(session, @"we should not get back a valid session");
             if (nil == session) {
                 CMISLogDebug(@"*** testAuthenticateWithInvalidCredentials: error domain is %@, error code is %d and error description is %@",[error domain], [error code], [error description]);
                 NSError *underlyingError = [[error userInfo] valueForKey:NSUnderlyingErrorKey];
@@ -165,40 +165,40 @@
     [self runTest:^ {
         // make sure the repository info is available immediately after authentication
         CMISRepositoryInfo *repoInfo = self.session.repositoryInfo;
-        STAssertNotNil(repoInfo, @"repoInfo object should not be nil");
+        XCTAssertNotNil(repoInfo, @"repoInfo object should not be nil");
 
         // check the repository info is what we expect
-        STAssertTrue([repoInfo.productVersion rangeOfString:@"4.0.0"].length > 0, @"Product Version should be 4.0.0 (b @build-number@), but was %@", repoInfo.productVersion);
-        STAssertTrue([repoInfo.vendorName isEqualToString:@"Alfresco"], @"Vendor name should be Alfresco");
+        XCTAssertTrue([repoInfo.productVersion rangeOfString:@"4.0.0"].length > 0, @"Product Version should be 4.0.0 (b @build-number@), but was %@", repoInfo.productVersion);
+        XCTAssertTrue([repoInfo.vendorName isEqualToString:@"Alfresco"], @"Vendor name should be Alfresco");
 
         // retrieve the root folder
         [self.session retrieveRootFolderWithCompletionBlock:^(CMISFolder *rootFolder, NSError *error) {
-            STAssertNotNil(rootFolder, @"rootFolder object should not be nil");
+            XCTAssertNotNil(rootFolder, @"rootFolder object should not be nil");
             NSString *rootName = rootFolder.name;
-            STAssertTrue([rootName isEqualToString:@"Company Home"], @"rootName should be Company Home, but was %@", rootName);
+            XCTAssertTrue([rootName isEqualToString:@"Company Home"], @"rootName should be Company Home, but was %@", rootName);
 
             // check it was modified and created by System and the dates are not nil
             NSString *createdBy = rootFolder.createdBy;
-            STAssertTrue([createdBy isEqualToString:@"System"], @"root folder should be created by System");
+            XCTAssertTrue([createdBy isEqualToString:@"System"], @"root folder should be created by System");
             
             NSString *modifiedBy = rootFolder.lastModifiedBy;
-            STAssertNotNil(modifiedBy, @"modifiedBy should not be nil");
+            XCTAssertNotNil(modifiedBy, @"modifiedBy should not be nil");
             
             NSDate *createdDate = rootFolder.creationDate;
-            STAssertNotNil(createdDate, @"created date should not be nil");
+            XCTAssertNotNil(createdDate, @"created date should not be nil");
             
             NSDate *modifiedDate = rootFolder.lastModificationDate;
-            STAssertNotNil(modifiedDate, @"modified date should not be nil");
+            XCTAssertNotNil(modifiedDate, @"modified date should not be nil");
             
             // retrieve the children of the root folder, there should be more than 10!
             [rootFolder retrieveChildrenWithCompletionBlock:^(CMISPagedResult *pagedResult, NSError *error) {
-                STAssertNil(error, @"Got error while retrieving children: %@", [error description]);
-                STAssertNotNil(pagedResult, @"Return result should not be nil");
+                XCTAssertNil(error, @"Got error while retrieving children: %@", [error description]);
+                XCTAssertNotNil(pagedResult, @"Return result should not be nil");
                 
                 NSArray *children = pagedResult.resultArray;
-                STAssertNotNil(children, @"children should not be nil");
+                XCTAssertNotNil(children, @"children should not be nil");
                 CMISLogDebug(@"There are %d children", [children count]);
-                STAssertTrue([children count] >= 3, @"There should be at least 3 children");
+                XCTAssertTrue([children count] >= 3, @"There should be at least 3 children");
                 
                 self.testCompleted = YES;
             }];
@@ -215,12 +215,12 @@
         operationContext.maxItemsPerPage = 2;
         [self.session retrieveObjectByPath:@"/ios-test" completionBlock:^(CMISObject *object, NSError *error) {
             CMISFolder *testFolder = (CMISFolder *)object;
-            STAssertNil(error, @"Got error while retrieving test folder: %@", [error description]);
+            XCTAssertNil(error, @"Got error while retrieving test folder: %@", [error description]);
             [testFolder retrieveChildrenWithOperationContext:operationContext completionBlock:^(CMISPagedResult *pagedResult, NSError *error) {
-                STAssertNil(error, @"Got error while retrieving children: %@", [error description]);
-                STAssertTrue(pagedResult.hasMoreItems, @"There should still be more children");
-                STAssertTrue(pagedResult.numItems > 6, @"The test repository should have more than 6 objects");
-                STAssertTrue(pagedResult.resultArray.count == 2, @"Expected 2 children in the page, but got %d", pagedResult.resultArray.count);
+                XCTAssertNil(error, @"Got error while retrieving children: %@", [error description]);
+                XCTAssertTrue(pagedResult.hasMoreItems, @"There should still be more children");
+                XCTAssertTrue(pagedResult.numItems > 6, @"The test repository should have more than 6 objects");
+                XCTAssertTrue(pagedResult.resultArray.count == 2, @"Expected 2 children in the page, but got %lu", (unsigned long)pagedResult.resultArray.count);
                 
                 // Save object ids for checking the next pages
                 NSMutableArray *objectIds = [NSMutableArray array];
@@ -230,14 +230,14 @@
                 
                 // Fetch second page
                 [pagedResult fetchNextPageWithCompletionBlock:^(CMISPagedResult *secondPageResult, NSError *error) {
-                    STAssertNil(error, @"Got error while retrieving children: %@", [error description]);
-                    STAssertTrue(secondPageResult.hasMoreItems, @"There should still be more children");
-                    STAssertTrue(secondPageResult.numItems > 6, @"The test repository should have more than 6 objects");
-                    STAssertTrue(secondPageResult.resultArray.count == 2, @"Expected 2 children in the page, but got %d", secondPageResult.resultArray.count);
+                    XCTAssertNil(error, @"Got error while retrieving children: %@", [error description]);
+                    XCTAssertTrue(secondPageResult.hasMoreItems, @"There should still be more children");
+                    XCTAssertTrue(secondPageResult.numItems > 6, @"The test repository should have more than 6 objects");
+                    XCTAssertTrue(secondPageResult.resultArray.count == 2, @"Expected 2 children in the page, but got %lu", (unsigned long)secondPageResult.resultArray.count);
                     
                     // Verify if no double object ids were found
                     for (CMISObject *object in secondPageResult.resultArray) {
-                        STAssertTrue(![objectIds containsObject:object.identifier], @"Object was already returned in a previous page. This is a serious impl bug!");
+                        XCTAssertTrue(![objectIds containsObject:object.identifier], @"Object was already returned in a previous page. This is a serious impl bug!");
                         [objectIds addObject:object.identifier];
                     }
                     
@@ -271,26 +271,26 @@
         // Get some random document
         [self retrieveVersionedTestDocumentWithCompletionBlock:^(CMISDocument *document) {
             // Verify properties
-            STAssertNotNil(document.name, @"Document name should not be nil");
-            STAssertNotNil(document.identifier, @"Document identifier should not be nil");
-            STAssertNotNil(document.objectType, @"Document object type should not be nil");
+            XCTAssertNotNil(document.name, @"Document name should not be nil");
+            XCTAssertNotNil(document.identifier, @"Document identifier should not be nil");
+            XCTAssertNotNil(document.objectType, @"Document object type should not be nil");
             
-            STAssertNotNil(document.createdBy, @"Document created by should not be nil");
-            STAssertNotNil(document.creationDate, @"Document creation date should not be nil");
+            XCTAssertNotNil(document.createdBy, @"Document created by should not be nil");
+            XCTAssertNotNil(document.creationDate, @"Document creation date should not be nil");
             
-            STAssertNotNil(document.lastModificationDate, @"Document last modification date should not be nil");
-            STAssertNotNil(document.lastModifiedBy, @"Document last modified by should not be nil");
+            XCTAssertNotNil(document.lastModificationDate, @"Document last modification date should not be nil");
+            XCTAssertNotNil(document.lastModifiedBy, @"Document last modified by should not be nil");
             
-            STAssertNotNil(document.versionLabel, @"Document version label should not be nil");
-            STAssertNotNil(document.versionSeriesId, @"Document version series id should not be nil");
-            STAssertTrue(document.isLatestVersion, @"Document should be latest version");
-            STAssertFalse(document.isLatestMajorVersion, @"Document should be latest major version");
-            STAssertFalse(document.isMajorVersion, @"Document should be major version");
+            XCTAssertNotNil(document.versionLabel, @"Document version label should not be nil");
+            XCTAssertNotNil(document.versionSeriesId, @"Document version series id should not be nil");
+            XCTAssertTrue(document.isLatestVersion, @"Document should be latest version");
+            XCTAssertFalse(document.isLatestMajorVersion, @"Document should be latest major version");
+            XCTAssertFalse(document.isMajorVersion, @"Document should be major version");
             
-            STAssertNotNil(document.contentStreamId, @"Document content stream id should not be nil");
-            STAssertNotNil(document.contentStreamFileName, @"Document content stream file name should not be nil");
-            STAssertNotNil(document.contentStreamMediaType, @"Document content stream media type should not be nil");
-            STAssertTrue(document.contentStreamLength > 0, @"Document content stream length should be set");
+            XCTAssertNotNil(document.contentStreamId, @"Document content stream id should not be nil");
+            XCTAssertNotNil(document.contentStreamFileName, @"Document content stream file name should not be nil");
+            XCTAssertNotNil(document.contentStreamMediaType, @"Document content stream media type should not be nil");
+            XCTAssertTrue(document.contentStreamLength > 0, @"Document content stream length should be set");
             
             self.testCompleted = YES;
         }];
@@ -302,8 +302,8 @@
 {
     [self runTest:^ {
         [self uploadTestFileWithCompletionBlock:^(CMISDocument *document) {
-            STAssertNotNil(document.allowableActions, @"Allowable actions should not be nil");
-            STAssertTrue(document.allowableActions.allowableActionsSet.count > 0, @"Expected at least one allowable action");
+            XCTAssertNotNil(document.allowableActions, @"Allowable actions should not be nil");
+            XCTAssertTrue(document.allowableActions.allowableActionsSet.count > 0, @"Expected at least one allowable action");
             
             // Cleanup
             [self deleteDocumentAndVerify:document completionBlock:^{
@@ -318,18 +318,18 @@
     [self runTest:^ {
         [self.session retrieveObjectByPath:@"/ios-test" completionBlock:^(CMISObject *object, NSError *error) {
             CMISFolder *testFolder = (CMISFolder *)object;
-            STAssertNil(error, @"Error while retrieving folder: %@", [error description]);
-            STAssertNotNil(testFolder, @"folder object should not be nil");
+            XCTAssertNil(error, @"Error while retrieving folder: %@", [error description]);
+            XCTAssertNotNil(testFolder, @"folder object should not be nil");
             
             CMISOperationContext *operationContext = [CMISOperationContext defaultOperationContext];
             operationContext.maxItemsPerPage = 100;
             [testFolder retrieveChildrenWithOperationContext:operationContext completionBlock:^(CMISPagedResult *childrenResult, NSError *error) {
-                STAssertNil(error, @"Got error while retrieving children: %@", [error description]);
-                STAssertNotNil(childrenResult, @"childrenCollection should not be nil");
+                XCTAssertNil(error, @"Got error while retrieving children: %@", [error description]);
+                XCTAssertNotNil(childrenResult, @"childrenCollection should not be nil");
                 
                 NSArray *children = childrenResult.resultArray;
-                STAssertNotNil(children, @"children should not be nil");
-                STAssertTrue([children count] >= 3, @"There should be at least 3 children");
+                XCTAssertNotNil(children, @"children should not be nil");
+                XCTAssertTrue([children count] >= 3, @"There should be at least 3 children");
                 
                 CMISDocument *randomDoc = nil;
                 for (CMISObject *object in children) {
@@ -338,7 +338,7 @@
                     }
                 }
                 
-                STAssertNotNil(randomDoc, @"Can only continue test if test folder contains at least one document");
+                XCTAssertNotNil(randomDoc, @"Can only continue test if test folder contains at least one document");
                 CMISLogDebug(@"Fetching content stream for document %@", randomDoc.name);
                 
                 // Writing content of CMIS document to local file
@@ -348,17 +348,17 @@
                                  completionBlock:^(NSError *error) {
                     if (error == nil) {
                         // Assert File exists and check file length
-                        STAssertTrue([[NSFileManager defaultManager] fileExistsAtPath:filePath], @"File does not exist");
+                        XCTAssertTrue([[NSFileManager defaultManager] fileExistsAtPath:filePath], @"File does not exist");
                         NSError *fileError = nil;
                         NSDictionary *fileAttributes = [[NSFileManager defaultManager] attributesOfItemAtPath:filePath error:&fileError];
-                        STAssertNil(fileError, @"Could not verify attributes of file %@: %@", filePath, [fileError description]);
-                        STAssertTrue([fileAttributes fileSize] >= 10, @"Expected a file of at least 10 bytes, but found one of %d bytes", [fileAttributes fileSize]);
+                        XCTAssertNil(fileError, @"Could not verify attributes of file %@: %@", filePath, [fileError description]);
+                        XCTAssertTrue([fileAttributes fileSize] >= 10, @"Expected a file of at least 10 bytes, but found one of %llu bytes", [fileAttributes fileSize]);
                         
                         // Nice boys clean up after themselves
                         [[NSFileManager defaultManager] removeItemAtPath:filePath error:&fileError];
-                        STAssertNil(fileError, @"Could not remove file %@: %@", filePath, [fileError description]);
+                        XCTAssertNil(fileError, @"Could not remove file %@: %@", filePath, [fileError description]);
                     } else {
-                        STAssertNil(error, @"Error while writing content: %@", [error description]);
+                        XCTAssertNil(error, @"Error while writing content: %@", [error description]);
                     }
                     self.testCompleted = YES;
                 } progressBlock:nil];
@@ -372,25 +372,25 @@
     [self runTest:^ {
          [self.session retrieveObjectByPath:@"/ios-test/activiti-modeler.png" completionBlock:^(CMISObject *object, NSError *error) {
              CMISDocument *document = (CMISDocument *)object;
-             STAssertNil(error, @"Error while retrieving object: %@", [error description]);
+             XCTAssertNil(error, @"Error while retrieving object: %@", [error description]);
 
              // Writing content of CMIS document to local file
              NSString *filePath = [NSString stringWithFormat:@"%@/testfile", NSTemporaryDirectory()];
              self.request = [document downloadContentToFile:filePath
                                             completionBlock:^(NSError *error) {
-                 STAssertNotNil(error, @"Could not cancel download");
-                 STAssertTrue(error.code == kCMISErrorCodeCancelled, @"Unexpected error: %@", [error description]);
+                 XCTAssertNotNil(error, @"Could not cancel download");
+                 XCTAssertTrue(error.code == kCMISErrorCodeCancelled, @"Unexpected error: %@", [error description]);
                  // Assert File exists and check file length
-                 STAssertTrue([[NSFileManager defaultManager] fileExistsAtPath:filePath], @"File does not exist");
+                 XCTAssertTrue([[NSFileManager defaultManager] fileExistsAtPath:filePath], @"File does not exist");
                  NSError *fileError = nil;
                  NSDictionary *fileAttributes = [[NSFileManager defaultManager] attributesOfItemAtPath:filePath error:&fileError];
-                 STAssertNil(fileError, @"Could not verify attributes of file %@: %@", filePath, [fileError description]);
-                 STAssertTrue([fileAttributes fileSize] > 0, @"Expected at least some bytes but found an empty file");
-                 STAssertTrue([fileAttributes fileSize] < document.contentStreamLength, @"Could not cancel download before the complete file was downloaded");
+                 XCTAssertNil(fileError, @"Could not verify attributes of file %@: %@", filePath, [fileError description]);
+                 XCTAssertTrue([fileAttributes fileSize] > 0, @"Expected at least some bytes but found an empty file");
+                 XCTAssertTrue([fileAttributes fileSize] < document.contentStreamLength, @"Could not cancel download before the complete file was downloaded");
                                           
                  // Nice boys clean up after themselves
                  [[NSFileManager defaultManager] removeItemAtPath:filePath error:&fileError];
-                 STAssertNil(fileError, @"Could not remove file %@: %@", filePath, [fileError description]);
+                 XCTAssertNil(fileError, @"Could not remove file %@: %@", filePath, [fileError description]);
 
                  self.testCompleted = YES;
              } progressBlock:^(unsigned long long bytesDownloaded, unsigned long long bytesTotal) {
@@ -408,7 +408,7 @@
     [self runTest:^ {
         // Check if test file exists
         NSString *filePath = [[NSBundle bundleForClass:[self class]] pathForResource:@"test_file.txt" ofType:nil];
-        STAssertTrue([[NSFileManager defaultManager] fileExistsAtPath:filePath],
+        XCTAssertTrue([[NSFileManager defaultManager] fileExistsAtPath:filePath],
             @"Test file 'test_file.txt' cannot be found as resource for the test");
 
         // Upload test file
@@ -423,31 +423,31 @@
                                          properties:documentProperties
                                     completionBlock:^ (NSString *objectId, NSError *error) {
                  if (objectId) {
-                     STAssertNotNil(objectId, @"Object id received should be non-nil");
+                     XCTAssertNotNil(objectId, @"Object id received should be non-nil");
 
                      // Verify creation
                      [self.session retrieveObject:objectId completionBlock:^(CMISObject *object, NSError *error) {
                          CMISDocument *document = (CMISDocument *)object;
-                         STAssertTrue([documentName isEqualToString:document.name],
+                         XCTAssertTrue([documentName isEqualToString:document.name],
                                       @"Document name of created document is wrong: should be %@, but was %@", documentName, document.name);
                          
                          // Cleanup after ourselves
                          [document deleteAllVersionsWithCompletionBlock:^(BOOL documentDeleted, NSError *deleteError) {
-                             STAssertNil(deleteError, @"Error while deleting created document: %@", [error description]);
-                             STAssertTrue(documentDeleted, @"Document was not deleted");
+                             XCTAssertNil(deleteError, @"Error while deleting created document: %@", [error description]);
+                             XCTAssertTrue(documentDeleted, @"Document was not deleted");
                              
                              self.testCompleted = YES;
                          }];
                      }];
                  } else {
-                     STAssertNil(error, @"Got error while creating document: %@", [error description]);
+                     XCTAssertNil(error, @"Got error while creating document: %@", [error description]);
                      
                      self.testCompleted = YES;
                  }
              }
              progressBlock: ^ (unsigned long long bytesUploaded, unsigned long long bytesTotal)
              {
-                 STAssertTrue((long long)bytesUploaded > previousBytesUploaded, @"No progress was made");
+                 XCTAssertTrue((long long)bytesUploaded > previousBytesUploaded, @"No progress was made");
                  previousBytesUploaded = bytesUploaded;
              }];
     }];
@@ -477,10 +477,10 @@
                    
                         [self.session retrieveObject:objectId completionBlock:^(CMISObject *object, NSError *error) {
                             CMISDocument *document = (CMISDocument *)object;
-                            STAssertNil(error, @"Got error while creating document: %@", [error description]);
-                            STAssertNotNil(objectId, @"Object id received should be non-nil");
-                            STAssertNotNil(document, @"Retrieved document should not be nil");
-                            STAssertTrue(document.contentStreamLength > 0, @"No content found for document");
+                            XCTAssertNil(error, @"Got error while creating document: %@", [error description]);
+                            XCTAssertNotNil(objectId, @"Object id received should be non-nil");
+                            XCTAssertNotNil(document, @"Retrieved document should not be nil");
+                            XCTAssertTrue(document.contentStreamLength > 0, @"No content found for document");
                             
                             // Cleanup
                             [self deleteDocumentAndVerify:document completionBlock:^{
@@ -488,14 +488,14 @@
                             }];
                         }];
                     } else {
-                        STAssertNotNil(error, @"Object id should not be nil");
-                        STAssertNil(error, @"Got error while uploading document: %@", [error description]);
+                        XCTAssertNotNil(error, @"Object id should not be nil");
+                        XCTAssertNil(error, @"Got error while uploading document: %@", [error description]);
                         self.testCompleted = YES;
                     }
                 }
                 progressBlock: ^ (unsigned long long uploadedBytes, unsigned long long totalBytes)
                 {
-                    STAssertTrue((long long)uploadedBytes > previousUploadedBytes, @"no progress");
+                    XCTAssertTrue((long long)uploadedBytes > previousUploadedBytes, @"no progress");
                     previousUploadedBytes = uploadedBytes;
                 }];
     }];
@@ -514,13 +514,13 @@
         [self.rootFolder createDocumentFromFilePath:fileToUploadPath mimeType:@"text/plain" properties:properties completionBlock:^(NSString *objectId, NSError *error){
             if (objectId) {
                 CMISLogDebug(@"File upload completed");
-                STAssertNotNil(objectId, @"Object id received should be non-nil");
+                XCTAssertNotNil(objectId, @"Object id received should be non-nil");
                 smallObjectId = objectId;
                 [self.session retrieveObject:smallObjectId completionBlock:^(CMISObject *object, NSError *objError){
                     if (object) {
                         CMISDocument *doc = (CMISDocument *)object;
                         [doc deleteAllVersionsWithCompletionBlock:^(BOOL deleted, NSError *deleteError){
-                            STAssertTrue(deleted, @"should have successfully deleted file");
+                            XCTAssertTrue(deleted, @"should have successfully deleted file");
                             if (deleteError) {
                                 CMISLogDebug(@"we have an error deleting the file %@ with message %@ and code %d", documentName, [deleteError localizedDescription], [deleteError code]);
                             }
@@ -528,14 +528,14 @@
                         }];
                     }
                     else{
-                        STAssertNil(error, @"Got error while retrieving document: %@", [objError description]);
+                        XCTAssertNil(error, @"Got error while retrieving document: %@", [objError description]);
                         self.testCompleted = YES;
                         
                     }
                 }];
             }
             else{
-                STAssertNil(error, @"Got error while creating document: %@", [error description]);
+                XCTAssertNil(error, @"Got error while creating document: %@", [error description]);
                 self.testCompleted = YES;
             }
         } progressBlock:^(unsigned long long bytesUploaded, unsigned long long total){}];
@@ -548,7 +548,7 @@
     [self runTest:^ {
         // Check if test file exists
         NSString *fileToUploadPath = [[NSBundle bundleForClass:[self class]] pathForResource:@"cmis-spec-v1.0.pdf" ofType:nil];
-        STAssertTrue([[NSFileManager defaultManager] fileExistsAtPath:fileToUploadPath],
+        XCTAssertTrue([[NSFileManager defaultManager] fileExistsAtPath:fileToUploadPath],
             @"Test file 'cmis-spec-v1.0.pdf' cannot be found as resource for the test");
 
         // Upload test file
@@ -567,12 +567,12 @@
                        CMISLogDebug(@"File upload completed");
                        
                        objectId = newObjectId;
-                       STAssertNotNil(objectId, @"Object id received should be non-nil");
+                       XCTAssertNotNil(objectId, @"Object id received should be non-nil");
                        
                        // Verify created file by downloading it again
                        [self.session retrieveObject:objectId completionBlock:^(CMISObject *object, NSError *error) {
                            CMISDocument *document = (CMISDocument *)object;
-                           STAssertTrue([documentName isEqualToString:document.name],
+                           XCTAssertTrue([documentName isEqualToString:document.name],
                                         @"Document name of created document is wrong: should be %@, but was %@", documentName, document.name);
                            
                            __block long long previousBytesDownloaded = -1;
@@ -585,41 +585,41 @@
                                    // Compare file sizes
                                    NSError *fileError;
                                    unsigned long long originalFileSize = [CMISFileUtil fileSizeForFileAtPath:fileToUploadPath error:&fileError];
-                                   STAssertNil(fileError, @"Got error while getting file size for %@: %@", fileToUploadPath, [fileError description]);
+                                   XCTAssertNil(fileError, @"Got error while getting file size for %@: %@", fileToUploadPath, [fileError description]);
                                    unsigned long long downloadedFileSize = [CMISFileUtil fileSizeForFileAtPath:downloadedFilePath error:&fileError];
-                                   STAssertNil(fileError, @"Got error while getting file size for %@: %@", downloadedFilePath, [fileError description]);
-                                   STAssertTrue(originalFileSize == downloadedFileSize, @"Original file size (%llu) is not equal to downloaded file size (%llu)", originalFileSize, downloadedFileSize);
+                                   XCTAssertNil(fileError, @"Got error while getting file size for %@: %@", downloadedFilePath, [fileError description]);
+                                   XCTAssertTrue(originalFileSize == downloadedFileSize, @"Original file size (%llu) is not equal to downloaded file size (%llu)", originalFileSize, downloadedFileSize);
                                    
                                    // Cleanup after ourselves
                                    [document deleteAllVersionsWithCompletionBlock:^(BOOL documentDeleted, NSError *error) {
-                                       STAssertNil(error, @"Error while deleting created document: %@", [error description]);
-                                       STAssertTrue(documentDeleted, @"Document was not deleted");
+                                       XCTAssertNil(error, @"Error while deleting created document: %@", [error description]);
+                                       XCTAssertTrue(documentDeleted, @"Document was not deleted");
                                        
                                        NSError *internalError;
                                        [[NSFileManager defaultManager] removeItemAtPath:downloadedFilePath error:&internalError];
-                                       STAssertNil(error, @"Could not remove file %@: %@", downloadedFilePath, [error description]);
+                                       XCTAssertNil(error, @"Could not remove file %@: %@", downloadedFilePath, [error description]);
                                        
                                        self.testCompleted = YES;
                                    }];
                                } else {
-                                   STAssertNil(error, @"Error while writing content: %@", [error description]);
+                                   XCTAssertNil(error, @"Error while writing content: %@", [error description]);
                                    
                                    self.testCompleted = YES;
                                }
                            } progressBlock:^(unsigned long long bytesDownloaded, unsigned long long bytesTotal) {
-                               STAssertTrue((long long)bytesDownloaded > previousBytesDownloaded, @"No progress in downloading file");
+                               XCTAssertTrue((long long)bytesDownloaded > previousBytesDownloaded, @"No progress in downloading file");
                                previousBytesDownloaded = bytesDownloaded;
                            }];
                        }];
                    } else {
-                       STAssertNil(error, @"Got error while creating document: %@", [error description]);
+                       XCTAssertNil(error, @"Got error while creating document: %@", [error description]);
                        
                        self.testCompleted = YES;
                    }
                }
                progressBlock:^(unsigned long long bytesUploaded, unsigned long long bytesTotal)
                {
-                   STAssertTrue((long long)bytesUploaded > previousBytesUploaded, @"No progress was made");
+                   XCTAssertTrue((long long)bytesUploaded > previousBytesUploaded, @"No progress was made");
                    previousBytesUploaded = bytesUploaded;
                }];
     }];
@@ -635,18 +635,18 @@
         [properties setObject:kCMISPropertyObjectTypeIdValueFolder forKey:kCMISPropertyObjectTypeId];
 
         [self.rootFolder createFolder:properties completionBlock:^(NSString *newFolderObjectId, NSError *error) {
-            STAssertNil(error, @"Error while creating folder in root folder: %@", [error description]);
+            XCTAssertNil(error, @"Error while creating folder in root folder: %@", [error description]);
             
             // Delete the test folder again
             [self.session retrieveObject:newFolderObjectId completionBlock:^(CMISObject *object, NSError *error) {
                 CMISFolder *newFolder = (CMISFolder *)object;
-                STAssertNil(error, @"Error while retrieving newly created folder: %@", [error description]);
-                STAssertNotNil(newFolder, @"New folder should not be nil");
+                XCTAssertNil(error, @"Error while retrieving newly created folder: %@", [error description]);
+                XCTAssertNotNil(newFolder, @"New folder should not be nil");
                 [newFolder deleteTreeWithDeleteAllVersions:YES
                                              unfileObjects:CMISDelete
                                          continueOnFailure:YES
                                            completionBlock:^(NSArray *failedObjects, NSError *error) {
-                    STAssertNil(error, @"Error while deleting newly created folder: %@", [error description]);
+                    XCTAssertNil(error, @"Error while deleting newly created folder: %@", [error description]);
 
                     self.testCompleted = YES;
                 }];
@@ -662,8 +662,8 @@
         [self retrieveVersionedTestDocumentWithCompletionBlock:^(CMISDocument *document) {
             // Get all the versions of the document
             [document retrieveAllVersionsWithCompletionBlock:^(CMISCollection *allVersionsOfDocument, NSError *error) {
-                STAssertNil(error, @"Error while retrieving all versions of document : %@", [error description]);
-                STAssertTrue(allVersionsOfDocument.items.count >= 5, @"Expected at least 5 versions of document, but was %d", allVersionsOfDocument.items.count);
+                XCTAssertNil(error, @"Error while retrieving all versions of document : %@", [error description]);
+                XCTAssertTrue(allVersionsOfDocument.items.count >= 5, @"Expected at least 5 versions of document, but was %lu", (unsigned long)allVersionsOfDocument.items.count);
                 
                 // Print out the version labels and verify them, while also verifying that they are ordered by creation date, descending
                 NSDate *previousModifiedDate = document.lastModificationDate;
@@ -671,9 +671,9 @@
                     CMISLogDebug(@"%@ - version %@", versionOfDocument.name, versionOfDocument.versionLabel);
                     
                     if (!versionOfDocument.isLatestVersion) {// latest version is the one we got originally
-                        STAssertTrue([document.name isEqualToString:versionOfDocument.name], @"Other version of same document does not have the same name");
-                        STAssertFalse([document.versionLabel isEqualToString:versionOfDocument.versionLabel], @"Other version of same document should have different version label");
-                        STAssertTrue([previousModifiedDate compare:versionOfDocument.lastModificationDate] == NSOrderedDescending,
+                        XCTAssertTrue([document.name isEqualToString:versionOfDocument.name], @"Other version of same document does not have the same name");
+                        XCTAssertFalse([document.versionLabel isEqualToString:versionOfDocument.versionLabel], @"Other version of same document should have different version label");
+                        XCTAssertTrue([previousModifiedDate compare:versionOfDocument.lastModificationDate] == NSOrderedDescending,
                                      @"Versions of document should be ordered descending by creation date");
                         previousModifiedDate = versionOfDocument.lastModificationDate;
                     }
@@ -681,8 +681,8 @@
                 
                 // Take an older version, and verify its version properties
                 CMISDocument *olderVersionOfDocument = [allVersionsOfDocument.items objectAtIndex:3]; // In the test data, this should be version 1.0 of doc.
-                STAssertFalse(olderVersionOfDocument.isLatestVersion, @"Older version of document should have 'false' for the property 'isLatestVersion");
-                STAssertFalse(olderVersionOfDocument.isLatestMajorVersion, @"Older version of document should have 'false' for the property 'isLatestMajorVersion");
+                XCTAssertFalse(olderVersionOfDocument.isLatestVersion, @"Older version of document should have 'false' for the property 'isLatestVersion");
+                XCTAssertFalse(olderVersionOfDocument.isLatestMajorVersion, @"Older version of document should have 'false' for the property 'isLatestMajorVersion");
 
                 self.testCompleted = YES;
             }];
@@ -697,29 +697,29 @@
         [self retrieveVersionedTestDocumentWithCompletionBlock:^(CMISDocument *document) {
             // Check if the document retrieved is the latest version
             [document retrieveObjectOfLatestVersionWithMajorVersion:NO completionBlock:^(CMISDocument *latestVersionOfDocument, NSError *error) {
-                STAssertNil(error, @"Error while retrieving latest version of document");
-                STAssertTrue([document.versionLabel isEqualToString:latestVersionOfDocument.versionLabel], @"Version label should match");
-                STAssertTrue([document.creationDate isEqual:latestVersionOfDocument.creationDate], @"Creation dates should be equal");
+                XCTAssertNil(error, @"Error while retrieving latest version of document");
+                XCTAssertTrue([document.versionLabel isEqualToString:latestVersionOfDocument.versionLabel], @"Version label should match");
+                XCTAssertTrue([document.creationDate isEqual:latestVersionOfDocument.creationDate], @"Creation dates should be equal");
                 
                 // Retrieve an older version, and check if we get the right one back if we call the 'retrieveLatest' on it
                 [document retrieveAllVersionsWithCompletionBlock:^(CMISCollection *allVersionsOfDocument, NSError *error) {
-                    STAssertNil(error, @"Error while retrieving all versions: %@", [error description]);
+                    XCTAssertNil(error, @"Error while retrieving all versions: %@", [error description]);
                     
                     CMISDocument *olderVersionOfDocument = [allVersionsOfDocument.items objectAtIndex:1];
-                    STAssertFalse([document.versionLabel isEqualToString:olderVersionOfDocument.versionLabel], @"Version label should NOT match");
+                    XCTAssertFalse([document.versionLabel isEqualToString:olderVersionOfDocument.versionLabel], @"Version label should NOT match");
                     
                     // Commented out due to different behaviour when using 'cmisatom' url
                     //    STAssertTrue([document.creationDate isEqualToDate:olderVersionOfDocument.creationDate], @"Creation dates should match: %@ vs %@", document.creationDate, olderVersionOfDocument.creationDate);
                     
-                    STAssertFalse([document.lastModificationDate isEqual:olderVersionOfDocument.lastModificationDate], @"Creation dates should NOT match");
+                    XCTAssertFalse([document.lastModificationDate isEqual:olderVersionOfDocument.lastModificationDate], @"Creation dates should NOT match");
                     
                     
                     [olderVersionOfDocument retrieveObjectOfLatestVersionWithMajorVersion:NO completionBlock:^(CMISDocument *latestVersionOfDocument, NSError *error) {
-                        STAssertNil(error, @"Error while retrieving latest version of document");
-                        STAssertNotNil(latestVersionOfDocument, @"Latest version should not be nil");
-                        STAssertTrue([document.name isEqualToString:latestVersionOfDocument.name], @"Name should match: expected %@ but was %@", document.name, latestVersionOfDocument.name);
-                        STAssertTrue([document.versionLabel isEqualToString:latestVersionOfDocument.versionLabel], @"Version label should match");
-                        STAssertTrue([document.lastModificationDate isEqual:latestVersionOfDocument.lastModificationDate], @"Creation dates should be equal");
+                        XCTAssertNil(error, @"Error while retrieving latest version of document");
+                        XCTAssertNotNil(latestVersionOfDocument, @"Latest version should not be nil");
+                        XCTAssertTrue([document.name isEqualToString:latestVersionOfDocument.name], @"Name should match: expected %@ but was %@", document.name, latestVersionOfDocument.name);
+                        XCTAssertTrue([document.versionLabel isEqualToString:latestVersionOfDocument.versionLabel], @"Version label should match");
+                        XCTAssertTrue([document.lastModificationDate isEqual:latestVersionOfDocument.lastModificationDate], @"Creation dates should be equal");
 
                         self.testCompleted = YES;
                     }];
@@ -739,17 +739,17 @@
     [setup addObject:[[CMISAtomLink alloc] initWithRelation:@"service" type:nil href:@"http://service"]];
     CMISLinkRelations *linkRelations = [[CMISLinkRelations alloc] initWithLinkRelationSet:setup];
     
-    STAssertNil([linkRelations linkHrefForRel:@"down"], @"Expected nil since there are more link relations with the down relations");
-    STAssertEquals([linkRelations linkHrefForRel:@"service"], @"http://service", @"The Service link should have been returned");
-    STAssertEquals([linkRelations linkHrefForRel:@"down" type:kCMISMediaTypeChildren], @"http://down/children", @"The down relation for the children media type should have been returned");
-    STAssertEquals([linkRelations linkHrefForRel:@"down" type:kCMISMediaTypeDescendants], @"http://down/descendants", @"The down relation for the descendants media type should have been returned");
+    XCTAssertNil([linkRelations linkHrefForRel:@"down"], @"Expected nil since there are more link relations with the down relations");
+    XCTAssertEqual([linkRelations linkHrefForRel:@"service"], @"http://service", @"The Service link should have been returned");
+    XCTAssertEqual([linkRelations linkHrefForRel:@"down" type:kCMISMediaTypeChildren], @"http://down/children", @"The down relation for the children media type should have been returned");
+    XCTAssertEqual([linkRelations linkHrefForRel:@"down" type:kCMISMediaTypeDescendants], @"http://down/descendants", @"The down relation for the descendants media type should have been returned");
 }
 
 - (void)testQueryThroughDiscoveryService
 {
     [self runTest:^ {
         id<CMISDiscoveryService> discoveryService = self.session.binding.discoveryService;
-        STAssertNotNil(discoveryService, @"Discovery service should not be nil");
+        XCTAssertNotNil(discoveryService, @"Discovery service should not be nil");
 
         // Basic check if the service returns results that are usable
         [discoveryService query:@"SELECT * FROM cmis:document"
@@ -760,16 +760,16 @@
                        maxItems:[NSNumber numberWithInt:3]
                       skipCount:[NSNumber numberWithInt:0]
                 completionBlock:^(CMISObjectList *objectList, NSError *error) {
-             STAssertNil(error, @"Got an error while executing query: %@", [error description]);
-             STAssertNotNil(objectList, @"Object list after query should not be nil");
+             XCTAssertNil(error, @"Got an error while executing query: %@", [error description]);
+             XCTAssertNotNil(objectList, @"Object list after query should not be nil");
              
              // numitems not supported by cmisatom url
              //    STAssertTrue(objectList.numItems > 100, @"Expecting at least 100 items when querying for all documents, but got %d", objectList.numItems);
              
-             STAssertTrue(objectList.objects.count == 3, @"Expected 3 items to be returned, but was %d", objectList.objects.count);
+             XCTAssertTrue(objectList.objects.count == 3, @"Expected 3 items to be returned, but was %lu", (unsigned long)objectList.objects.count);
              
              for (CMISObjectData *objectData in objectList.objects) {
-                 STAssertTrue(objectData.properties.propertiesDictionary.count > 10, @"Expecting properties to be passed when querying");
+                 XCTAssertTrue(objectData.properties.propertiesDictionary.count > 10, @"Expecting properties to be passed when querying");
              }
              
              // Doing a query without any maxItems or skipCount, and also only requesting one property 'column'
@@ -779,12 +779,12 @@
                      renditionFilter:nil
              includeAllowableActions:YES
                             maxItems:nil skipCount:nil completionBlock:^(CMISObjectList *objectList, NSError *error) {
-                  STAssertNil(error, @"Got an error while executing query: %@", [error description]);
-                  STAssertNotNil(objectList, @"Object list after query should not be nil");
-                  STAssertTrue(objectList.objects.count > 0, @"Returned # objects is repo specific, but should be at least 1");
+                  XCTAssertNil(error, @"Got an error while executing query: %@", [error description]);
+                  XCTAssertNotNil(objectList, @"Object list after query should not be nil");
+                  XCTAssertTrue(objectList.objects.count > 0, @"Returned # objects is repo specific, but should be at least 1");
                   
                   CMISObjectData *firstResult = [objectList.objects objectAtIndex:0];
-                  STAssertTrue(firstResult.properties.propertiesDictionary.count == 1, @"Only querying for 1 property, but got %d properties back", firstResult.properties.propertiesDictionary.count);
+                  XCTAssertTrue(firstResult.properties.propertiesDictionary.count == 1, @"Only querying for 1 property, but got %lu properties back", (unsigned long)firstResult.properties.propertiesDictionary.count);
                   
                   self.testCompleted = YES;
               }];
@@ -797,42 +797,42 @@
     [self runTest:^ {
          // Query all properties
          [self.session query:@"SELECT * FROM cmis:document WHERE cmis:name LIKE '%quote%'" searchAllVersions:NO completionBlock:^(CMISPagedResult *result, NSError *error) {
-             STAssertNil(error, @"Got an error while executing query: %@", [error description]);
-             STAssertTrue(result.resultArray.count > 0, @"Expected at least one result for query");
+             XCTAssertNil(error, @"Got an error while executing query: %@", [error description]);
+             XCTAssertTrue(result.resultArray.count > 0, @"Expected at least one result for query");
              
              CMISQueryResult *firstResult = [result.resultArray objectAtIndex:0];
-             STAssertNotNil([firstResult.properties propertyForId:kCMISPropertyName], @"Name property should not be nil");
-             STAssertNotNil([firstResult.properties propertyForId:kCMISPropertyVersionLabel], @"Version label property should not be nil");
-             STAssertNotNil([firstResult.properties propertyForId:kCMISPropertyCreationDate], @"Creation date property should not be nil");
-             STAssertNotNil([firstResult.properties propertyForId:kCMISPropertyContentStreamLength], @"Content stream length property should not be nil");
+             XCTAssertNotNil([firstResult.properties propertyForId:kCMISPropertyName], @"Name property should not be nil");
+             XCTAssertNotNil([firstResult.properties propertyForId:kCMISPropertyVersionLabel], @"Version label property should not be nil");
+             XCTAssertNotNil([firstResult.properties propertyForId:kCMISPropertyCreationDate], @"Creation date property should not be nil");
+             XCTAssertNotNil([firstResult.properties propertyForId:kCMISPropertyContentStreamLength], @"Content stream length property should not be nil");
              
-             STAssertNotNil([firstResult.properties propertyForQueryName:kCMISPropertyName], @"Name property should not be nil");
-             STAssertNotNil([firstResult.properties propertyForQueryName:kCMISPropertyVersionLabel], @"Version label property should not be nil");
-             STAssertNotNil([firstResult.properties propertyForQueryName:kCMISPropertyCreationDate], @"Creation date property should not be nil");
-             STAssertNotNil([firstResult.properties propertyForQueryName:kCMISPropertyContentStreamLength], @"Content stream length property should not be nil");
+             XCTAssertNotNil([firstResult.properties propertyForQueryName:kCMISPropertyName], @"Name property should not be nil");
+             XCTAssertNotNil([firstResult.properties propertyForQueryName:kCMISPropertyVersionLabel], @"Version label property should not be nil");
+             XCTAssertNotNil([firstResult.properties propertyForQueryName:kCMISPropertyCreationDate], @"Creation date property should not be nil");
+             XCTAssertNotNil([firstResult.properties propertyForQueryName:kCMISPropertyContentStreamLength], @"Content stream length property should not be nil");
              
              // Query a limited set of properties
              [self.session query:@"SELECT cmis:name, cmis:creationDate FROM cmis:document WHERE cmis:name LIKE '%activiti%'" searchAllVersions:NO completionBlock:^(CMISPagedResult *result, NSError *error) {
-                 STAssertNil(error, @"Got an error while executing query: %@", [error description]);
-                 STAssertTrue(result.resultArray.count > 0, @"Expected at least one result for query");
+                 XCTAssertNil(error, @"Got an error while executing query: %@", [error description]);
+                 XCTAssertTrue(result.resultArray.count > 0, @"Expected at least one result for query");
                  
                  CMISQueryResult *firstResult = [result.resultArray objectAtIndex:0];
-                 STAssertNotNil([firstResult.properties propertyForId:kCMISPropertyName], @"Name property should not be nil");
-                 STAssertNotNil([firstResult.properties propertyForId:kCMISPropertyCreationDate], @"Creation date property should not be nil");
-                 STAssertNil([firstResult.properties propertyForId:kCMISPropertyVersionLabel], @"Version label property should be nil");
-                 STAssertNil([firstResult.properties propertyForId:kCMISPropertyContentStreamLength], @"Content stream length property should be nil");
-                 STAssertNotNil(firstResult.allowableActions, @"By default, allowable actions whould be included");
-                 STAssertTrue(firstResult.allowableActions.allowableActionsSet.count > 0, @"Expected at least one allowable action");
+                 XCTAssertNotNil([firstResult.properties propertyForId:kCMISPropertyName], @"Name property should not be nil");
+                 XCTAssertNotNil([firstResult.properties propertyForId:kCMISPropertyCreationDate], @"Creation date property should not be nil");
+                 XCTAssertNil([firstResult.properties propertyForId:kCMISPropertyVersionLabel], @"Version label property should be nil");
+                 XCTAssertNil([firstResult.properties propertyForId:kCMISPropertyContentStreamLength], @"Content stream length property should be nil");
+                 XCTAssertNotNil(firstResult.allowableActions, @"By default, allowable actions whould be included");
+                 XCTAssertTrue(firstResult.allowableActions.allowableActionsSet.count > 0, @"Expected at least one allowable action");
                  // With operationContext
                  CMISOperationContext *context = [CMISOperationContext defaultOperationContext];
                  context.includeAllowableActions = NO;
                  [self.session query:@"SELECT * FROM cmis:document WHERE cmis:name LIKE '%quote%'"
                    searchAllVersions:NO operationContext:context completionBlock:^(CMISPagedResult *result, NSError *error) {
-                       STAssertNil(error, @"Got an error while executing query: %@", [error description]);
-                       STAssertTrue(result.resultArray.count > 0, @"Expected at least one result for query");
+                       XCTAssertNil(error, @"Got an error while executing query: %@", [error description]);
+                       XCTAssertTrue(result.resultArray.count > 0, @"Expected at least one result for query");
                        CMISQueryResult *firstResult = [result.resultArray objectAtIndex:0];
-                       STAssertTrue(firstResult.allowableActions.allowableActionsSet.count == 0,
-                                    @"Expected allowable actions, as the operation ctx excluded them, but found %d allowable actions", firstResult.allowableActions.allowableActionsSet.count);
+                       XCTAssertTrue(firstResult.allowableActions.allowableActionsSet.count == 0,
+                                    @"Expected allowable actions, as the operation ctx excluded them, but found %lu allowable actions", (unsigned long)firstResult.allowableActions.allowableActionsSet.count);
 
                        self.testCompleted = YES;
                    }];
@@ -849,8 +849,8 @@
          context.maxItemsPerPage = 5;
          context.skipCount = 0;
          [self.session query:@"SELECT * FROM cmis:document" searchAllVersions:NO operationContext:context completionBlock:^(CMISPagedResult *firstPageResult, NSError *error) {
-             STAssertNil(error, @"Got an error while executing query: %@", [error description]);
-             STAssertTrue(firstPageResult.resultArray.count == 5, @"Expected 5 results, but got %d back", firstPageResult.resultArray.count);
+             XCTAssertNil(error, @"Got an error while executing query: %@", [error description]);
+             XCTAssertTrue(firstPageResult.resultArray.count == 5, @"Expected 5 results, but got %lu back", (unsigned long)firstPageResult.resultArray.count);
              
              // Save all the ids to check them later
              NSMutableArray *idsOfFirstPage = [NSMutableArray array];
@@ -860,11 +860,11 @@
              
              // Fetch second page
              [firstPageResult fetchNextPageWithCompletionBlock:^(CMISPagedResult *secondPageResults, NSError *error) {
-                 STAssertNil(error, @"Got an error while executing query: %@", [error description]);
-                 STAssertTrue(secondPageResults.resultArray.count == 5, @"Expected 5 results, but got %d back", secondPageResults.resultArray.count);
+                 XCTAssertNil(error, @"Got an error while executing query: %@", [error description]);
+                 XCTAssertTrue(secondPageResults.resultArray.count == 5, @"Expected 5 results, but got %lu back", (unsigned long)secondPageResults.resultArray.count);
                  
                  for (CMISQueryResult *queryResult in secondPageResults.resultArray) {
-                     STAssertFalse([idsOfFirstPage containsObject:[queryResult propertyForId:kCMISPropertyObjectId]], @"Found same object in first and second page");
+                     XCTAssertFalse([idsOfFirstPage containsObject:[queryResult propertyForId:kCMISPropertyObjectId]], @"Found same object in first and second page");
                  }
                  
                  // Fetch last element by specifying a page which is just lastelement-1
@@ -894,8 +894,8 @@
                             searchAllVersions:NO
                              operationContext:context
                               completionBlock:^(CMISPagedResult *firstPageResult, NSError *error) {
-              STAssertNil(error, @"Got an error while executing query: %@", [error description]);
-              STAssertTrue(firstPageResult.resultArray.count == 2, @"Expected 2 results, but got %d back", firstPageResult.resultArray.count);
+              XCTAssertNil(error, @"Got an error while executing query: %@", [error description]);
+              XCTAssertTrue(firstPageResult.resultArray.count == 2, @"Expected 2 results, but got %lu back", (unsigned long)firstPageResult.resultArray.count);
               
               // Save all the ids to check them later
               NSMutableArray *idsOfFirstPage = [NSMutableArray array];
@@ -905,12 +905,12 @@
               
               // Fetch second page
               [firstPageResult fetchNextPageWithCompletionBlock:^(CMISPagedResult *secondPageResults, NSError *error) {
-                  STAssertNil(error, @"Got an error while executing query: %@", [error description]);
-                  STAssertTrue(secondPageResults.resultArray.count == 2, @"Expected 2 results, but got %d back", secondPageResults.resultArray.count);
+                  XCTAssertNil(error, @"Got an error while executing query: %@", [error description]);
+                  XCTAssertTrue(secondPageResults.resultArray.count == 2, @"Expected 2 results, but got %lu back", (unsigned long)secondPageResults.resultArray.count);
                   
                   for (CMISDocument *document in secondPageResults.resultArray)
                   {
-                      STAssertFalse([idsOfFirstPage containsObject:document.identifier], @"Found same object in first and second page");
+                      XCTAssertFalse([idsOfFirstPage containsObject:document.identifier], @"Found same object in first and second page");
                   }
                   
                   self.testCompleted = YES;
@@ -925,44 +925,44 @@
          // First, do a query for our test document
          NSString *queryStmt = @"SELECT * FROM cmis:document WHERE cmis:name = 'thumbsup-ios-test-retrieve-parents.gif'";
          [self.session query:queryStmt searchAllVersions:NO completionBlock:^(CMISPagedResult *results, NSError *error) {
-             STAssertNil(error, @"Got an error while executing query: %@", [error description]);
-             STAssertTrue(results.resultArray.count == 1, @"Expected one result for query");
+             XCTAssertNil(error, @"Got an error while executing query: %@", [error description]);
+             XCTAssertTrue(results.resultArray.count == 1, @"Expected one result for query");
              CMISQueryResult *result = [results.resultArray objectAtIndex:0];
              
              // Retrieve the document as CMISDocument
              NSString *objectId = [[result propertyForId:kCMISPropertyObjectId] firstValue];
              [self.session retrieveObject:objectId completionBlock:^(CMISObject *object, NSError *error) {
                  CMISDocument *document = (CMISDocument *)object;
-                 STAssertNil(error, @"Got an error while retrieving test document: %@", [error description]);
-                 STAssertNotNil(document, @"Test document should not be nil");
+                 XCTAssertNil(error, @"Got an error while retrieving test document: %@", [error description]);
+                 XCTAssertNotNil(document, @"Test document should not be nil");
                  
                  // Verify the parents of this document
                  CMISFileableObject *currentObject = document;
                  
                  [currentObject retrieveParentsWithCompletionBlock:^(NSArray *parentFolders, NSError *error) {
-                     STAssertNil(error, @"Got an error while retrieving parent folders: %@", [error description]);
-                     STAssertTrue(parentFolders.count == 1, @"Expecting only 1 parent, but found %d parents", parentFolders.count);
+                     XCTAssertNil(error, @"Got an error while retrieving parent folders: %@", [error description]);
+                     XCTAssertTrue(parentFolders.count == 1, @"Expecting only 1 parent, but found %lu parents", (unsigned long)parentFolders.count);
                      CMISFileableObject *currentObject = [parentFolders objectAtIndex:0];
-                     STAssertEqualObjects(@"ios-subsubfolder", currentObject.name, @"Wrong parent folder");
+                     XCTAssertEqualObjects(@"ios-subsubfolder", currentObject.name, @"Wrong parent folder");
                      [currentObject retrieveParentsWithCompletionBlock:^(NSArray *parentFolders, NSError *error) {
-                         STAssertNil(error, @"Got an error while retrieving parent folders: %@", [error description]);
-                         STAssertTrue(parentFolders.count == 1, @"Expecting only 1 parent, but found %d parents", parentFolders.count);
+                         XCTAssertNil(error, @"Got an error while retrieving parent folders: %@", [error description]);
+                         XCTAssertTrue(parentFolders.count == 1, @"Expecting only 1 parent, but found %lu parents", (unsigned long)parentFolders.count);
                          CMISFileableObject *currentObject = [parentFolders objectAtIndex:0];
-                         STAssertEqualObjects(@"ios-subfolder", currentObject.name, @"Wrong parent folder");
+                         XCTAssertEqualObjects(@"ios-subfolder", currentObject.name, @"Wrong parent folder");
                          [currentObject retrieveParentsWithCompletionBlock:^(NSArray *parentFolders, NSError *error) {
-                             STAssertNil(error, @"Got an error while retrieving parent folders: %@", [error description]);
-                             STAssertTrue(parentFolders.count == 1, @"Expecting only 1 parent, but found %d parents", parentFolders.count);
+                             XCTAssertNil(error, @"Got an error while retrieving parent folders: %@", [error description]);
+                             XCTAssertTrue(parentFolders.count == 1, @"Expecting only 1 parent, but found %lu parents", (unsigned long)parentFolders.count);
                              CMISFileableObject *currentObject = [parentFolders objectAtIndex:0];
-                             STAssertEqualObjects(@"ios-test", currentObject.name, @"Wrong parent folder");
+                             XCTAssertEqualObjects(@"ios-test", currentObject.name, @"Wrong parent folder");
                              [currentObject retrieveParentsWithCompletionBlock:^(NSArray *parentFolders, NSError *error) {
-                                 STAssertNil(error, @"Got an error while retrieving parent folders: %@", [error description]);
-                                 STAssertTrue(parentFolders.count == 1, @"Expecting only 1 parent, but found %d parents", parentFolders.count);
+                                 XCTAssertNil(error, @"Got an error while retrieving parent folders: %@", [error description]);
+                                 XCTAssertTrue(parentFolders.count == 1, @"Expecting only 1 parent, but found %lu parents", (unsigned long)parentFolders.count);
                                  CMISFileableObject *currentObject = [parentFolders objectAtIndex:0];
-                                 STAssertEqualObjects(@"Company Home", currentObject.name, @"Wrong parent folder");
+                                 XCTAssertEqualObjects(@"Company Home", currentObject.name, @"Wrong parent folder");
                                  // Check if the root folder parent is empty
                                  [currentObject retrieveParentsWithCompletionBlock:^(NSArray *parentFolders, NSError *error) {
-                                     STAssertNil(error, @"Got an error while retrieving parent folders: %@", [error description]);
-                                     STAssertTrue(parentFolders.count == 0, @"Root folder should not have any parents");
+                                     XCTAssertNil(error, @"Got an error while retrieving parent folders: %@", [error description]);
+                                     XCTAssertTrue(parentFolders.count == 0, @"Root folder should not have any parents");
 
                                      self.testCompleted = YES;
                                  }];
@@ -981,15 +981,15 @@
          // test with non existing object id
          [self.session retrieveObject:@"bogus" completionBlock:^(CMISObject *object, NSError *error) {
              CMISDocument *document = (CMISDocument *)object;
-             STAssertNotNil(error, @"Expecting error when retrieving object with wrong id");
-             STAssertNil(document, @"Document should be nil");
+             XCTAssertNotNil(error, @"Expecting error when retrieving object with wrong id");
+             XCTAssertNil(document, @"Document should be nil");
              
              // Test with a non existing path
              NSString *path = @"/bogus/i_do_not_exist.pdf";
              [self.session retrieveObjectByPath:path completionBlock:^(CMISObject *object, NSError *error) {
                  CMISDocument *document = (CMISDocument *)object;
-                 STAssertNotNil(error, @"Expecting error when retrieving object with wrong path");
-                 STAssertNil(document, @"Document should be nil");
+                 XCTAssertNotNil(error, @"Expecting error when retrieving object with wrong path");
+                 XCTAssertNil(document, @"Document should be nil");
 
                  self.testCompleted = YES;
              }];
@@ -1004,16 +1004,16 @@
          NSString *path = [NSString stringWithFormat:@"%@ios-test/activiti logo big.png", self.rootFolder.path];
          [self.session retrieveObjectByPath:path completionBlock:^(CMISObject *object, NSError *error) {
              CMISDocument *document = (CMISDocument *)object;
-             STAssertNil(error, @"Error while retrieving object with path %@", path);
-             STAssertNotNil(document, @"Document should not be nil");
-             STAssertEqualObjects(@"activiti logo big.png", document.name, @"When retrieving document by path, name does not match");
+             XCTAssertNil(error, @"Error while retrieving object with path %@", path);
+             XCTAssertNotNil(document, @"Document should not be nil");
+             XCTAssertEqualObjects(@"activiti logo big.png", document.name, @"When retrieving document by path, name does not match");
              
              // Test with a few folders
              NSString *path = @"/ios-test/ios-subfolder/ios-subsubfolder/activiti-logo.png";
              [self.session retrieveObjectByPath:path completionBlock:^(CMISObject *object, NSError *error) {
                  CMISDocument *document = (CMISDocument *) object;
-                 STAssertNil(error, @"Error while retrieving object with path %@", path);
-                 STAssertNotNil(document, @"Document should not be nil");
+                 XCTAssertNil(error, @"Error while retrieving object with path %@", path);
+                 XCTAssertNotNil(document, @"Document should not be nil");
 
                  self.testCompleted = YES;
              }];
@@ -1029,7 +1029,7 @@
     [self runTest:^ {
          // Upload test file
          [self uploadTestFileWithCompletionBlock:^(CMISDocument *originalDocument) {
-             STAssertTrue([originalDocument.contentStreamMediaType isEqualToString:@"text/plain"], @"Mime type for original document should be text/plain but it is: %@", originalDocument.contentStreamMediaType);
+             XCTAssertTrue([originalDocument.contentStreamMediaType isEqualToString:@"text/plain"], @"Mime type for original document should be text/plain but it is: %@", originalDocument.contentStreamMediaType);
              // Change content of test file using overwrite
              __block long long previousUploadedBytes = -1;
              NSString *newContentFilePath = [[NSBundle bundleForClass:[self class]] pathForResource:@"test_file_2.txt" ofType:nil];
@@ -1048,17 +1048,17 @@
 //                      NSString *tempDownloadFilePath = @"temp_download_file.txt";
                       // some repos will up the version when uploading new content
                       [originalDocument retrieveObjectOfLatestVersionWithMajorVersion:NO completionBlock:^(CMISDocument *latestVersionOfDocument , NSError *error) {
-                          STAssertTrue([latestVersionOfDocument.contentStreamMediaType isEqualToString:@"text/plain"], @"Mime type for updated document should be text/plain but it is: %@", latestVersionOfDocument.contentStreamMediaType);
+                          XCTAssertTrue([latestVersionOfDocument.contentStreamMediaType isEqualToString:@"text/plain"], @"Mime type for updated document should be text/plain but it is: %@", latestVersionOfDocument.contentStreamMediaType);
                           [latestVersionOfDocument downloadContentToFile:tempDownloadFilePath completionBlock:^(NSError *error) {
                               if (error == nil) {
                                   NSString *contentOfDownloadedFile = [NSString stringWithContentsOfFile:tempDownloadFilePath encoding:NSUTF8StringEncoding error:nil];
-                                  STAssertEqualObjects(@"In theory, there is no difference between theory and practice. But in practice, there is.",
+                                  XCTAssertEqualObjects(@"In theory, there is no difference between theory and practice. But in practice, there is.",
                                                        contentOfDownloadedFile, @"Downloaded file content does not match: '%@'", contentOfDownloadedFile);
                                   
                                   // Delete downloaded file
                                   NSError *fileError;
                                   [[NSFileManager defaultManager] removeItemAtPath:tempDownloadFilePath error:&fileError];
-                                  STAssertNil(fileError, @"Error when deleting temporary downloaded file: %@", [fileError description]);
+                                  XCTAssertNil(fileError, @"Error when deleting temporary downloaded file: %@", [fileError description]);
                                   
 //                                  self.testCompleted = YES;
                                   // Delete test document from server
@@ -1068,19 +1068,19 @@
                                   }];
                                 
                               } else {
-                                  STAssertNil(error, @"Error while writing content: %@", [error description]);
+                                  XCTAssertNil(error, @"Error while writing content: %@", [error description]);
                                   
                                   self.testCompleted = YES;
                               }
                           } progressBlock:nil];
                       }];
                   } else {
-                      STAssertNil(error, @"Got error while changing content of document: %@", [error description]);
+                      XCTAssertNil(error, @"Got error while changing content of document: %@", [error description]);
                   
                       self.testCompleted = YES;
                   }
               } progressBlock: ^ (unsigned long long bytesUploaded, unsigned long long bytesTotal) {
-                  STAssertTrue((long long)bytesUploaded > previousUploadedBytes, @"No progress");
+                  XCTAssertTrue((long long)bytesUploaded > previousUploadedBytes, @"No progress");
                   previousUploadedBytes = bytesUploaded;
               }];
          }];
@@ -1094,12 +1094,12 @@
          [self uploadTestFileWithCompletionBlock:^(CMISDocument *originalDocument) {
              // Delete its content
              [originalDocument deleteContentWithCompletionBlock:^(NSError *error) {
-                 STAssertNil(error, @"Got error while deleting content of document: %@", [error description]);
+                 XCTAssertNil(error, @"Got error while deleting content of document: %@", [error description]);
                  
                  // Get latest version and verify content length
                  [originalDocument retrieveObjectOfLatestVersionWithMajorVersion:NO completionBlock:^(CMISDocument *latestVersion, NSError *error) {
-                     STAssertNil(error, @"Got error while getting latest version of documet: %@", [error description]);
-                     STAssertTrue(latestVersion.contentStreamLength == 0, @"Expected zero content length for document with no content, but was %d", latestVersion.contentStreamLength);
+                     XCTAssertNil(error, @"Got error while getting latest version of documet: %@", [error description]);
+                     XCTAssertTrue(latestVersion.contentStreamLength == 0, @"Expected zero content length for document with no content, but was %lu", (unsigned long)latestVersion.contentStreamLength);
                      
                      // Delete test document from server
                      [self deleteDocumentAndVerify:originalDocument completionBlock:^{
@@ -1115,30 +1115,30 @@
 {
     [self runTest:^ {
          [self.session.binding.repositoryService retrieveTypeDefinition:@"cmis:document" completionBlock:^(CMISTypeDefinition *typeDefinition, NSError *error) {
-             STAssertNil(error, @"Got error while retrieving type definition: %@", [error description]);
+             XCTAssertNil(error, @"Got error while retrieving type definition: %@", [error description]);
              
              // Check type definition properties
-             STAssertNotNil(typeDefinition, @"Type definition should not be nil");
-             STAssertTrue(typeDefinition.baseTypeId == CMISBaseTypeDocument, @"Unexpected base type id");
-             STAssertNotNil(typeDefinition.description, @"Type description should not be nil");
-             STAssertNotNil(typeDefinition.displayName, @"Type displayName should not be nil");
-             STAssertNotNil(typeDefinition.id, @"Type id should not be nil");
-             STAssertTrue([typeDefinition.id isEqualToString:@"cmis:document"], @"Wrong id for type");
-             STAssertNotNil(typeDefinition.localName, @"Type local name should not be nil");
-             STAssertNotNil(typeDefinition.localNameSpace, @"Type local namespace should not be nil");
-             STAssertNotNil(typeDefinition.queryName, @"Type query name should not be nil");
+             XCTAssertNotNil(typeDefinition, @"Type definition should not be nil");
+             XCTAssertTrue(typeDefinition.baseTypeId == CMISBaseTypeDocument, @"Unexpected base type id");
+             XCTAssertNotNil(typeDefinition.description, @"Type description should not be nil");
+             XCTAssertNotNil(typeDefinition.displayName, @"Type displayName should not be nil");
+             XCTAssertNotNil(typeDefinition.id, @"Type id should not be nil");
+             XCTAssertTrue([typeDefinition.id isEqualToString:@"cmis:document"], @"Wrong id for type");
+             XCTAssertNotNil(typeDefinition.localName, @"Type local name should not be nil");
+             XCTAssertNotNil(typeDefinition.localNameSpace, @"Type local namespace should not be nil");
+             XCTAssertNotNil(typeDefinition.queryName, @"Type query name should not be nil");
              
              // Check property definitions
-             STAssertTrue(typeDefinition.propertyDefinitions.count > 0, @"Expected at least one propery definition, but got %d", typeDefinition.propertyDefinitions.count);
+             XCTAssertTrue(typeDefinition.propertyDefinitions.count > 0, @"Expected at least one propery definition, but got %lu", (unsigned long)typeDefinition.propertyDefinitions.count);
              for (id key in typeDefinition.propertyDefinitions)
              {
                  CMISPropertyDefinition *propertyDefinition = [typeDefinition.propertyDefinitions objectForKey:key];
-                 STAssertNotNil(propertyDefinition.description, @"Property definition description should not be nil");
-                 STAssertNotNil(propertyDefinition.displayName, @"Property definition display name should not be nil");
-                 STAssertNotNil(propertyDefinition.id, @"Property definition id should not be nil");
-                 STAssertNotNil(propertyDefinition.localName, @"Property definition local name should not be nil");
-                 STAssertNotNil(propertyDefinition.localNamespace, @"Property definition local namespace should not be nil");
-                 STAssertNotNil(propertyDefinition.queryName, @"Property definition query name should not be nil");
+                 XCTAssertNotNil(propertyDefinition.description, @"Property definition description should not be nil");
+                 XCTAssertNotNil(propertyDefinition.displayName, @"Property definition display name should not be nil");
+                 XCTAssertNotNil(propertyDefinition.id, @"Property definition id should not be nil");
+                 XCTAssertNotNil(propertyDefinition.localName, @"Property definition local name should not be nil");
+                 XCTAssertNotNil(propertyDefinition.localNamespace, @"Property definition local namespace should not be nil");
+                 XCTAssertNotNil(propertyDefinition.queryName, @"Property definition query name should not be nil");
              }
              
              self.testCompleted = YES;
@@ -1160,14 +1160,14 @@
              
              // Update properties and verify
              [objectService updatePropertiesForObject:objectIdInOutParam properties:properties changeToken:nil completionBlock:^(NSError *error) {
-                 STAssertNil(error, @"Got error while updating properties: %@", [error description]);
-                 STAssertNotNil(objectIdInOutParam.outParameter, @"When updating properties, the object id should be returned");
+                 XCTAssertNil(error, @"Got error while updating properties: %@", [error description]);
+                 XCTAssertNotNil(objectIdInOutParam.outParameter, @"When updating properties, the object id should be returned");
                  
                  NSString *newObjectId = objectIdInOutParam.outParameter;
                  [self.session retrieveObject:newObjectId completionBlock:^(CMISObject *object, NSError *error) {
                      CMISDocument *document = (CMISDocument *)object;
-                     STAssertNil(error, @"Got error while retrieving test document: %@", [error description]);
-                     STAssertEqualObjects(document.name, @"name_has_changed", @"Name was not updated");
+                     XCTAssertNil(error, @"Got error while retrieving test document: %@", [error description]);
+                     XCTAssertEqualObjects(document.name, @"name_has_changed", @"Name was not updated");
                      
                      // Cleanup
                      [self deleteDocumentAndVerify:document completionBlock:^{
@@ -1189,7 +1189,7 @@
          [properties setObject:kCMISPropertyObjectTypeIdValueFolder forKey:kCMISPropertyObjectTypeId];
          
          [self.rootFolder createFolder:properties completionBlock:^(NSString *folderId, NSError *error) {
-             STAssertNil(error, @"Got error while creating folder: %@", [error description]);
+             XCTAssertNil(error, @"Got error while creating folder: %@", [error description]);
              
              // Update name of test folder through object service
              id<CMISObjectService> objectService = self.session.binding.objectService;
@@ -1198,18 +1198,18 @@
              NSString *renamedFolderName = [NSString stringWithFormat:@"temp_test_folder_renamed_%@", [self stringFromCurrentDate]];
              [updateProperties addProperty:[CMISPropertyData createPropertyForId:kCMISPropertyName stringValue:renamedFolderName]];
              [objectService updatePropertiesForObject:objectIdParam properties:updateProperties changeToken:nil completionBlock:^(NSError *error) {
-                 STAssertNil(error, @"Got error while updating folder properties: %@", [error description]);
-                 STAssertNotNil(objectIdParam.outParameter, @"Returned object id should not be nil");
+                 XCTAssertNil(error, @"Got error while updating folder properties: %@", [error description]);
+                 XCTAssertNotNil(objectIdParam.outParameter, @"Returned object id should not be nil");
                  
                  // Retrieve folder again and check if name has actually changed
                  [self.session retrieveObject:folderId completionBlock:^(CMISObject *object, NSError *error) {
                      CMISFolder *renamedFolder = (CMISFolder *)object;
-                     STAssertNil(error, @"Got error while retrieving renamed folder: %@", [error description]);
-                     STAssertEqualObjects(renamedFolder.name, renamedFolderName, @"Folder was not renamed, name is %@", renamedFolder.name);
+                     XCTAssertNil(error, @"Got error while retrieving renamed folder: %@", [error description]);
+                     XCTAssertEqualObjects(renamedFolder.name, renamedFolderName, @"Folder was not renamed, name is %@", renamedFolder.name);
                      
                      // Delete test folder
                      [renamedFolder deleteTreeWithDeleteAllVersions:YES unfileObjects:CMISDelete continueOnFailure:YES completionBlock:^(NSArray *failedObjects, NSError *error) {
-                         STAssertNil(error, @"Error while deleting newly created folder: %@", [error description]);
+                         XCTAssertNil(error, @"Error while deleting newly created folder: %@", [error description]);
 
                          self.testCompleted = YES;
                      }];
@@ -1230,9 +1230,9 @@
              [properties setObject:newName forKey:kCMISPropertyName];
              [document updateProperties:properties completionBlock:^(CMISObject *object, NSError *error) {
                  CMISDocument *document = (CMISDocument *)object;
-                 STAssertNil(error, @"Got error while retrieving renamed folder: %@", [error description]);
-                 STAssertEqualObjects(newName, document.name, @"Name was not updated");
-                 STAssertEqualObjects(newName, [document.properties propertyValueForId:kCMISPropertyName], @"Name property was not updated");
+                 XCTAssertNil(error, @"Got error while retrieving renamed folder: %@", [error description]);
+                 XCTAssertEqualObjects(newName, document.name, @"Name was not updated");
+                 XCTAssertEqualObjects(newName, [document.properties propertyValueForId:kCMISPropertyName], @"Name property was not updated");
                  
                  // Cleanup
                  [self deleteDocumentAndVerify:document completionBlock:^{
@@ -1249,15 +1249,15 @@
                attributeCount:(NSUInteger)expectedAttrCount childrenCount:(NSUInteger)expectedChildCount hasValue:(BOOL)hasValue
 {
     CMISLogDebug(@"Checking Extension Element: %@", extElement);
-    STAssertTrue([extElement.name isEqualToString:expectedName], @"Expected extension element name '%@', but name is '%@'", expectedName, extElement.name);
-    STAssertTrue([extElement.namespaceUri isEqualToString:expectedNamespaceUri], @"Expected namespaceUri=%@, but actual namespaceUri=%@", expectedNamespaceUri, extElement.namespaceUri);
-    STAssertTrue(extElement.attributes.count == expectedAttrCount, @"Expected %d attributes, but found %d", expectedAttrCount, extElement.attributes.count);
-    STAssertTrue(extElement.children.count == expectedChildCount, @"Expected %d children elements but found %d", expectedChildCount, extElement.children.count);
+    XCTAssertTrue([extElement.name isEqualToString:expectedName], @"Expected extension element name '%@', but name is '%@'", expectedName, extElement.name);
+    XCTAssertTrue([extElement.namespaceUri isEqualToString:expectedNamespaceUri], @"Expected namespaceUri=%@, but actual namespaceUri=%@", expectedNamespaceUri, extElement.namespaceUri);
+    XCTAssertTrue(extElement.attributes.count == expectedAttrCount, @"Expected %lu attributes, but found %lu", (unsigned long)expectedAttrCount, (unsigned long)extElement.attributes.count);
+    XCTAssertTrue(extElement.children.count == expectedChildCount, @"Expected %lu children elements but found %lu", (unsigned long)expectedChildCount, (unsigned long)extElement.children.count);
     
     if (extElement.children.count > 0) {
-        STAssertNil(extElement.value, @"Extension Element value must by nil but value contained '%@'", extElement.value);
+        XCTAssertNil(extElement.value, @"Extension Element value must by nil but value contained '%@'", extElement.value);
     } else if (hasValue) {
-        STAssertTrue(extElement.value.length > 0, @"Expected extension element value to be non-empty");
+        XCTAssertTrue(extElement.value.length > 0, @"Expected extension element value to be non-empty");
     }
 }
 
@@ -1269,23 +1269,23 @@
     void (^testFolderChildrenXml)(NSString *, BOOL) = ^(NSString * filename, BOOL isOpenCmisImpl) {
         NSString *filePath = [[NSBundle bundleForClass:[self class]] pathForResource:filename ofType:@"xml"];
         NSData *atomData = [[NSData alloc] initWithContentsOfFile:filePath];
-        STAssertNotNil(atomData, @"FolderChildren.xml is missing from the test target!");
+        XCTAssertNotNil(atomData, @"FolderChildren.xml is missing from the test target!");
         
         NSError *error = nil;
         CMISAtomFeedParser *feedParser = [[CMISAtomFeedParser alloc] initWithData:atomData];
-        STAssertTrue([feedParser parseAndReturnError:&error], @"Failed to parse FolderChildren.xml");
+        XCTAssertTrue([feedParser parseAndReturnError:&error], @"Failed to parse FolderChildren.xml");
         
         NSArray *entries = feedParser.entries;
-        STAssertTrue(entries.count == 2, @"Expected 2 parsed entry objects, but found %d", entries.count);
+        XCTAssertTrue(entries.count == 2, @"Expected 2 parsed entry objects, but found %lu", (unsigned long)entries.count);
         
         for (CMISObjectData *objectData  in entries) {
             // Check that there are no extension elements on the Object and allowable actions objects
-            STAssertTrue(objectData.extensions.count == 0, @"Expected 0 extension elements, but found %d", objectData.extensions.count);
-            STAssertTrue(objectData.allowableActions.extensions.count == 0, @"Expected 0 extension elements, but found %d", objectData.allowableActions.extensions.count);
+            XCTAssertTrue(objectData.extensions.count == 0, @"Expected 0 extension elements, but found %lu", (unsigned long)objectData.extensions.count);
+            XCTAssertTrue(objectData.allowableActions.extensions.count == 0, @"Expected 0 extension elements, but found %lu", (unsigned long)objectData.allowableActions.extensions.count);
             
             // Check that we have the expected Alfresco Aspect Extension elements on the Properties object
             NSArray *extensions = objectData.properties.extensions;
-            STAssertTrue(extensions.count == 1, @"Expected only one extension element but encountered %d", extensions.count);
+            XCTAssertTrue(extensions.count == 1, @"Expected only one extension element but encountered %lu", (unsigned long)extensions.count);
             
             // Traverse the extension element tree
             int expectedAspectsExtChildrenCt = (isOpenCmisImpl ? 4 : 5);
@@ -1305,7 +1305,7 @@
                         break;
                     }
                     case 4: {
-                        STAssertFalse(isOpenCmisImpl, @"Unexpected extension element encountered!");
+                        XCTAssertFalse(isOpenCmisImpl, @"Unexpected extension element encountered!");
                         // alf:properties
                         [self checkExtensionElement:aspectChild withName:@"properties" namespaceUri:@"http://www.alfresco.org" attributeCount:0 childrenCount:3 hasValue:NO];
                         
@@ -1324,7 +1324,7 @@
                             NSArray *expectedAttributeNames = [NSArray arrayWithObjects:kCMISCoreQueryName, kCMISCoreDisplayName, kCMISAtomEntryPropertyDefId, nil];
                             NSMutableArray *attrNames = [[aspectPropExt.attributes allKeys] mutableCopy];
                             [attrNames removeObjectsInArray:expectedAttributeNames];
-                            STAssertTrue(0 == attrNames.count, @"Unexpected Attribute(s) found %@", attrNames);
+                            XCTAssertTrue(0 == attrNames.count, @"Unexpected Attribute(s) found %@", attrNames);
                             
                             break;
                         }
@@ -1353,7 +1353,7 @@
         
         CMISExtensionElement *simpleChildExtElement = rootExtElement.children.lastObject;
         [self checkExtensionElement:simpleChildExtElement withName:@"simpleChild" namespaceUri:@"http://www.example.com" attributeCount:0 childrenCount:0 hasValue:YES];
-        STAssertTrue([simpleChildExtElement.value isEqualToString:@"simpleChildValue"], @"Expected value 'simpleChildValue' but was '%@'", simpleChildExtElement.value);
+        XCTAssertTrue([simpleChildExtElement.value isEqualToString:@"simpleChildValue"], @"Expected value 'simpleChildValue' but was '%@'", simpleChildExtElement.value);
     };
     
     void (^testComplexRootExtensionElement)(CMISExtensionElement *) = ^(CMISExtensionElement *rootExtElement) {
@@ -1376,26 +1376,26 @@
     
     NSString *filePath = [[NSBundle bundleForClass:[self class]] pathForResource:@"AtomFeedWithExtensions" ofType:@"xml"];
     NSData *atomData = [[NSData alloc] initWithContentsOfFile:filePath];
-    STAssertNotNil(atomData, @"AtomFeedWithExtensions.xml is missing from the test target!");
+    XCTAssertNotNil(atomData, @"AtomFeedWithExtensions.xml is missing from the test target!");
     
     NSError *error = nil;
     CMISAtomFeedParser *feedParser = [[CMISAtomFeedParser alloc] initWithData:atomData];
-    STAssertTrue([feedParser parseAndReturnError:&error], @"Failed to parse AtomFeedWithExtensions.xml");
+    XCTAssertTrue([feedParser parseAndReturnError:&error], @"Failed to parse AtomFeedWithExtensions.xml");
     
     NSArray *entries = feedParser.entries;
-    STAssertTrue(entries.count == 2, @"Expected 2 parsed entry objects, but found %d", entries.count);
+    XCTAssertTrue(entries.count == 2, @"Expected 2 parsed entry objects, but found %lu", (unsigned long)entries.count);
     
     for (CMISObjectData *objectData  in entries) {
-        STAssertTrue(objectData.extensions.count == 2, @"Expected 2 extension elements, but found %d", objectData.extensions.count);
+        XCTAssertTrue(objectData.extensions.count == 2, @"Expected 2 extension elements, but found %lu", (unsigned long)objectData.extensions.count);
         testSimpleRootExtensionElement([objectData.extensions objectAtIndex:0]);
         testComplexRootExtensionElement([objectData.extensions objectAtIndex:1]);
         
-        STAssertTrue(objectData.allowableActions.extensions.count == 2, @"Expected 2 extension elements, but found %d", objectData.allowableActions.extensions.count);
+        XCTAssertTrue(objectData.allowableActions.extensions.count == 2, @"Expected 2 extension elements, but found %lu", (unsigned long)objectData.allowableActions.extensions.count);
         testSimpleRootExtensionElement([objectData.allowableActions.extensions objectAtIndex:0]);
         testComplexRootExtensionElement([objectData.allowableActions.extensions objectAtIndex:1]);
         
         NSArray *extensions = objectData.properties.extensions;
-        STAssertTrue(extensions.count == 2, @"Expected only one extension element but encountered %d", extensions.count);
+        XCTAssertTrue(extensions.count == 2, @"Expected only one extension element but encountered %lu", (unsigned long)extensions.count);
         testSimpleRootExtensionElement([objectData.properties.extensions objectAtIndex:0]);
         testComplexRootExtensionElement([objectData.properties.extensions objectAtIndex:1]);
     }
@@ -1412,7 +1412,7 @@
         
         CMISExtensionElement *simpleChildExtElement = rootExtElement.children.lastObject;
         [self checkExtensionElement:simpleChildExtElement withName:@"simpleChild" namespaceUri:@"http://www.example.com" attributeCount:0 childrenCount:0 hasValue:YES];
-        STAssertTrue([simpleChildExtElement.value isEqualToString:@"simpleChildValue"], @"Expected value 'simpleChildValue' but was '%@'", simpleChildExtElement.value);
+        XCTAssertTrue([simpleChildExtElement.value isEqualToString:@"simpleChildValue"], @"Expected value 'simpleChildValue' but was '%@'", simpleChildExtElement.value);
     };
     
     void (^testComplexRootExtensionElement)(CMISExtensionElement *) = ^(CMISExtensionElement *rootExtElement) {
@@ -1436,17 +1436,17 @@
     // Testing AllowableActions Extensions using the - initWithData: entry point
     NSString *filePath = [[NSBundle bundleForClass:[self class]] pathForResource:@"AtomPubServiceDocument" ofType:@"xml"];
     NSData *atomData = [[NSData alloc] initWithContentsOfFile:filePath];
-    STAssertNotNil(atomData, @"AtomPubServiceDocument.xml is missing from the test target!");
+    XCTAssertNotNil(atomData, @"AtomPubServiceDocument.xml is missing from the test target!");
     
     NSError *error = nil;
     CMISServiceDocumentParser *serviceDocParser = [[CMISServiceDocumentParser alloc] initWithData:atomData];
-    STAssertTrue([serviceDocParser parseAndReturnError:&error], @"Failed to parse AtomPubServiceDocument.xml");
+    XCTAssertTrue([serviceDocParser parseAndReturnError:&error], @"Failed to parse AtomPubServiceDocument.xml");
     
     NSArray *workspaces = [serviceDocParser workspaces];
     CMISWorkspace *workspace = [workspaces objectAtIndex:0];
     CMISRepositoryInfo *repoInfo = workspace.repositoryInfo;
     
-    STAssertTrue(repoInfo.extensions.count == 2, @"Expected 2 extension elements, but found %d", repoInfo.extensions.count);
+    XCTAssertTrue(repoInfo.extensions.count == 2, @"Expected 2 extension elements, but found %lu", (unsigned long)repoInfo.extensions.count);
     testSimpleRootExtensionElement([repoInfo.extensions objectAtIndex:0]);
     testComplexRootExtensionElement([repoInfo.extensions objectAtIndex:1]);
 }
@@ -1509,14 +1509,14 @@
          [properties setObject:[CMISPropertyData createPropertyForId:kCMISPropertyContentStreamLength integerValue:5] forKey:kCMISPropertyContentStreamLength];
          
          [self.session.objectConverter convertProperties:properties forObjectTypeId:@"cmis:document" completionBlock:^(CMISProperties *convertedProperties, NSError *error) {
-             STAssertNil(error, @"Error while converting properties: %@", [error description]);
-             STAssertNotNil(convertedProperties, @"Conversion failed, nil was returned");
-             STAssertTrue(convertedProperties.propertyList.count == 5, @"Expected 5 converted properties, but was %d", convertedProperties.propertyList.count);
-             STAssertEqualObjects(@"testName", [[convertedProperties propertyForId:kCMISPropertyName]propertyStringValue], @"Converted property value did not match");
-             STAssertEqualObjects(@"cmis:document", [[convertedProperties propertyForId:kCMISPropertyObjectTypeId] propertyIdValue], @"Converted property value did not match");
-             STAssertEqualObjects(testDate, [[convertedProperties propertyForId:kCMISPropertyCreationDate] propertyDateTimeValue], @"Converted property value did not match");
-             STAssertEqualObjects([NSNumber numberWithBool:YES], [[convertedProperties propertyForId:kCMISPropertyIsLatestVersion] propertyBooleanValue], @"Converted property value did not match");
-             STAssertEqualObjects([NSNumber numberWithInteger:5], [[convertedProperties propertyForId:kCMISPropertyContentStreamLength] propertyIntegerValue], @"Converted property value did not match");
+             XCTAssertNil(error, @"Error while converting properties: %@", [error description]);
+             XCTAssertNotNil(convertedProperties, @"Conversion failed, nil was returned");
+             XCTAssertTrue(convertedProperties.propertyList.count == 5, @"Expected 5 converted properties, but was %lu", (unsigned long)convertedProperties.propertyList.count);
+             XCTAssertEqualObjects(@"testName", [[convertedProperties propertyForId:kCMISPropertyName]propertyStringValue], @"Converted property value did not match");
+             XCTAssertEqualObjects(@"cmis:document", [[convertedProperties propertyForId:kCMISPropertyObjectTypeId] propertyIdValue], @"Converted property value did not match");
+             XCTAssertEqualObjects(testDate, [[convertedProperties propertyForId:kCMISPropertyCreationDate] propertyDateTimeValue], @"Converted property value did not match");
+             XCTAssertEqualObjects([NSNumber numberWithBool:YES], [[convertedProperties propertyForId:kCMISPropertyIsLatestVersion] propertyBooleanValue], @"Converted property value did not match");
+             XCTAssertEqualObjects([NSNumber numberWithInteger:5], [[convertedProperties propertyForId:kCMISPropertyContentStreamLength] propertyIntegerValue], @"Converted property value did not match");
              
              // Test with non-CMISPropertyData values
              NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
@@ -1527,43 +1527,43 @@
              [properties setObject:[NSNumber numberWithInt:4] forKey:kCMISPropertyContentStreamLength];
              
              [self.session.objectConverter convertProperties:properties forObjectTypeId:@"cmis:document" completionBlock:^(CMISProperties *convertedProperties, NSError *error) {
-                 STAssertNil(error, @"Error while converting properties: %@", [error description]);
-                 STAssertNotNil(convertedProperties, @"Conversion failed, nil was returned");
-                 STAssertTrue(convertedProperties.propertyList.count == 5, @"Expected 5 converted properties, but was %d", convertedProperties.propertyList.count);
-                 STAssertEqualObjects(@"test", [[convertedProperties propertyForId:kCMISPropertyName] propertyStringValue], @"Converted property value did not match");
-                 STAssertEqualObjects(@"cmis:document", [[convertedProperties propertyForId:kCMISPropertyObjectTypeId] propertyIdValue], @"Converted property value did not match");
+                 XCTAssertNil(error, @"Error while converting properties: %@", [error description]);
+                 XCTAssertNotNil(convertedProperties, @"Conversion failed, nil was returned");
+                 XCTAssertTrue(convertedProperties.propertyList.count == 5, @"Expected 5 converted properties, but was %lu", (unsigned long)convertedProperties.propertyList.count);
+                 XCTAssertEqualObjects(@"test", [[convertedProperties propertyForId:kCMISPropertyName] propertyStringValue], @"Converted property value did not match");
+                 XCTAssertEqualObjects(@"cmis:document", [[convertedProperties propertyForId:kCMISPropertyObjectTypeId] propertyIdValue], @"Converted property value did not match");
                  
                  // NSDate is using sub-second precision ... and the formatter is not.
                  // ... sigh ... hence we test if the dates are 'relatively' (ie 1 second) close
                  NSDate *convertedDate = [[convertedProperties propertyForId:kCMISPropertyCreationDate] propertyDateTimeValue];
                  NSDateComponents *convertedComps = [calendar components:unitflags fromDate:convertedDate];
                  BOOL isOnSameDate = (origComponents.year == convertedComps.year) && (origComponents.month == convertedComps.month) && (origComponents.day == convertedComps.day);
-                 STAssertTrue(isOnSameDate, @"We expected the reconverted date to be on the same date as the original one");
+                 XCTAssertTrue(isOnSameDate, @"We expected the reconverted date to be on the same date as the original one");
                  
                  BOOL isOnSameTime = (origComponents.hour == convertedComps.hour) && (origComponents.minute == convertedComps.minute) && (origComponents.second == convertedComps.second);
-                 STAssertTrue(isOnSameTime, @"We expected the reconverted time to be at the same time as the original one");
+                 XCTAssertTrue(isOnSameTime, @"We expected the reconverted time to be at the same time as the original one");
                  
 //                 NSDate *convertedDate = [[convertedProperties propertyForId:kCMISPropertyCreationDate] propertyDateTimeValue];
 //                 STAssertTrue(testDate.timeIntervalSince1970 - 1000 <= convertedDate.timeIntervalSince1970
 //                              && convertedDate.timeIntervalSince1970 <= testDate.timeIntervalSince1970 + 1000, @"Converted property value did not match");
-                 STAssertEqualObjects([NSNumber numberWithBool:NO], [[convertedProperties propertyForId:kCMISPropertyIsLatestVersion] propertyBooleanValue], @"Converted property value did not match");
-                 STAssertEqualObjects([NSNumber numberWithInteger:4], [[convertedProperties propertyForId:kCMISPropertyContentStreamLength] propertyIntegerValue], @"Converted property value did not match");
+                 XCTAssertEqualObjects([NSNumber numberWithBool:NO], [[convertedProperties propertyForId:kCMISPropertyIsLatestVersion] propertyBooleanValue], @"Converted property value did not match");
+                 XCTAssertEqualObjects([NSNumber numberWithInteger:4], [[convertedProperties propertyForId:kCMISPropertyContentStreamLength] propertyIntegerValue], @"Converted property value did not match");
                  
                  // Test error return
                  [self.session.objectConverter convertProperties:nil forObjectTypeId:@"doesntmatter" completionBlock:^(CMISProperties *convertedProperties, NSError *error) {
-                     STAssertNil(convertedProperties, @"Should be nil");
+                     XCTAssertNil(convertedProperties, @"Should be nil");
 
                      NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
                      [properties setObject:@"test" forKey:kCMISPropertyContentStreamLength];
                      [self.session.objectConverter convertProperties:properties forObjectTypeId:@"cmis:document" completionBlock:^(CMISProperties *convertedProperties, NSError *error) {
-                         STAssertNotNil(error, @"Expecting an error when converting");
-                         STAssertNil(convertedProperties, @"When conversion goes wrong, should return nil");
+                         XCTAssertNotNil(error, @"Expecting an error when converting");
+                         XCTAssertNil(convertedProperties, @"When conversion goes wrong, should return nil");
                          
                          NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
                          [properties setObject:[NSNumber numberWithBool:YES] forKey:kCMISPropertyName];
                          [self.session.objectConverter convertProperties:properties forObjectTypeId:@"cmis:document" completionBlock:^(CMISProperties *convertedProperties, NSError *error) {
-                             STAssertNotNil(error, @"Expecting an error when converting");
-                             STAssertNil(convertedProperties, @"When conversion goes wrong, should return nil");
+                             XCTAssertNotNil(error, @"Expecting an error when converting");
+                             XCTAssertNil(convertedProperties, @"When conversion goes wrong, should return nil");
                              
                              self.testCompleted = YES;
                          }];
@@ -1584,18 +1584,18 @@
              ctx.includeAllowableActions = YES;
              [self.session retrieveObject:testDocument.identifier operationContext:ctx completionBlock:^(CMISObject *object, NSError *error) {
                  CMISDocument *document = (CMISDocument *)object;
-                 STAssertNil(error, @"Got error while retrieving object : %@", [error description]);
-                 STAssertNotNil(document.allowableActions, @"Allowable actions should not be nil");
-                 STAssertTrue(document.allowableActions.allowableActionsSet.count > 0, @"Expected at least one allowable action");
+                 XCTAssertNil(error, @"Got error while retrieving object : %@", [error description]);
+                 XCTAssertNotNil(document.allowableActions, @"Allowable actions should not be nil");
+                 XCTAssertTrue(document.allowableActions.allowableActionsSet.count > 0, @"Expected at least one allowable action");
                  
                  //Use NO for allowable actions
                  CMISOperationContext *ctx = [[CMISOperationContext alloc] init];
                  ctx.includeAllowableActions = NO;
                  [self.session retrieveObject:testDocument.identifier operationContext:ctx completionBlock:^(CMISObject *object, NSError *error) {
                      CMISDocument *document = (CMISDocument *)object;
-                     STAssertNil(error, @"Got error while retrieving object : %@", [error description]);
-                     STAssertNil(document.allowableActions, @"Allowable actions should be nil");
-                     STAssertTrue(document.allowableActions.allowableActionsSet.count == 0, @"Expected zero allowable actions");
+                     XCTAssertNil(error, @"Got error while retrieving object : %@", [error description]);
+                     XCTAssertNil(document.allowableActions, @"Allowable actions should be nil");
+                     XCTAssertTrue(document.allowableActions.allowableActionsSet.count == 0, @"Expected zero allowable actions");
                      
                      // Cleanup
                      [self deleteDocumentAndVerify:testDocument completionBlock:^{
@@ -1616,19 +1616,19 @@
          operationContext.renditionFilterString = @"*";
          [self.session retrieveObjectByPath:path operationContext:operationContext completionBlock:^(CMISObject *object, NSError *error) {
              CMISDocument *document = (CMISDocument *)object;
-             STAssertNil(error, @"Error while retrieving document: %@", [error description]);
+             XCTAssertNil(error, @"Error while retrieving document: %@", [error description]);
              
              // Get and verify Renditions
              NSArray *renditions = document.renditions;
-             STAssertTrue(renditions.count > 0, @"Expected at least one rendition");
+             XCTAssertTrue(renditions.count > 0, @"Expected at least one rendition");
              CMISRendition *thumbnailRendition = nil;
              for (CMISRendition *rendition in renditions) {
                  if ([rendition.kind isEqualToString:@"cmis:thumbnail"]) {
                      thumbnailRendition = rendition;
                  }
              }
-             STAssertNotNil(thumbnailRendition, @"Thumbnail rendition should be availabile");
-             STAssertTrue(thumbnailRendition.length > 0, @"Rendition length should be greater than 0");
+             XCTAssertNotNil(thumbnailRendition, @"Thumbnail rendition should be availabile");
+             XCTAssertTrue(thumbnailRendition.length > 0, @"Rendition length should be greater than 0");
              
              // Get content
              NSString *filePath = [NSString stringWithFormat:@"%@/testfile.pdf" , NSTemporaryDirectory()];
@@ -1636,19 +1636,19 @@
              [thumbnailRendition downloadRenditionContentToFile:filePath completionBlock:^(NSError *error) {
                  if (error == nil) {
                      // Assert File exists and check file length
-                     STAssertTrue([[NSFileManager defaultManager] fileExistsAtPath:filePath], @"File does not exist");
+                     XCTAssertTrue([[NSFileManager defaultManager] fileExistsAtPath:filePath], @"File does not exist");
                      NSError *fileError;
                      NSDictionary *fileAttributes = [[NSFileManager defaultManager] attributesOfItemAtPath:filePath error:&fileError];
-                     STAssertNil(fileError, @"Could not verify attributes of file %@: %@", filePath, [fileError description]);
-                     STAssertTrue([fileAttributes fileSize] > 10, @"Expected a file of at least 10 bytes, but found one of %d bytes", [fileAttributes fileSize]);
+                     XCTAssertNil(fileError, @"Could not verify attributes of file %@: %@", filePath, [fileError description]);
+                     XCTAssertTrue([fileAttributes fileSize] > 10, @"Expected a file of at least 10 bytes, but found one of %lu bytes", (unsigned long)[fileAttributes fileSize]);
                      
                      // Nice boys clean up after themselves
                      [[NSFileManager defaultManager] removeItemAtPath:filePath error:&fileError];
-                     STAssertNil(fileError, @"Could not remove file %@: %@", filePath, [fileError description]);
+                     XCTAssertNil(fileError, @"Could not remove file %@: %@", filePath, [fileError description]);
                      
                      self.testCompleted = YES;
                  } else {
-                     STAssertNil(error, @"Error while writing content: %@", [error description]);
+                     XCTAssertNil(error, @"Error while writing content: %@", [error description]);
                  
                      self.testCompleted = YES;
                  }
@@ -1666,7 +1666,7 @@
          operationContext.renditionFilterString = @"*";
          [self.session retrieveObjectByPath:path operationContext:operationContext completionBlock:^(CMISObject *object, NSError *error) {
              CMISDocument *document = (CMISDocument *)object;
-             STAssertNil(error, @"Error while retrieving document: %@", [error description]);
+             XCTAssertNil(error, @"Error while retrieving document: %@", [error description]);
              
              // Get renditions through service
              [self.session.binding.objectService retrieveRenditions:document.identifier
@@ -1674,16 +1674,16 @@
                                                            maxItems:nil
                                                           skipCount:nil
                                                     completionBlock:^(NSArray *renditions, NSError *error) {
-                  STAssertNil(error, @"Error while retrieving renditions: %@", [error description]);
-                  STAssertTrue(renditions.count > 0, @"Expected at least one rendition");
+                  XCTAssertNil(error, @"Error while retrieving renditions: %@", [error description]);
+                  XCTAssertTrue(renditions.count > 0, @"Expected at least one rendition");
                   CMISRenditionData *thumbnailRendition = nil;
                   for (CMISRenditionData *rendition in renditions) {
                       if ([rendition.kind isEqualToString:@"cmis:thumbnail"]) {
                           thumbnailRendition = rendition;
                       }
                   }
-                  STAssertNotNil(thumbnailRendition, @"Thumbnail rendition should be availabile");
-                  STAssertTrue(thumbnailRendition.length > 0, @"Rendition length should be greater than 0");
+                  XCTAssertNotNil(thumbnailRendition, @"Thumbnail rendition should be availabile");
+                  XCTAssertTrue(thumbnailRendition.length > 0, @"Rendition length should be greater than 0");
                   
                   // Download content through objectService
                   NSString *filePath = [NSString stringWithFormat:@"%@/testfile-rendition-through-objectservice.pdf", NSTemporaryDirectory()];
@@ -1694,17 +1694,17 @@
                                                               completionBlock: ^(NSError *error) {
                        if (error == nil) {
                            // Assert File exists and check file length
-                           STAssertTrue([[NSFileManager defaultManager] fileExistsAtPath:filePath], @"File does not exist");
+                           XCTAssertTrue([[NSFileManager defaultManager] fileExistsAtPath:filePath], @"File does not exist");
                            NSError *fileError;
                            NSDictionary *fileAttributes = [[NSFileManager defaultManager] attributesOfItemAtPath:filePath error:&fileError];
-                           STAssertNil(error, @"Could not verify attributes of file %@: %@", filePath, [error description]);
-                           STAssertTrue([fileAttributes fileSize] > 10, @"Expected a file of at least 10 bytes, but found one of %d bytes", [fileAttributes fileSize]);
+                           XCTAssertNil(error, @"Could not verify attributes of file %@: %@", filePath, [error description]);
+                           XCTAssertTrue([fileAttributes fileSize] > 10, @"Expected a file of at least 10 bytes, but found one of %lu bytes", (unsigned long)[fileAttributes fileSize]);
 
                            // Nice boys clean up after themselves
                            [[NSFileManager defaultManager] removeItemAtPath:filePath error:&fileError];
-                           STAssertNil(fileError, @"Could not remove file %@: %@", filePath, [fileError description]);
+                           XCTAssertNil(fileError, @"Could not remove file %@: %@", filePath, [fileError description]);
                        } else {
-                           STAssertNil(error, @"Error while downloading content: %@", [error description]);
+                           XCTAssertNil(error, @"Error while downloading content: %@", [error description]);
                        }
                        
                        self.testCompleted = YES;

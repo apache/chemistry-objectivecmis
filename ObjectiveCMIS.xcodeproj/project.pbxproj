@@ -86,7 +86,6 @@
 		8276E15A155E392A00344A29 /* CMISRepositoryService.h in Headers */ = {isa = PBXBuildFile; fileRef = 8276E157155E392A00344A29 /* CMISRepositoryService.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		8276E15B155E392A00344A29 /* CMISVersioningService.h in Headers */ = {isa = PBXBuildFile; fileRef = 8276E158155E392A00344A29 /* CMISVersioningService.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		828072A715153DE800EF635C /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 828072A615153DE800EF635C /* Foundation.framework */; };
-		828072B515153DE900EF635C /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 828072B415153DE900EF635C /* SenTestingKit.framework */; };
 		828072B815153DE900EF635C /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 828072A615153DE800EF635C /* Foundation.framework */; };
 		828072BB15153DE900EF635C /* libObjectiveCMIS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 828072A315153DE800EF635C /* libObjectiveCMIS.a */; };
 		828072C115153DE900EF635C /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 828072BF15153DE900EF635C /* InfoPlist.strings */; };
@@ -281,8 +280,7 @@
 		828072A315153DE800EF635C /* libObjectiveCMIS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libObjectiveCMIS.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		828072A615153DE800EF635C /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		828072AA15153DE800EF635C /* ObjectiveCMIS-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ObjectiveCMIS-Prefix.pch"; sourceTree = "<group>"; };
-		828072B315153DE900EF635C /* ObjectiveCMISTests.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ObjectiveCMISTests.octest; sourceTree = BUILT_PRODUCTS_DIR; };
-		828072B415153DE900EF635C /* SenTestingKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SenTestingKit.framework; path = Library/Frameworks/SenTestingKit.framework; sourceTree = DEVELOPER_DIR; };
+		828072B315153DE900EF635C /* ObjectiveCMISTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ObjectiveCMISTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		828072BE15153DE900EF635C /* ObjectiveCMISTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "ObjectiveCMISTests-Info.plist"; sourceTree = "<group>"; };
 		828072C015153DE900EF635C /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		828072C215153DE900EF635C /* ObjectiveCMISTests.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ObjectiveCMISTests.h; sourceTree = "<group>"; };
@@ -416,7 +414,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				828073DE15154F9400EF635C /* MobileCoreServices.framework in Frameworks */,
-				828072B515153DE900EF635C /* SenTestingKit.framework in Frameworks */,
 				828072B815153DE900EF635C /* Foundation.framework in Frameworks */,
 				828072BB15153DE900EF635C /* libObjectiveCMIS.a in Frameworks */,
 			);
@@ -466,7 +463,7 @@
 			isa = PBXGroup;
 			children = (
 				828072A315153DE800EF635C /* libObjectiveCMIS.a */,
-				828072B315153DE900EF635C /* ObjectiveCMISTests.octest */,
+				828072B315153DE900EF635C /* ObjectiveCMISTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -476,7 +473,6 @@
 			children = (
 				82807383151542F400EF635C /* MobileCoreServices.framework */,
 				828072A615153DE800EF635C /* Foundation.framework */,
-				828072B415153DE900EF635C /* SenTestingKit.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -857,8 +853,8 @@
 			);
 			name = ObjectiveCMISTests;
 			productName = ObjectiveCMISTests;
-			productReference = 828072B315153DE900EF635C /* ObjectiveCMISTests.octest */;
-			productType = "com.apple.product-type.bundle";
+			productReference = 828072B315153DE900EF635C /* ObjectiveCMISTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
 
@@ -1187,14 +1183,12 @@
 			buildSettings = {
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
-					"$(DEVELOPER_LIBRARY_DIR)/Frameworks",
+					"$(inherited)",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "ObjectiveCMIS/ObjectiveCMIS-Prefix.pch";
 				INFOPLIST_FILE = "ObjectiveCMISTests/ObjectiveCMISTests-Info.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				TEST_AFTER_BUILD = NO;
-				WRAPPER_EXTENSION = octest;
 			};
 			name = Debug;
 		};
@@ -1203,14 +1197,12 @@
 			buildSettings = {
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
-					"$(DEVELOPER_LIBRARY_DIR)/Frameworks",
+					"$(inherited)",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "ObjectiveCMIS/ObjectiveCMIS-Prefix.pch";
 				INFOPLIST_FILE = "ObjectiveCMISTests/ObjectiveCMISTests-Info.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				TEST_AFTER_BUILD = NO;
-				WRAPPER_EXTENSION = octest;
 			};
 			name = Release;
 		};

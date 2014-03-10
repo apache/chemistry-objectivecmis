@@ -18,7 +18,7 @@
  */
  
 #import <Foundation/Foundation.h>
-#import <SenTestingKit/SenTestingKit.h>
+#import <XCTest/XCTest.h>
 #import "CMISDocument.h"
 
 @class CMISFolder;
@@ -27,7 +27,7 @@
 
 typedef void (^CMISTestBlock)(void);
 
-@interface CMISBaseTest : SenTestCase
+@interface CMISBaseTest : XCTestCase
 
 @property (nonatomic, strong) CMISSessionParameters *parameters;
 @property (nonatomic, strong) CMISSession *session;

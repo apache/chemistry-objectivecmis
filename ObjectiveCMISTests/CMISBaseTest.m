@@ -33,16 +33,16 @@
 - (void) runTest:(CMISTestBlock)testBlock withExtraSessionParameters:(NSDictionary *)extraSessionParameters
 {
     NSBundle *bundle = [NSBundle bundleForClass:[self class]];
-    STAssertNotNil(bundle, @"Bundle is nil!");
+    XCTAssertNotNil(bundle, @"Bundle is nil!");
 
     NSString *envsPListPath = [bundle pathForResource:@"env-cfg" ofType:@"plist"];
-    STAssertNotNil(envsPListPath, @"envsPListPath is nil!");
+    XCTAssertNotNil(envsPListPath, @"envsPListPath is nil!");
 
     NSDictionary *environmentsDict = [[NSDictionary alloc] initWithContentsOfFile:envsPListPath];
-    STAssertNotNil(environmentsDict, @"environmentsDict is nil!");
+    XCTAssertNotNil(environmentsDict, @"environmentsDict is nil!");
 
     NSArray *environmentArray = [environmentsDict objectForKey:@"environments"];
-    STAssertNotNil(environmentArray, @"environmentArray is nil!");
+    XCTAssertNotNil(environmentArray, @"environmentArray is nil!");
 
     for (NSDictionary *envDict in environmentArray) {
         NSString *url = [envDict valueForKey:@"url"];
@@ -91,11 +91,11 @@
 
         } else {
             self.session = session;
-            STAssertTrue(self.session.isAuthenticated, @"Session should be authenticated");
+            XCTAssertTrue(self.session.isAuthenticated, @"Session should be authenticated");
             [self.session retrieveRootFolderWithCompletionBlock:^(CMISFolder *rootFolder, NSError *error) {
                 self.rootFolder = rootFolder;
-                STAssertNil(error, @"Error while retrieving root folder: %@", [error description]);
-                STAssertNotNil(self.rootFolder, @"rootFolder object should not be nil");
+                XCTAssertNil(error, @"Error while retrieving root folder: %@", [error description]);
+                XCTAssertNotNil(self.rootFolder, @"rootFolder object should not be nil");
                 
                 completionBlock();
             }];
@@ -106,7 +106,7 @@
 
 - (NSDictionary *)customCmisParameters
 {
-    // Ment to be overridden.
+    // Meant to be overridden.
     return nil;
 }
 
@@ -116,10 +116,10 @@
 {
     [self.session retrieveObjectByPath:@"/ios-test/versioned-quote.txt" completionBlock:^(CMISObject *object, NSError *error) {
         CMISDocument *document = (CMISDocument *)object;
-        STAssertNotNil(document, @"Did not find test document for versioning test");
-        STAssertTrue(document.isLatestVersion, @"Should have 'true' for the property 'isLatestVersion");
-        STAssertFalse(document.isLatestMajorVersion, @"Should have 'false' for the property 'isLatestMajorVersion"); // the latest version is a minor one
-        STAssertFalse(document.isMajorVersion, @"Should have 'false' for the property 'isMajorVersion");
+        XCTAssertNotNil(document, @"Did not find test document for versioning test");
+        XCTAssertTrue(document.isLatestVersion, @"Should have 'true' for the property 'isLatestVersion");
+        XCTAssertFalse(document.isLatestMajorVersion, @"Should have 'false' for the property 'isLatestMajorVersion"); // the latest version is a minor one
+        XCTAssertFalse(document.isMajorVersion, @"Should have 'false' for the property 'isMajorVersion");
         
         completionBlock(document);
     }];
@@ -146,19 +146,19 @@
                     
                     [self.session retrieveObject:objectId completionBlock:^(CMISObject *object, NSError *error) {
                         CMISDocument *document = (CMISDocument *)object;
-                        STAssertNil(error, @"Got error while creating document: %@", [error description]);
-                        STAssertNotNil(objectId, @"Object id received should be non-nil");
-                        STAssertNotNil(document, @"Retrieved document should not be nil");
+                        XCTAssertNil(error, @"Got error while creating document: %@", [error description]);
+                        XCTAssertNotNil(objectId, @"Object id received should be non-nil");
+                        XCTAssertNotNil(document, @"Retrieved document should not be nil");
                         completionBlock(document);
                     }];
                 } else {
-                    STAssertNotNil(error, @"Object id should not be nil");
-                    STAssertNil(error, @"Got error while uploading document: %@", [error description]);
+                    XCTAssertNotNil(error, @"Object id should not be nil");
+                    XCTAssertNil(error, @"Got error while uploading document: %@", [error description]);
                 }
             }
             progressBlock: ^ (unsigned long long uploadedBytes, unsigned long long totalBytes)
             {
-                STAssertTrue((long long)uploadedBytes > previousUploadedBytes, @"no progress");
+                XCTAssertTrue((long long)uploadedBytes > previousUploadedBytes, @"no progress");
                 previousUploadedBytes = uploadedBytes;
             }];
 
@@ -171,7 +171,7 @@
         [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:timeoutDate];
     } while (!self.testCompleted && [timeoutDate timeIntervalSinceNow] > 0);
 
-    STAssertTrue(self.testCompleted, @"Test did not complete within %d seconds", (int)timeoutSecs);
+    XCTAssertTrue(self.testCompleted, @"Test did not complete within %d seconds", (int)timeoutSecs);
 
     self.testCompleted = NO;
 }
@@ -179,8 +179,8 @@
 - (void)deleteDocumentAndVerify:(CMISDocument *)document completionBlock:(void (^)(void))completionBlock
 {
     [document deleteAllVersionsWithCompletionBlock:^(BOOL documentDeleted, NSError *error) {
-        STAssertNil(error, @"Error while deleting created document: %@", [error description]);
-        STAssertTrue(documentDeleted, @"Document was not deleted");
+        XCTAssertNil(error, @"Error while deleting created document: %@", [error description]);
+        XCTAssertTrue(documentDeleted, @"Document was not deleted");
         completionBlock();
     }];
 }
