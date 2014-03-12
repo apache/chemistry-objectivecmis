@@ -88,7 +88,8 @@
     }
     [CMISSession connectWithSessionParameters:self.parameters completionBlock:^(CMISSession *session, NSError *error){
         if (nil == session) {
-
+            XCTFail(@"Failed to create session: %@", error.localizedDescription);
+            self.testCompleted = YES;
         } else {
             self.session = session;
             XCTAssertTrue(self.session.isAuthenticated, @"Session should be authenticated");

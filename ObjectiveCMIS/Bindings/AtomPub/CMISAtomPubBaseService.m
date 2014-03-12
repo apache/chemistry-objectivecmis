@@ -29,6 +29,7 @@
 #import "CMISTypeByIdUriBuilder.h"
 #import "CMISLinkCache.h"
 #import "CMISLog.h"
+#import "CMISAtomEntryWriter.h"
 
 @interface CMISAtomPubBaseService ()
 
@@ -90,6 +91,7 @@
                     
                     // Cache collections
                     [self.bindingSession setObject:[workspace collectionHrefForCollectionType:kCMISAtomCollectionQuery] forKey:kCMISBindingSessionKeyQueryCollection];
+                    [self.bindingSession setObject:[workspace collectionHrefForCollectionType:kCMISAtomCollectionCheckedout] forKey:kCMISBindingSessionKeyCheckedoutCollection];
                     
                     
                     // Cache uri's and uri templates
@@ -328,6 +330,123 @@
             }
         }];
     }
+}
+
+- (void)sendAtomEntryXmlToLink:(NSString *)link
+             httpRequestMethod:(CMISHttpRequestMethod)httpRequestMethod
+                    properties:(CMISProperties *)properties
+                   cmisRequest:(CMISRequest *)request
+               completionBlock:(void (^)(CMISObjectData *objectData, NSError *error))completionBlock
+{
+    // Validate params
+    if (link == nil) {
+        CMISLogError(@"Must provide link to send atom entry");
+        if (completionBlock) {
+            completionBlock(nil, [CMISErrors createCMISErrorWithCode:kCMISErrorCodeInvalidArgument detailedDescription:nil]);
+        }
+        return;
+    }
+    
+    // Generate atom entry XML in memory
+    CMISAtomEntryWriter *atomEntryWriter = [[CMISAtomEntryWriter alloc] init];
+    atomEntryWriter.cmisProperties = properties;
+    atomEntryWriter.generateXmlInMemory = YES;
+    NSString *writeResult = [atomEntryWriter generateAtomEntryXml];
+    
+    // Execute call
+    [self.bindingSession.networkProvider invoke:[NSURL URLWithString:link]
+                                     httpMethod:httpRequestMethod
+                                        session:self.bindingSession
+                                           body:[writeResult dataUsingEncoding:NSUTF8StringEncoding]
+                                        headers:[NSDictionary dictionaryWithObject:kCMISMediaTypeEntry forKey:@"Content-type"]
+                                    cmisRequest:request
+                                completionBlock:^(CMISHttpResponse *response, NSError *error) {
+                                    if (error) {
+                                        CMISLogError(@"HTTP error when sending atom entry: %@", error);
+                                        if (completionBlock) {
+                                            completionBlock(nil, error);
+                                        }
+                                    } else if (response.statusCode == 200 || response.statusCode == 201 || response.statusCode == 204) {
+                                        if (completionBlock) {
+                                            CMISAtomEntryParser *atomEntryParser = [[CMISAtomEntryParser alloc] initWithData:response.data];
+                                            NSError *parseError = nil;
+                                            [atomEntryParser parseAndReturnError:&parseError];
+                                            if (parseError == nil) {
+                                                completionBlock(atomEntryParser.objectData, nil);
+                                            } else {
+                                                CMISLogError(@"Error while parsing response: %@", [parseError description]);
+                                                completionBlock(nil, [CMISErrors cmisError:parseError cmisErrorCode:kCMISErrorCodeRuntime]);
+                                            }
+                                        }
+                                    } else {
+                                        CMISLogError(@"Invalid http response status code when sending atom entry: %d", response.statusCode);
+                                        CMISLogError(@"Error content: %@", [[NSString alloc] initWithData:response.data encoding:NSUTF8StringEncoding]);
+                                        if (completionBlock) {
+                                            completionBlock(nil, [CMISErrors createCMISErrorWithCode:kCMISErrorCodeRuntime
+                                                                                 detailedDescription:[NSString stringWithFormat:@"Failed to send atom entry: http status code %li", (long)response.statusCode]]);
+                                        }
+                                    }
+                                }];
+}
+
+- (void)sendAtomEntryXmlToLink:(NSString *)link
+             httpRequestMethod:(CMISHttpRequestMethod)httpRequestMethod
+                    properties:(CMISProperties *)properties
+            contentInputStream:(NSInputStream *)contentInputStream
+               contentMimeType:(NSString *)contentMimeType
+                 bytesExpected:(unsigned long long)bytesExpected
+                   cmisRequest:(CMISRequest*)request
+               completionBlock:(void (^)(CMISObjectData *objectData, NSError *error))completionBlock
+                 progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal))progressBlock
+{
+    // Validate param
+    if (link == nil) {
+        CMISLogError(@"Must provide link to send atom entry");
+        if (completionBlock) {
+            completionBlock(nil, [CMISErrors createCMISErrorWithCode:kCMISErrorCodeInvalidArgument detailedDescription:nil]);
+        }
+        return;
+    }
+    
+    // The underlying CMISHttpUploadRequest object generates the atom entry. The base64 encoded content is generated on
+    // the fly to support very large files.
+    [self.bindingSession.networkProvider invoke:[NSURL URLWithString:link]
+                                     httpMethod:httpRequestMethod
+                                        session:self.bindingSession
+                                    inputStream:contentInputStream
+                                        headers:[NSDictionary dictionaryWithObject:kCMISMediaTypeEntry forKey:@"Content-type"]
+                                  bytesExpected:bytesExpected
+                                    cmisRequest:request
+                                 cmisProperties:properties
+                                       mimeType:contentMimeType
+                                completionBlock:^(CMISHttpResponse *response, NSError *error) {
+                                    if (error) {
+                                        CMISLogError(@"HTTP error when sending atom entry: %@", error);
+                                        if (completionBlock) {
+                                            completionBlock(nil, error);
+                                        }
+                                    } else if (response.statusCode == 200 || response.statusCode == 201 || response.statusCode == 204) {
+                                        if (completionBlock) {
+                                            NSError *parseError = nil;
+                                            CMISAtomEntryParser *atomEntryParser = [[CMISAtomEntryParser alloc] initWithData:response.data];
+                                            [atomEntryParser parseAndReturnError:&parseError];
+                                            if (parseError == nil) {
+                                                completionBlock(atomEntryParser.objectData, nil);
+                                            } else {
+                                                CMISLogError(@"Error while parsing response: %@", [parseError description]);
+                                                completionBlock(nil, [CMISErrors cmisError:parseError cmisErrorCode:kCMISErrorCodeRuntime]);
+                                            }
+                                        }
+                                    } else {
+                                        CMISLogError(@"Invalid http response status code when sending atom entry: %d", response.statusCode);
+                                        CMISLogError(@"Error content: %@", [[NSString alloc] initWithData:response.data encoding:NSUTF8StringEncoding]);
+                                        if (completionBlock) {
+                                            completionBlock(nil, [CMISErrors createCMISErrorWithCode:kCMISErrorCodeRuntime
+                                                                                 detailedDescription:[NSString stringWithFormat:@"Failed to send atom entry: http status code %li", (long)response.statusCode]]);
+                                        }
+                                    }
+                                }
+                                  progressBlock:progressBlock];
 }
 
 @end

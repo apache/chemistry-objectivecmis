@@ -46,7 +46,7 @@
     } else if ([atomPubType isEqualToString:kCMISAtomEntryPropertyUri]) {
         return CMISPropertyTypeUri;
     } else {
-        CMISLogDebug(@"Unknow property type %@. Go tell a developer to fix this.", atomPubType);
+        CMISLogDebug(@"Unknown property type %@. Go tell a developer to fix this.", atomPubType);
         return CMISPropertyTypeString;
     }
 }
@@ -68,7 +68,7 @@
     } else if ([propertyType isEqualToString:kCMISAtomEntryPropertyUri]) {
         [array addObject:[NSURL URLWithString:stringValue]];
     } else {
-        CMISLogDebug(@"Unknow property type %@. Go tell a developer to fix this.", propertyType);
+        CMISLogDebug(@"Unknown property type %@. Go tell a developer to fix this.", propertyType);
     }
 }
 

@@ -120,4 +120,37 @@
  */
 - (CMISRequest*)deleteAllVersionsWithCompletionBlock:(void (^)(BOOL documentDeleted, NSError *error))completionBlock;
 
+/**
+ * Checkout the document and return the PWC via the completion block
+ */
+- (CMISRequest*)checkOutWithCompletionBlock:(void (^)(CMISDocument *privateWorkingCopy, NSError *error))completionBlock;
+
+/**
+ * Cancel checkout if this is a PWC
+ */
+- (CMISRequest*)cancelCheckOutWithCompletionBlock:(void (^)(BOOL checkoutCancelled, NSError *error))completionBlock;
+
+/**
+ * Checkin this PWC from a specified file path and return the checked-in document
+ */
+- (CMISRequest*)checkInAsMajorVersion:(BOOL)majorVersion
+                             filePath:(NSString *)filePath
+                             mimeType:(NSString *)mimeType
+                           properties:(CMISProperties *)properties
+                       checkinComment:(NSString *)checkinComment
+                      completionBlock:(void (^)(CMISDocument *document, NSError *error))completionBlock
+                        progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal))progressBlock;
+
+/**
+ * Checkin this PWC from a specified input stream and return the checked-in document
+ */
+- (CMISRequest*)checkInAsMajorVersion:(BOOL)majorVersion
+                          inputStream:(NSInputStream *)inputStream
+                        bytesExpected:(unsigned long long)bytesExpected
+                             mimeType:(NSString *)mimeType
+                           properties:(CMISProperties *)properties
+                       checkinComment:(NSString *)checkinComment
+                      completionBlock:(void (^)(CMISDocument *document, NSError *error))completionBlock
+                        progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal))progressBlock;
+
 @end

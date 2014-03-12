@@ -35,6 +35,7 @@
 @property (nonatomic, strong) CMISRenditionData *currentRendition;
 @property (nonatomic, strong) NSMutableArray *currentRenditions;
 @property (nonatomic, strong) NSMutableString *string;
+@property (nonatomic, assign) BOOL parsingRelationship;
 
 @property (nonatomic, weak) id<NSXMLParserDelegate, CMISAtomEntryParserDelegate> parentDelegate;
 @property (nonatomic, strong) NSDictionary *entryAttributesDict;
@@ -56,6 +57,7 @@
     self = [super init];
     if (self) {
         self.currentLinkRelations = [NSMutableSet set];
+        self.parsingRelationship = NO;
     }
     return self;
 }
@@ -100,6 +102,7 @@
         self.objectData = [[CMISObjectData alloc] init];
         self.entryAttributesDict = attributes;
         self.parentDelegate = parentDelegate;
+        self.parsingRelationship = NO;
         
         // Setting ourself, the entry parser, as the delegate, we reset back to our parent when we're done
         [parser setDelegate:self];
@@ -120,7 +123,7 @@
 - (void)parser:(NSXMLParser *)parser didStartElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI
                                             qualifiedName:(NSString *)qName attributes:(NSDictionary *)attributeDict
 {
-    if ([namespaceURI isEqualToString:kCMISNamespaceCmis]) {
+    if ([namespaceURI isEqualToString:kCMISNamespaceCmis] && !self.parsingRelationship) {
         if ([elementName isEqualToString:kCMISAtomEntryPropertyId] ||
             [elementName isEqualToString:kCMISAtomEntryPropertyString] ||
             [elementName isEqualToString:kCMISAtomEntryPropertyInteger] ||
@@ -147,6 +150,9 @@
         } else if ([elementName isEqualToString:kCMISAtomEntryAllowableActions]) {
             // Delegate parsing to child parser for allowableActions element
             self.childParserDelegate = [CMISAllowableActionsParser allowableActionsParserWithParentDelegate:self parser:parser];
+        } else if ([elementName isEqualToString:kCMISCoreRelationship]) {
+            // NOTE: we're currently ignoring the relationship element so set a flag to check
+            self.parsingRelationship = YES;
         }
     } else if ([namespaceURI isEqualToString:kCMISNamespaceCmisRestAtom]) {
         if ([elementName isEqualToString:kCMISAtomEntryObject]) {
@@ -208,29 +214,39 @@
     }
     
     if ([namespaceURI isEqualToString:kCMISNamespaceCmis]) {
-        if ([elementName isEqualToString:kCMISAtomEntryPropertyId] ||
-            [elementName isEqualToString:kCMISAtomEntryPropertyString] ||
-            [elementName isEqualToString:kCMISAtomEntryPropertyInteger] ||
-            [elementName isEqualToString:kCMISAtomEntryPropertyDateTime] ||
-            [elementName isEqualToString:kCMISAtomEntryPropertyBoolean] ||
-            [elementName isEqualToString:kCMISAtomEntryPropertyUri] ||
-            [elementName isEqualToString:kCMISAtomEntryPropertyHtml] ||
-            [elementName isEqualToString:kCMISAtomEntryPropertyDecimal]) {            
-            // add the property to the properties dictionary
-            self.currentPropertyData.values = self.propertyValues;
-            self.propertyValues = nil;
-            [self.currentObjectProperties addProperty:self.currentPropertyData];
-            self.currentPropertyData = nil;
-        } else if ([elementName isEqualToString:kCMISCoreProperties]) {
-            // Finished parsing Properties & its ExtensionData
-            [self saveCurrentExtensionsAndPushPreviousExtensionData];
-        } else if ([elementName isEqualToString:kCMISCoreRendition]) {
-            if (self.currentRenditions == nil) {
-                self.currentRenditions = [[NSMutableArray alloc] init];
+        if (!self.parsingRelationship)
+        {
+            // ignore the properties within the relationship element
+            if ([elementName isEqualToString:kCMISAtomEntryPropertyId] ||
+                [elementName isEqualToString:kCMISAtomEntryPropertyString] ||
+                [elementName isEqualToString:kCMISAtomEntryPropertyInteger] ||
+                [elementName isEqualToString:kCMISAtomEntryPropertyDateTime] ||
+                [elementName isEqualToString:kCMISAtomEntryPropertyBoolean] ||
+                [elementName isEqualToString:kCMISAtomEntryPropertyUri] ||
+                [elementName isEqualToString:kCMISAtomEntryPropertyHtml] ||
+                [elementName isEqualToString:kCMISAtomEntryPropertyDecimal]) {            
+                // add the property to the properties dictionary
+                self.currentPropertyData.values = self.propertyValues;
+                self.propertyValues = nil;
+                [self.currentObjectProperties addProperty:self.currentPropertyData];
+                self.currentPropertyData = nil;
+            } else if ([elementName isEqualToString:kCMISCoreProperties]) {
+                // Finished parsing Properties & its ExtensionData
+                [self saveCurrentExtensionsAndPushPreviousExtensionData];
+            } else if ([elementName isEqualToString:kCMISCoreRendition]) {
+                if (self.currentRenditions == nil) {
+                    self.currentRenditions = [[NSMutableArray alloc] init];
+                }
+                [self.currentRenditions addObject:self.currentRendition];
+                self.currentRendition = nil;
             }
-            [self.currentRenditions addObject:self.currentRendition];
-            self.currentRendition = nil;
         }
+        
+        // the relationship element has ended
+        if ([elementName isEqualToString:kCMISCoreRelationship]) {
+            self.parsingRelationship = NO;
+        }
+        
     } else if ([namespaceURI isEqualToString:kCMISNamespaceAtom]) {
         if ( [elementName isEqualToString:kCMISAtomEntry]) {
             // set the properties on the objectData object

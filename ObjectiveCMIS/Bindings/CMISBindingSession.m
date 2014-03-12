@@ -26,6 +26,7 @@ NSString * const kCMISBindingSessionKeyTypeByIdUriBuilder = @"cmis_session_key_t
 NSString * const kCMISBindingSessionKeyQueryUri = @"cmis_session_key_query_uri";
 
 NSString * const kCMISBindingSessionKeyQueryCollection = @"cmis_session_key_query_collection";
+NSString * const kCMISBindingSessionKeyCheckedoutCollection = @"cmis_session_key_checkedout_collection";
 
 NSString * const kCMISBindingSessionKeyLinkCache = @"cmis_session_key_link_cache";
 

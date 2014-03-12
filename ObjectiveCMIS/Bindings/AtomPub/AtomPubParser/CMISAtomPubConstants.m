@@ -50,6 +50,7 @@ NSString * const kCMISAtomEntryAllowableActions = @"allowableActions";
 
 // Collections
 NSString * const kCMISAtomCollectionQuery = @"query";
+NSString * const kCMISAtomCollectionCheckedout = @"checkedout";
 
 // Links
 NSString * const kCMISLinkRelationDown = @"down";
@@ -59,6 +60,7 @@ NSString * const kCMISLinkRelationFolderTree = @"http://docs.oasis-open.org/ns/c
 NSString * const kCMISLinkVersionHistory = @"version-history";
 NSString * const kCMISLinkEditMedia = @"edit-media";
 NSString * const kCMISLinkRelationNext = @"next";
+NSString * const kCMISLinkRelationWorkingCopy = @"working-copy";
 
 // Parameters
 NSString * const kCMISParameterChangeToken = @"changeToken";
@@ -77,6 +79,13 @@ NSString * const kCMISParameterAllVersions = @"allVersions";
 NSString * const kCMISParameterContinueOnFailure= @"continueOnFailure";
 NSString * const kCMISParameterUnfileObjects = @"unfileObjects";
 NSString * const kCMISParameterRelativePathSegment = @"includeRelativePathSegment";
+NSString * const kCMISParameterMajor = @"major";
+NSString * const kCMISParameterCheckin = @"checkin";
+NSString * const kCMISParameterCheckinComment = @"checkinComment";
+
+// Parameter Values
+NSString * const kCMISParameterValueTrue = @"true";
+NSString * const kCMISParameterValueFalse = @"false";
 
 // Namespaces
 NSString * const kCMISNamespaceCmis = @"http://docs.oasis-open.org/ns/cmis/core/200908/";
@@ -177,6 +186,7 @@ NSString * const kCMISCoreHeight = @"height";
 NSString * const kCMISCoreWidth = @"width";
 NSString * const kCMISCoreTitle = @"title";
 NSString * const kCMISCoreRenditionDocumentId = @"renditionDocumentId";
+NSString * const kCMISCoreRelationship = @"relationship";
 
 // URI Templates
 NSString * const kCMISUriTemplateObjectById = @"objectbyid";

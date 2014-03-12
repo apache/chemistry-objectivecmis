@@ -47,7 +47,7 @@
 - (id)initWithObjectData:(CMISObjectData *)objectData session:(CMISSession *)session
 {
     self = [super initWithObjectData:objectData session:session];
-    if (self){
+    if (self) {
         self.contentStreamId = [[objectData.properties.propertiesDictionary objectForKey:kCMISPropertyContentStreamId] firstValue];
         self.contentStreamMediaType = [[objectData.properties.propertiesDictionary objectForKey:kCMISPropertyContentStreamMediaType] firstValue];
         self.contentStreamLength = [[[objectData.properties.propertiesDictionary objectForKey:kCMISPropertyContentStreamLength] firstValue] unsignedLongLongValue];
@@ -180,6 +180,100 @@
 - (CMISRequest*)deleteAllVersionsWithCompletionBlock:(void (^)(BOOL documentDeleted, NSError *error))completionBlock
 {
     return [self.binding.objectService deleteObject:self.identifier allVersions:YES completionBlock:completionBlock];
+}
+
+- (CMISRequest *)checkOutWithCompletionBlock:(void (^)(CMISDocument *privateWorkingCopy, NSError *error))completionBlock
+{
+    return [self.binding.versioningService checkOut:self.identifier completionBlock:^(CMISObjectData *objectData, NSError *error) {
+        if (error) {
+            completionBlock(nil, [CMISErrors cmisError:error cmisErrorCode:kCMISErrorCodeVersioning]);
+        } else {
+            [self.session.objectConverter convertObject:objectData completionBlock:^(CMISObject *object, NSError *error) {
+                if (error) {
+                    [CMISErrors cmisError:error cmisErrorCode:kCMISErrorCodeVersioning];
+                } else {
+                    completionBlock((CMISDocument*)object, nil);
+                }
+            }];
+        }
+    }];
+}
+
+- (CMISRequest *)cancelCheckOutWithCompletionBlock:(void (^)(BOOL, NSError *))completionBlock
+{
+    return [self.binding.versioningService cancelCheckOut:self.identifier completionBlock:^(BOOL checkOutCancelled, NSError *error) {
+        if (error) {
+            completionBlock(NO, [CMISErrors cmisError:error cmisErrorCode:kCMISErrorCodeVersioning]);
+        } else {
+            completionBlock(YES, nil);
+        }
+    }];
+}
+
+- (CMISRequest*)checkInAsMajorVersion:(BOOL)majorVersion
+                             filePath:(NSString *)filePath
+                             mimeType:(NSString *)mimeType
+                           properties:(CMISProperties *)properties
+                       checkinComment:(NSString *)checkinComment
+                      completionBlock:(void (^)(CMISDocument *document, NSError *error))completionBlock
+                        progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal))progressBlock
+{
+    return [self.binding.versioningService checkIn:self.identifier
+                                    asMajorVersion:majorVersion
+                                          filePath:filePath
+                                          mimeType:mimeType
+                                        properties:properties
+                                    checkinComment:checkinComment
+                                   completionBlock:^(CMISObjectData *objectData, NSError *error) {
+        if (error) {
+            completionBlock(nil, [CMISErrors cmisError:error cmisErrorCode:kCMISErrorCodeVersioning]);
+        } else {
+            // convert the object data to document object
+            [self.session.objectConverter convertObject:objectData completionBlock:^(CMISObject *object, NSError *error) {
+                if (error) {
+                    [CMISErrors cmisError:error cmisErrorCode:kCMISErrorCodeVersioning];
+                } else {
+                    completionBlock((CMISDocument*)object, nil);
+                }
+            }];
+        }
+    } progressBlock:^(unsigned long long bytesUploaded, unsigned long long bytesTotal) {
+        progressBlock(bytesUploaded, bytesTotal);
+    }];
+}
+
+- (CMISRequest*)checkInAsMajorVersion:(BOOL)majorVersion
+                          inputStream:(NSInputStream *)inputStream
+                        bytesExpected:(unsigned long long)bytesExpected
+                             mimeType:(NSString *)mimeType
+                           properties:(CMISProperties *)properties
+                       checkinComment:(NSString *)checkinComment
+                      completionBlock:(void (^)(CMISDocument *document, NSError *error))completionBlock
+                        progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal))progressBlock
+{
+    return [self.binding.versioningService checkIn:self.identifier
+                                    asMajorVersion:majorVersion
+                                       inputStream:inputStream
+                                     bytesExpected:bytesExpected
+                                          mimeType:mimeType
+                                        properties:properties
+                                    checkinComment:checkinComment
+                                   completionBlock:^(CMISObjectData *objectData, NSError *error) {
+        if (error) {
+            completionBlock(nil, [CMISErrors cmisError:error cmisErrorCode:kCMISErrorCodeVersioning]);
+        } else {
+            // convert the object data to document object
+            [self.session.objectConverter convertObject:objectData completionBlock:^(CMISObject *object, NSError *error) {
+                if (error) {
+                    [CMISErrors cmisError:error cmisErrorCode:kCMISErrorCodeVersioning];
+                } else {
+                    completionBlock((CMISDocument*)object, nil);
+                }
+            }];
+        }
+    } progressBlock:^(unsigned long long bytesUploaded, unsigned long long bytesTotal) {
+        progressBlock(bytesUploaded, bytesTotal);
+    }];
 }
 
 @end

@@ -1714,4 +1714,113 @@
      }];
 }
 
+- (void)testCheckoutCheckin
+{
+    [self runTest:^ {
+        // Upload test file
+        [self uploadTestFileWithCompletionBlock:^(CMISDocument *testDocument) {
+            
+            XCTAssertNotNil(testDocument, @"Expected testDocument to be uploaded!");
+            
+            // checkout the uploaded test document
+            [testDocument checkOutWithCompletionBlock:^(CMISDocument *privateWorkingCopy, NSError *error) {
+                
+                // check we got the working copy
+                XCTAssertNotNil(privateWorkingCopy, @"Expected to recieve the private working copy object");
+                
+                // checkin the test document
+                NSString *updatedFilePath = [[NSBundle bundleForClass:[self class]] pathForResource:@"test_file_2.txt" ofType:nil];
+                [privateWorkingCopy checkInAsMajorVersion:YES filePath:updatedFilePath mimeType:@"text/plain" properties:nil checkinComment:@"Next version" completionBlock:^(CMISDocument *checkedInDocument, NSError *error) {
+                    
+                    // check we got back the checked in document
+                    XCTAssertNotNil(checkedInDocument, @"Expected to receive the checked in document object");
+
+                    // validate the content was updated
+                    NSString *tempDownloadFilePath = [NSString stringWithFormat:@"%@/temp_download_file.txt", NSTemporaryDirectory()];
+                    [checkedInDocument downloadContentToFile:tempDownloadFilePath completionBlock:^(NSError *error) {
+                        
+                        // check the content has been updated
+                        NSString *contentOfDownloadedFile = [NSString stringWithContentsOfFile:tempDownloadFilePath encoding:NSUTF8StringEncoding error:nil];
+                        XCTAssertEqualObjects(@"In theory, there is no difference between theory and practice. But in practice, there is.",
+                                              contentOfDownloadedFile, @"Downloaded file content does not match, it was: '%@'", contentOfDownloadedFile);
+                        
+                        // retrieve all versions of the document and make sure there are 2 and the last one has the correct info
+                        [checkedInDocument retrieveAllVersionsWithCompletionBlock:^(CMISCollection *allVersionsOfDocument, NSError *error) {
+                            
+                            // make sure there are 2 versions
+                            XCTAssertTrue(allVersionsOfDocument.items.count == 2,
+                                          @"Expected to find 2 versions but there were %lu", (unsigned long)allVersionsOfDocument.items.count);
+                            
+                            // get the first item (should be the latest one) and check the version label and checkin comment
+                            CMISDocument *secondVersion = allVersionsOfDocument.items[0];
+                            XCTAssertTrue([secondVersion.versionLabel isEqualToString:@"2.0"],
+                                          @"Expected version label to be 2.0 but was %@", secondVersion.versionLabel);
+                            XCTAssertTrue(secondVersion.isLatestVersion, @"Expected document to be the latest version");
+                            XCTAssertTrue(secondVersion.isLatestMajorVersion, @"Expected document to be the latest major version");
+                            XCTAssertTrue(secondVersion.isMajorVersion, @"Expected document to be a major version");
+                            NSString *checkinComment = [secondVersion.properties propertyValueForId:kCMISPropertyCheckinComment];
+                            XCTAssertTrue([checkinComment isEqualToString:@"Next version"],
+                                          @"Expected checkin comment to be 'Next version' but was %@", checkinComment);
+                            
+                            CMISDocument *firstVersion = allVersionsOfDocument.items[1];
+                            XCTAssertTrue([firstVersion.versionLabel isEqualToString:@"1.0"],
+                                          @"Expected version label to be 1.0 but was %@", firstVersion.versionLabel);
+                            XCTAssertFalse(firstVersion.isLatestVersion, @"Did not expect document to be the latest version");
+                            XCTAssertFalse(firstVersion.isLatestMajorVersion, @"Did not expect document to be the latest major version");
+                            XCTAssertTrue(firstVersion.isMajorVersion, @"Expected document to be a major version");
+                            
+                            // delete the document
+                            [self deleteDocumentAndVerify:checkedInDocument completionBlock:^{
+                                // mark the test as completed
+                                self.testCompleted = YES;
+                            }];
+                        }];
+                        
+                    } progressBlock:^(unsigned long long bytesDownloaded, unsigned long long bytesTotal) {
+                          CMISLogDebug(@"download progress %i/%i", bytesDownloaded, bytesTotal);
+                    }];
+                } progressBlock:^(unsigned long long bytesUploaded, unsigned long long bytesTotal) {
+                      CMISLogDebug(@"upload progress %i/%i", bytesUploaded, bytesTotal);
+                }];
+            }];
+        }];
+    }];
+}
+
+- (void)testCancelCheckout
+{
+    [self runTest:^ {
+        // Upload test file
+        [self uploadTestFileWithCompletionBlock:^(CMISDocument *testDocument) {
+            
+            XCTAssertNotNil(testDocument, @"Expected testDocument to be uploaded!");
+            
+            // checkout the uploaded test document
+            [testDocument checkOutWithCompletionBlock:^(CMISDocument *privateWorkingCopy, NSError *checkOutError) {
+                XCTAssertNotNil(privateWorkingCopy, @"Expected to recieve the private working copy object");
+                
+                // cancel checkout of the test document
+                [privateWorkingCopy cancelCheckOutWithCompletionBlock:^(BOOL checkoutCancelled, NSError *cancelError) {
+                    
+                    // make sure the pwc has been deleted
+                    [self.session retrieveObject:privateWorkingCopy.identifier completionBlock:^(CMISObject *object, NSError *retrieveError) {
+                        
+                        // make sure the object is nill and error is not nil
+                        XCTAssertNil(object, @"Did not expect to receive a document, the pwc should have been deleted");
+                        XCTAssertNotNil(retrieveError, @"Expected there to be an error object");
+                        XCTAssertTrue(retrieveError.code == kCMISErrorCodeObjectNotFound,
+                                      @"Expected the error code to be 257 (kCMISErrorCodeObjectNotFound) but was %ld", (long)retrieveError.code);
+                        
+                        // delete the document
+                        [self deleteDocumentAndVerify:testDocument completionBlock:^{
+                            // mark the test as completed
+                            self.testCompleted = YES;
+                        }];
+                    }];
+                }];
+            }];
+        }];
+    }];
+}
+
 @end
