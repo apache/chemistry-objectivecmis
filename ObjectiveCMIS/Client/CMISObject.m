@@ -33,7 +33,6 @@
 @property (nonatomic, strong, readwrite) CMISSession *session;
 @property (nonatomic, strong, readwrite) id<CMISBinding> binding;
 
-@property (nonatomic, strong, readwrite) NSString *identifier;
 @property (nonatomic, strong, readwrite) NSString *name;
 @property (nonatomic, strong, readwrite) NSString *createdBy;
 @property (nonatomic, strong, readwrite) NSDate *creationDate;
@@ -45,6 +44,7 @@
 
 @property (nonatomic, strong, readwrite) CMISProperties *properties;
 @property (nonatomic, strong, readwrite) CMISAllowableActions *allowableActions;
+@property (nonatomic, strong, readwrite) CMISAcl *acl;
 @property (nonatomic, strong, readwrite) NSArray *renditions;
 
 @property (nonatomic, strong) NSMutableDictionary *extensionsDict;
@@ -72,12 +72,14 @@
         self.changeToken = [[self.properties propertyForId:kCMISPropertyChangeToken] firstValue];
 
         self.allowableActions = objectData.allowableActions;
+        self.acl = objectData.acl;
 
         // Extract Extensions and store in the extensionsDict
         self.extensionsDict = [[NSMutableDictionary alloc] init];
         [self.extensionsDict setObject:[self nonNilArray:objectData.extensions] forKey:[NSNumber numberWithInteger:CMISExtensionLevelObject]];
         [self.extensionsDict setObject:[self nonNilArray:self.properties.extensions] forKey:[NSNumber numberWithInteger:CMISExtensionLevelProperties]];
         [self.extensionsDict setObject:[self nonNilArray:self.allowableActions.extensions] forKey:[NSNumber numberWithInteger:CMISExtensionLevelAllowableActions]];
+        [self.extensionsDict setObject:[self nonNilArray:self.acl.extensions] forKey:[NSNumber numberWithInteger:CMISExtensionLevelAcl]];
 
         // Renditions must be converted here, because they need access to the session
         if (objectData.renditions != nil) {

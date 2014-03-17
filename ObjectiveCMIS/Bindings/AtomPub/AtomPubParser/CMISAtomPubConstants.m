@@ -47,6 +47,12 @@ NSString * const kCMISAtomEntryValueTrue = @"true";
 NSString * const kCMISAtomEntryContent = @"content";
 NSString * const kCMISAtomEntrySrc = @"src";
 NSString * const kCMISAtomEntryAllowableActions = @"allowableActions";
+NSString * const kCMISAtomEntryAcl = @"acl";
+NSString * const kCMISAtomEntryExactACL = @"exactACL";
+NSString * const kCMISAtomEntryPermission = @"permission";
+NSString * const kCMISAtomEntryPrincipal = @"principal";
+NSString * const kCMISAtomEntryPrincipalId = @"principalId";
+NSString * const kCMISAtomEntryDirect = @"direct";
 
 // Collections
 NSString * const kCMISAtomCollectionQuery = @"query";

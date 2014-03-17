@@ -35,6 +35,7 @@
 @property (nonatomic, strong) CMISRenditionData *currentRendition;
 @property (nonatomic, strong) NSMutableArray *currentRenditions;
 @property (nonatomic, strong) NSMutableString *string;
+@property (nonatomic, assign) BOOL isExcatAcl;
 @property (nonatomic, assign) BOOL parsingRelationship;
 
 @property (nonatomic, weak) id<NSXMLParserDelegate, CMISAtomEntryParserDelegate> parentDelegate;
@@ -150,6 +151,9 @@
         } else if ([elementName isEqualToString:kCMISAtomEntryAllowableActions]) {
             // Delegate parsing to child parser for allowableActions element
             self.childParserDelegate = [CMISAllowableActionsParser allowableActionsParserWithParentDelegate:self parser:parser];
+        } else if ([elementName isEqualToString:kCMISAtomEntryAcl]) {
+            // Delegate parsing to child parser for acl element
+            self.childParserDelegate = [CMISAclParser aclParserWithParentDelegate:self parser:parser];
         } else if ([elementName isEqualToString:kCMISCoreRelationship]) {
             // NOTE: we're currently ignoring the relationship element so set a flag to check
             self.parsingRelationship = YES;
@@ -239,7 +243,12 @@
                 }
                 [self.currentRenditions addObject:self.currentRendition];
                 self.currentRendition = nil;
-            }
+        	} else if ([elementName isEqualToString:kCMISAtomEntryExactACL]) {
+            	self.isExcatAcl = [self.string isEqualToString:@"true"] ? YES : NO;
+            	if(self.objectData.acl){
+                	[self.objectData.acl setIsExact:self.isExcatAcl];
+            	}
+			}
         }
         
         // the relationship element has ended
@@ -303,6 +312,12 @@
 - (void)allowableActionsParser:(CMISAllowableActionsParser *)parser didFinishParsingAllowableActions:(CMISAllowableActions *)allowableActions
 {
     self.objectData.allowableActions = allowableActions;
+}
+
+#pragma mark - CMISAclParserDelegate Methods
+-(void)aclParser:(CMISAclParser *)aclParser didFinishParsingAcl:(CMISAcl *)acl{
+    self.objectData.acl = acl;
+    [self.objectData.acl setIsExact:self.isExcatAcl];
 }
 
 @end

@@ -25,6 +25,7 @@
 #import "CMISPropertyDefinition.h"
 #import "CMISSession.h"
 #import "CMISDateUtil.h"
+#import "CMISConstants.h"
 
 @interface CMISObjectConverter ()
 @property (nonatomic, weak) CMISSession *session;
@@ -63,15 +64,19 @@
 {
     [self convertObject:[objectDatas objectAtIndex:position]
         completionBlock:^(CMISObject *object, NSError *error) {
-            if (position == 0) {
-                NSMutableArray *objects = [[NSMutableArray alloc] initWithCapacity:objectDatas.count];
-                [objects addObject:object];
-                completionBlock(objects, error);
+            if(error){
+                completionBlock(nil, error);
             } else {
-                [self internalConvertObject:objectDatas position:(position - 1) completionBlock:^(NSMutableArray *objects, NSError *error) {
+                if (position == 0) {
+                    NSMutableArray *objects = [[NSMutableArray alloc] initWithCapacity:objectDatas.count];
                     [objects addObject:object];
                     completionBlock(objects, error);
-                }];
+                } else {
+                    [self internalConvertObject:objectDatas position:(position - 1) completionBlock:^(NSMutableArray *objects, NSError *error) {
+                        [objects addObject:object];
+                        completionBlock(objects, error);
+                    }];
+                }
             }
         }];
 }
@@ -99,8 +104,15 @@
 }
 
 
-- (void)internalNormalConvertProperties:(NSDictionary *)properties 
-                         typeDefinition:(CMISTypeDefinition *)typeDefinition 
+- (void)internalNormalConvertProperties:(NSDictionary *)properties
+                         typeDefinition:(CMISTypeDefinition *)typeDefinition
+                        completionBlock:(void (^)(CMISProperties *convertedProperties, NSError *error))completionBlock
+{
+    [self internalNormalConvertProperties:properties typeDefinitions:[NSArray arrayWithObject:typeDefinition] completionBlock:completionBlock];
+}
+
+- (void)internalNormalConvertProperties:(NSDictionary *)properties
+                         typeDefinitions:(NSArray *)typeDefinitions
                         completionBlock:(void (^)(CMISProperties *convertedProperties, NSError *error))completionBlock
 {
     CMISProperties *convertedProperties = [[CMISProperties alloc] init];
@@ -111,7 +123,7 @@
             [convertedProperties addProperty:(CMISPropertyData *)propertyValue];
         } else {
             // Convert to CMISPropertyData based on the string
-            CMISPropertyDefinition *propertyDefinition = [typeDefinition propertyDefinitionForId:propertyId];
+            CMISPropertyDefinition *propertyDefinition = [self propertyDefinitionFromTypeDefinitions:typeDefinitions propertyId:propertyId];
             
             if (propertyDefinition == nil) {
                 NSError *error = [CMISErrors createCMISErrorWithCode:kCMISErrorCodeInvalidArgument
@@ -310,6 +322,18 @@
     completionBlock(convertedProperties, nil);
 }
 
+-(CMISPropertyDefinition*)propertyDefinitionFromTypeDefinitions:(NSArray *)typeDefinitions propertyId:(NSString*)propertyId
+{
+    for (CMISTypeDefinition* typeDefinition in typeDefinitions) {
+        CMISPropertyDefinition *propertyDefinition = [typeDefinition propertyDefinitionForId:propertyId];
+        
+        if (propertyDefinition) {
+            return propertyDefinition;
+        }
+    }
+    return nil;
+}
+
 
 - (void)internalNormalConvertProperties:(NSDictionary *)properties
                            objectTypeId:(NSString *)objectTypeId
@@ -346,16 +370,94 @@
                               completionBlock:completionBlock];
         
     } else {
-        [self.session retrieveTypeDefinition:objectTypeId
-                             completionBlock:^(CMISTypeDefinition *typeDefinition, NSError *error) {
-                                 if (error) {
-                                     completionBlock(nil, [CMISErrors cmisError:error cmisErrorCode:kCMISErrorCodeRuntime]);
-                                 } else {
-                                     [self internalNormalConvertProperties:properties
-                                                            typeDefinition:typeDefinition
-                                                           completionBlock:completionBlock];
-                                 }
-                             }];
+        
+        //get secondary object type definitions - if available
+        NSString *propertyId = kCMISPropertySecondaryObjectTypeIds;
+        id secondaryObjectTypeIds = [properties valueForKey:propertyId];
+        if(secondaryObjectTypeIds) {
+            Class expectedType = nil;
+            BOOL validType = YES;
+            
+            //verify types
+            expectedType = [NSArray class];
+            if([secondaryObjectTypeIds isKindOfClass:expectedType]){
+                expectedType = [NSString class];
+                for (id secondaryObjectTypeId in secondaryObjectTypeIds) {
+                    propertyId = secondaryObjectTypeId;
+                    if(![secondaryObjectTypeId isKindOfClass:expectedType]){
+                        validType = NO;
+                        break;
+                    }
+                }
+            } else {
+                validType = NO;
+            }
+            
+            if (!validType) {
+                NSError *error = [CMISErrors createCMISErrorWithCode:kCMISErrorCodeInvalidArgument
+                                                 detailedDescription:[NSString stringWithFormat:@"Property value for %@ should be of type '%@'", propertyId, expectedType]];
+                completionBlock(nil, error);
+                return;
+            }
+            
+            NSMutableArray *objectTypeIds = [NSMutableArray arrayWithObject:objectTypeId];
+            [objectTypeIds addObjectsFromArray:secondaryObjectTypeIds];
+            [self retrieveTypeDefinitions:objectTypeIds
+                          completionBlock:^(NSArray *typeDefinitions, NSError *error) {
+                              if (error) {
+                                  completionBlock(nil, [CMISErrors cmisError:error cmisErrorCode:kCMISErrorCodeRuntime]);
+                              } else {
+                                  [self internalNormalConvertProperties:properties
+                                                         typeDefinitions:typeDefinitions
+                                                        completionBlock:completionBlock];
+                              }
+            }];
+        } else {
+            [self.session retrieveTypeDefinition:objectTypeId
+                                 completionBlock:^(CMISTypeDefinition *typeDefinition, NSError *error) {
+                                     if (error) {
+                                         completionBlock(nil, [CMISErrors cmisError:error cmisErrorCode:kCMISErrorCodeRuntime]);
+                                     } else {
+                                         [self internalNormalConvertProperties:properties
+                                                                typeDefinition:typeDefinition
+                                                               completionBlock:completionBlock];
+                                     }
+                                 }];
+        }
+    }
+}
+
+- (void)retrieveTypeDefinitions:(NSArray *)objectTypeIds position:(NSInteger)position completionBlock:(void (^)(NSMutableArray *typeDefinitions, NSError *error))completionBlock
+{
+    [self.session retrieveTypeDefinition:[objectTypeIds objectAtIndex:position]
+                         completionBlock:^(CMISTypeDefinition *typeDefinition, NSError *error) {
+            if(error){
+                completionBlock(nil, error);
+            } else {
+                if (position == 0) {
+                    NSMutableArray *typeDefinitions = [[NSMutableArray alloc] initWithCapacity:objectTypeIds.count];
+                    [typeDefinitions addObject:typeDefinition];
+                    completionBlock(typeDefinitions, error);
+                } else {
+                    [self retrieveTypeDefinitions:objectTypeIds position:(position - 1) completionBlock:^(NSMutableArray *typeDefinitions, NSError *error) {
+                        [typeDefinitions addObject:typeDefinition];
+                        completionBlock(typeDefinitions, error);
+                    }];
+                }
+            }
+        }];
+}
+
+- (void)retrieveTypeDefinitions:(NSArray *)objectTypeIds completionBlock:(void (^)(NSArray *typeDefinitions, NSError *error))completionBlock
+{
+    if (objectTypeIds.count > 0) {
+        [self retrieveTypeDefinitions:objectTypeIds
+                           position:(objectTypeIds.count - 1) // start recursion with last item
+                    completionBlock:^(NSMutableArray *typeDefinitions, NSError *error) {
+                        completionBlock(typeDefinitions, error);
+                    }];
+    } else {
+        completionBlock([[NSArray alloc] init], nil);
     }
 }
 

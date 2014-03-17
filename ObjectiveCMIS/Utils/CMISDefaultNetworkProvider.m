@@ -101,7 +101,7 @@ completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))comple
  bytesExpected:(unsigned long long)bytesExpected
    cmisRequest:(CMISRequest *)cmisRequest
 completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))completionBlock
- progressBlock:(void (^)(unsigned long long bytesDownloaded, unsigned long long bytesTotal))progressBlock
+ progressBlock:(void (^)(unsigned long long bytesDownloaded, unsigned long long bytesTotal, BOOL *stop))progressBlock
 {
     if (!cmisRequest.isCancelled) {
         NSMutableURLRequest *urlRequest = [CMISDefaultNetworkProvider createRequestForUrl:url
@@ -137,7 +137,7 @@ completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))comple
 cmisProperties:(CMISProperties *)cmisProperties
       mimeType:(NSString *)mimeType
 completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))completionBlock
- progressBlock:(void (^)(unsigned long long bytesDownloaded, unsigned long long bytesTotal))progressBlock
+ progressBlock:(void (^)(unsigned long long bytesDownloaded, unsigned long long bytesTotal, BOOL *stop))progressBlock
 {
     if (!cmisRequest.isCancelled) {
         NSMutableURLRequest *urlRequest = [CMISDefaultNetworkProvider createRequestForUrl:url
@@ -175,6 +175,22 @@ completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))comple
 completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))completionBlock
  progressBlock:(void (^)(unsigned long long bytesDownloaded, unsigned long long bytesTotal))progressBlock
 {
+    [self invoke:url httpMethod:httpRequestMethod session:session outputStream:outputStream bytesExpected:bytesExpected offset:nil length:nil cmisRequest:cmisRequest completionBlock:completionBlock progressBlock:^(unsigned long long bytesDownloaded, unsigned long long bytesTotal, BOOL *stop) {
+        progressBlock(bytesDownloaded, bytesTotal);
+    }];
+}
+
+- (void)invoke:(NSURL *)url
+    httpMethod:(CMISHttpRequestMethod)httpRequestMethod
+       session:(CMISBindingSession *)session
+  outputStream:(NSOutputStream *)outputStream
+ bytesExpected:(unsigned long long)bytesExpected
+        offset:(NSDecimalNumber*)offset
+        length:(NSDecimalNumber*)length
+   cmisRequest:(CMISRequest *)cmisRequest
+completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))completionBlock
+ progressBlock:(void (^)(unsigned long long bytesDownloaded, unsigned long long bytesTotal, BOOL *stop))progressBlock
+{
     if (!cmisRequest.isCancelled) {
         NSMutableURLRequest *urlRequest = [CMISDefaultNetworkProvider createRequestForUrl:url
                                                                                httpMethod:HTTP_GET
@@ -184,6 +200,8 @@ completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))comple
                                                              httpMethod:httpRequestMethod
                                                            outputStream:outputStream
                                                           bytesExpected:bytesExpected
+                                                                 offset:offset
+                                                                 length:length
                                                  authenticationProvider:session.authenticationProvider
                                                         completionBlock:completionBlock
                                                           progressBlock:progressBlock];

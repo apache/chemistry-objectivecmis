@@ -443,9 +443,28 @@
                             completionBlock:(void (^)(NSError *error))completionBlock
                               progressBlock:(void (^)(unsigned long long bytesDownloaded, unsigned long long bytesTotal))progressBlock
 {
+    return [self downloadContentOfCMISObject:objectId
+                                      toFile:filePath
+                                      offset:nil
+                                      length:nil
+                             completionBlock:completionBlock
+                               progressBlock:^(unsigned long long bytesDownloaded, unsigned long long bytesTotal, BOOL *stop) {
+                                   progressBlock(bytesDownloaded, bytesTotal);
+                               }];
+}
+
+- (CMISRequest*)downloadContentOfCMISObject:(NSString *)objectId
+                                     toFile:(NSString *)filePath
+                                     offset:(NSDecimalNumber*)offset
+                                     length:(NSDecimalNumber*)length
+                            completionBlock:(void (^)(NSError *error))completionBlock
+                              progressBlock:(void (^)(unsigned long long bytesDownloaded, unsigned long long bytesTotal, BOOL *stop))progressBlock
+{
     return [self.binding.objectService downloadContentOfObject:objectId
                                                       streamId:nil
                                                         toFile:filePath
+                                                        offset:nil
+                                                        length:nil
                                                completionBlock:completionBlock
                                                  progressBlock:progressBlock];
 }
@@ -455,9 +474,28 @@
                             completionBlock:(void (^)(NSError *error))completionBlock
                               progressBlock:(void (^)(unsigned long long bytesDownloaded, unsigned long long bytesTotal))progressBlock
 {
+    return [self downloadContentOfCMISObject:objectId
+                              toOutputStream:outputStream
+                                      offset:nil
+                                      length:nil
+                             completionBlock:completionBlock
+                               progressBlock:^(unsigned long long bytesDownloaded, unsigned long long bytesTotal, BOOL *stop) {
+                                   progressBlock(bytesDownloaded, bytesTotal);
+                               }];
+}
+
+- (CMISRequest*)downloadContentOfCMISObject:(NSString *)objectId
+                             toOutputStream:(NSOutputStream *)outputStream
+                                     offset:(NSDecimalNumber*)offset
+                                     length:(NSDecimalNumber*)length
+                            completionBlock:(void (^)(NSError *error))completionBlock
+                              progressBlock:(void (^)(unsigned long long bytesDownloaded, unsigned long long bytesTotal, BOOL *stop))progressBlock
+{
     return [self.binding.objectService downloadContentOfObject:objectId
                                                       streamId:nil
                                                 toOutputStream:outputStream
+                                                        offset:offset
+                                                        length:length
                                                completionBlock:completionBlock
                                                  progressBlock:progressBlock];
 }
@@ -467,7 +505,7 @@
                           mimeType:(NSString *)mimeType
                         properties:(NSDictionary *)properties inFolder:(NSString *)folderObjectId
                    completionBlock:(void (^)(NSString *objectId, NSError *error))completionBlock
-                     progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal))progressBlock
+                     progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal, BOOL *stop))progressBlock
 {
     __block CMISRequest *request = [[CMISRequest alloc] init];
     [self.objectConverter convertProperties:properties
@@ -496,7 +534,7 @@
                              inFolder:(NSString *)folderObjectId
                         bytesExpected:(unsigned long long)bytesExpected
                       completionBlock:(void (^)(NSString *objectId, NSError *error))completionBlock
-                        progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal))progressBlock
+                        progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal, BOOL *stop))progressBlock
 {
     __block CMISRequest *request = [[CMISRequest alloc] init];
     [self.objectConverter convertProperties:properties

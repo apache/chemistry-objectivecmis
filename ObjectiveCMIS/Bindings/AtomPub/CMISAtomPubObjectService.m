@@ -87,10 +87,31 @@
                         completionBlock:(void (^)(NSError *error))completionBlock
                           progressBlock:(void (^)(unsigned long long bytesDownloaded, unsigned long long bytesTotal))progressBlock
 {
+    return [self downloadContentOfObject:objectId
+                         streamId:streamId
+                           toFile:filePath
+                           offset:nil
+                           length:nil
+                  completionBlock:completionBlock
+                    progressBlock:^(unsigned long long bytesDownloaded, unsigned long long bytesTotal, BOOL *stop) {
+                        progressBlock(bytesDownloaded, bytesTotal);
+                    }];
+}
+
+- (CMISRequest*)downloadContentOfObject:(NSString *)objectId
+                               streamId:(NSString *)streamId
+                                 toFile:(NSString *)filePath
+                                 offset:(NSDecimalNumber*)offset
+                                 length:(NSDecimalNumber*)length
+                        completionBlock:(void (^)(NSError *error))completionBlock
+                          progressBlock:(void (^)(unsigned long long bytesDownloaded, unsigned long long bytesTotal, BOOL *stop))progressBlock
+{
     NSOutputStream *outputStream = [NSOutputStream outputStreamToFileAtPath:filePath append:NO];
     return [self downloadContentOfObject:objectId
                                 streamId:streamId
                           toOutputStream:outputStream
+                                  offset:offset
+                                  length:length
                          completionBlock:completionBlock
                            progressBlock:progressBlock];
 }
@@ -100,6 +121,25 @@
                          toOutputStream:(NSOutputStream *)outputStream
                         completionBlock:(void (^)(NSError *error))completionBlock
                           progressBlock:(void (^)(unsigned long long bytesDownloaded, unsigned long long bytesTotal))progressBlock
+{
+    return [self downloadContentOfObject:objectId
+                                streamId:streamId
+                          toOutputStream:outputStream
+                                  offset:nil
+                                  length:nil
+                         completionBlock:completionBlock
+                           progressBlock:^(unsigned long long bytesDownloaded, unsigned long long bytesTotal, BOOL *stop) {
+                               progressBlock(bytesDownloaded, bytesTotal);
+                           }];
+}
+
+- (CMISRequest*)downloadContentOfObject:(NSString *)objectId
+                               streamId:(NSString *)streamId
+                         toOutputStream:(NSOutputStream *)outputStream
+                                 offset:(NSDecimalNumber*)offset
+                                 length:(NSDecimalNumber*)length
+                        completionBlock:(void (^)(NSError *error))completionBlock
+                          progressBlock:(void (^)(unsigned long long bytesDownloaded, unsigned long long bytesTotal, BOOL *stop))progressBlock
 {
     CMISRequest *request = [[CMISRequest alloc] init];
     
@@ -127,6 +167,8 @@
                                                     session:self.bindingSession
                                                outputStream:outputStream
                                               bytesExpected:streamLength
+                                                     offset:offset
+                                                     length:length
                                                 cmisRequest:request
                                             completionBlock:^(CMISHttpResponse *httpResponse, NSError *error)
                  {
@@ -198,7 +240,7 @@
                     overwriteExisting:(BOOL)overwrite
                           changeToken:(CMISStringInOutParameter *)changeTokenParam
                       completionBlock:(void (^)(NSError *error))completionBlock
-                        progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal))progressBlock
+                        progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal, BOOL *stop))progressBlock
 {
     NSInputStream *inputStream = [NSInputStream inputStreamWithFileAtPath:filePath];
     if (inputStream == nil) {
@@ -234,7 +276,7 @@
                     overwriteExisting:(BOOL)overwrite
                           changeToken:(CMISStringInOutParameter *)changeTokenParam
                       completionBlock:(void (^)(NSError *error))completionBlock
-                        progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal))progressBlock
+                        progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal, BOOL *stop))progressBlock
 {
     CMISRequest *request = [[CMISRequest alloc] init];
     // Validate object id param
@@ -307,7 +349,7 @@
                  if (httpResponse.statusCode == 200 || httpResponse.statusCode == 201 || httpResponse.statusCode == 204) {
                      error = nil;
                  } else {
-                     CMISLogError(@"Invalid http response status code when updating content: %d", httpResponse.statusCode);
+                     CMISLogError(@"Invalid http response status code when updating content: %d", (int)httpResponse.statusCode);
                      error = [CMISErrors createCMISErrorWithCode:kCMISErrorCodeRuntime
                                              detailedDescription:[NSString stringWithFormat:@"Could not update content: http status code %li", (long)httpResponse.statusCode]];
                  }
@@ -328,7 +370,7 @@
                                 properties:(CMISProperties *)properties
                                   inFolder:(NSString *)folderObjectId
                            completionBlock:(void (^)(NSString *objectId, NSError *Error))completionBlock
-                             progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal))progressBlock
+                             progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal, BOOL *stop))progressBlock
 {
     NSInputStream *inputStream = [NSInputStream inputStreamWithFileAtPath:filePath];
     if (inputStream == nil) {
@@ -361,7 +403,7 @@
                                      inFolder:(NSString *)folderObjectId
                                 bytesExpected:(unsigned long long)bytesExpected // optional
                               completionBlock:(void (^)(NSString *objectId, NSError *error))completionBlock
-                                progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal))progressBlock
+                                progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal, BOOL *stop))progressBlock
 {
     // Validate properties
     if ([properties propertyValueForId:kCMISPropertyName] == nil || [properties propertyValueForId:kCMISPropertyObjectTypeId] == nil) {
@@ -492,52 +534,88 @@
     }
     CMISRequest *request = [[CMISRequest alloc] init];
     
+    // find the down links
     [self loadLinkForObjectId:folderObjectId
                      relation:kCMISLinkRelationDown
-                         type:kCMISMediaTypeDescendants
+                         type:nil
                   cmisRequest:request
               completionBlock:^(NSString *link, NSError *error) {
-        if (error) {
-            CMISLogError(@"Error while fetching %@ link : %@", kCMISLinkRelationDown, error.description);
-            completionBlock(nil, [CMISErrors cmisError:error cmisErrorCode:kCMISErrorCodeRuntime]);
-            return;
-        }
-        
-        void (^continueWithLink)(NSString *) = ^(NSString *link) {
+
+        __block NSString *childrenLink = nil;
+
+        void (^continueWithLink)(NSString*) = ^(NSString* link) {
+            if(!link){
+                link = childrenLink;
+            }
+            
+            if(!link){
+                CMISLogError(@"Could not retrieve %@ nor %@ link", kCMISLinkRelationDown, kCMISLinkRelationFolderTree);
+                completionBlock(nil, [CMISErrors cmisError:error cmisErrorCode:kCMISErrorCodeRuntime]);
+                return;
+            }
+            
             link = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterAllVersions value:(allVersions ? @"true" : @"false") urlString:link];
             link = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterUnfileObjects value:[CMISEnums stringForUnfileObject:unfileObjects] urlString:link];
             link = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterContinueOnFailure value:(continueOnFailure ? @"true" : @"false") urlString:link];
-            
+
             [self.bindingSession.networkProvider invokeDELETE:[NSURL URLWithString:link]
-                                                      session:self.bindingSession
-                                                  cmisRequest:request
-                                              completionBlock:^(CMISHttpResponse *httpResponse, NSError *error) {
-                       if (httpResponse) {
-                           // TODO: retrieve failed folders and files and return
-                           completionBlock([NSArray array], nil);
-                       } else {
-                           completionBlock(nil, [CMISErrors cmisError:error cmisErrorCode:kCMISErrorCodeConnection]);
-                       }
-                   }];
+                                                    session:self.bindingSession
+                                                cmisRequest:request
+                                            completionBlock:^(CMISHttpResponse *httpResponse, NSError *error) {
+                                                if (httpResponse) {
+                                                    // TODO: retrieve failed folders and files and return
+                                                    completionBlock([NSArray array], nil);
+                                                } else {
+                                                    completionBlock(nil, [CMISErrors cmisError:error cmisErrorCode:kCMISErrorCodeConnection]);
+                                                }
+                                            }];
         };
-        
-        if (link == nil) {
-            [self loadLinkForObjectId:folderObjectId
-                             relation:kCMISLinkRelationFolderTree
-                          cmisRequest:request
-                      completionBlock:^(NSString *link, NSError *error) {
-                if (error) {
-                    CMISLogError(@"Error while fetching %@ link : %@", kCMISLinkRelationFolderTree, error.description);
-                    completionBlock(nil, [CMISErrors cmisError:error cmisErrorCode:kCMISErrorCodeRuntime]);
-                } else if (link == nil) {
-                    CMISLogError(@"Could not retrieve %@ nor %@ link", kCMISLinkRelationDown, kCMISLinkRelationFolderTree);
-                    completionBlock(nil, [CMISErrors cmisError:error cmisErrorCode:kCMISErrorCodeRuntime]);
-                } else {
-                    continueWithLink(link);
-                }
-            }];
+                  
+        void (^continueWithLinkFolderTreeFeed)(NSString*) = ^(NSString* link) {
+            if(!link){
+                [self loadLinkForObjectId:folderObjectId
+                                 relation:kCMISLinkRelationFolderTree
+                                     type:kCMISMediaTypeFeed
+                              cmisRequest:request
+                          completionBlock:^(NSString *link, NSError *error) {
+                              continueWithLink(link);
+                          }];
+            } else {
+                continueWithLink(link);   
+            }
+        };
+                  
+        void (^continueWithLinksFolderTreeDescendants)(NSString*) = ^(NSString* link) {
+            if(!link) {
+                [self loadLinkForObjectId:folderObjectId
+                                 relation:kCMISLinkRelationFolderTree
+                                     type:kCMISMediaTypeDescendants
+                              cmisRequest:request
+                          completionBlock:^(NSString *link, NSError *error) {
+                              continueWithLinkFolderTreeFeed(link);
+                          }];
+            } else {
+                continueWithLinkFolderTreeFeed(link);
+            }
+        };
+                  
+
+        if(link){
+            // found only a children link, but no descendants link
+            // -> try folder tree link
+            childrenLink = link;
+            link = nil;
+            continueWithLinksFolderTreeDescendants(link);
         } else {
-            continueWithLink(link);
+            // found no or two down links
+            // -> get only the descendants link
+            [self loadLinkForObjectId:folderObjectId
+                           relation:kCMISLinkRelationDown
+                               type:kCMISMediaTypeDescendants
+                        cmisRequest:request
+                    completionBlock:^(NSString *link, NSError *error) {
+                        continueWithLinksFolderTreeDescendants(link);
+                    }];
         }
     }];
     return request;

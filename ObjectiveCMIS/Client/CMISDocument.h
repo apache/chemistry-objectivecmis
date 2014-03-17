@@ -79,6 +79,29 @@
                                 progressBlock:(void (^)(unsigned long long bytesDownloaded, unsigned long long bytesTotal))progressBlock;
 
 /**
+ * Downloads the content to a local file and returns the filepath.
+ * completionBlock will return NSError nil if successful
+ * Provides options to resume and cancel download
+ */
+- (CMISRequest*)downloadContentToFile:(NSString *)filePath
+                               offset:(NSDecimalNumber*)offset
+                               length:(NSDecimalNumber*)length
+                      completionBlock:(void (^)(NSError *error))completionBlock
+                        progressBlock:(void (^)(unsigned long long bytesDownloaded, unsigned long long bytesTotal, BOOL *stop))progressBlock;
+
+
+/**
+ * Downloads the content to an outputstream and returns the handle to the http request in order to allow cancellation.
+ * completionBlock will return NSError nil if successful
+ * Provides options to resume and cancel download
+ */
+- (CMISRequest*)downloadContentToOutputStream:(NSOutputStream *)outputStream
+                                       offset:(NSDecimalNumber*)offset
+                                       length:(NSDecimalNumber*)length
+                              completionBlock:(void (^)(NSError *error))completionBlock
+                                progressBlock:(void (^)(unsigned long long bytesDownloaded, unsigned long long bytesTotal, BOOL *stop))progressBlock;
+
+/**
  * Changes the content of this document to the content of the given file.
  *
  * Optional overwrite flag: If TRUE (default), then the Repository MUST replace the existing content stream for the
@@ -90,7 +113,7 @@
                                     mimeType:(NSString *)mimeType
                                    overwrite:(BOOL)overwrite
                              completionBlock:(void (^)(NSError *error))completionBlock
-                               progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal))progressBlock;
+                               progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal, BOOL *stop))progressBlock;
 
 /**
  * Changes the content of this document to the content of the given input stream.
@@ -106,7 +129,7 @@
                                            mimeType:(NSString *)mimeType
                                           overwrite:(BOOL)overwrite
                                     completionBlock:(void (^)(NSError *error))completionBlock
-                                      progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal))progressBlock;
+                                      progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal, BOOL *stop))progressBlock;
 
 /**
  * Deletes the content of this document.
@@ -139,7 +162,7 @@
                            properties:(CMISProperties *)properties
                        checkinComment:(NSString *)checkinComment
                       completionBlock:(void (^)(CMISDocument *document, NSError *error))completionBlock
-                        progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal))progressBlock;
+                        progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal, BOOL *stop))progressBlock;
 
 /**
  * Checkin this PWC from a specified input stream and return the checked-in document
@@ -151,6 +174,6 @@
                            properties:(CMISProperties *)properties
                        checkinComment:(NSString *)checkinComment
                       completionBlock:(void (^)(CMISDocument *document, NSError *error))completionBlock
-                        progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal))progressBlock;
+                        progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal, BOOL *stop))progressBlock;
 
 @end

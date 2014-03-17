@@ -379,7 +379,7 @@
                                             }
                                         }
                                     } else {
-                                        CMISLogError(@"Invalid http response status code when sending atom entry: %d", response.statusCode);
+                                        CMISLogError(@"Invalid http response status code when sending atom entry: %ld", (long)response.statusCode);
                                         CMISLogError(@"Error content: %@", [[NSString alloc] initWithData:response.data encoding:NSUTF8StringEncoding]);
                                         if (completionBlock) {
                                             completionBlock(nil, [CMISErrors createCMISErrorWithCode:kCMISErrorCodeRuntime
@@ -397,7 +397,7 @@
                  bytesExpected:(unsigned long long)bytesExpected
                    cmisRequest:(CMISRequest*)request
                completionBlock:(void (^)(CMISObjectData *objectData, NSError *error))completionBlock
-                 progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal))progressBlock
+                 progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal, BOOL *stop))progressBlock
 {
     // Validate param
     if (link == nil) {
@@ -438,7 +438,7 @@
                                             }
                                         }
                                     } else {
-                                        CMISLogError(@"Invalid http response status code when sending atom entry: %d", response.statusCode);
+                                        CMISLogError(@"Invalid http response status code when sending atom entry: %d", (int)response.statusCode);
                                         CMISLogError(@"Error content: %@", [[NSString alloc] initWithData:response.data encoding:NSUTF8StringEncoding]);
                                         if (completionBlock) {
                                             completionBlock(nil, [CMISErrors createCMISErrorWithCode:kCMISErrorCodeRuntime

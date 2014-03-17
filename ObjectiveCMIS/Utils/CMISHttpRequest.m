@@ -198,7 +198,7 @@ NSString * const kCMISExceptionVersioning              = @"versioning";
         CMISLogTrace(@"Response body: %@", [[NSString alloc] initWithData:response.data encoding:NSUTF8StringEncoding]);
     }
     
-    if ( (httpRequestMethod == HTTP_GET && response.statusCode != 200)
+    if ( (httpRequestMethod == HTTP_GET && response.statusCode != 200 && response.statusCode != 206)
         || (httpRequestMethod == HTTP_POST && response.statusCode != 201)
         || (httpRequestMethod == HTTP_DELETE && response.statusCode != 204)
         || (httpRequestMethod == HTTP_PUT && ((response.statusCode < 200 || response.statusCode > 299)))) {

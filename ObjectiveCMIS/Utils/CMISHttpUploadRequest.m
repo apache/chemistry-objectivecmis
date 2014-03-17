@@ -27,6 +27,8 @@
 #import "CMISBase64Encoder.h"
 #import "CMISAtomEntryWriter.h"
 #import "CMISLog.h"
+#import "CMISErrors.h"
+
 /**
  this is the buffer size for the input/output stream pair containing the base64 encoded data
  */
@@ -82,7 +84,7 @@ const NSUInteger kRawBufferSize = 24576;
 @interface CMISHttpUploadRequest ()
 
 @property (nonatomic, assign) unsigned long long bytesUploaded;
-@property (nonatomic, copy) void (^progressBlock)(unsigned long long bytesUploaded, unsigned long long bytesTotal);
+@property (nonatomic, copy) void (^progressBlock)(unsigned long long bytesUploaded, unsigned long long bytesTotal, BOOL *stop);
 @property (nonatomic, assign) BOOL base64Encoding;
 @property (nonatomic, strong) NSInputStream *base64InputStream;
 @property (nonatomic, strong) NSOutputStream *encoderStream;
@@ -100,7 +102,7 @@ const NSUInteger kRawBufferSize = 24576;
 
 - (id)initWithHttpMethod:(CMISHttpRequestMethod)httpRequestMethod
          completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))completionBlock
-           progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal))progressBlock;
+           progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal, BOOL *stop))progressBlock;
 
 @end
 
@@ -114,7 +116,7 @@ const NSUInteger kRawBufferSize = 24576;
                          bytesExpected:(unsigned long long)bytesExpected
                 authenticationProvider:(id<CMISAuthenticationProvider>) authenticationProvider
                        completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))completionBlock
-                         progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal))progressBlock
+                         progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal, BOOL *stop))progressBlock
 {
     CMISHttpUploadRequest *httpRequest = [[self alloc] initWithHttpMethod:httpRequestMethod
                                                           completionBlock:completionBlock
@@ -143,7 +145,7 @@ authenticationProvider:(id<CMISAuthenticationProvider>) authenticationProvider
     cmisProperties:(CMISProperties *)cmisProperties
           mimeType:(NSString *)mimeType
    completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))completionBlock
-     progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal))progressBlock
+     progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal, BOOL *stop))progressBlock
 {
     CMISHttpUploadRequest *httpRequest = [[self alloc] initWithHttpMethod:httpRequestMethod
                                                           completionBlock:completionBlock
@@ -167,7 +169,7 @@ authenticationProvider:(id<CMISAuthenticationProvider>) authenticationProvider
 
 - (id)initWithHttpMethod:(CMISHttpRequestMethod)httpRequestMethod
          completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))completionBlock
-           progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal))progressBlock
+           progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal, BOOL *stop))progressBlock
 {
     self = [super initWithHttpMethod:httpRequestMethod
                      completionBlock:completionBlock];
@@ -241,10 +243,17 @@ totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite
             }
         }
         
+        BOOL cancelled = NO;
         if (self.bytesExpected == 0) {
-            self.progressBlock((unsigned long long)totalBytesWritten, (unsigned long long)totalBytesExpectedToWrite);
+            self.progressBlock((unsigned long long)totalBytesWritten, (unsigned long long)totalBytesExpectedToWrite, &cancelled);
         } else {
-            self.progressBlock((unsigned long long)totalBytesWritten, self.bytesExpected);
+            self.progressBlock((unsigned long long)totalBytesWritten, self.bytesExpected, &cancelled);
+        }
+        
+        // Cancel Upload Request if requested
+        if (cancelled == YES) {
+            [self cancel];
+            self.progressBlock((unsigned long long)totalBytesWritten, self.bytesExpected, &cancelled);
         }
     }
 }
@@ -385,6 +394,8 @@ totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite
                 bytesWritten = [self.encoderStream write:&buffer[self.bufferOffset] maxLength:self.bufferLimit - self.bufferOffset];
                 if (bytesWritten <= 0) {
                     [self stopSendWithStatus:@"Network write error"];
+                    NSError *cmisError = [CMISErrors createCMISErrorWithCode:kCMISErrorCodeConnection detailedDescription:@"Network write error"];
+                    [self connection:nil didFailWithError:cmisError];
                 } else {
                     self.bufferOffset += bytesWritten;
                 }
@@ -430,8 +441,8 @@ totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite
     self.streamEndData = [end dataUsingEncoding:NSUTF8StringEncoding];
     
     unsigned long long encodedLength = [CMISHttpUploadRequest base64EncodedLength:self.bytesExpected];
-    encodedLength += start.length;
-    encodedLength += end.length;
+    encodedLength += self.streamStartData.length;
+    encodedLength += self.streamEndData.length;
     self.encodedLength = encodedLength;
 }
 

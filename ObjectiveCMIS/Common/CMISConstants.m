@@ -41,6 +41,10 @@ NSString * const kCMISPropertyIsLatestMajorVersion = @"cmis:isLatestMajorVersion
 NSString * const kCMISPropertyChangeToken = @"cmis:changeToken";
 NSString * const kCMISPropertyBaseTypeId = @"cmis:baseTypeId";
 NSString * const kCMISPropertyCheckinComment = @"cmis:checkinComment";
+NSString * const kCMISPropertySecondaryObjectTypeIds = @"cmis:secondaryObjectTypeIds";
+NSString * const kCMISPropertyDescription = @"cmis:description";
+
+
 // Property values
 
 NSString * const kCMISPropertyObjectTypeIdValueDocument = @"cmis:document";

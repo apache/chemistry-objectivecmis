@@ -47,6 +47,12 @@ extern NSString * const kCMISAtomEntryValueTrue;
 extern NSString * const kCMISAtomEntryContent;
 extern NSString * const kCMISAtomEntrySrc;
 extern NSString * const kCMISAtomEntryAllowableActions;
+extern NSString * const kCMISAtomEntryAcl;
+extern NSString * const kCMISAtomEntryExactACL;
+extern NSString * const kCMISAtomEntryPermission;
+extern NSString * const kCMISAtomEntryPrincipal;
+extern NSString * const kCMISAtomEntryPrincipalId;
+extern NSString * const kCMISAtomEntryDirect;
 
 // Collections
 extern NSString * const kCMISAtomCollectionQuery;
