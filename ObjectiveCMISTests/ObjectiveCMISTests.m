@@ -445,7 +445,7 @@
                      self.testCompleted = YES;
                  }
              }
-             progressBlock: ^ (unsigned long long bytesUploaded, unsigned long long bytesTotal)
+             progressBlock: ^ (unsigned long long bytesUploaded, unsigned long long bytesTotal, BOOL *stop)
              {
                  XCTAssertTrue((long long)bytesUploaded > previousBytesUploaded, @"No progress was made");
                  previousBytesUploaded = bytesUploaded;
@@ -493,7 +493,7 @@
                         self.testCompleted = YES;
                     }
                 }
-                progressBlock: ^ (unsigned long long uploadedBytes, unsigned long long totalBytes)
+                progressBlock: ^ (unsigned long long uploadedBytes, unsigned long long totalBytes, BOOL *stop)
                 {
                     XCTAssertTrue((long long)uploadedBytes > previousUploadedBytes, @"no progress");
                     previousUploadedBytes = uploadedBytes;
@@ -538,7 +538,7 @@
                 XCTAssertNil(error, @"Got error while creating document: %@", [error description]);
                 self.testCompleted = YES;
             }
-        } progressBlock:^(unsigned long long bytesUploaded, unsigned long long total){}];
+        } progressBlock:^(unsigned long long bytesUploaded, unsigned long long total, BOOL *stop){}];
         
     }];
 }
@@ -617,7 +617,7 @@
                        self.testCompleted = YES;
                    }
                }
-               progressBlock:^(unsigned long long bytesUploaded, unsigned long long bytesTotal)
+               progressBlock:^(unsigned long long bytesUploaded, unsigned long long bytesTotal, BOOL *stop)
                {
                    XCTAssertTrue((long long)bytesUploaded > previousBytesUploaded, @"No progress was made");
                    previousBytesUploaded = bytesUploaded;
@@ -1079,7 +1079,7 @@
                   
                       self.testCompleted = YES;
                   }
-              } progressBlock: ^ (unsigned long long bytesUploaded, unsigned long long bytesTotal) {
+              } progressBlock: ^ (unsigned long long bytesUploaded, unsigned long long bytesTotal, BOOL *stop) {
                   XCTAssertTrue((long long)bytesUploaded > previousUploadedBytes, @"No progress");
                   previousUploadedBytes = bytesUploaded;
               }];
@@ -1779,7 +1779,7 @@
                     } progressBlock:^(unsigned long long bytesDownloaded, unsigned long long bytesTotal) {
                           CMISLogDebug(@"download progress %i/%i", bytesDownloaded, bytesTotal);
                     }];
-                } progressBlock:^(unsigned long long bytesUploaded, unsigned long long bytesTotal) {
+                } progressBlock:^(unsigned long long bytesUploaded, unsigned long long bytesTotal, BOOL *stop) {
                       CMISLogDebug(@"upload progress %i/%i", bytesUploaded, bytesTotal);
                 }];
             }];

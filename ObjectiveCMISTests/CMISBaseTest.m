@@ -157,7 +157,7 @@
                     XCTAssertNil(error, @"Got error while uploading document: %@", [error description]);
                 }
             }
-            progressBlock: ^ (unsigned long long uploadedBytes, unsigned long long totalBytes)
+            progressBlock: ^ (unsigned long long uploadedBytes, unsigned long long totalBytes, BOOL *stop)
             {
                 XCTAssertTrue((long long)uploadedBytes > previousUploadedBytes, @"no progress");
                 previousUploadedBytes = uploadedBytes;
