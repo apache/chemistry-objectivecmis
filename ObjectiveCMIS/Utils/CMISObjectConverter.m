@@ -108,7 +108,11 @@
                          typeDefinition:(CMISTypeDefinition *)typeDefinition
                         completionBlock:(void (^)(CMISProperties *convertedProperties, NSError *error))completionBlock
 {
-    [self internalNormalConvertProperties:properties typeDefinitions:[NSArray arrayWithObject:typeDefinition] completionBlock:completionBlock];
+    NSArray *typeDefinitions = nil;
+    if (typeDefinition) {
+        typeDefinitions = [NSArray arrayWithObject:typeDefinition];
+    }
+    [self internalNormalConvertProperties:properties typeDefinitions:typeDefinitions completionBlock:completionBlock];
 }
 
 - (void)internalNormalConvertProperties:(NSDictionary *)properties

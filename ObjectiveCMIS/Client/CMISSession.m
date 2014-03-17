@@ -449,7 +449,9 @@
                                       length:nil
                              completionBlock:completionBlock
                                progressBlock:^(unsigned long long bytesDownloaded, unsigned long long bytesTotal, BOOL *stop) {
-                                   progressBlock(bytesDownloaded, bytesTotal);
+                                   if (progressBlock) {
+                                       progressBlock(bytesDownloaded, bytesTotal);
+                                   }
                                }];
 }
 
@@ -480,7 +482,9 @@
                                       length:nil
                              completionBlock:completionBlock
                                progressBlock:^(unsigned long long bytesDownloaded, unsigned long long bytesTotal, BOOL *stop) {
-                                   progressBlock(bytesDownloaded, bytesTotal);
+                                   if (progressBlock) {
+                                       progressBlock(bytesDownloaded, bytesTotal);
+                                   }
                                }];
 }
 
