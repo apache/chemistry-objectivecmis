@@ -115,6 +115,10 @@
         } else if ([elementName isEqualToString:kCMISCoreCapabilities]) {
             self.currentRepositoryInfo.repositoryCapabilities = self.currentCapabilities;
             self.currentCapabilities = nil;
+        } else if ([elementName isEqualToString:kCMISCorePrincipalAnonymous]) {
+            self.currentRepositoryInfo.principalIdAnonymous = self.currentString;
+        } else if ([elementName isEqualToString:kCMISCorePrincipalAnyone]) {
+            self.currentRepositoryInfo.principalIdAnyone = self.currentString;
         } else if ([elementName isEqualToString:kCMISCoreAclCapability] || [elementName isEqualToString:kCMISCorePermission]
                  || [elementName isEqualToString:kCMISCorePermissions]|| [elementName isEqualToString:kCMISCoreMapping]
                  || [elementName isEqualToString:kCMISCoreKey]|| [elementName isEqualToString:kCMISCoreSupportedPermissions]
@@ -129,8 +133,6 @@
                 kCMISCoreCmisVersionSupported;
                 kCMISCoreChangesIncomplete;
                 kCMISCoreChangesOnType;
-                kCMISCorePrincipalAnonymous;
-                kCMISCorePrincipalAnyone;
              */
             
             //CMISLogWarning(@"TODO Cmis-Core Element was ignored: ElementName=%@, Value=%@",elementName, self.currentString);
