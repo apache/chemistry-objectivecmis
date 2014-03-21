@@ -92,7 +92,7 @@ completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))comple
  bytesExpected:(unsigned long long)bytesExpected
    cmisRequest:(CMISRequest *)cmisRequest
 completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))completionBlock
- progressBlock:(void (^)(unsigned long long bytesDownloaded, unsigned long long bytesTotal, BOOL *stop))progressBlock;
+ progressBlock:(void (^)(unsigned long long bytesDownloaded, unsigned long long bytesTotal))progressBlock;
 
 
 /**
@@ -120,7 +120,7 @@ completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))comple
 cmisProperties:(CMISProperties *)cmisProperties
       mimeType:(NSString *)mimeType
 completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))completionBlock
- progressBlock:(void (^)(unsigned long long bytesDownloaded, unsigned long long bytesTotal, BOOL *stop))progressBlock;
+ progressBlock:(void (^)(unsigned long long bytesDownloaded, unsigned long long bytesTotal))progressBlock;
 
 
 
@@ -167,7 +167,7 @@ completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))comple
         length:(NSDecimalNumber*)length
    cmisRequest:(CMISRequest *)cmisRequest
 completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))completionBlock
- progressBlock:(void (^)(unsigned long long bytesDownloaded, unsigned long long bytesTotal, BOOL *stop))progressBlock;
+ progressBlock:(void (^)(unsigned long long bytesDownloaded, unsigned long long bytesTotal))progressBlock;
 
 
 /**

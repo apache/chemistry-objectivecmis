@@ -23,13 +23,13 @@
 
 @interface CMISHttpDownloadRequest ()
 
-@property (nonatomic, copy) void (^progressBlock)(unsigned long long bytesDownloaded, unsigned long long bytesTotal, BOOL *stop);
+@property (nonatomic, copy) void (^progressBlock)(unsigned long long bytesDownloaded, unsigned long long bytesTotal);
 @property (nonatomic, assign) unsigned long long bytesDownloaded;
 @property (nonatomic, assign) BOOL cancelled;
 
 - (id)initWithHttpMethod:(CMISHttpRequestMethod)httpRequestMethod
          completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))completionBlock
-           progressBlock:(void (^)(unsigned long long bytesDownloaded, unsigned long long bytesTotal, BOOL *stop))progressBlock;
+           progressBlock:(void (^)(unsigned long long bytesDownloaded, unsigned long long bytesTotal))progressBlock;
 
 @end
 
@@ -61,7 +61,7 @@ authenticationProvider:(id<CMISAuthenticationProvider>) authenticationProvider
                                   length:(NSDecimalNumber*)length
                   authenticationProvider:(id<CMISAuthenticationProvider>) authenticationProvider
                          completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))completionBlock
-                           progressBlock:(void (^)(unsigned long long bytesDownloaded, unsigned long long bytesTotal, BOOL *stop))progressBlock
+                           progressBlock:(void (^)(unsigned long long bytesDownloaded, unsigned long long bytesTotal))progressBlock
 {
     CMISHttpDownloadRequest *httpRequest = [[self alloc] initWithHttpMethod:httpRequestMethod
                                                             completionBlock:completionBlock
@@ -95,7 +95,7 @@ authenticationProvider:(id<CMISAuthenticationProvider>) authenticationProvider
 
 - (id)initWithHttpMethod:(CMISHttpRequestMethod)httpRequestMethod
          completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))completionBlock
-           progressBlock:(void (^)(unsigned long long bytesDownloaded, unsigned long long bytesTotal, BOOL *stop))progressBlock
+           progressBlock:(void (^)(unsigned long long bytesDownloaded, unsigned long long bytesTotal))progressBlock
 {
     self = [super initWithHttpMethod:httpRequestMethod
                      completionBlock:completionBlock];
@@ -173,13 +173,7 @@ authenticationProvider:(id<CMISAuthenticationProvider>) authenticationProvider
     self.bytesDownloaded += data.length;
     // pass progress to progressBlock
     if (self.progressBlock) {
-        BOOL cancelled = NO;
-        self.progressBlock(self.bytesDownloaded, self.bytesExpected, &cancelled);
-        
-        // Cancel Download Request if requested
-        if (cancelled == YES) {
-            [self cancel];
-        }
+        self.progressBlock(self.bytesDownloaded, self.bytesExpected);
     }
     
 }

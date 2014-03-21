@@ -99,7 +99,7 @@
              properties:(CMISProperties *)properties
          checkinComment:(NSString *)checkinComment
         completionBlock:(void (^)(CMISObjectData *objectData, NSError *error))completionBlock
-          progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal, BOOL *stop))progressBlock;
+          progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal))progressBlock;
 
 /**
  * Checks-in the private working copy (PWC) document from the given an input stream.
@@ -122,6 +122,6 @@
              properties:(CMISProperties *)properties
          checkinComment:(NSString *)checkinComment
         completionBlock:(void (^)(CMISObjectData *objectData, NSError *error))completionBlock
-          progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal, BOOL *stop))progressBlock;
+          progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal))progressBlock;
 
 @end

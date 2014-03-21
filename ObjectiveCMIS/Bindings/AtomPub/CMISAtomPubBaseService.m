@@ -397,7 +397,7 @@
                  bytesExpected:(unsigned long long)bytesExpected
                    cmisRequest:(CMISRequest*)request
                completionBlock:(void (^)(CMISObjectData *objectData, NSError *error))completionBlock
-                 progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal, BOOL *stop))progressBlock
+                 progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal))progressBlock
 {
     // Validate param
     if (link == nil) {

@@ -141,7 +141,7 @@
                                   mimeType:(NSString *)mimeType
                                 properties:(NSDictionary *)properties
                            completionBlock:(void (^)(NSString *objectId, NSError *error))completionBlock
-                             progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal, BOOL *stop))progressBlock
+                             progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal))progressBlock
 {
     __block CMISRequest *request = [[CMISRequest alloc] init];
     [self.session.objectConverter convertProperties:properties
@@ -169,7 +169,7 @@
                                    properties:(NSDictionary *)properties
                                 bytesExpected:(unsigned long long)bytesExpected
                               completionBlock:(void (^)(NSString *objectId, NSError *error))completionBlock
-                                progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal, BOOL *stop))progressBlock
+                                progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal))progressBlock
 {
     __block CMISRequest *request = [[CMISRequest alloc] init];
     [self.session.objectConverter convertProperties:properties forObjectTypeId:kCMISPropertyObjectTypeIdValueDocument completionBlock:^(CMISProperties *convertedProperties, NSError *error){

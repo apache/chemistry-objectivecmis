@@ -87,7 +87,7 @@
                                     mimeType:(NSString *)mimeType
                                    overwrite:(BOOL)overwrite
                              completionBlock:(void (^)(NSError *error))completionBlock
-                               progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal, BOOL *stop))progressBlock
+                               progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal))progressBlock
 {
     return [self.binding.objectService changeContentOfObject:[CMISStringInOutParameter inOutParameterUsingInParameter:self.identifier]
                                              toContentOfFile:filePath
@@ -104,7 +104,7 @@
                                            mimeType:(NSString *)mimeType
                                           overwrite:(BOOL)overwrite
                                     completionBlock:(void (^)(NSError *error))completionBlock
-                                      progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal, BOOL *stop))progressBlock
+                                      progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal))progressBlock
 {
     return [self.binding.objectService changeContentOfObject:[CMISStringInOutParameter inOutParameterUsingInParameter:self.identifier]
                                       toContentOfInputStream:inputStream
@@ -160,7 +160,7 @@
                                 offset:nil
                                 length:nil
                        completionBlock:completionBlock
-                         progressBlock:^(unsigned long long bytesDownloaded, unsigned long long bytesTotal, BOOL *stop) {
+                         progressBlock:^(unsigned long long bytesDownloaded, unsigned long long bytesTotal) {
                              if (progressBlock) {
                                  progressBlock(bytesDownloaded, bytesTotal);
                              }
@@ -176,7 +176,7 @@
                                         offset:nil
                                         length:nil
                                completionBlock:completionBlock
-                                 progressBlock:^(unsigned long long bytesDownloaded, unsigned long long bytesTotal, BOOL *stop) {
+                                 progressBlock:^(unsigned long long bytesDownloaded, unsigned long long bytesTotal) {
                                      if (progressBlock) {
                                          progressBlock(bytesDownloaded, bytesTotal);
                                      }
@@ -187,7 +187,7 @@
                                offset:(NSDecimalNumber*)offset
                                length:(NSDecimalNumber*)length
                       completionBlock:(void (^)(NSError *error))completionBlock
-                        progressBlock:(void (^)(unsigned long long bytesDownloaded, unsigned long long bytesTotal, BOOL *stop))progressBlock
+                        progressBlock:(void (^)(unsigned long long bytesDownloaded, unsigned long long bytesTotal))progressBlock
 {
     NSOutputStream *outputStream = [NSOutputStream outputStreamToFileAtPath:filePath append:NO];
     return [self.binding.objectService downloadContentOfObject:self.identifier
@@ -204,7 +204,7 @@
                                        offset:(NSDecimalNumber*)offset
                                        length:(NSDecimalNumber*)length
                               completionBlock:(void (^)(NSError *error))completionBlock
-                                progressBlock:(void (^)(unsigned long long bytesDownloaded, unsigned long long bytesTotal, BOOL *stop))progressBlock
+                                progressBlock:(void (^)(unsigned long long bytesDownloaded, unsigned long long bytesTotal))progressBlock
 {
     return [self.binding.objectService downloadContentOfObject:self.identifier
                                                       streamId:nil
@@ -255,7 +255,7 @@
                            properties:(CMISProperties *)properties
                        checkinComment:(NSString *)checkinComment
                       completionBlock:(void (^)(CMISDocument *document, NSError *error))completionBlock
-                        progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal, BOOL *stop))progressBlock
+                        progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal))progressBlock
 {
     return [self.binding.versioningService checkIn:self.identifier
                                     asMajorVersion:majorVersion
@@ -276,9 +276,7 @@
                 }
             }];
         }
-    } progressBlock:^(unsigned long long bytesUploaded, unsigned long long bytesTotal, BOOL *stop) {
-        progressBlock(bytesUploaded, bytesTotal, stop);
-    }];
+    } progressBlock:progressBlock];
 }
 
 - (CMISRequest*)checkInAsMajorVersion:(BOOL)majorVersion
@@ -288,7 +286,7 @@
                            properties:(CMISProperties *)properties
                        checkinComment:(NSString *)checkinComment
                       completionBlock:(void (^)(CMISDocument *document, NSError *error))completionBlock
-                        progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal, BOOL *stop))progressBlock
+                        progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal))progressBlock
 {
     return [self.binding.versioningService checkIn:self.identifier
                                     asMajorVersion:majorVersion
@@ -310,9 +308,7 @@
                 }
             }];
         }
-    } progressBlock:^(unsigned long long bytesUploaded, unsigned long long bytesTotal, BOOL *stop) {
-        progressBlock(bytesUploaded, bytesTotal, stop);
-    }];
+    } progressBlock:progressBlock];
 }
 
 @end

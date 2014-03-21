@@ -182,7 +182,7 @@
              properties:(CMISProperties *)properties
          checkinComment:(NSString *)checkinComment
         completionBlock:(void (^)(CMISObjectData *objectData, NSError *error))completionBlock
-          progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal, BOOL *stop))progressBlock
+          progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal))progressBlock
 {
     NSInputStream *inputStream = [NSInputStream inputStreamWithFileAtPath:filePath];
     if (inputStream == nil) {
@@ -218,7 +218,7 @@
              properties:(CMISProperties *)properties
          checkinComment:(NSString *)checkinComment
         completionBlock:(void (^)(CMISObjectData *objectData, NSError *error))completionBlock
-          progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal, BOOL *stop))progressBlock
+          progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal))progressBlock
 {
     // Validate params
     if (!objectId) {

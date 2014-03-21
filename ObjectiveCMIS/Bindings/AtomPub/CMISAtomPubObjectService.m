@@ -93,7 +93,7 @@
                            offset:nil
                            length:nil
                   completionBlock:completionBlock
-                    progressBlock:^(unsigned long long bytesDownloaded, unsigned long long bytesTotal, BOOL *stop) {
+                    progressBlock:^(unsigned long long bytesDownloaded, unsigned long long bytesTotal) {
                         if (progressBlock) {
                             progressBlock(bytesDownloaded, bytesTotal);
                         }
@@ -106,7 +106,7 @@
                                  offset:(NSDecimalNumber*)offset
                                  length:(NSDecimalNumber*)length
                         completionBlock:(void (^)(NSError *error))completionBlock
-                          progressBlock:(void (^)(unsigned long long bytesDownloaded, unsigned long long bytesTotal, BOOL *stop))progressBlock
+                          progressBlock:(void (^)(unsigned long long bytesDownloaded, unsigned long long bytesTotal))progressBlock
 {
     NSOutputStream *outputStream = [NSOutputStream outputStreamToFileAtPath:filePath append:NO];
     return [self downloadContentOfObject:objectId
@@ -130,7 +130,7 @@
                                   offset:nil
                                   length:nil
                          completionBlock:completionBlock
-                           progressBlock:^(unsigned long long bytesDownloaded, unsigned long long bytesTotal, BOOL *stop) {
+                           progressBlock:^(unsigned long long bytesDownloaded, unsigned long long bytesTotal) {
                                if (progressBlock) {
                                    progressBlock(bytesDownloaded, bytesTotal);
                                }
@@ -143,7 +143,7 @@
                                  offset:(NSDecimalNumber*)offset
                                  length:(NSDecimalNumber*)length
                         completionBlock:(void (^)(NSError *error))completionBlock
-                          progressBlock:(void (^)(unsigned long long bytesDownloaded, unsigned long long bytesTotal, BOOL *stop))progressBlock
+                          progressBlock:(void (^)(unsigned long long bytesDownloaded, unsigned long long bytesTotal))progressBlock
 {
     CMISRequest *request = [[CMISRequest alloc] init];
     
@@ -244,7 +244,7 @@
                     overwriteExisting:(BOOL)overwrite
                           changeToken:(CMISStringInOutParameter *)changeTokenParam
                       completionBlock:(void (^)(NSError *error))completionBlock
-                        progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal, BOOL *stop))progressBlock
+                        progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal))progressBlock
 {
     NSInputStream *inputStream = [NSInputStream inputStreamWithFileAtPath:filePath];
     if (inputStream == nil) {
@@ -280,7 +280,7 @@
                     overwriteExisting:(BOOL)overwrite
                           changeToken:(CMISStringInOutParameter *)changeTokenParam
                       completionBlock:(void (^)(NSError *error))completionBlock
-                        progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal, BOOL *stop))progressBlock
+                        progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal))progressBlock
 {
     CMISRequest *request = [[CMISRequest alloc] init];
     // Validate object id param
@@ -374,7 +374,7 @@
                                 properties:(CMISProperties *)properties
                                   inFolder:(NSString *)folderObjectId
                            completionBlock:(void (^)(NSString *objectId, NSError *Error))completionBlock
-                             progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal, BOOL *stop))progressBlock
+                             progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal))progressBlock
 {
     NSInputStream *inputStream = [NSInputStream inputStreamWithFileAtPath:filePath];
     if (inputStream == nil) {
@@ -407,7 +407,7 @@
                                      inFolder:(NSString *)folderObjectId
                                 bytesExpected:(unsigned long long)bytesExpected // optional
                               completionBlock:(void (^)(NSString *objectId, NSError *error))completionBlock
-                                progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal, BOOL *stop))progressBlock
+                                progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal))progressBlock
 {
     // Validate properties
     if ([properties propertyValueForId:kCMISPropertyName] == nil || [properties propertyValueForId:kCMISPropertyObjectTypeId] == nil) {

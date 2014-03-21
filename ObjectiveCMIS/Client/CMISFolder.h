@@ -68,7 +68,7 @@
                           mimeType:(NSString *)mimeType
                         properties:(NSDictionary *)properties
                    completionBlock:(void (^)(NSString *objectId, NSError *error))completionBlock
-                     progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal, BOOL *stop))progressBlock;
+                     progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal))progressBlock;
 
 /**
  * creates a document with specified properties, mime Type
@@ -79,7 +79,7 @@
                            properties:(NSDictionary *)properties
                         bytesExpected:(unsigned long long)bytesExpected
                       completionBlock:(void (^)(NSString *objectId, NSError *error))completionBlock
-                        progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal, BOOL *stop))progressBlock;
+                        progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal))progressBlock;
 
 
 /**

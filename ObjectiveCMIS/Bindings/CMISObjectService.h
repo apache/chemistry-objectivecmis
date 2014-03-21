@@ -67,7 +67,7 @@
  * Gets the content stream for the specified Document object, or gets a rendition stream for a specified
  * rendition of a document or folder object. Downloads the content to a local file.
  * completionBlock returns objectData for object or nil if unsuccessful
- * Provides options to resume and cancel download
+ * Provides options to resume download
  */
 - (CMISRequest*)downloadContentOfObject:(NSString *)objectId
                                streamId:(NSString *)streamId
@@ -75,7 +75,7 @@
                                  offset:(NSDecimalNumber*)offset
                                  length:(NSDecimalNumber*)length
                         completionBlock:(void (^)(NSError *error))completionBlock
-                          progressBlock:(void (^)(unsigned long long bytesDownloaded, unsigned long long bytesTotal, BOOL *stop))progressBlock;
+                          progressBlock:(void (^)(unsigned long long bytesDownloaded, unsigned long long bytesTotal))progressBlock;
 
 /**
  * Gets the content stream for the specified Document object, or gets a rendition stream for a specified
@@ -92,7 +92,7 @@
  * Gets the content stream for the specified Document object, or gets a rendition stream for a specified
  * rendition of a document or folder object. Downloads the content to an output stream.
  * completionBlock returns objectData for object or nil if unsuccessful
- * Provides options to resume and cancel download
+ * Provides options to resume download
  */
 - (CMISRequest*)downloadContentOfObject:(NSString *)objectId
                                streamId:(NSString *)streamId
@@ -100,7 +100,7 @@
                                  offset:(NSDecimalNumber*)offset
                                  length:(NSDecimalNumber*)length
                         completionBlock:(void (^)(NSError *error))completionBlock
-                          progressBlock:(void (^)(unsigned long long bytesDownloaded, unsigned long long bytesTotal, BOOL *stop))progressBlock;
+                          progressBlock:(void (^)(unsigned long long bytesDownloaded, unsigned long long bytesTotal))progressBlock;
 
 
 /**
@@ -135,7 +135,7 @@
                     overwriteExisting:(BOOL)overwrite
                           changeToken:(CMISStringInOutParameter *)changeTokenParam
                       completionBlock:(void (^)(NSError *error))completionBlock
-                        progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal, BOOL *stop))progressBlock;
+                        progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal))progressBlock;
 
 /**
  * Changes the content of the given document to the content from a give input stream.
@@ -157,7 +157,7 @@
                     overwriteExisting:(BOOL)overwrite
                           changeToken:(CMISStringInOutParameter *)changeToken
                       completionBlock:(void (^)(NSError *error))completionBlock
-                        progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal, BOOL *stop))progressBlock;
+                        progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal))progressBlock;
 
 /**
  * uploads the file from the given path to the given folder.
@@ -169,7 +169,7 @@
                                 properties:(CMISProperties *)properties
                                   inFolder:(NSString *)folderObjectId
                            completionBlock:(void (^)(NSString *objectId, NSError *error))completionBlock
-                             progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal, BOOL *stop))progressBlock;
+                             progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal))progressBlock;
 
 /**
  * uploads the file from the given input stream to the given folder.
@@ -182,7 +182,7 @@
                                      inFolder:(NSString *)folderObjectId
                                 bytesExpected:(unsigned long long)bytesExpected // optional
                               completionBlock:(void (^)(NSString *objectId, NSError *error))completionBlock
-                                progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal, BOOL *stop))progressBlock;
+                                progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal))progressBlock;
 
 /**
  * Deletes the given object.

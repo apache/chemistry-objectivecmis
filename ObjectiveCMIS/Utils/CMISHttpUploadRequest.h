@@ -36,7 +36,7 @@
                          bytesExpected:(unsigned long long)bytesExpected
                 authenticationProvider:(id<CMISAuthenticationProvider>) authenticationProvider
                        completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))completionBlock
-                         progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal, BOOL *stop))progressBlock;
+                         progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal))progressBlock;
 
 /**
  * starts a URL request with a provided input stream. The input stream has to point to the raw NON-encoded data set. This method will use the
@@ -54,6 +54,6 @@ authenticationProvider:(id<CMISAuthenticationProvider>) authenticationProvider
     cmisProperties:(CMISProperties *)cmisProperties
           mimeType:(NSString *)mimeType
    completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))completionBlock
-     progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal, BOOL *stop))progressBlock;
+     progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal))progressBlock;
 
 @end
