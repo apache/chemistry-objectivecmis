@@ -328,11 +328,11 @@ totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite
             if (self.base64InputStream) {
                 NSStreamStatus inputStatus = self.base64InputStream.streamStatus;
                 if (inputStatus == NSStreamStatusClosed) {
-                    CMISLogDebug(@"Base64InputStream %@ is closed", self.base64InputStream);
+                    CMISLogTrace(@"Base64InputStream %@ is closed", self.base64InputStream);
                 } else if (inputStatus == NSStreamStatusAtEnd){
-                    CMISLogDebug(@"Base64InputStream %@ has reached the end", self.base64InputStream);
+                    CMISLogTrace(@"Base64InputStream %@ has reached the end", self.base64InputStream);
                 } else if (inputStatus == NSStreamStatusError){
-                    CMISLogDebug(@"Base64InputStream %@ input stream error: %@", self.base64InputStream, self.base64InputStream.streamError);
+                    CMISLogTrace(@"Base64InputStream %@ input stream error: %@", self.base64InputStream, self.base64InputStream.streamError);
                     [self stopSendWithStatus:@"Network read error"];
                 }
             }
@@ -437,6 +437,9 @@ totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite
     encodedLength += self.streamStartData.length;
     encodedLength += self.streamEndData.length;
     self.encodedLength = encodedLength;
+    
+    // update the originally provided expected bytes with encoded length
+    self.bytesExpected = encodedLength;
 }
 
 - (void)prepareStreams
@@ -480,7 +483,7 @@ totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite
 - (void)stopSendWithStatus:(NSString *)statusString
 {
     if (nil != statusString) {
-        CMISLogDebug(@"Upload request terminated: Message is %@", statusString);
+        CMISLogTrace(@"Upload request terminated: Message is %@", statusString);
     }
     self.bufferOffset = 0;
     self.bufferLimit  = 0;

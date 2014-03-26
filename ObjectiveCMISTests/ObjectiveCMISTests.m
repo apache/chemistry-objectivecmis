@@ -538,7 +538,9 @@
                 XCTAssertNil(error, @"Got error while creating document: %@", [error description]);
                 self.testCompleted = YES;
             }
-        } progressBlock:^(unsigned long long bytesUploaded, unsigned long long total){}];
+        } progressBlock:^(unsigned long long bytesUploaded, unsigned long long total){
+            CMISLogDebug(@"upload progress %i/%i", bytesUploaded, total);
+        }];
         
     }];
 }
@@ -619,6 +621,7 @@
                }
                progressBlock:^(unsigned long long bytesUploaded, unsigned long long bytesTotal)
                {
+                   CMISLogDebug(@"upload progress %i/%i", bytesUploaded, bytesTotal);
                    XCTAssertTrue((long long)bytesUploaded > previousBytesUploaded, @"No progress was made");
                    previousBytesUploaded = bytesUploaded;
                }];
