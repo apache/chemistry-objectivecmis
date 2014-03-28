@@ -52,6 +52,7 @@
 
 @property (nonatomic, strong) NSMutableString *internalXml;
 @property (nonatomic, strong) NSString *internalFilePath;
+@property (nonatomic, strong) NSString *internalFileNameProperty;
 - (NSString *)xmlExtensionElements:(NSArray *)extensionElements;
 @end
 
@@ -67,18 +68,19 @@
 // Internal properties
 @synthesize internalXml = _internalXml;
 @synthesize internalFilePath = _internalFilePath;
+@synthesize internalFileNameProperty = _internalFileNameProperty;
 
 - (NSString *)xmlStartElement
 {
     NSString *startElement = @"<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
                             "<entry xmlns=\"http://www.w3.org/2005/Atom\" xmlns:cmis=\"http://docs.oasis-open.org/ns/cmis/core/200908/\" xmlns:cmisra=\"http://docs.oasis-open.org/ns/cmis/restatom/200908/\"  >"
                             "<id>urn:uuid:00000000-0000-0000-0000-00000000000</id>";
-    NSString *namePropertyValue = [self.cmisProperties propertyValueForId:kCMISPropertyName];
+    self.internalFileNameProperty = [self.cmisProperties propertyValueForId:kCMISPropertyName];
     
     // Determine format of title element depending on nil status of namePropertyValue
-    if (nil != namePropertyValue)
+    if (nil != self.internalFileNameProperty)
     {
-        startElement = [startElement stringByAppendingFormat:@"<title>%@</title>", [namePropertyValue stringByAddingXMLEntities]];
+        startElement = [startElement stringByAppendingFormat:@"<title>%@</title>", [self.internalFileNameProperty stringByAddingXMLEntities]];
     }
     else
     {
@@ -89,7 +91,7 @@
 
 - (NSString *)xmlContentStartElement
 {
-    return [NSString stringWithFormat:@"<cmisra:content>""<cmisra:mediatype>%@</cmisra:mediatype>""<cmisra:base64>", self.mimeType];
+    return [NSString stringWithFormat:@"<cmisra:content>""<chemistry:filename xmlns:chemistry=\"http://chemistry.apache.org/\">%@</chemistry:filename><cmisra:mediatype>%@</cmisra:mediatype>""<cmisra:base64>", [self.internalFileNameProperty stringByAddingXMLEntities], self.mimeType]; // set <chemistry:filename> to write name also in (readonly) filename property of repository
     
 }
 
@@ -200,7 +202,7 @@
             }
             default:
             {
-                CMISLogDebug(@"Property type did not match: %d", propertyData.type);
+                CMISLogDebug(@"Property type did not match: %ld", propertyData.type);
                 break;
             }
         }
