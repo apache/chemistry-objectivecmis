@@ -46,7 +46,7 @@
     self = [super init];
     if (self) {
         self.bindingSession = session;
-        self.atomPubUrl = [session objectForKey:kCMISBindingSessionKeyAtomPubUrl];
+        self.atomPubUrl = [session objectForKey:kCMISBindingSessionKeyUrl];
     }
     return self;
 }
@@ -90,8 +90,8 @@
                     repositoryFound = YES;
                     
                     // Cache collections
-                    [self.bindingSession setObject:[workspace collectionHrefForCollectionType:kCMISAtomCollectionQuery] forKey:kCMISBindingSessionKeyQueryCollection];
-                    [self.bindingSession setObject:[workspace collectionHrefForCollectionType:kCMISAtomCollectionCheckedout] forKey:kCMISBindingSessionKeyCheckedoutCollection];
+                    [self.bindingSession setObject:[workspace collectionHrefForCollectionType:kCMISAtomCollectionQuery] forKey:kCMISAtomBindingSessionKeyQueryCollection];
+                    [self.bindingSession setObject:[workspace collectionHrefForCollectionType:kCMISAtomCollectionCheckedout] forKey:kCMISAtomBindingSessionKeyCheckedoutCollection];
                     
                     
                     // Cache uri's and uri templates
@@ -104,7 +104,7 @@
                     CMISTypeByIdUriBuilder *typeByIdUriBuilder = [[CMISTypeByIdUriBuilder alloc] initWithTemplateUrl:workspace.typeByIdUriTemplate];
                     [self.bindingSession setObject:typeByIdUriBuilder forKey:kCMISBindingSessionKeyTypeByIdUriBuilder];
                     
-                    [self.bindingSession setObject:workspace.queryUriTemplate forKey:kCMISBindingSessionKeyQueryUri];
+                    [self.bindingSession setObject:workspace.queryUriTemplate forKey:kCMISAtomBindingSessionKeyQueryUri];
                     
                     break;
                 }
@@ -273,17 +273,17 @@
 
 - (CMISLinkCache *)linkCache
 {
-    CMISLinkCache *linkCache = [self.bindingSession objectForKey:kCMISBindingSessionKeyLinkCache];
+    CMISLinkCache *linkCache = [self.bindingSession objectForKey:kCMISAtomBindingSessionKeyLinkCache];
     if (linkCache == nil) {
         linkCache = [[CMISLinkCache alloc] initWithBindingSession:self.bindingSession];
-        [self.bindingSession setObject:linkCache forKey:kCMISBindingSessionKeyLinkCache];
+        [self.bindingSession setObject:linkCache forKey:kCMISAtomBindingSessionKeyLinkCache];
     }
     return linkCache;
 }
 
 - (void)clearCacheFromService
 {
-    CMISLinkCache *linkCache = [self.bindingSession objectForKey:kCMISBindingSessionKeyLinkCache];
+    CMISLinkCache *linkCache = [self.bindingSession objectForKey:kCMISAtomBindingSessionKeyLinkCache];
     if (linkCache != nil) {
         [linkCache removeAllLinks];
     }    

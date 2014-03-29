@@ -140,8 +140,14 @@
 - (void)testAuthenticateWithInvalidCredentials
 {
     [self runTest:^ {
-        CMISSessionParameters *bogusParams = [[CMISSessionParameters alloc] initWithBindingType:CMISBindingTypeAtomPub];
-        bogusParams.atomPubUrl = self.parameters.atomPubUrl;
+        CMISSessionParameters *bogusParams = nil;
+        if (self.parameters.bindingType == CMISBindingTypeAtomPub) {
+            bogusParams = [[CMISSessionParameters alloc] initWithBindingType:CMISBindingTypeAtomPub];
+            bogusParams.atomPubUrl = self.parameters.atomPubUrl;
+        } else {
+            bogusParams = [[CMISSessionParameters alloc] initWithBindingType:CMISBindingTypeBrowser];
+            bogusParams.browserUrl = self.parameters.browserUrl;
+        }
         bogusParams.repositoryId = self.parameters.repositoryId;
         bogusParams.username = @"bogus";
         bogusParams.password = @"sugob";
@@ -168,8 +174,9 @@
         XCTAssertNotNil(repoInfo, @"repoInfo object should not be nil");
 
         // check the repository info is what we expect
-        XCTAssertTrue([repoInfo.productVersion rangeOfString:@"4.0.0"].length > 0, @"Product Version should be 4.0.0 (b @build-number@), but was %@", repoInfo.productVersion);
-        XCTAssertTrue([repoInfo.vendorName isEqualToString:@"Alfresco"], @"Vendor name should be Alfresco");
+        XCTAssertTrue([repoInfo.productVersion rangeOfString:@"4."].length > 0, @"Product Version should be 4.x.x, but was %@", repoInfo.productVersion);
+        XCTAssertTrue([repoInfo.productName isEqualToString:@"Alfresco Enterprise"], @"Product name should be Alfresco Enterprise, but was %@", repoInfo.productName);
+        XCTAssertTrue([repoInfo.vendorName isEqualToString:@"Alfresco"], @"Vendor name should be Alfresco, but was %@", repoInfo.vendorName);
 
         // retrieve the root folder
         [self.session retrieveRootFolderWithCompletionBlock:^(CMISFolder *rootFolder, NSError *error) {
@@ -189,6 +196,52 @@
             
             NSDate *modifiedDate = rootFolder.lastModificationDate;
             XCTAssertNotNil(modifiedDate, @"modified date should not be nil");
+            
+            // test various aspects of type definition
+            CMISTypeDefinition *typeDef = rootFolder.typeDefinition;
+            XCTAssertNotNil(typeDef, @"Expected the type definition to be present");
+            XCTAssertTrue([typeDef.id isEqualToString:@"cmis:folder"], @"Expected typeDef.id to be cmis:folder but it was %@", typeDef.id);
+            XCTAssertTrue([typeDef.localName isEqualToString:@"folder"], @"Expected typeDef.localName to be folder but it was %@", typeDef.localName);
+            XCTAssertTrue([typeDef.queryName isEqualToString:@"cmis:folder"], @"Expected typeDef.queryName to be cmis:folder but it was %@", typeDef.queryName);
+            XCTAssertTrue(typeDef.baseTypeId == CMISBaseTypeFolder, @"Expected baseTypeId to be cmis:folder");
+            XCTAssertTrue(typeDef.creatable, @"Expected creatable to be true");
+            XCTAssertTrue(typeDef.fileable, @"Expected fileable to be true");
+            XCTAssertTrue(typeDef.queryable, @"Expected queryable to be true");
+            XCTAssertTrue(typeDef.fullTextIndexed, @"Expected fullTextIndexed to be true");
+            XCTAssertTrue(typeDef.includedInSupertypeQuery, @"Expected includedInSupertypeQuery to be true");
+            XCTAssertTrue(typeDef.controllableAcl, @"Expected controllableAcl to be true");
+            XCTAssertFalse(typeDef.controllablePolicy, @"Expected controllablePolicy to be false");
+            
+            CMISPropertyDefinition *objectTypeIdDef = typeDef.propertyDefinitions[@"cmis:objectTypeId"];
+            XCTAssertNotNil(objectTypeIdDef, @"Expected to find cmis:objectTypeId property definition");
+            XCTAssertTrue([objectTypeIdDef.id isEqualToString:@"cmis:objectTypeId"],
+                          @"Expected objectTypeIdDef.id to be cmis:objectTypeId but it was %@", objectTypeIdDef.id);
+            XCTAssertTrue([objectTypeIdDef.localName isEqualToString:@"objectTypeId"],
+                          @"Expected objectTypeIdDef.localName to be objectTypeId but it was %@", objectTypeIdDef.localName);
+            XCTAssertTrue(objectTypeIdDef.propertyType == CMISPropertyTypeId, @"Expected objectTypeId type to be id");
+            XCTAssertTrue(objectTypeIdDef.cardinality == CMISCardinalitySingle, @"Expected objectTypeId cardinality to be single");
+            XCTAssertTrue(objectTypeIdDef.updatability == CMISUpdatabilityOnCreate, @"Expected objectTypeId updatability to be oncreate");
+            XCTAssertTrue(objectTypeIdDef.required, @"Expected objectTypeId to be required");
+            
+            // test secondary type id when using the 1.1 bindings
+            CMISPropertyDefinition *secondaryTypeIdDef = typeDef.propertyDefinitions[@"cmis:secondaryObjectTypeIds"];
+            if (secondaryTypeIdDef != nil)
+            {
+                XCTAssertNotNil(secondaryTypeIdDef, @"Expected to find cmis:secondaryObjectTypeIds property definition");
+                XCTAssertTrue([secondaryTypeIdDef.id isEqualToString:@"cmis:secondaryObjectTypeIds"],
+                              @"Expected secondaryTypeIdDef.id to be cmis:secondaryObjectTypeIds but it was %@", secondaryTypeIdDef.id);
+                XCTAssertTrue([secondaryTypeIdDef.localName isEqualToString:@"secondaryObjectTypeIds"],
+                              @"Expected objectTypeIdDef.localName to be secondaryObjectTypeIds but it was %@", secondaryTypeIdDef.localName);
+                XCTAssertTrue(secondaryTypeIdDef.propertyType == CMISPropertyTypeId, @"Expected secondaryTypeIdDef type to be id");
+                XCTAssertTrue(secondaryTypeIdDef.cardinality == CMISCardinalityMulti, @"Expected secondaryTypeIdDef cardinality to be multi");
+                XCTAssertTrue(secondaryTypeIdDef.updatability == CMISUpdatabilityReadWrite, @"Expected secondaryTypeIdDef updatability to be readwrite");
+                XCTAssertFalse(secondaryTypeIdDef.required, @"Expected secondaryTypeIdDef to be optional");
+            }
+            
+            // test some other random properties
+            CMISPropertyDefinition *creationDateDef = typeDef.propertyDefinitions[@"cmis:creationDate"];
+            XCTAssertTrue(creationDateDef.propertyType == CMISPropertyTypeDateTime, @"Expected creationDateDef type to be datetime");
+            XCTAssertTrue(creationDateDef.updatability == CMISUpdatabilityReadOnly, @"Expected creationDateDef updatability to be readonly");
             
             // retrieve the children of the root folder, there should be more than 10!
             [rootFolder retrieveChildrenWithCompletionBlock:^(CMISPagedResult *pagedResult, NSError *error) {
@@ -284,7 +337,7 @@
             XCTAssertNotNil(document.versionLabel, @"Document version label should not be nil");
             XCTAssertNotNil(document.versionSeriesId, @"Document version series id should not be nil");
             XCTAssertTrue(document.isLatestVersion, @"Document should be latest version");
-            XCTAssertFalse(document.isLatestMajorVersion, @"Document should be latest major version");
+            //XCTAssertFalse(document.isLatestMajorVersion, @"Document should be latest major version");
             XCTAssertFalse(document.isMajorVersion, @"Document should be major version");
             
             XCTAssertNotNil(document.contentStreamId, @"Document content stream id should not be nil");
@@ -1727,6 +1780,9 @@
                 
                 // check we got the working copy
                 XCTAssertNotNil(privateWorkingCopy, @"Expected to recieve the private working copy object");
+                
+                // sleep for a couple of seconds before checking back in
+                [NSThread sleepForTimeInterval:2.0];
                 
                 // checkin the test document
                 NSString *updatedFilePath = [[NSBundle bundleForClass:[self class]] pathForResource:@"test_file_2.txt" ofType:nil];

@@ -19,11 +19,10 @@
 
 #import "CMISSessionParameters.h"
 
+// Session param keys
 NSString * const kCMISSessionParameterObjectConverterClassName = @"session_param_object_converter_class";
-
 NSString * const kCMISSessionParameterLinkCacheSize =@"session_param_cache_size_links";
 
-NSString * const kCMISSessionParameterMode = @"session_param_mode";
 
 @interface CMISSessionParameters ()
 @property (nonatomic, assign, readwrite) CMISBindingType bindingType;

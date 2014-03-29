@@ -19,6 +19,7 @@
 
 #import "CMISBindingFactory.h"
 #import "CMISAtomPubBinding.h"
+#import "CMISBrowserBinding.h"
 
 @implementation CMISBindingFactory
 
@@ -31,6 +32,9 @@
     id<CMISBinding> binding = nil;
     if (sessionParameters.bindingType == CMISBindingTypeAtomPub) {
         binding = [[CMISAtomPubBinding alloc] initWithSessionParameters:sessionParameters];
+    }
+    else if (sessionParameters.bindingType == CMISBindingTypeBrowser) {
+        binding = [[CMISBrowserBinding alloc] initWithSessionParameters:sessionParameters];
     }
 
     return binding;

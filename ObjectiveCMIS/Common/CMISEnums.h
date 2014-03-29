@@ -23,6 +23,7 @@
 typedef NS_ENUM(NSInteger, CMISBindingType)
 {
     CMISBindingTypeAtomPub,
+    CMISBindingTypeBrowser,
     CMISBindingTypeCustom
 };
 

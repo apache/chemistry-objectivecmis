@@ -19,6 +19,12 @@
 
 #import "CMISAtomPubConstants.h"
 
+// Session keys
+NSString * const kCMISAtomBindingSessionKeyQueryUri = @"cmis_session_key_atom_query_uri";
+NSString * const kCMISAtomBindingSessionKeyQueryCollection = @"cmis_session_key_atom_query_collection";
+NSString * const kCMISAtomBindingSessionKeyCheckedoutCollection = @"cmis_session_key_atom_checkedout_collection";
+NSString * const kCMISAtomBindingSessionKeyLinkCache = @"cmis_session_key_atom_link_cache";
+
 // Feed
 NSString * const kCMISAtomFeedNumItems = @"numItems";
 
@@ -157,7 +163,7 @@ NSString * const kCMISCoreDisplayName = @"displayName";
 NSString * const kCMISCoreQueryName = @"queryName";
 NSString * const kCMISCoreDescription = @"description";
 NSString * const kCMISCoreBaseId = @"baseId";
-NSString * const kCMISCoreCreatable = @"createable";
+NSString * const kCMISCoreCreatable = @"creatable";
 NSString * const kCMISCoreFileable = @"fileable";
 NSString * const kCMISCoreQueryable = @"queryable";
 NSString * const kCMISCoreFullTextIndexed = @"fulltextIndexed";

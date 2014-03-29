@@ -22,16 +22,11 @@
 #import "CMISAuthenticationProvider.h"
 #import "CMISNetworkProvider.h"
 
-extern NSString * const kCMISBindingSessionKeyAtomPubUrl;
+// session key constants
+extern NSString * const kCMISBindingSessionKeyUrl;
 extern NSString * const kCMISBindingSessionKeyObjectByIdUriBuilder;
 extern NSString * const kCMISBindingSessionKeyObjectByPathUriBuilder;
 extern NSString * const kCMISBindingSessionKeyTypeByIdUriBuilder;
-extern NSString * const kCMISBindingSessionKeyQueryUri;
-
-extern NSString * const kCMISBindingSessionKeyQueryCollection;
-extern NSString * const kCMISBindingSessionKeyCheckedoutCollection;
-
-extern NSString * const kCMISBindingSessionKeyLinkCache;
 
 @interface CMISBindingSession : NSObject
 

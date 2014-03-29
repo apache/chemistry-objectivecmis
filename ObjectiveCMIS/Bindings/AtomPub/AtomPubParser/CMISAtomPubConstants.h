@@ -19,6 +19,12 @@
 
 #import <Foundation/Foundation.h>
 
+// Session keys
+extern NSString * const kCMISAtomBindingSessionKeyQueryUri;
+extern NSString * const kCMISAtomBindingSessionKeyQueryCollection;
+extern NSString * const kCMISAtomBindingSessionKeyCheckedoutCollection;
+extern NSString * const kCMISAtomBindingSessionKeyLinkCache;
+
 // Feed
 extern NSString * const kCMISAtomFeedNumItems;
 

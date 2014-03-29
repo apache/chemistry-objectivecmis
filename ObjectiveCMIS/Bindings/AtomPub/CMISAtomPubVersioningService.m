@@ -118,7 +118,7 @@
         return nil;
     }
     
-    NSString *checkedoutUrlString = [self.bindingSession objectForKey:kCMISBindingSessionKeyCheckedoutCollection];
+    NSString *checkedoutUrlString = [self.bindingSession objectForKey:kCMISAtomBindingSessionKeyCheckedoutCollection];
     if (checkedoutUrlString == nil) {
         CMISLogDebug(@"Checkedout not supported!");
         completionBlock(nil, [CMISErrors createCMISErrorWithCode:kCMISErrorCodeNotSupported detailedDescription:nil]);
