@@ -977,6 +977,22 @@
      }];
 }
 
+- (void)testCancelQuery
+{
+    [self runTest:^ {
+        // Query all properties
+        self.request = [self.session query:@"SELECT * FROM cmis:document WHERE cmis:name LIKE '%quote%'" searchAllVersions:NO completionBlock:^(CMISPagedResult *result, NSError *error) {
+            XCTAssertNotNil(error, @"Failed to cancel query");
+            XCTAssertTrue(error.code == kCMISErrorCodeCancelled, @"Expected error code to be 6 (kCMISErrorCodeCancelled) but it was %ld", (long)error.code);
+            XCTAssertNil(result, @"Did not expect to recieve a result object");
+            self.testCompleted = YES;
+        }];
+        
+        // immediately cancel the query
+        [self.request cancel];
+    }];
+}
+
 - (void)testRetrieveParents
 {
     [self runTest:^ {

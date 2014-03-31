@@ -75,11 +75,11 @@
 
 - (CMISRequest*)retrieveChildrenWithOperationContext:(CMISOperationContext *)operationContext completionBlock:(void (^)(CMISPagedResult *result, NSError *error))completionBlock
 {
-    __block CMISRequest *request = [[CMISRequest alloc] init];
+    CMISRequest *request = [[CMISRequest alloc] init];
     CMISFetchNextPageBlock fetchNextPageBlock = ^(int skipCount, int maxItems, CMISFetchNextPageBlockCompletionBlock pageBlockCompletionBlock)
     {
         // Fetch results through navigationService
-        request = [self.binding.navigationService retrieveChildren:self.identifier
+        CMISRequest * childrenRequest = [self.binding.navigationService retrieveChildren:self.identifier
                                                  orderBy:operationContext.orderBy
                                                   filter:operationContext.filterString
                                            relationships:operationContext.relationships
@@ -103,6 +103,9 @@
                                                  }];
                                              }
                                          }];
+        
+        // set the underlying request object on the object returned to the original caller
+        request.httpRequest = childrenRequest.httpRequest;
     };
 
     [CMISPagedResult pagedResultUsingFetchBlock:fetchNextPageBlock
@@ -120,18 +123,21 @@
 
 - (CMISRequest*)createFolder:(NSDictionary *)properties completionBlock:(void (^)(NSString *objectId, NSError *error))completionBlock
 {
-    __block CMISRequest *request = [[CMISRequest alloc] init];
+    CMISRequest *request = [[CMISRequest alloc] init];
     [self.session.objectConverter convertProperties:properties
                                     forObjectTypeId:[properties objectForKey:kCMISPropertyObjectTypeId]
                                     completionBlock:^(CMISProperties *properties, NSError *error) {
                      if (error) {
                          completionBlock(nil, [CMISErrors cmisError:error cmisErrorCode:kCMISErrorCodeRuntime]);
                      } else {
-                         request = [self.binding.objectService createFolderInParentFolder:self.identifier
+                         CMISRequest *createRequest = [self.binding.objectService createFolderInParentFolder:self.identifier
                                                                      properties:properties
                                                                 completionBlock:^(NSString *objectId, NSError *error) {
                                                                     completionBlock(objectId, error);
                                                                 }];
+                         
+                         // set the underlying request object on the object returned to the original caller
+                         request.httpRequest = createRequest.httpRequest;
                      }
                  }];
     return request;
@@ -143,7 +149,7 @@
                            completionBlock:(void (^)(NSString *objectId, NSError *error))completionBlock
                              progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal))progressBlock
 {
-    __block CMISRequest *request = [[CMISRequest alloc] init];
+    CMISRequest *request = [[CMISRequest alloc] init];
     [self.session.objectConverter convertProperties:properties
                                     forObjectTypeId:[properties objectForKey:kCMISPropertyObjectTypeId]
                                     completionBlock:^(CMISProperties *convertedProperties, NSError *error) {
@@ -153,12 +159,15 @@
                 completionBlock(nil, [CMISErrors cmisError:error cmisErrorCode:kCMISErrorCodeRuntime]);
             }
         } else {
-            request = [self.binding.objectService createDocumentFromFilePath:filePath
+            CMISRequest *createRequest = [self.binding.objectService createDocumentFromFilePath:filePath
                                                           mimeType:mimeType
                                                         properties:convertedProperties
                                                           inFolder:self.identifier
                                                    completionBlock:completionBlock
                                                      progressBlock:progressBlock];
+            
+            // set the underlying request object on the object returned to the original caller
+            request.httpRequest = createRequest.httpRequest;
         }
     }];
     return request;
@@ -171,7 +180,7 @@
                               completionBlock:(void (^)(NSString *objectId, NSError *error))completionBlock
                                 progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal))progressBlock
 {
-    __block CMISRequest *request = [[CMISRequest alloc] init];
+    CMISRequest *request = [[CMISRequest alloc] init];
     [self.session.objectConverter convertProperties:properties forObjectTypeId:kCMISPropertyObjectTypeIdValueDocument completionBlock:^(CMISProperties *convertedProperties, NSError *error){
         if (nil == convertedProperties){
             CMISLogError(@"Could not convert properties: %@", error.description);
@@ -179,13 +188,16 @@
                 completionBlock(nil, [CMISErrors cmisError:error cmisErrorCode:kCMISErrorCodeRuntime]);
             }
         } else {
-            request = [self.binding.objectService createDocumentFromInputStream:inputStream
+            CMISRequest *createRequest = [self.binding.objectService createDocumentFromInputStream:inputStream
                                                              mimeType:mimeType
                                                            properties:convertedProperties
                                                              inFolder:self.identifier
                                                         bytesExpected:bytesExpected
                                                       completionBlock:completionBlock
                                                         progressBlock:progressBlock];
+            
+            // set the underlying request object on the object returned to the original caller
+            request.httpRequest = createRequest.httpRequest;
         }
     }];
     return request;
