@@ -394,13 +394,68 @@
 
                  self.testCompleted = YES;
              } progressBlock:^(unsigned long long bytesDownloaded, unsigned long long bytesTotal) {
+                 CMISLogDebug(@"download progress %i/%i", bytesDownloaded, bytesTotal);
                  if (bytesDownloaded > 0) { // as soon as some data was downloaded cancel the request
                      [self.request cancel];
+                     CMISLogDebug(@"download cancelled");
                      self.request = nil;
                  }
              }];
          }];
      }];
+}
+
+- (void)testCancelCreate
+{
+    [self runTest:^ {
+        // Set properties on test file
+        NSString *filePath = [[NSBundle bundleForClass:[self class]] pathForResource:@"cmis-spec-v1.0.pdf" ofType:nil];
+        NSString *documentName = [NSString stringWithFormat:@"cmis_10_spec_%f.txt", [[NSDate date] timeIntervalSince1970]];
+        NSMutableDictionary *documentProperties = [NSMutableDictionary dictionary];
+        [documentProperties setObject:documentName forKey:kCMISPropertyName];
+        [documentProperties setObject:kCMISPropertyObjectTypeIdValueDocument forKey:kCMISPropertyObjectTypeId];
+        
+        // Upload test file
+        self.request = [self.session createDocumentFromFilePath:filePath
+                                        mimeType:@"application/pdf"
+                                      properties:documentProperties
+                                        inFolder:self.rootFolder.identifier
+                                 completionBlock: ^ (NSString *newObjectId, NSError *error) {
+                                     
+                                     XCTAssertNotNil(error, @"Failed to cancel upload");
+                                     XCTAssertTrue(error.code == kCMISErrorCodeCancelled, @"Expected error code to be 6 (kCMISErrorCodeCancelled) but it was %ld", (long)error.code);
+                                     XCTAssertNil(newObjectId, @"Did not expect to recieve a new object id");
+                                     
+                                     // ensure the object was not created on the server
+                                     NSString *path = [NSString stringWithFormat:@"/%@", documentName];
+                                     [self.session retrieveObjectByPath:path completionBlock:^(CMISObject *object, NSError *error) {
+                                         XCTAssertNotNil(error, @"Expected to get an error when attempting to retrieve cancelled upload");
+                                         XCTAssertTrue(error.code == kCMISErrorCodeObjectNotFound, @"Expected error code to be 257 (kCMISErrorCodeObjectNotFound) but it was %ld", (long)error.code);
+                                         XCTAssertNil(object, @"Did not expect the object to be created on the server");
+                                         
+                                         if (object != nil)
+                                         {
+                                             // if object was created, cleanup
+                                             [self deleteDocumentAndVerify:(CMISDocument *)object completionBlock:^{
+                                                 self.testCompleted = YES;
+                                             }];
+                                         }
+                                         else
+                                         {
+                                             self.testCompleted = YES;
+                                         }
+                                     }];
+                                 }
+                                   progressBlock: ^ (unsigned long long uploadedBytes, unsigned long long totalBytes) {
+                                       CMISLogDebug(@"upload progress %i/%i", uploadedBytes, totalBytes);
+                                       if (uploadedBytes > 0) {
+                                           // as soon as some data was uploaded cancel the request
+                                           [self.request cancel];
+                                           CMISLogDebug(@"create cancelled");
+                                           self.request = nil;
+                                       }
+                                   }];
+    }];
 }
 
 - (void)testCreateAndDeleteDocument

@@ -428,11 +428,13 @@
                                if (error) {
                                    completionBlock(nil, [CMISErrors cmisError:error cmisErrorCode:kCMISErrorCodeRuntime]);
                                } else {
-                                  request = [self.binding.objectService createFolderInParentFolder:folderObjectId
+                                  CMISRequest *createRequest = [self.binding.objectService createFolderInParentFolder:folderObjectId
                                                                                properties:convertedProperties
                                                                           completionBlock:^(NSString *objectId, NSError *error) {
                                                                               completionBlock(objectId, error);
                                                                           }];
+                                   // set the underlying request object on the object returned to the original caller
+                                   request.httpRequest = createRequest.httpRequest;
                                }
                            }];
     return request;
@@ -513,12 +515,14 @@
                 completionBlock(nil, [CMISErrors cmisError:error cmisErrorCode:kCMISErrorCodeRuntime]);
             }
         } else {
-            request = [self.binding.objectService createDocumentFromFilePath:filePath
+            CMISRequest *createRequest = [self.binding.objectService createDocumentFromFilePath:filePath
                                                                     mimeType:mimeType
                                                                   properties:convertedProperties
                                                                     inFolder:folderObjectId
                                                              completionBlock:completionBlock
                                                                progressBlock:progressBlock];
+            // set the underlying request object on the object returned to the original caller
+            request.httpRequest = createRequest.httpRequest;
         }
     }];
     return request;
@@ -542,13 +546,15 @@
                 completionBlock(nil, [CMISErrors cmisError:error cmisErrorCode:kCMISErrorCodeRuntime]);
             }
         } else {
-            request = [self.binding.objectService createDocumentFromInputStream:inputStream
+            CMISRequest *createRequest = [self.binding.objectService createDocumentFromInputStream:inputStream
                                                              mimeType:mimeType
                                                            properties:convertedProperties
                                                              inFolder:folderObjectId
                                                         bytesExpected:bytesExpected
                                                       completionBlock:completionBlock
                                                         progressBlock:progressBlock];
+            // set the underlying request object on the object returned to the original caller
+            request.httpRequest = createRequest.httpRequest;
         }
     }];
     return request;

@@ -36,6 +36,7 @@ NSString * const kCMISErrorDescriptionProxyAuthentication = @"Proxy Authenticati
 NSString * const kCMISErrorDescriptionUnauthorized = @"Unauthorized access error";
 NSString * const kCMISErrorDescriptionNoRootFolderFound =  @"Root Folder Not Found Error";
 NSString * const kCMISErrorDescriptionRepositoryNotFound =  @"Repository Not Found Error";
+NSString * const kCMISErrorDescriptionCancelled = @"Operation Cancelled";
 
 //General errors as defined in 2.2.1.4.1 of spec
 NSString * const kCMISErrorDescriptionInvalidArgument = @"Invalid Argument Error";
@@ -100,6 +101,8 @@ NSString * const kCMISErrorDescriptionVersioning = @"Versioning Error";
             return kCMISErrorDescriptionNoRootFolderFound;
         case kCMISErrorCodeNoRepositoryFound:
             return kCMISErrorDescriptionRepositoryNotFound;
+        case kCMISErrorCodeCancelled:
+            return kCMISErrorDescriptionCancelled;
         case kCMISErrorCodeInvalidArgument:
             return kCMISErrorDescriptionInvalidArgument;
         case kCMISErrorCodeObjectNotFound:
