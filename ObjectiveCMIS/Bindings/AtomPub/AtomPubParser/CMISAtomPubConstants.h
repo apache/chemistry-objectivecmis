@@ -88,6 +88,7 @@ extern NSString * const kCMISParameterRelativePathSegment;
 extern NSString * const kCMISParameterMajor;
 extern NSString * const kCMISParameterCheckin;
 extern NSString * const kCMISParameterCheckinComment;
+extern NSString * const kCMISParameterSourceFolderId;
 
 // Parameter Values
 extern NSString * const kCMISParameterValueTrue;

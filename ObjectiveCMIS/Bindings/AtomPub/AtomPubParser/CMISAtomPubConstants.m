@@ -88,6 +88,7 @@ NSString * const kCMISParameterRelativePathSegment = @"includeRelativePathSegmen
 NSString * const kCMISParameterMajor = @"major";
 NSString * const kCMISParameterCheckin = @"checkin";
 NSString * const kCMISParameterCheckinComment = @"checkinComment";
+NSString * const kCMISParameterSourceFolderId = @"sourceFolderId";
 
 // Parameter Values
 NSString * const kCMISParameterValueTrue = @"true";

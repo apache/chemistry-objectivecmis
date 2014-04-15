@@ -163,7 +163,7 @@
  * uploads the file from the given path to the given folder.
  *
  * completionBlock - returns NSError nil if successful
-*/
+ */
 - (CMISRequest*)createDocumentFromFilePath:(NSString *)filePath
                                   mimeType:(NSString *)mimeType
                                 properties:(CMISProperties *)properties
@@ -183,6 +183,16 @@
                                 bytesExpected:(unsigned long long)bytesExpected // optional
                               completionBlock:(void (^)(NSString *objectId, NSError *error))completionBlock
                                 progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal))progressBlock;
+
+/**
+ * Moves the given object from the source folder to the target folder.
+ *
+ * completionBlock - returns NSError nil if successful
+ */
+- (CMISRequest*)moveObject:(NSString *)objectId
+                fromFolder:(NSString *)sourceFolderId
+                  toFolder:(NSString *)targetFolderId
+           completionBlock:(void (^)(CMISObjectData *objectData, NSError *error))completionBlock;
 
 /**
  * Deletes the given object.
