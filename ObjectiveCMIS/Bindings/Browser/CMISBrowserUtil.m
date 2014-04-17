@@ -29,6 +29,7 @@
 #import "CMISItemTypeDefinition.h"
 #import "CMISSecondaryTypeDefinition.h"
 #import "CMISErrors.h"
+#import "CMISNSDictionary+CMISUtil.h"
 
 @implementation CMISBrowserUtil
 
@@ -48,28 +49,28 @@
         NSArray *repos = [jsonDictionary allValues];
         for (NSDictionary *repo in repos) {
             CMISRepositoryInfo *repoInfo = [CMISRepositoryInfo new];
-            repoInfo.identifier = repo[kCMISBrowserJSONRepositoryId];
-            repoInfo.name = repo[kCMISBrowserJSONRepositoryName];
-            repoInfo.desc = repo[kCMISBrowserJSONRepositoryDescription];
-            repoInfo.vendorName = repo[kCMISBrowserJSONVendorName];
-            repoInfo.productName = repo[kCMISBrowserJSONProductName];
-            repoInfo.productVersion = repo[kCMISBrowserJSONProductVersion];
-            repoInfo.rootFolderId = repo[kCMISBrowserJSONRootFolderId];
-            repoInfo.repositoryUrl = repo[kCMISBrowserJSONRepositoryUrl];
-            repoInfo.rootFolderUrl = repo[kCMISBrowserJSONRootFolderUrl];
+            repoInfo.identifier = [repo cmis_objectForKeyNotNull:kCMISBrowserJSONRepositoryId];
+            repoInfo.name = [repo cmis_objectForKeyNotNull:kCMISBrowserJSONRepositoryName];
+            repoInfo.desc = [repo cmis_objectForKeyNotNull:kCMISBrowserJSONRepositoryDescription];
+            repoInfo.vendorName = [repo cmis_objectForKeyNotNull:kCMISBrowserJSONVendorName];
+            repoInfo.productName = [repo cmis_objectForKeyNotNull:kCMISBrowserJSONProductName];
+            repoInfo.productVersion = [repo cmis_objectForKeyNotNull:kCMISBrowserJSONProductVersion];
+            repoInfo.rootFolderId = [repo cmis_objectForKeyNotNull:kCMISBrowserJSONRootFolderId];
+            repoInfo.repositoryUrl = [repo cmis_objectForKeyNotNull:kCMISBrowserJSONRepositoryUrl];
+            repoInfo.rootFolderUrl = [repo cmis_objectForKeyNotNull:kCMISBrowserJSONRootFolderUrl];
             
-            repoInfo.repositoryCapabilities = repo[kCMISBrowserJSONCapabilities]; //TODO should be own type instead of dictionary
+            repoInfo.repositoryCapabilities = [repo cmis_objectForKeyNotNull:kCMISBrowserJSONCapabilities]; //TODO should be own type instead of dictionary
             //TOOD aclCapabilities
-            repoInfo.latestChangeLogToken = repo[kCMISBrowserJSONLatestChangeLogToken];
+            repoInfo.latestChangeLogToken = [repo cmis_objectForKeyNotNull:kCMISBrowserJSONLatestChangeLogToken];
             
-            repoInfo.cmisVersionSupported = repo[kCMISBrowserJSONCMISVersionSupported];
-            repoInfo.thinClientUri = repo[kCMISBrowserJSONThinClientUri];
+            repoInfo.cmisVersionSupported = [repo cmis_objectForKeyNotNull:kCMISBrowserJSONCMISVersionSupported];
+            repoInfo.thinClientUri = [repo cmis_objectForKeyNotNull:kCMISBrowserJSONThinClientUri];
 
-            //TODO repoInfo.changesIncomplete = repo[kCMISBrowserJSONChangesIncomplete];
+            //TODO repoInfo.changesIncomplete = [repo cmis_objectForKeyNotNull:kCMISBrowserJSONChangesIncomplete);
             //TODO changesOnType
 
-            repoInfo.principalIdAnonymous = repo[kCMISBrowserJSONPrincipalIdAnonymous];
-            repoInfo.principalIdAnyone = repo[kCMISBrowserJSONPrincipalIdAnyone];
+            repoInfo.principalIdAnonymous = [repo cmis_objectForKeyNotNull:kCMISBrowserJSONPrincipalIdAnonymous];
+            repoInfo.principalIdAnyone = [repo cmis_objectForKeyNotNull:kCMISBrowserJSONPrincipalIdAnyone];
             
             //handle extensions
             repoInfo.extensions = [CMISBrowserUtil convertExtensions:repo cmisKeys:[CMISBrowserConstants repositoryInfoKeys]];
@@ -98,13 +99,15 @@
     CMISTypeDefinition *typeDef = nil;
     if (!serialisationError) {
         //TODO check for valid baseTypeId (cmis:document, cmis:folder, cmis:relationship, cmis:policy, [cmis:item, cmis:secondary])
-        CMISBaseType baseType = [CMISEnums enumForBaseId:jsonDictionary[kCMISBrowserJSONBaseId]];
+        CMISBaseType baseType = [CMISEnums enumForBaseId:[jsonDictionary cmis_objectForKeyNotNull:kCMISBrowserJSONBaseId]];
         switch (baseType) {
-            case CMISBaseTypeDocument:
+            case CMISBaseTypeDocument: {
                 typeDef = [CMISDocumentTypeDefinition new];
-                ((CMISDocumentTypeDefinition*)typeDef).contentStreamAllowed = [CMISEnums enumForContentStreamAllowed:jsonDictionary[kCMISBrowserJSONContentStreamAllowed]];
-                ((CMISDocumentTypeDefinition*)typeDef).versionable = [jsonDictionary[kCMISBrowserJSONVersionable] boolValue];
+                ((CMISDocumentTypeDefinition*)typeDef).contentStreamAllowed = [CMISEnums enumForContentStreamAllowed:
+                                                                               [jsonDictionary cmis_objectForKeyNotNull:kCMISBrowserJSONContentStreamAllowed]];
+                ((CMISDocumentTypeDefinition*)typeDef).versionable = [jsonDictionary cmis_boolForKey:kCMISBrowserJSONVersionable];
                 break;
+            }
             case CMISBaseTypeFolder:
                 typeDef = [CMISFolderTypeDefinition new];
                 break;
@@ -112,7 +115,7 @@
             case CMISBaseTypeRelationship: {
                 typeDef = [CMISRelationshipTypeDefinition new];
                 
-                id allowedSourceTypes = jsonDictionary[kCMISBrowserJSONAllowedSourceTypes];
+                id allowedSourceTypes = [jsonDictionary cmis_objectForKeyNotNull:kCMISBrowserJSONAllowedSourceTypes];
                 if([allowedSourceTypes isKindOfClass:NSArray.class]){
                     NSMutableArray *types = [[NSMutableArray alloc] init];
                     for (id type in allowedSourceTypes) {
@@ -123,7 +126,7 @@
                     ((CMISRelationshipTypeDefinition*)typeDef).allowedSourceTypes = types;
                 }
                 
-                id allowedTargetTypes = jsonDictionary[kCMISBrowserJSONAllowedTargetTypes];
+                id allowedTargetTypes = [jsonDictionary cmis_objectForKeyNotNull:kCMISBrowserJSONAllowedTargetTypes];
                 if([allowedTargetTypes isKindOfClass:NSArray.class]){
                     NSMutableArray *types = [[NSMutableArray alloc] init];
                     for (id type in allowedTargetTypes) {
@@ -142,29 +145,29 @@
                 typeDef = [CMISSecondaryTypeDefinition new];
                 break;
             default:
-                if (outError != NULL) *outError = [CMISErrors createCMISErrorWithCode:kCMISErrorCodeInvalidArgument detailedDescription:[NSString stringWithFormat:@"Type '%@' does not match a base type!", jsonDictionary[kCMISBrowserJSONBaseId]]];
+                if (outError != NULL) *outError = [CMISErrors createCMISErrorWithCode:kCMISErrorCodeInvalidArgument detailedDescription:[NSString stringWithFormat:@"Type '%@' does not match a base type!", [jsonDictionary cmis_objectForKeyNotNull:kCMISBrowserJSONBaseId]]];
                 return nil;
         }
 
         typeDef.baseTypeId = baseType;
-        typeDef.description = jsonDictionary[kCMISBrowserJSONDescription];
-        typeDef.displayName = jsonDictionary[kCMISBrowserJSONDisplayName];
-        typeDef.id = jsonDictionary[kCMISBrowserJSONId];
-        typeDef.controllablePolicy = [jsonDictionary[kCMISBrowserJSONControllablePolicy] boolValue];
-        typeDef.controllableAcl = [jsonDictionary[kCMISBrowserJSONControllableAcl] boolValue];
-        typeDef.creatable = [jsonDictionary[kCMISBrowserJSONCreateable] boolValue];
-        typeDef.fileable = [jsonDictionary[kCMISBrowserJSONFileable] boolValue];
-        typeDef.fullTextIndexed = [jsonDictionary[kCMISBrowserJSONFullTextIndexed] boolValue];
-        typeDef.includedInSupertypeQuery = [jsonDictionary[kCMISBrowserJSONIncludedInSuperTypeQuery] boolValue];
-        typeDef.queryable = [jsonDictionary[kCMISBrowserJSONQueryable] boolValue];
-        typeDef.localName = jsonDictionary[kCMISBrowserJSONLocalName];
-        typeDef.localNameSpace = jsonDictionary[kCMISBrowserJSONLocalNamespace];
-        typeDef.parentTypeId = jsonDictionary[kCMISBrowserJSONParentId];
-        typeDef.queryName = jsonDictionary[kCMISBrowserJSONQueryName];
+        typeDef.description = [jsonDictionary cmis_objectForKeyNotNull:kCMISBrowserJSONDescription];
+        typeDef.displayName = [jsonDictionary cmis_objectForKeyNotNull:kCMISBrowserJSONDisplayName];
+        typeDef.id = [jsonDictionary cmis_objectForKeyNotNull:kCMISBrowserJSONId];
+        typeDef.controllablePolicy = [jsonDictionary cmis_boolForKey:kCMISBrowserJSONControllablePolicy];
+        typeDef.controllableAcl = [jsonDictionary cmis_boolForKey:kCMISBrowserJSONControllableAcl];
+        typeDef.creatable = [jsonDictionary cmis_boolForKey:kCMISBrowserJSONCreateable];
+        typeDef.fileable = [jsonDictionary cmis_boolForKey:kCMISBrowserJSONFileable];
+        typeDef.fullTextIndexed = [jsonDictionary cmis_boolForKey:kCMISBrowserJSONFullTextIndexed];
+        typeDef.includedInSupertypeQuery = [jsonDictionary cmis_boolForKey:kCMISBrowserJSONIncludedInSuperTypeQuery];
+        typeDef.queryable = [jsonDictionary cmis_boolForKey:kCMISBrowserJSONQueryable];
+        typeDef.localName = [jsonDictionary cmis_objectForKeyNotNull:kCMISBrowserJSONLocalName];
+        typeDef.localNameSpace = [jsonDictionary cmis_objectForKeyNotNull:kCMISBrowserJSONLocalNamespace];
+        typeDef.parentTypeId = [jsonDictionary cmis_objectForKeyNotNull:kCMISBrowserJSONParentId];
+        typeDef.queryName = [jsonDictionary cmis_objectForKeyNotNull:kCMISBrowserJSONQueryName];
         
         //TODO type mutability
         
-        NSDictionary *propertyDefinitions = jsonDictionary[kCMISBrowserJSONPropertyDefinitions];
+        NSDictionary *propertyDefinitions = [jsonDictionary cmis_objectForKeyNotNull:kCMISBrowserJSONPropertyDefinitions];
         for (NSDictionary *propertyDefDictionary in [propertyDefinitions allValues]) {
             [typeDef addPropertyDefinition:[CMISBrowserUtil convertPropertyDefinition:propertyDefDictionary]];
         }
@@ -207,25 +210,28 @@
         objectList = [CMISObjectList new];
         
         // parse the objects
+        BOOL isArray = [jsonDictionary isKindOfClass:NSArray.class];
         NSArray *objectsArray;
-        if([jsonDictionary isKindOfClass:NSArray.class]){ // is NSArray
+        if(isArray){
             objectsArray = jsonDictionary;
             
             objectList.hasMoreItems = NO;
             objectList.numItems = (int)objectsArray.count;
         } else { // is NSDictionary
-            objectsArray = jsonDictionary[kCMISBrowserJSONObjects];
+            objectsArray = [jsonDictionary cmis_objectForKeyNotNull:kCMISBrowserJSONObjects];
             
             // retrieve the paging data
-            objectList.hasMoreItems = [jsonDictionary[kCMISBrowserJSONHasMoreItems] boolValue];
-            objectList.numItems = [jsonDictionary[kCMISBrowserJSONNumberItems] intValue];
+            objectList.hasMoreItems = [jsonDictionary cmis_boolForKey:kCMISBrowserJSONHasMoreItems];
+            objectList.numItems = [jsonDictionary cmis_intForKey:kCMISBrowserJSONNumberItems];
         }
         if (objectsArray) {
             NSMutableArray *objects = [NSMutableArray arrayWithCapacity:objectsArray.count];
             for (NSDictionary *dictionary in objectsArray) {
-                NSDictionary *objectDictionary = dictionary[kCMISBrowserJSONObject];
-                if(!objectDictionary) {
+                NSDictionary *objectDictionary;
+                if(isArray){
                     objectDictionary = dictionary;
+                } else {
+                    objectDictionary = [dictionary cmis_objectForKeyNotNull:kCMISBrowserJSONObject];
                 }
                 CMISObjectData *objectData = [CMISBrowserUtil convertObject:objectDictionary];
                 if(objectData){
@@ -268,11 +274,11 @@
     }
     
     CMISObjectData *objectData = [CMISObjectData new];
-    NSDictionary *propertiesJson = dictionary[kCMISBrowserJSONSuccinctProperties];
-    objectData.identifier = propertiesJson[kCMISPropertyObjectId];
+    NSDictionary *propertiesJson = [dictionary cmis_objectForKeyNotNull:kCMISBrowserJSONSuccinctProperties];
+    objectData.identifier = [propertiesJson cmis_objectForKeyNotNull:kCMISPropertyObjectId];
     
     // determine the object type
-    NSString *baseType = propertiesJson[kCMISPropertyBaseTypeId];
+    NSString *baseType = [propertiesJson cmis_objectForKeyNotNull:kCMISPropertyBaseTypeId];
     if ([baseType isEqualToString:kCMISPropertyObjectTypeIdValueDocument]) {
         objectData.baseType = CMISBaseTypeDocument;
     } else if ([baseType isEqualToString:kCMISPropertyObjectTypeIdValueFolder]) {
@@ -280,15 +286,15 @@
     }
     
     // set the properties
-    NSDictionary *propertiesExtension = dictionary[kCMISBrowserJSONPropertiesExtension];
+    NSDictionary *propertiesExtension = [dictionary cmis_objectForKeyNotNull:kCMISBrowserJSONPropertiesExtension];
     objectData.properties = [CMISBrowserUtil convertSuccinctProperties:propertiesJson propertiesExtension:propertiesExtension];
     
     // relationships
-    NSArray *relationshipsJson = dictionary[kCMISBrowserJSONRelationships];
+    NSArray *relationshipsJson = [dictionary cmis_objectForKeyNotNull:kCMISBrowserJSONRelationships];
     objectData.relationships = [CMISBrowserUtil convertObjects:relationshipsJson];
     
     //renditions
-    NSArray *renditionsJson = dictionary[kCMISBrowserJSONRenditions];
+    NSArray *renditionsJson = [dictionary cmis_objectForKeyNotNull:kCMISBrowserJSONRenditions];
     objectData.renditions = [self renditionsFromArray:renditionsJson];
     
     // handle extensions
@@ -328,12 +334,17 @@
     NSArray *propNames = [propertiesJson allKeys];
     for (NSString *propName in propNames) {
         CMISPropertyData *propertyData;
-        id propValue = propertiesJson[propName];
+        id propValue = [propertiesJson cmis_objectForKeyNotNull:propName];
         if ([propValue isKindOfClass:[NSArray class]]) {
             propertyData = [CMISPropertyData createPropertyForId:propName arrayValue:propValue type:CMISPropertyTypeString];
         }
         else {
-            propertyData = [CMISPropertyData createPropertyForId:propName stringValue:propValue];
+            if(propValue){
+                propertyData = [CMISPropertyData createPropertyForId:propName stringValue:propValue];
+            } else {
+                //TODO create convenient method for nil values?
+                propertyData = [CMISPropertyData createPropertyForId:propName arrayValue:[NSArray array] type:CMISPropertyTypeString];
+            }
         }
         
         [properties addProperty:propertyData];
@@ -354,14 +365,14 @@
     NSMutableArray *renditions = [[NSMutableArray alloc] initWithCapacity:array.count];
     for(NSDictionary *renditionJson in array){
         CMISRenditionData *renditionData = [CMISRenditionData new];
-        renditionData.height = [NSNumber numberWithLongLong:[renditionJson[kCMISBrowserJSONRenditionHeight] longLongValue]];
-        renditionData.kind = renditionJson[kCMISBrowserJSONRenditionKind];
-        renditionData.length = [NSNumber numberWithLongLong:[renditionJson[kCMISBrowserJSONRenditionLength] longLongValue]];
-        renditionData.mimeType = renditionJson[kCMISBrowserJSONRenditionMimeType];
-        renditionData.renditionDocumentId = renditionJson[kCMISBrowserJSONRenditionDocumentId];
-        renditionData.streamId = renditionJson[kCMISBrowserJSONRenditionStreamId];
-        renditionData.title = renditionJson[kCMISBrowserJSONRenditionTitle];
-        renditionData.width = [NSNumber numberWithLongLong:[renditionJson[kCMISBrowserJSONRenditionWidth] longLongValue]];
+        renditionData.height = [NSNumber numberWithLongLong:[[renditionJson cmis_objectForKeyNotNull:kCMISBrowserJSONRenditionHeight] longLongValue]];
+        renditionData.kind = [renditionJson cmis_objectForKeyNotNull:kCMISBrowserJSONRenditionKind];
+        renditionData.length = [NSNumber numberWithLongLong:[[renditionJson cmis_objectForKeyNotNull:kCMISBrowserJSONRenditionLength] longLongValue]];
+        renditionData.mimeType = [renditionJson cmis_objectForKeyNotNull:kCMISBrowserJSONRenditionMimeType];
+        renditionData.renditionDocumentId = [renditionJson cmis_objectForKeyNotNull:kCMISBrowserJSONRenditionDocumentId];
+        renditionData.streamId = [renditionJson cmis_objectForKeyNotNull:kCMISBrowserJSONRenditionStreamId];
+        renditionData.title = [renditionJson cmis_objectForKeyNotNull:kCMISBrowserJSONRenditionTitle];
+        renditionData.width = [NSNumber numberWithLongLong:[[renditionJson cmis_objectForKeyNotNull:kCMISBrowserJSONRenditionWidth] longLongValue]];
         
         // handle extensions
         renditionData.extensions = [CMISBrowserUtil convertExtensions:renditionJson cmisKeys:[CMISBrowserConstants renditionKeys]];
@@ -380,20 +391,20 @@
     
     // create property definition and add to type definition
     CMISPropertyDefinition *propDef = [CMISPropertyDefinition new];
-    propDef.id = propertyDictionary[kCMISBrowserJSONId];
-    propDef.localName = propertyDictionary[kCMISBrowserJSONLocalName];
-    propDef.localNamespace = propertyDictionary[kCMISBrowserJSONLocalNamespace];
-    propDef.queryName = propertyDictionary[kCMISBrowserJSONQueryName];
-    propDef.description = propertyDictionary[kCMISBrowserJSONDescription];
-    propDef.displayName = propertyDictionary[kCMISBrowserJSONDisplayName];
-    propDef.inherited = [propertyDictionary[kCMISBrowserJSONInherited] boolValue];
-    propDef.openChoice = [propertyDictionary[kCMISBrowserJSONOpenChoice] boolValue];
-    propDef.orderable = [propertyDictionary[kCMISBrowserJSONOrderable] boolValue];
-    propDef.queryable = [propertyDictionary[kCMISBrowserJSONQueryable] boolValue];
-    propDef.required = [propertyDictionary[kCMISBrowserJSONRequired] boolValue];
+    propDef.id = [propertyDictionary cmis_objectForKeyNotNull:kCMISBrowserJSONId];
+    propDef.localName = [propertyDictionary cmis_objectForKeyNotNull:kCMISBrowserJSONLocalName];
+    propDef.localNamespace = [propertyDictionary cmis_objectForKeyNotNull:kCMISBrowserJSONLocalNamespace];
+    propDef.queryName = [propertyDictionary cmis_objectForKeyNotNull:kCMISBrowserJSONQueryName];
+    propDef.description = [propertyDictionary cmis_objectForKeyNotNull:kCMISBrowserJSONDescription];
+    propDef.displayName = [propertyDictionary cmis_objectForKeyNotNull:kCMISBrowserJSONDisplayName];
+    propDef.inherited = [propertyDictionary cmis_boolForKey:kCMISBrowserJSONInherited];
+    propDef.openChoice = [propertyDictionary cmis_boolForKey:kCMISBrowserJSONOpenChoice];
+    propDef.orderable = [propertyDictionary cmis_boolForKey:kCMISBrowserJSONOrderable];
+    propDef.queryable = [propertyDictionary cmis_boolForKey:kCMISBrowserJSONQueryable];
+    propDef.required = [propertyDictionary cmis_boolForKey:kCMISBrowserJSONRequired];
     
     // determine property type
-    NSString *typeString = propertyDictionary[kCMISBrowserJSONPropertyType];
+    NSString *typeString = [propertyDictionary cmis_objectForKeyNotNull:kCMISBrowserJSONPropertyType];
     if ([typeString isEqualToString:kCMISBrowserJSONPropertyTypeValueString]) {
         propDef.propertyType = CMISPropertyTypeString;
     } else if ([typeString isEqualToString:kCMISBrowserJSONPropertyTypeValueId]) {
@@ -413,7 +424,7 @@
     }
     
     // determine cardinality
-    NSString *cardinalityString = propertyDictionary[kCMISBrowserJSONCardinality];
+    NSString *cardinalityString = [propertyDictionary cmis_objectForKeyNotNull:kCMISBrowserJSONCardinality];
     if ([cardinalityString isEqualToString:kCMISBrowserJSONCardinalityValueSingle]) {
         propDef.cardinality = CMISCardinalitySingle;
     } else if ([cardinalityString isEqualToString:kCMISBrowserJSONCardinalityValueMultiple]) {
@@ -421,7 +432,7 @@
     }
     
     // determine updatability
-    NSString *updatabilityString = propertyDictionary[kCMISBrowserJSONUpdateability];
+    NSString *updatabilityString = [propertyDictionary cmis_objectForKeyNotNull:kCMISBrowserJSONUpdateability];
     if ([updatabilityString isEqualToString:kCMISBrowserJSONUpdateabilityValueReadOnly]) {
         propDef.updatability = CMISUpdatabilityReadOnly;
     } else if ([updatabilityString isEqualToString:kCMISBrowserJSONUpdateabilityValueReadWrite]) {
@@ -457,7 +468,7 @@
             extensions = [[NSMutableArray alloc] init];
         }
         
-        id value = source[key];
+        id value = [source cmis_objectForKeyNotNull:key];
         if ([value isKindOfClass:NSDictionary.class]) {
             [extensions addObject:[[CMISExtensionElement alloc] initNodeWithName:key namespaceUri:nil attributes:nil children:[CMISBrowserUtil convertExtension:value]]];
         } else if ([value isKindOfClass:NSArray.class]) {
@@ -478,7 +489,7 @@
     NSMutableArray *extensions = [[NSMutableArray alloc] init]; // array of CMISExtensionElement's
     
     for (NSString *key in dictionary.keyEnumerator) {
-        id value = dictionary[key];
+        id value = [dictionary cmis_objectForKeyNotNull:key];
         if ([value isKindOfClass:NSDictionary.class]) {
             [extensions addObject:[[CMISExtensionElement alloc] initNodeWithName:key namespaceUri:nil attributes:nil children:[CMISBrowserUtil convertExtension:value]]];
         } else if ([value isKindOfClass:NSArray.class]) {
