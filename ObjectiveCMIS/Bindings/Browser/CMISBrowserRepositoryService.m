@@ -26,7 +26,9 @@
 #import "CMISTypeDefinition.h"
 #import "CMISPropertyDefinition.h"
 #import "CMISBrowserUtil.h"
+#import "CMISConstants.h"
 #import "CMISBrowserConstants.h"
+#import "CMISURLUtil.h"
 
 @interface CMISBrowserRepositoryService ()
 @property (nonatomic, strong) NSDictionary *repositories;
@@ -90,15 +92,12 @@
 - (CMISRequest*)retrieveTypeDefinition:(NSString *)typeId
                        completionBlock:(void (^)(CMISTypeDefinition *typeDefinition, NSError *error))completionBlock
 {
-    // TODO: Use the CMISTypeByIdUriBuilder class (after it's moved out of AtomPub folder)
-    NSString *repoUrl = [self.bindingSession objectForKey:kCMISBrowserBindingSessionKeyRepositoryUrl];
-    NSString *urlString = [NSString stringWithFormat:@"%@?cmisselector=typeDefinition&typeId=%@", repoUrl, typeId];
+    NSString *repoUrl = [self getRepositoryUrlWithSelector:kCMISBrowserJSONSelectorTypeDefinition];
+    repoUrl = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterTypeId value:typeId urlString:repoUrl];
     
-    NSURL *typeUrl = [NSURL URLWithString:urlString];
+    CMISRequest *cmisRequest = [[CMISRequest alloc] init];
     
-    CMISRequest *cmisRequest = [CMISRequest new];
-    
-    [self.bindingSession.networkProvider invokeGET:typeUrl
+    [self.bindingSession.networkProvider invokeGET:[NSURL URLWithString:repoUrl]
                                            session:self.bindingSession
                                        cmisRequest:cmisRequest
                                    completionBlock:^(CMISHttpResponse *httpResponse, NSError *error) {

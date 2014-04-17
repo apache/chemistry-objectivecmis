@@ -18,17 +18,9 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "CMISBindingSession.h"
+#import "CMISEnums.h"
+#import "CMISTypeDefinition.h"
 
-@interface CMISBrowserBaseService : NSObject
-
-@property (nonatomic, strong, readonly) CMISBindingSession *bindingSession;
-@property (nonatomic, strong, readonly) NSURL *browserUrl;
-
-- (id)initWithBindingSession:(CMISBindingSession *)session;
-
--(NSString *)getObjectUrlObjectId:(NSString *)objectId selector:(NSString *)selector;
--(NSString *)getObjectUrlByPath:(NSString *)path selector:(NSString *)selector;
--(NSString *)getRepositoryUrlWithSelector:(NSString *)selector;
+@interface CMISItemTypeDefinition : CMISTypeDefinition
 
 @end

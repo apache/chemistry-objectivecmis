@@ -45,4 +45,9 @@
  */
 + (CMISObjectList *)objectListFromJSONData:(NSData *)jsonData error:(NSError **)outError;
 
+/**
+ Returns an array of CMISRenditionData objects, parsed from the given JSON data.
+ */
++ (NSArray *)renditionsFromJSONData:(NSData *)jsonData error:(NSError **)outError;
+
 @end

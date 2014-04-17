@@ -74,31 +74,6 @@ NSString * const kCMISLinkEditMedia = @"edit-media";
 NSString * const kCMISLinkRelationNext = @"next";
 NSString * const kCMISLinkRelationWorkingCopy = @"working-copy";
 
-// Parameters
-NSString * const kCMISParameterChangeToken = @"changeToken";
-NSString * const kCMISParameterOverwriteFlag = @"overwriteFlag";
-NSString * const kCMISParameterIncludeAllowableActions = @"includeAllowableActions";
-NSString * const kCMISParameterFilter = @"filter";
-NSString * const kCMISParameterMaxItems = @"maxItems";
-NSString * const kCMISParameterObjectId = @"objectId";
-NSString * const kCMISParameterOrderBy = @"orderBy";
-NSString * const kCMISParameterIncludePathSegment = @"includePathSegment";
-NSString * const kCMISParameterIncludeRelationships = @"includeRelationships";
-NSString * const kCMISParameterRenditionFilter = @"renditionFilter";
-NSString * const kCMISParameterSkipCount = @"skipCount";
-NSString * const kCMISParameterStreamId = @"streamId";
-NSString * const kCMISParameterAllVersions = @"allVersions";
-NSString * const kCMISParameterContinueOnFailure= @"continueOnFailure";
-NSString * const kCMISParameterUnfileObjects = @"unfileObjects";
-NSString * const kCMISParameterRelativePathSegment = @"includeRelativePathSegment";
-NSString * const kCMISParameterMajor = @"major";
-NSString * const kCMISParameterCheckin = @"checkin";
-NSString * const kCMISParameterCheckinComment = @"checkinComment";
-
-// Parameter Values
-NSString * const kCMISParameterValueTrue = @"true";
-NSString * const kCMISParameterValueFalse = @"false";
-
 // Namespaces
 NSString * const kCMISNamespaceCmis = @"http://docs.oasis-open.org/ns/cmis/core/200908/";
 NSString * const kCMISNamespaceCmisRestAtom = @"http://docs.oasis-open.org/ns/cmis/restatom/200908/";

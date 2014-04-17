@@ -21,15 +21,6 @@
 #import <Foundation/Foundation.h>
 #import "CMISEnums.h"
 
-
-typedef NS_ENUM(NSInteger, CMISReturnVersion)
-{
-    NOT_PROVIDED,
-    THIS,
-    LATEST,
-    LATEST_MAJOR
-};
-
 @interface CMISObjectByIdUriBuilder : NSObject
 
 @property (nonatomic, strong) NSString *objectId;

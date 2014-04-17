@@ -45,7 +45,50 @@ extern NSString * const kCMISPropertyDescription;
 // Property values
 extern NSString * const kCMISPropertyObjectTypeIdValueDocument;
 extern NSString * const kCMISPropertyObjectTypeIdValueFolder;
+extern NSString * const kCMISPropertyObjectTypeIdValueRelationship;
+extern NSString * const kCMISPropertyObjectTypeIdValuePolicy;
+extern NSString * const kCMISPropertyObjectTypeIdValueItem;
+extern NSString * const kCMISPropertyObjectTypeIdValueSecondary;
 
 // Session cache keys
 
 extern NSString * const kCMISSessionKeyWorkspaces;
+
+// URL parameters
+extern NSString * const kCMISParameterChangeToken;
+extern NSString * const kCMISParameterOverwriteFlag;
+extern NSString * const kCMISParameterIncludeAllowableActions;
+extern NSString * const kCMISParameterFilter;
+extern NSString * const kCMISParameterMaxItems;
+extern NSString * const kCMISParameterObjectId;
+extern NSString * const kCMISParameterOrderBy;
+extern NSString * const kCMISParameterIncludePathSegment;
+extern NSString * const kCMISParameterIncludeRelationships;
+extern NSString * const kCMISParameterIncludePolicyIds;
+extern NSString * const kCMISParameterIncludeAcl;
+extern NSString * const kCMISParameterRenditionFilter;
+extern NSString * const kCMISParameterSkipCount;
+extern NSString * const kCMISParameterStreamId;
+extern NSString * const kCMISParameterAllVersions;
+extern NSString * const kCMISParameterContinueOnFailure;
+extern NSString * const kCMISParameterUnfileObjects;
+extern NSString * const kCMISParameterRelativePathSegment;
+extern NSString * const kCMISParameterMajor;
+extern NSString * const kCMISParameterCheckin;
+extern NSString * const kCMISParameterCheckinComment;
+extern NSString * const kCMISParameterSelector;
+extern NSString * const kCMISParameterSuccinct;
+extern NSString * const kCMISParameterReturnVersion;
+extern NSString * const kCMISParameterTypeId;
+
+// Parameter Values
+extern NSString * const kCMISParameterValueTrue;
+extern NSString * const kCMISParameterValueFalse;
+extern NSString * const kCMISParameterValueReturnValueThis;
+extern NSString * const kCMISParameterValueReturnValueLatest;
+extern NSString * const kCMISParameterValueReturnValueLatestMajor;
+
+//ContentStreamAllowed enum values
+extern NSString * const kCMISContentStreamAllowedValueRequired;
+extern NSString * const kCMISContentStreamAllowedValueAllowed;
+extern NSString * const kCMISContentStreamAllowedValueNotAllowed;

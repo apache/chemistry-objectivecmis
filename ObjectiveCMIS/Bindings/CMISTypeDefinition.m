@@ -47,4 +47,13 @@
     return [self.internalPropertyDefinitions objectForKey:propertyId];
 }
 
+-(void)setParentTypeId:(NSString *)parentTypeId
+{
+    if (!parentTypeId || parentTypeId.length == 0) {
+        _parentTypeId = nil;
+    } else {
+        _parentTypeId = parentTypeId;
+    }
+}
+
 @end

@@ -19,10 +19,11 @@
 
 #import <Foundation/Foundation.h>
 #import "CMISEnums.h"
+#import "CMISExtensionData.h"
 
 
 // TODO: type specific properties, see cmis spec line 527
-@interface CMISPropertyDefinition : NSObject
+@interface CMISPropertyDefinition : CMISExtensionData
 
 
 @property (nonatomic, strong) NSString *id;

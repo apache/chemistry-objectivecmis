@@ -18,6 +18,9 @@
  */
 
 #import "CMISBrowserBaseService.h"
+#import "CMISConstants.h"
+#import "CMISBrowserConstants.h"
+#import "CMISURLUtil.h"
 
 @interface CMISBrowserBaseService ()
 @property (nonatomic, strong, readwrite) CMISBindingSession *bindingSession;
@@ -34,6 +37,31 @@
         self.browserUrl = [session objectForKey:kCMISBindingSessionKeyUrl];
     }
     return self;
+}
+
+-(NSString *)getObjectUrlObjectId:(NSString *)objectId selector:(NSString *)selector
+{
+    NSString *rootUrl = [self.bindingSession objectForKey:kCMISBrowserBindingSessionKeyRootFolderUrl];
+    
+    NSString *objectUrl = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterObjectId value:objectId urlString:rootUrl];
+    objectUrl = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterSelector value:selector urlString:objectUrl];
+    return objectUrl;
+}
+
+-(NSString *)getObjectUrlByPath:(NSString *)path selector:(NSString *)selector
+{
+    NSString *rootUrl = [self.bindingSession objectForKey:kCMISBrowserBindingSessionKeyRootFolderUrl];
+    
+    NSString *objectUrl = [CMISURLUtil urlStringByAppendingPath:path urlString:rootUrl];
+    objectUrl = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterSelector value:selector urlString:objectUrl];
+    return objectUrl;
+}
+
+-(NSString *)getRepositoryUrlWithSelector:(NSString *)selector
+{
+    NSString *repoUrl = [self.bindingSession objectForKey:kCMISBrowserBindingSessionKeyRepositoryUrl];
+    repoUrl = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterSelector value:selector urlString:repoUrl];
+    return repoUrl;
 }
 
 @end

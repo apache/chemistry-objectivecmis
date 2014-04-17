@@ -19,11 +19,12 @@
 
 #import <Foundation/Foundation.h>
 #import "CMISEnums.h"
+#import "CMISExtensionData.h"
 
 @class CMISPropertyDefinition;
 
 
-@interface CMISTypeDefinition : NSObject
+@interface CMISTypeDefinition : CMISExtensionData
 
 // TODO: rename "id" property to identifier as id is a reserved keyword in ObjectiveC
 // TODO: rename "description" property to summary as description is a reserved keyword in ObjectiveC
@@ -35,6 +36,7 @@
 @property (nonatomic, strong) NSString *queryName;
 @property (nonatomic, strong) NSString *description;
 @property (nonatomic, assign) CMISBaseType baseTypeId;
+@property (nonatomic, strong) NSString *parentTypeId;
 
 @property (nonatomic, assign, getter = isCreatable) BOOL creatable;
 @property (nonatomic, assign, getter = isFileable) BOOL fileable;

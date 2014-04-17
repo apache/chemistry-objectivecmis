@@ -74,31 +74,6 @@ extern NSString * const kCMISLinkEditMedia;
 extern NSString * const kCMISLinkRelationNext;
 extern NSString * const kCMISLinkRelationWorkingCopy;
 
-// URL parameters
-extern NSString * const kCMISParameterChangeToken;
-extern NSString * const kCMISParameterOverwriteFlag;
-extern NSString * const kCMISParameterIncludeAllowableActions;
-extern NSString * const kCMISParameterFilter;
-extern NSString * const kCMISParameterMaxItems;
-extern NSString * const kCMISParameterObjectId;
-extern NSString * const kCMISParameterOrderBy;
-extern NSString * const kCMISParameterIncludePathSegment;
-extern NSString * const kCMISParameterIncludeRelationships;
-extern NSString * const kCMISParameterRenditionFilter;
-extern NSString * const kCMISParameterSkipCount;
-extern NSString * const kCMISParameterStreamId;
-extern NSString * const kCMISParameterAllVersions;
-extern NSString * const kCMISParameterContinueOnFailure;
-extern NSString * const kCMISParameterUnfileObjects;
-extern NSString * const kCMISParameterRelativePathSegment;
-extern NSString * const kCMISParameterMajor;
-extern NSString * const kCMISParameterCheckin;
-extern NSString * const kCMISParameterCheckinComment;
-
-// Parameter Values
-extern NSString * const kCMISParameterValueTrue;
-extern NSString * const kCMISParameterValueFalse;
-
 // Namespaces
 extern NSString * const kCMISNamespaceCmis;
 extern NSString * const kCMISNamespaceCmisRestAtom;

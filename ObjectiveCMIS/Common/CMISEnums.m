@@ -19,6 +19,7 @@
 
 #import "CMISEnums.h"
 #import "CMISLog.h"
+#import "CMISConstants.h"
 
 @implementation CMISEnums
 
@@ -63,6 +64,43 @@
             break;
     }
     return unfileObjectString;
+}
+
++ (NSString *)stringForReturnVersion:(BOOL)major
+{
+    return major == NO ? kCMISParameterValueReturnValueLatest : kCMISParameterValueReturnValueLatestMajor;
+}
+
++ (CMISBaseType)enumForBaseId:(NSString *)baseId
+{
+    if([kCMISPropertyObjectTypeIdValueDocument isEqualToString:baseId]) {
+        return CMISBaseTypeDocument;
+    } else if([kCMISPropertyObjectTypeIdValueFolder isEqualToString:baseId]) {
+        return CMISBaseTypeFolder;
+    } else if([kCMISPropertyObjectTypeIdValueRelationship isEqualToString:baseId]) {
+        return CMISBaseTypeRelationship;
+    } else if([kCMISPropertyObjectTypeIdValuePolicy isEqualToString:baseId]) {
+        return CMISBaseTypePolicy;
+    } else if([kCMISPropertyObjectTypeIdValueItem isEqualToString:baseId]) {
+        return CMISBaseTypeItem;
+    } else if([kCMISPropertyObjectTypeIdValueSecondary isEqualToString:baseId]) {
+        return CMISBaseTypeSecondary;
+    } else {
+        return CMISBaseTypeUnknown;
+    }
+}
+
++ (CMISContentStreamAllowedType)enumForContentStreamAllowed:(NSString *)contentStreamAllowed
+{
+    if([kCMISContentStreamAllowedValueAllowed isEqualToString:contentStreamAllowed]) {
+        return CMISContentStreamAllowed;
+    } else if([kCMISContentStreamAllowedValueNotAllowed isEqualToString:contentStreamAllowed]) {
+        return CMISContentStreamNotAllowed;
+    } else if([kCMISContentStreamAllowedValueRequired isEqualToString:contentStreamAllowed]) {
+        return CMISContentStreamRequired;
+    } else {
+        return CMISContentStreamUnknown;
+    }
 }
 
 @end

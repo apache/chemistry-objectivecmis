@@ -49,8 +49,50 @@ NSString * const kCMISPropertyDescription = @"cmis:description";
 
 NSString * const kCMISPropertyObjectTypeIdValueDocument = @"cmis:document";
 NSString * const kCMISPropertyObjectTypeIdValueFolder = @"cmis:folder";
+NSString * const kCMISPropertyObjectTypeIdValueRelationship = @"cmis:relationship";
+NSString * const kCMISPropertyObjectTypeIdValuePolicy = @"cmis:policy";
+NSString * const kCMISPropertyObjectTypeIdValueItem = @"cmis:item";
+NSString * const kCMISPropertyObjectTypeIdValueSecondary = @"cmis:secondary";
 
 // Session cache keys
 
 NSString * const kCMISSessionKeyWorkspaces = @"cmis_session_key_workspaces";
 
+// Parameters
+NSString * const kCMISParameterChangeToken = @"changeToken";
+NSString * const kCMISParameterOverwriteFlag = @"overwriteFlag";
+NSString * const kCMISParameterIncludeAllowableActions = @"includeAllowableActions";
+NSString * const kCMISParameterFilter = @"filter";
+NSString * const kCMISParameterMaxItems = @"maxItems";
+NSString * const kCMISParameterObjectId = @"objectId";
+NSString * const kCMISParameterOrderBy = @"orderBy";
+NSString * const kCMISParameterIncludePathSegment = @"includePathSegment";
+NSString * const kCMISParameterIncludeRelationships = @"includeRelationships";
+NSString * const kCMISParameterIncludePolicyIds = @"includePolicyIds";
+NSString * const kCMISParameterIncludeAcl = @"includeACL";
+NSString * const kCMISParameterRenditionFilter = @"renditionFilter";
+NSString * const kCMISParameterSkipCount = @"skipCount";
+NSString * const kCMISParameterStreamId = @"streamId";
+NSString * const kCMISParameterAllVersions = @"allVersions";
+NSString * const kCMISParameterContinueOnFailure= @"continueOnFailure";
+NSString * const kCMISParameterUnfileObjects = @"unfileObjects";
+NSString * const kCMISParameterRelativePathSegment = @"includeRelativePathSegment";
+NSString * const kCMISParameterMajor = @"major";
+NSString * const kCMISParameterCheckin = @"checkin";
+NSString * const kCMISParameterCheckinComment = @"checkinComment";
+NSString * const kCMISParameterSelector = @"cmisselector";
+NSString * const kCMISParameterSuccinct = @"succinct";
+NSString * const kCMISParameterReturnVersion = @"returnVersion";
+NSString * const kCMISParameterTypeId = @"typeId";
+
+// Parameter Values
+NSString * const kCMISParameterValueTrue = @"true";
+NSString * const kCMISParameterValueFalse = @"false";
+NSString * const kCMISParameterValueReturnValueThis = @"this";
+NSString * const kCMISParameterValueReturnValueLatest = @"latest";
+NSString * const kCMISParameterValueReturnValueLatestMajor = @"latestmajor";
+
+//ContentStreamAllowed enum values
+NSString * const kCMISContentStreamAllowedValueRequired = @"required";
+NSString * const kCMISContentStreamAllowedValueAllowed = @"allowed";
+NSString * const kCMISContentStreamAllowedValueNotAllowed = @"notallowed";

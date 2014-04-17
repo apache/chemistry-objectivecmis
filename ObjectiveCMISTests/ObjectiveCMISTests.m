@@ -42,6 +42,7 @@
 #import "CMISErrors.h"
 #import "CMISDateUtil.h"
 #import "CMISLog.h"
+#import "CMISURLUtil.h"
 
 @interface ObjectiveCMISTests ()
 
@@ -295,22 +296,22 @@
                     }
                     
                     
-                    // Bug on Alfresco server. Uncomment when fixed.
                     // Fetch third page, just to be sure
-                    //    CMISPagedResult *thirdPageResult = [secondPageResult fetchNextPageAndReturnError:&error];
-                    //    STAssertNil(error, @"Got error while retrieving children: %@", [error description]);
-                    //    STAssertTrue(thirdPageResult.hasMoreItems, @"There should still be more children");
-                    //    STAssertTrue(thirdPageResult.numItems > 6, @"The test repository should have more than 6 objects");
-                    //    STAssertTrue(thirdPageResult.resultArray.count == 2, @"Expected 2 children in the page, but got %d", thirdPageResult.resultArray.count);
-                    //
-                    //    // Verify if no double object ids were found
-                    //    for (CMISObject *object in thirdPageResult.resultArray)
-                    //    {
-                    //        STAssertTrue(![objectIds containsObject:object.identifier], @"Object was already returned in a previous page. This is a serious impl bug!");
-                    //        [objectIds addObject:object.identifier];
-                    //    }
+                    [secondPageResult fetchNextPageWithCompletionBlock:^(CMISPagedResult *thirdPageResult, NSError *error) {
+                        XCTAssertNil(error, @"Got error while retrieving children: %@", [error description]);
+                        XCTAssertTrue(thirdPageResult.hasMoreItems, @"There should still be more children");
+                        XCTAssertTrue(thirdPageResult.numItems > 6, @"The test repository should have more than 6 objects");
+                        XCTAssertTrue(thirdPageResult.resultArray.count == 2, @"Expected 2 children in the page, but got %lu", (unsigned long)thirdPageResult.resultArray.count);
                     
-                    self.testCompleted = YES;
+                        // Verify if no double object ids were found
+                        for (CMISObject *object in thirdPageResult.resultArray)
+                        {
+                            XCTAssertTrue(![objectIds containsObject:object.identifier], @"Object was already returned in a previous page. This is a serious impl bug!");
+                            [objectIds addObject:object.identifier];
+                        }
+                        
+                        self.testCompleted = YES;
+                    }];
                 }];
             }];
         }];
@@ -338,7 +339,7 @@
             XCTAssertNotNil(document.versionSeriesId, @"Document version series id should not be nil");
             XCTAssertTrue(document.isLatestVersion, @"Document should be latest version");
             //XCTAssertFalse(document.isLatestMajorVersion, @"Document should be latest major version");
-            XCTAssertFalse(document.isMajorVersion, @"Document should be major version");
+            XCTAssertFalse(document.isMajorVersion, @"Document should not be major version");
             
             XCTAssertNotNil(document.contentStreamId, @"Document content stream id should not be nil");
             XCTAssertNotNil(document.contentStreamFileName, @"Document content stream file name should not be nil");
@@ -1877,6 +1878,55 @@
             }];
         }];
     }];
+}
+
+-(void)testUrlUtilAppendParameter
+{
+    NSString *path;
+    
+    path = [CMISURLUtil urlStringByAppendingParameter:@"param1" value:@"value1" urlString:@"scheme://host:12345/path?"];
+    XCTAssertEqualObjects(path, @"scheme://host:12345/path?param1=value1", @"expected url with with one parameter and it's value");
+    
+    path = [CMISURLUtil urlStringByAppendingParameter:@"param1" value:@"value1" urlString:@"scheme://host:12345/path"];
+    XCTAssertEqualObjects(path, @"scheme://host:12345/path?param1=value1", @"expected url with with one parameter and it's value");
+    
+    path = [CMISURLUtil urlStringByAppendingParameter:@"param2" value:@"value2" urlString:@"scheme://host:12345/path?param1=value1"];
+    XCTAssertEqualObjects(path, @"scheme://host:12345/path?param1=value1&param2=value2", @"expected url with with two parameters plus value");
+    
+    path = [CMISURLUtil urlStringByAppendingParameter:@"umlautParam" value:@"välüe1" urlString:@"scheme://host:12345/path"];
+    XCTAssertEqualObjects(path, @"scheme://host:12345/path?umlautParam=v%C3%A4l%C3%BCe1", @"expected url with with encoded value");
+    
+    path = [CMISURLUtil urlStringByAppendingParameter:nil value:@"paramIsNil" urlString:@"scheme://host:12345/path"];
+    XCTAssertEqualObjects(path, @"scheme://host:12345/path", @"expected url not to be modified as parameter is nil");
+    
+    path = [CMISURLUtil urlStringByAppendingParameter:@"valueIsNil" value:nil urlString:@"scheme://host:12345/path"];
+    XCTAssertEqualObjects(path, @"scheme://host:12345/path", @"expected url not to be modified as value is nil");
+    
+    path = [CMISURLUtil urlStringByAppendingParameter:@"param1" value:@"value1" urlString:@"scheme://host/"];
+    XCTAssertEqualObjects(path, @"scheme://host/?param1=value1", @"expected url (no port) with with one parameter and it's value");
+    
+    path = [CMISURLUtil urlStringByAppendingParameter:@"param1" value:@"value1" urlString:@"https://example.com:12345/path1/path2"];
+    XCTAssertEqualObjects(path, @"https://example.com:12345/path1/path2?param1=value1", @"expected url with with one parameter and it's value");
+}
+
+-(void)testUrlUtilAppendPath
+{
+    NSString *path;
+    
+    path = [CMISURLUtil urlStringByAppendingPath:@"aPath" urlString:@"scheme://host:12345?"];
+    XCTAssertEqualObjects(path, @"scheme://host:12345/aPath?", @"expected url with path");
+    
+    path = [CMISURLUtil urlStringByAppendingPath:@"subPath" urlString:@"scheme://host:12345/path?"];
+    XCTAssertEqualObjects(path, @"scheme://host:12345/path/subPath?", @"expected url with sub path component");
+    
+    path = [CMISURLUtil urlStringByAppendingPath:@"subPath" urlString:@"scheme://host:12345/path"];
+    XCTAssertEqualObjects(path, @"scheme://host:12345/path/subPath", @"expected url with sub path component");
+    
+    path = [CMISURLUtil urlStringByAppendingPath:@"subPath" urlString:@"scheme://host:12345/path/"];
+    XCTAssertEqualObjects(path, @"scheme://host:12345/path/subPath", @"expected url with sub path component");
+    
+    path = [CMISURLUtil urlStringByAppendingPath:@"subPath" urlString:@"scheme://host:12345/path?parm1=value1"];
+    XCTAssertEqualObjects(path, @"scheme://host:12345/path/subPath?parm1=value1", @"expected url with sub path component, parmater and it's value");
 }
 
 @end

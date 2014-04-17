@@ -30,10 +30,13 @@ typedef NS_ENUM(NSInteger, CMISBindingType)
 // Base type
 typedef NS_ENUM(NSInteger, CMISBaseType)
 {
+    CMISBaseTypeUnknown,
     CMISBaseTypeDocument,
     CMISBaseTypeFolder,
     CMISBaseTypeRelationship,
-    CMISBaseTypePolicy
+    CMISBaseTypePolicy,
+    CMISBaseTypeItem,
+    CMISBaseTypeSecondary
 };
 
 typedef NS_ENUM(NSInteger, CMISIncludeRelationship)
@@ -141,12 +144,25 @@ typedef NS_ENUM(NSInteger, CMISContentStreamAllowedType)
 {
     CMISContentStreamNotAllowed,
     CMISContentStreamAllowed,
-    CMISContentStreamRequired
+    CMISContentStreamRequired,
+    CMISContentStreamUnknown
+};
+
+// ReturnVersion
+typedef NS_ENUM(NSInteger, CMISReturnVersion)
+{
+    NOT_PROVIDED,
+    THIS,
+    LATEST,
+    LATEST_MAJOR
 };
 
 @interface CMISEnums : NSObject 
 
 + (NSString *)stringForIncludeRelationShip:(CMISIncludeRelationship)includeRelationship;
 + (NSString *)stringForUnfileObject:(CMISUnfileObject)unfileObject;
++ (NSString *)stringForReturnVersion:(BOOL)major;
++ (CMISBaseType)enumForBaseId:(NSString *)baseId;
++ (CMISContentStreamAllowedType)enumForContentStreamAllowed:(NSString *)contentStreamAllowed;
 
 @end

@@ -18,9 +18,20 @@
  */
  
 #import "CMISURLUtil.h"
+#import "CMISConstants.h"
 
 
 @implementation CMISURLUtil
+
++ (NSString *)urlStringByAppendingParameter:(NSString *)parameterName boolValue:(BOOL)parameterValue urlString:(NSString *)urlString
+{
+    return [CMISURLUtil urlStringByAppendingParameter:parameterName value:parameterValue ? kCMISParameterValueTrue : kCMISParameterValueFalse urlString:urlString];
+}
+
++ (NSString *)urlStringByAppendingParameter:(NSString *)parameterName numberValue:(NSNumber *)parameterValue urlString:(NSString *)urlString
+{
+    return [CMISURLUtil urlStringByAppendingParameter:parameterName value:[parameterValue stringValue] urlString:urlString];
+}
 
 + (NSString *)urlStringByAppendingParameter:(NSString *)parameterName value:(NSString *)parameterValue urlString:(NSString *)urlString
 {
@@ -34,7 +45,9 @@
     if ([result rangeOfString:@"?"].location == NSNotFound) {
         [result appendString:@"?"];
     } else {
-        [result appendString:@"&"];
+        if([result rangeOfString:@"?"].location != result.length -1){ // Only add ampersand if there is already a parameter added
+            [result appendString:@"&"];
+        }
     }
 
     // Append param
@@ -43,6 +56,13 @@
     [result appendString:[parameterValue stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
 
     return result;
+}
+
++ (NSString *)urlStringByAppendingPath:(NSString *)path urlString:(NSString *)urlString
+{
+    NSURL *url = [[NSURL URLWithString:urlString] URLByAppendingPathComponent:path];
+    
+    return [url absoluteString];
 }
 
 + (NSURL *)urlStringByAppendingParameter:(NSString *)parameterName value:(NSString *)parameterValue url:(NSURL *)url

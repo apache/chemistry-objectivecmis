@@ -37,5 +37,6 @@
 @property (nonatomic, strong) CMISAllowableActions *allowableActions;
 @property (nonatomic, strong) CMISAcl *acl;
 @property (nonatomic, strong) NSArray *renditions; // An array containing CMISRenditionData objects
+@property (nonatomic, strong) NSArray *relationships; // An array containing CMISObjectData objects; Relationships from and to this object.
 
 @end

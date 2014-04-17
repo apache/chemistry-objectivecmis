@@ -23,6 +23,7 @@
 #import "CMISConstants.h"
 #import "CMISBrowserUtil.h"
 #import "CMISBrowserConstants.h"
+#import "CMISURLUtil.h"
 
 @implementation CMISBrowserNavigationService
 
@@ -37,14 +38,20 @@
                         maxItems:(NSNumber *)maxItems
                  completionBlock:(void (^)(CMISObjectList *objectList, NSError *error))completionBlock
 {
-    // TODO: Use a CMISChildrenByIdUriBuilder class??
-    NSString *rootUrl = [self.bindingSession objectForKey:kCMISBrowserBindingSessionKeyRootFolderUrl];
-    NSString *urlString = [NSString stringWithFormat:@"%@?objectId=%@&succinct=true&cmisselector=children", rootUrl, objectId];
-    NSURL *childrenUrl = [NSURL URLWithString:urlString];
+    NSString *objectUrl = [self getObjectUrlObjectId:objectId selector:kCMISBrowserJSONSelectorChildren];
+    objectUrl = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterFilter value:filter urlString:objectUrl];
+    objectUrl = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterOrderBy value:orderBy urlString:objectUrl];
+    objectUrl = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterIncludeAllowableActions boolValue:includeAllowableActions urlString:objectUrl];
+    objectUrl = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterIncludeRelationships value:[CMISEnums stringForIncludeRelationShip:relationships] urlString:objectUrl];
+    objectUrl = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterRenditionFilter value:renditionFilter urlString:objectUrl];
+    objectUrl = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterIncludePathSegment boolValue:includePathSegment urlString:objectUrl];
+    objectUrl = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterMaxItems numberValue:maxItems urlString:objectUrl];
+    objectUrl = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterSkipCount numberValue:skipCount urlString:objectUrl];
+    objectUrl = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterSuccinct value:kCMISParameterValueTrue urlString:objectUrl];
     
     CMISRequest *cmisRequest = [[CMISRequest alloc] init];
     
-    [self.bindingSession.networkProvider invokeGET:childrenUrl
+    [self.bindingSession.networkProvider invokeGET:[NSURL URLWithString:objectUrl]
                                            session:self.bindingSession
                                        cmisRequest:cmisRequest
                                    completionBlock:^(CMISHttpResponse *httpResponse, NSError *error) {

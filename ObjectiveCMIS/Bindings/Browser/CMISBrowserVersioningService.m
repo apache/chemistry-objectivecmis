@@ -18,6 +18,12 @@
  */
 
 #import "CMISBrowserVersioningService.h"
+#import "CMISRequest.h"
+#import "CMISBrowserConstants.h"
+#import "CMISHttpResponse.h"
+#import "CMISBrowserUtil.h"
+#import "CMISURLUtil.h"
+#import "CMISConstants.h"
 
 @implementation CMISBrowserVersioningService
 
@@ -31,19 +37,70 @@
                       includeAllowableActions:(BOOL)includeAllowableActions
                               completionBlock:(void (^)(CMISObjectData *objectData, NSError *error))completionBlock
 {
-    NSString * message = [NSString stringWithFormat:@"%s is not implemented yet", __PRETTY_FUNCTION__];
-    NSException *exception = [NSException exceptionWithName:NSInvalidArgumentException reason:message userInfo:nil];
-    @throw exception;
+    NSString *objectUrl = [self getObjectUrlObjectId:objectId selector:kCMISBrowserJSONSelectorObject];
+    objectUrl = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterFilter value:filter urlString:objectUrl];
+    objectUrl = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterIncludeAllowableActions boolValue:includeAllowableActions urlString:objectUrl];
+    objectUrl = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterIncludeRelationships value:[CMISEnums stringForIncludeRelationShip:relationships] urlString:objectUrl];
+    objectUrl = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterRenditionFilter value:renditionFilter urlString:objectUrl];
+    objectUrl = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterIncludePolicyIds boolValue:includePolicyIds urlString:objectUrl];
+    objectUrl = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterIncludeAcl boolValue:includeACL urlString:objectUrl];
+    objectUrl = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterReturnVersion value:[CMISEnums stringForReturnVersion:major] urlString:objectUrl];
+    objectUrl = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterSuccinct value:kCMISParameterValueTrue urlString:objectUrl];
+    
+    CMISRequest *cmisRequest = [[CMISRequest alloc] init];
+    
+    [self.bindingSession.networkProvider invokeGET:[NSURL URLWithString:objectUrl]
+                                           session:self.bindingSession
+                                       cmisRequest:cmisRequest
+                                   completionBlock:^(CMISHttpResponse *httpResponse, NSError *error) {
+                                       if (httpResponse.statusCode == 200 && httpResponse.data) {
+                                           NSError *parsingError = nil;
+                                           CMISObjectData *objectData = [CMISBrowserUtil objectDataFromJSONData:httpResponse.data error:&parsingError];
+                                           if (parsingError)
+                                           {
+                                               completionBlock(nil, parsingError);
+                                           } else {
+                                               completionBlock(objectData, nil);
+                                           }
+                                       } else {
+                                           completionBlock(nil, error);
+                                       }
+                                   }];
+    
+    return cmisRequest;
 }
 
 - (CMISRequest*)retrieveAllVersions:(NSString *)objectId
                              filter:(NSString *)filter
             includeAllowableActions:(BOOL)includeAllowableActions
                     completionBlock:(void (^)(NSArray *objects, NSError *error))completionBlock
-{
-    NSString * message = [NSString stringWithFormat:@"%s is not implemented yet", __PRETTY_FUNCTION__];
-    NSException *exception = [NSException exceptionWithName:NSInvalidArgumentException reason:message userInfo:nil];
-    @throw exception;
+{    
+    NSString *objectUrl = [self getObjectUrlObjectId:objectId selector:kCMISBrowserJSONSelectorVersions];
+    objectUrl = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterFilter value:filter urlString:objectUrl];
+    objectUrl = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterIncludeAllowableActions value:(includeAllowableActions ? @"true" : @"false") urlString:objectUrl];
+    objectUrl = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterSuccinct value:@"true" urlString:objectUrl];
+    
+    CMISRequest *cmisRequest = [[CMISRequest alloc] init];
+    
+    [self.bindingSession.networkProvider invokeGET:[NSURL URLWithString:objectUrl]
+                                           session:self.bindingSession
+                                       cmisRequest:cmisRequest
+                                   completionBlock:^(CMISHttpResponse *httpResponse, NSError *error) {
+                                       if (httpResponse.statusCode == 200 && httpResponse.data) {
+                                           NSError *parsingError = nil;
+                                           CMISObjectList *objectList = [CMISBrowserUtil objectListFromJSONData:httpResponse.data error:&parsingError];
+                                           if (!objectList.objects)
+                                           {
+                                               completionBlock(nil, parsingError);
+                                           } else {
+                                               completionBlock(objectList.objects, nil);
+                                           }
+                                       } else {
+                                           completionBlock(nil, error);
+                                       }
+                                   }];
+    
+    return cmisRequest;
 }
 
 /**
