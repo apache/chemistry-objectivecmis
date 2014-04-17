@@ -45,17 +45,25 @@
     XCTAssertNotNil(environmentArray, @"environmentArray is nil!");
 
     for (NSDictionary *envDict in environmentArray) {
-        NSString *url = [envDict valueForKey:@"url"];
-        NSString *repositoryId = [envDict valueForKey:@"repositoryId"];
-        NSString *username = [envDict valueForKey:@"username"];
-        NSString *password = [envDict valueForKey:@"password"];
+        NSString *summary = envDict[@"summary"];
 
+        NSNumber *disabled = envDict[@"disabled"];
+        if ([disabled boolValue])
+        {
+            CMISLogDebug(@">------------------- Skipping test against %@ -------------------<", summary);
+            continue;
+        }
+        
+        NSString *url = envDict[@"url"];
+        NSString *repositoryId = envDict[@"repositoryId"];
+        NSString *username = envDict[@"username"];
+        NSString *password = envDict[@"password"];
+
+        CMISLogDebug(@">------------------- Running test against %@ -------------------<", summary);
+        
         self.testCompleted = NO;
         [self setupCmisSession:url repositoryId:repositoryId username:username password:password extraSessionParameters:extraSessionParameters completionBlock:^{
             self.testCompleted = NO;
-            
-            CMISLogDebug(@">------------------- Running test against %@ -------------------<", url);
-            
             testBlock();
         }];
         [self waitForCompletion:90];
@@ -94,11 +102,17 @@
             self.session = session;
             XCTAssertTrue(self.session.isAuthenticated, @"Session should be authenticated");
             [self.session retrieveRootFolderWithCompletionBlock:^(CMISFolder *rootFolder, NSError *error) {
-                self.rootFolder = rootFolder;
                 XCTAssertNil(error, @"Error while retrieving root folder: %@", [error description]);
-                XCTAssertNotNil(self.rootFolder, @"rootFolder object should not be nil");
-                
-                completionBlock();
+                XCTAssertNotNil(rootFolder, @"rootFolder object should not be nil");
+                if (rootFolder)
+                {
+                    [self.session retrieveObjectByPath:@"/ios-test" completionBlock:^(CMISObject *object, NSError *error) {
+                        self.rootFolder = (CMISFolder *)object;
+                        XCTAssertNil(error, @"Error while retrieving root folder: %@", [error description]);
+                        XCTAssertNotNil(self.rootFolder, @"/ios-test rootFolder object should not be nil");
+                        completionBlock();
+                    }];
+                }
             }];
         }
     }];
@@ -119,7 +133,6 @@
         CMISDocument *document = (CMISDocument *)object;
         XCTAssertNotNil(document, @"Did not find test document for versioning test");
         XCTAssertTrue(document.isLatestVersion, @"Should have 'true' for the property 'isLatestVersion");
-        XCTAssertFalse(document.isLatestMajorVersion, @"Should have 'false' for the property 'isLatestMajorVersion"); // the latest version is a minor one
         XCTAssertFalse(document.isMajorVersion, @"Should have 'false' for the property 'isMajorVersion");
         
         completionBlock(document);
