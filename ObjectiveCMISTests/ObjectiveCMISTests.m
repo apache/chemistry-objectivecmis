@@ -1953,6 +1953,9 @@
                 // check we got the working copy
                 XCTAssertNotNil(privateWorkingCopy, @"Expected to recieve the private working copy object");
                 
+                // sleep for a couple of seconds before checking back in
+                [NSThread sleepForTimeInterval:2.0];
+                
                 // checkin the test document
                 NSString *updatedFilePath = [[NSBundle bundleForClass:[self class]] pathForResource:@"test_file_2.txt" ofType:nil];
                 [privateWorkingCopy checkInAsMajorVersion:YES filePath:updatedFilePath mimeType:@"text/plain" properties:nil checkinComment:@"Next version" completionBlock:^(CMISDocument *checkedInDocument, NSError *error) {
