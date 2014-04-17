@@ -45,6 +45,14 @@
     XCTAssertNotNil(environmentArray, @"environmentArray is nil!");
 
     for (NSDictionary *envDict in environmentArray) {
+        NSString *summary = envDict[@"summary"];
+        NSNumber *disabled = envDict[@"disabled"];
+        if ([disabled boolValue])
+        {
+            CMISLogDebug(@">------------------- Skipping test against %@ -------------------<", summary);
+            continue;
+        }
+        
         NSString *binding = [envDict valueForKey:@"binding"];
         NSString *url = [envDict valueForKey:@"url"];
         NSString *repositoryId = [envDict valueForKey:@"repositoryId"];
@@ -63,7 +71,7 @@
                    extraSessionParameters:extraSessionParameters completionBlock:^{
             self.testCompleted = NO;
             
-            CMISLogDebug(@">------------------- Running test against %@ -------------------<", url);
+            CMISLogDebug(@">------------------- Running test against %@ -------------------<", summary);
             
             testBlock();
         }];
@@ -113,11 +121,17 @@
             self.session = session;
             XCTAssertTrue(self.session.isAuthenticated, @"Session should be authenticated");
             [self.session retrieveRootFolderWithCompletionBlock:^(CMISFolder *rootFolder, NSError *error) {
-                self.rootFolder = rootFolder;
                 XCTAssertNil(error, @"Error while retrieving root folder: %@", [error description]);
-                XCTAssertNotNil(self.rootFolder, @"rootFolder object should not be nil");
-                
-                completionBlock();
+                XCTAssertNotNil(rootFolder, @"rootFolder object should not be nil");
+                if (rootFolder)
+                {
+                    [self.session retrieveObjectByPath:@"/ios-test" completionBlock:^(CMISObject *object, NSError *error) {
+                        self.rootFolder = (CMISFolder *)object;
+                        XCTAssertNil(error, @"Error while retrieving root folder: %@", [error description]);
+                        XCTAssertNotNil(self.rootFolder, @"/ios-test rootFolder object should not be nil");
+                        completionBlock();
+                    }];
+                }
             }];
         }
     }];
