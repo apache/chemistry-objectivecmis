@@ -42,10 +42,29 @@ extern NSString * const kCMISPropertyBaseTypeId;
 extern NSString * const kCMISPropertyCheckinComment;
 extern NSString * const kCMISPropertySecondaryObjectTypeIds;
 extern NSString * const kCMISPropertyDescription;
+
 // Property values
 extern NSString * const kCMISPropertyObjectTypeIdValueDocument;
 extern NSString * const kCMISPropertyObjectTypeIdValueFolder;
 
 // Session cache keys
-
 extern NSString * const kCMISSessionKeyWorkspaces;
+
+// Capability Keys
+extern NSString * const kCMISRepositoryCapabilityACL;
+extern NSString * const kCMISRepositoryAllVersionsSearchable;
+extern NSString * const kCMISRepositoryCapabilityChanges;
+extern NSString * const kCMISRepositoryCapabilityContentStreamUpdatability;
+extern NSString * const kCMISRepositoryCapabilityJoin;
+extern NSString * const kCMISRepositoryCapabilityQuery;
+extern NSString * const kCMISRepositoryCapabilityRenditions;
+extern NSString * const kCMISRepositoryCapabilityPWCSearchable;
+extern NSString * const kCMISRepositoryCapabilityPWCUpdatable;
+extern NSString * const kCMISRepositoryCapabilityGetDescendants;
+extern NSString * const kCMISRepositoryCapabilityGetFolderTree;
+extern NSString * const kCMISRepositoryCapabilityOrderBy;
+extern NSString * const kCMISRepositoryCapabilityMultifiling;
+extern NSString * const kCMISRepositoryCapabilityUnfiling;
+extern NSString * const kCMISRepositoryCapabilityVersionSpecificFiling;
+extern NSString * const kCMISRepositoryCapabilityPropertyTypes;
+extern NSString * const kCMISRepositoryCapabilityTypeSettableAttributes;

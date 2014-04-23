@@ -54,3 +54,21 @@ NSString * const kCMISPropertyObjectTypeIdValueFolder = @"cmis:folder";
 
 NSString * const kCMISSessionKeyWorkspaces = @"cmis_session_key_workspaces";
 
+// Capability Keys
+NSString * const kCMISRepositoryCapabilityACL                       = @"capabilityACL";
+NSString * const kCMISRepositoryAllVersionsSearchable               = @"capabilityAllVersionsSearchable";
+NSString * const kCMISRepositoryCapabilityChanges                   = @"capabilityChanges";
+NSString * const kCMISRepositoryCapabilityContentStreamUpdatability = @"capabilityContentStreamUpdatability";
+NSString * const kCMISRepositoryCapabilityJoin                      = @"capabilityJoin";
+NSString * const kCMISRepositoryCapabilityQuery                     = @"capabilityQuery";
+NSString * const kCMISRepositoryCapabilityRenditions                = @"capabilityRenditions";
+NSString * const kCMISRepositoryCapabilityPWCSearchable             = @"capabilityPWCSearchable";
+NSString * const kCMISRepositoryCapabilityPWCUpdatable              = @"capabilityPWCUpdatable";
+NSString * const kCMISRepositoryCapabilityGetDescendants            = @"capabilityGetDescendants";
+NSString * const kCMISRepositoryCapabilityGetFolderTree             = @"capabilityGetFolderTree";
+NSString * const kCMISRepositoryCapabilityOrderBy                   = @"capabilityOrderBy";
+NSString * const kCMISRepositoryCapabilityMultifiling               = @"capabilityMultifiling";
+NSString * const kCMISRepositoryCapabilityUnfiling                  = @"capabilityUnfiling";
+NSString * const kCMISRepositoryCapabilityVersionSpecificFiling     = @"capabilityVersionSpecificFiling";
+NSString * const kCMISRepositoryCapabilityPropertyTypes             = @"capabilityCreatablePropertyTypes";
+NSString * const kCMISRepositoryCapabilityTypeSettableAttributes    = @"capabilityTypeSettableAttributes";
