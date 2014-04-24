@@ -283,10 +283,10 @@
                                      operationContext:(CMISOperationContext *)operationContext
                                       completionBlock:(void (^)(CMISPagedResult *pagedResult, NSError *error))completionBlock
 {
-    __block CMISRequest *request = [[CMISRequest alloc] init];
+    CMISRequest *request = [[CMISRequest alloc] init];
     CMISFetchNextPageBlock fetchNextPageBlock = ^(int skipCount, int maxItems, CMISFetchNextPageBlockCompletionBlock pageBlockCompletionBlock){
         // Fetch results through discovery service
-       request = [self.binding.discoveryService query:statement
+       CMISRequest *queryRequest = [self.binding.discoveryService query:statement
                                                   searchAllVersions:searchAllVersion
                                                   relationships:operationContext.relationships
                                                   renditionFilter:operationContext.renditionFilterString
@@ -310,6 +310,9 @@
                                                           pageBlockCompletionBlock(result, nil);
                                                       }
                                                   }];
+        
+        // set the underlying request object on the object returned to the original caller
+        request.httpRequest = queryRequest.httpRequest;
     };
 
     [CMISPagedResult pagedResultUsingFetchBlock:fetchNextPageBlock
@@ -351,13 +354,13 @@
         [statement appendFormat:@" ORDER BY %@", operationContext.orderBy];
     }
     
-    __block CMISRequest *request = [[CMISRequest alloc] init];
+    CMISRequest *request = [[CMISRequest alloc] init];
     
     // Fetch block for paged results
     CMISFetchNextPageBlock fetchNextPageBlock = ^(int skipCount, int maxItems, CMISFetchNextPageBlockCompletionBlock pageBlockCompletionBlock)
     {
         // Fetch results through discovery service
-        request = [self.binding.discoveryService query:statement
+        CMISRequest *queryRequest = [self.binding.discoveryService query:statement
                                      searchAllVersions:searchAllVersion
                                          relationships:operationContext.relationships
                                        renditionFilter:operationContext.renditionFilterString
@@ -380,6 +383,9 @@
                                                           }];
                                  }
                              }];
+        
+        // set the underlying request object on the object returned to the original caller
+        request.httpRequest = queryRequest.httpRequest;
     };
     
     [CMISPagedResult pagedResultUsingFetchBlock:fetchNextPageBlock
@@ -421,18 +427,20 @@
             inFolder:(NSString *)folderObjectId
      completionBlock:(void (^)(NSString *objectId, NSError *error))completionBlock
 {
-    __block CMISRequest *request = [[CMISRequest alloc] init];
+    CMISRequest *request = [[CMISRequest alloc] init];
     [self.objectConverter convertProperties:properties
                             forObjectTypeId:[properties objectForKey:kCMISPropertyObjectTypeId]
                             completionBlock:^(CMISProperties *convertedProperties, NSError *error) {
                                if (error) {
                                    completionBlock(nil, [CMISErrors cmisError:error cmisErrorCode:kCMISErrorCodeRuntime]);
                                } else {
-                                  request = [self.binding.objectService createFolderInParentFolder:folderObjectId
+                                  CMISRequest *createRequest = [self.binding.objectService createFolderInParentFolder:folderObjectId
                                                                                properties:convertedProperties
                                                                           completionBlock:^(NSString *objectId, NSError *error) {
                                                                               completionBlock(objectId, error);
                                                                           }];
+                                   // set the underlying request object on the object returned to the original caller
+                                   request.httpRequest = createRequest.httpRequest;
                                }
                            }];
     return request;
@@ -503,7 +511,7 @@
                    completionBlock:(void (^)(NSString *objectId, NSError *error))completionBlock
                      progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal))progressBlock
 {
-    __block CMISRequest *request = [[CMISRequest alloc] init];
+    CMISRequest *request = [[CMISRequest alloc] init];
     [self.objectConverter convertProperties:properties
                             forObjectTypeId:[properties objectForKey:kCMISPropertyObjectTypeId]
                             completionBlock:^(CMISProperties *convertedProperties, NSError *error) {
@@ -513,12 +521,14 @@
                 completionBlock(nil, [CMISErrors cmisError:error cmisErrorCode:kCMISErrorCodeRuntime]);
             }
         } else {
-            request = [self.binding.objectService createDocumentFromFilePath:filePath
+            CMISRequest *createRequest = [self.binding.objectService createDocumentFromFilePath:filePath
                                                                     mimeType:mimeType
                                                                   properties:convertedProperties
                                                                     inFolder:folderObjectId
                                                              completionBlock:completionBlock
                                                                progressBlock:progressBlock];
+            // set the underlying request object on the object returned to the original caller
+            request.httpRequest = createRequest.httpRequest;
         }
     }];
     return request;
@@ -532,7 +542,7 @@
                       completionBlock:(void (^)(NSString *objectId, NSError *error))completionBlock
                         progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal))progressBlock
 {
-    __block CMISRequest *request = [[CMISRequest alloc] init];
+    CMISRequest *request = [[CMISRequest alloc] init];
     [self.objectConverter convertProperties:properties
                             forObjectTypeId:[properties objectForKey:kCMISPropertyObjectTypeId]
                             completionBlock:^(CMISProperties *convertedProperties, NSError *error) {
@@ -542,13 +552,15 @@
                 completionBlock(nil, [CMISErrors cmisError:error cmisErrorCode:kCMISErrorCodeRuntime]);
             }
         } else {
-            request = [self.binding.objectService createDocumentFromInputStream:inputStream
+            CMISRequest *createRequest = [self.binding.objectService createDocumentFromInputStream:inputStream
                                                              mimeType:mimeType
                                                            properties:convertedProperties
                                                              inFolder:folderObjectId
                                                         bytesExpected:bytesExpected
                                                       completionBlock:completionBlock
                                                         progressBlock:progressBlock];
+            // set the underlying request object on the object returned to the original caller
+            request.httpRequest = createRequest.httpRequest;
         }
     }];
     return request;

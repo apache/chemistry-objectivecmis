@@ -21,6 +21,7 @@
 #import "CMISAtomPubConstants.h"
 #import "CMISAtomCollection.h"
 #import "CMISLog.h"
+#import "CMISRepositoryCapabilities.h"
 
 @interface CMISRepositoryInfoParser ()
 
@@ -30,8 +31,7 @@
 @property (nonatomic, strong) NSMutableString *currentString;
 @property (nonatomic, strong) CMISAtomCollection *currentCollection;
 
-// TODO Temporary object, replace with CMISRepositoryCapabilities object or similar when available
-@property (nonatomic, strong) id currentCapabilities;
+@property (nonatomic, strong) CMISRepositoryCapabilities *currentCapabilities;
 
 @property (nonatomic, assign, getter = isParsingExtensionElement) BOOL parsingExtensionElement;
 @end
@@ -71,7 +71,7 @@
     
     if ([namespaceURI isEqualToString:kCMISNamespaceCmis]) {
         if ([elementName isEqualToString:kCMISCoreCapabilities]) {
-            self.currentCapabilities = [NSMutableDictionary dictionaryWithCapacity:14];
+            self.currentCapabilities = [[CMISRepositoryCapabilities alloc] init];
         }
     } else if ( ![namespaceURI isEqualToString:kCMISNamespaceCmis] && ![namespaceURI isEqualToString:kCMISNamespaceApp] 
               && ![namespaceURI isEqualToString:kCMISNamespaceAtom] && ![namespaceURI isEqualToString:kCMISNamespaceCmisRestAtom])  {
@@ -111,7 +111,7 @@
         } else if ([elementName isEqualToString:kCMISCoreCmisVersionSupported]) {
             self.currentRepositoryInfo.cmisVersionSupported = self.currentString;
         } else if ([elementName hasPrefix:_kCMISCoreCapabilityPrefix] && self.currentCapabilities) {
-            [self.currentCapabilities setValue:self.currentString forKeyPath:elementName];
+            [self.currentCapabilities setCapability:elementName value:self.currentString];
         } else if ([elementName isEqualToString:kCMISCoreCapabilities]) {
             self.currentRepositoryInfo.repositoryCapabilities = self.currentCapabilities;
             self.currentCapabilities = nil;
@@ -167,5 +167,6 @@
     
     [self.currentExtensions addObject:extensionElement];
 }
+
 
 @end

@@ -47,4 +47,18 @@
                                              }];
 }
 
+- (CMISRequest *)moveFromFolderWithId:(NSString *)sourceFolderId
+                       toFolderWithId:(NSString *)targetFolderId
+                      completionBlock:(void (^)(CMISObject *, NSError *))completionBlock
+{
+    return [self.binding.objectService moveObject:self.identifier
+                                       fromFolder:sourceFolderId
+                                         toFolder:targetFolderId
+                                  completionBlock:^(CMISObjectData *objectData, NSError *error) {
+                                      
+                                      [self.session.objectConverter convertObject:objectData completionBlock:completionBlock];
+                                  }];
+}
+
+
 @end

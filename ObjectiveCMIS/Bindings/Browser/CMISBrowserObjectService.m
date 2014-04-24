@@ -306,6 +306,16 @@
     @throw exception;
 }
 
+- (CMISRequest*)moveObject:(NSString *)objectId
+                fromFolder:(NSString *)sourceFolderId
+                  toFolder:(NSString *)targetFolderId
+           completionBlock:(void (^)(CMISObjectData *objectData, NSError *error))completionBlock
+{
+    NSString * message = [NSString stringWithFormat:@"%s is not implemented yet", __PRETTY_FUNCTION__];
+    NSException *exception = [NSException exceptionWithName:NSInvalidArgumentException reason:message userInfo:nil];
+    @throw exception;
+}
+
 - (CMISRequest*)deleteTree:(NSString *)folderObjectId
                 allVersion:(BOOL)allVersions
              unfileObjects:(CMISUnfileObject)unfileObjects

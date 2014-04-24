@@ -30,6 +30,8 @@
 #import "CMISSecondaryTypeDefinition.h"
 #import "CMISErrors.h"
 #import "CMISNSDictionary+CMISUtil.h"
+#import "CMISRepositoryCapabilities.h"
+#import "CMISObjectConverter.h"
 
 @implementation CMISBrowserUtil
 
@@ -59,7 +61,7 @@
             NSString *repositoryUrl = [repo cmis_objectForKeyNotNull:kCMISBrowserJSONRepositoryUrl];
             NSString *rootFolderUrl = [repo cmis_objectForKeyNotNull:kCMISBrowserJSONRootFolderUrl];
             
-            repoInfo.repositoryCapabilities = [repo cmis_objectForKeyNotNull:kCMISBrowserJSONCapabilities]; //TODO should be own type instead of dictionary
+            repoInfo.repositoryCapabilities = [CMISBrowserUtil convertRepositoryCapabilities:[repo cmis_objectForKeyNotNull:kCMISBrowserJSONCapabilities]];
             //TOOD aclCapabilities
             repoInfo.latestChangeLogToken = [repo cmis_objectForKeyNotNull:kCMISBrowserJSONLatestChangeLogToken];
             
@@ -73,7 +75,7 @@
             repoInfo.principalIdAnyone = [repo cmis_objectForKeyNotNull:kCMISBrowserJSONPrincipalIdAnyone];
             
             //handle extensions
-            repoInfo.extensions = [CMISBrowserUtil convertExtensions:repo cmisKeys:[CMISBrowserConstants repositoryInfoKeys]];
+            repoInfo.extensions = [CMISObjectConverter convertExtensions:repo cmisKeys:[CMISBrowserConstants repositoryInfoKeys]];
             
             // store the repo and root folder URLs in the session (when the repoId matches)
             if ([repoInfo.identifier isEqualToString:bindingSession.repositoryId]) {
@@ -173,7 +175,7 @@
         }
         
         // handle extensions
-        typeDef.extensions = [CMISBrowserUtil convertExtensions:jsonDictionary cmisKeys:[CMISBrowserConstants typeKeys]];
+        typeDef.extensions = [CMISObjectConverter convertExtensions:jsonDictionary cmisKeys:[CMISBrowserConstants typeKeys]];
     } else {
         if (outError != NULL) *outError = [CMISErrors cmisError:serialisationError cmisErrorCode:kCMISErrorCodeRuntime];
         return nil;
@@ -303,7 +305,7 @@
                     objectData.renditions = [self renditionsFromArray:renditionsJson];
                     
                     // handle extensions
-                    objectData.extensions = [CMISBrowserUtil convertExtensions:dictionary cmisKeys:[CMISBrowserConstants objectKeys]];
+                    objectData.extensions = [CMISObjectConverter convertExtensions:dictionary cmisKeys:[CMISBrowserConstants objectKeys]];
                     
                     completionBlock(objectData, nil);
                 }
@@ -385,7 +387,7 @@
                     completionBlock(nil, error);
                 } else {
                     if (extJson){
-                        properties.extensions = [CMISBrowserUtil convertExtensions:extJson cmisKeys:[NSSet set]];
+                        properties.extensions = [CMISObjectConverter convertExtensions:extJson cmisKeys:[NSSet set]];
                     }
                     
                     completionBlock(properties, nil);
@@ -609,6 +611,26 @@
     }
 }
 
++ (CMISRepositoryCapabilities *)convertRepositoryCapabilities:(NSDictionary *)jsonDictionary
+{
+    if (!jsonDictionary){
+        return nil;
+    }
+    
+    CMISRepositoryCapabilities *result = [[CMISRepositoryCapabilities alloc] init];
+    for (NSString *capabilityKey in jsonDictionary) {
+        id value = [jsonDictionary cmis_objectForKeyNotNull:capabilityKey];
+        
+        if([[CMISConstants repositoryCapabilityKeys] containsObject:capabilityKey]) {
+            [result setCapability:capabilityKey value:value];
+        }
+    }
+    
+    result.extensions = [CMISObjectConverter convertExtensions:jsonDictionary cmisKeys:[CMISConstants repositoryCapabilityKeys]];
+    
+    return result;
+}
+
 + (void)retrieveTypeDefinitions:(NSArray *)objectTypeIds position:(NSInteger)position typeCache:(CMISTypeCache *)typeCache completionBlock:(void (^)(NSMutableArray *typeDefinitions, NSError *error))completionBlock
 {
     [typeCache typeDefinition:[objectTypeIds objectAtIndex:position]
@@ -666,7 +688,7 @@
         renditionData.width = [NSNumber numberWithLongLong:[[renditionJson cmis_objectForKeyNotNull:kCMISBrowserJSONRenditionWidth] longLongValue]];
         
         // handle extensions
-        renditionData.extensions = [CMISBrowserUtil convertExtensions:renditionJson cmisKeys:[CMISBrowserConstants renditionKeys]];
+        renditionData.extensions = [CMISObjectConverter convertExtensions:renditionJson cmisKeys:[CMISBrowserConstants renditionKeys]];
         
         [renditions addObject:renditionData];
     }
@@ -737,81 +759,9 @@
     // TODO default value
     
     // handle extensions
-    propDef.extensions = [CMISBrowserUtil convertExtensions:propertyDictionary cmisKeys:[CMISBrowserConstants propertyTypeKeys]];
+    propDef.extensions = [CMISObjectConverter convertExtensions:propertyDictionary cmisKeys:[CMISBrowserConstants propertyTypeKeys]];
     
     return propDef;
-}
-
-+ (NSArray *)convertExtensions:(NSDictionary *)source cmisKeys:(NSSet *)cmisKeys
-{
-    if (!source) {
-        return nil;
-    }
-    
-    NSMutableArray *extensions = nil; // array of CMISExtensionElement's
-    
-    for (NSString *key in source.keyEnumerator) {
-        if ([cmisKeys containsObject:key]) {
-            continue;
-        }
-        
-        if (!extensions) {
-            extensions = [[NSMutableArray alloc] init];
-        }
-        
-        id value = [source cmis_objectForKeyNotNull:key];
-        if ([value isKindOfClass:NSDictionary.class]) {
-            [extensions addObject:[[CMISExtensionElement alloc] initNodeWithName:key namespaceUri:nil attributes:nil children:[CMISBrowserUtil convertExtension:value]]];
-        } else if ([value isKindOfClass:NSArray.class]) {
-            [extensions addObjectsFromArray:[CMISBrowserUtil convertExtension: key fromArray:value]];
-        } else {
-            [extensions addObject:[[CMISExtensionElement alloc] initLeafWithName:key namespaceUri:nil attributes:nil value:value]];
-        }
-    }
-    return extensions;
-}
-
-+ (NSArray *)convertExtension:(NSDictionary *)dictionary
-{
-    if (!dictionary) {
-        return nil;
-    }
-    
-    NSMutableArray *extensions = [[NSMutableArray alloc] init]; // array of CMISExtensionElement's
-    
-    for (NSString *key in dictionary.keyEnumerator) {
-        id value = [dictionary cmis_objectForKeyNotNull:key];
-        if ([value isKindOfClass:NSDictionary.class]) {
-            [extensions addObject:[[CMISExtensionElement alloc] initNodeWithName:key namespaceUri:nil attributes:nil children:[CMISBrowserUtil convertExtension:value]]];
-        } else if ([value isKindOfClass:NSArray.class]) {
-            [extensions addObjectsFromArray:[CMISBrowserUtil convertExtension: key fromArray:value]];
-        } else {
-            [extensions addObject:[[CMISExtensionElement alloc] initLeafWithName:key namespaceUri:nil attributes:nil value:value]];
-        }
-    }
-    
-    return extensions;
-}
-
-+ (NSArray *)convertExtension:(NSString *)key fromArray:(NSArray *)array
-{
-    if (!array) {
-        return nil;
-    }
-    
-    NSMutableArray *extensions = [[NSMutableArray alloc] init]; // array of CMISExtensionElement's
-    
-    for (id element in array) {
-        if ([element isKindOfClass:NSDictionary.class]) {
-            [extensions addObject:[[CMISExtensionElement alloc] initNodeWithName:key namespaceUri:nil attributes:nil children:[CMISBrowserUtil convertExtension:element]]];
-        } else if ([element isKindOfClass:NSArray.class]) {
-            [extensions addObjectsFromArray:[CMISBrowserUtil convertExtension: key fromArray:element]];
-        } else {
-            [extensions addObject:[[CMISExtensionElement alloc] initLeafWithName:key namespaceUri:nil attributes:nil value:element]];
-        }
-    }
-    
-    return extensions;
 }
 
 // TODO could be moved to category

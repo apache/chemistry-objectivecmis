@@ -713,6 +713,159 @@
     }];
 }
 
+- (void)testMoveDocument
+{
+    [self runTest:^ {
+        
+        [self setupMoveTestFoldersAndDocumentWithCompletionBlock:^(NSString *containerFolderId, CMISFolder *folder1, CMISFolder *folder2, CMISDocument *document) {
+            
+            [document moveFromFolderWithId:folder1.identifier toFolderWithId:folder2.identifier completionBlock:^(CMISObject *object, NSError *error) {
+                XCTAssertNil(error, @"Error while moving document: %@", [error description]);
+                XCTAssertNotNil(object, @"Moved document is nil but should not");
+                
+                [folder2 retrieveChildrenWithCompletionBlock:^(CMISPagedResult *result, NSError *error) {
+                    XCTAssertNil(error, @"Got error while retrieving children: %@", [error description]);
+                    XCTAssertNotNil(result, @"Return result should not be nil");
+                    
+                    NSArray *children = result.resultArray;
+                    XCTAssertNotNil(children, @"children should not be nil");
+                    CMISLogDebug(@"There are %d children", [children count]);
+                    XCTAssertTrue([children count] == 1, @"There should be at least 3 children");
+                    
+                    CMISObject *child = children[0];
+                    XCTAssertTrue([child isKindOfClass:[CMISDocument class]], @"The child of folder2 is not a CMISDocument but should be");
+                    CMISDocument *retrievedDocument = (CMISDocument *)child;
+                    XCTAssertTrue([retrievedDocument.name isEqualToString:document.name], @"Moved document's name is not equal to original");
+                    
+                    [self.session.binding.objectService deleteTree:containerFolderId
+                                                        allVersion:YES
+                                                     unfileObjects:CMISDelete
+                                                 continueOnFailure:YES
+                                                   completionBlock:^(NSArray *failedObjects, NSError *error) {
+                                                       XCTAssertNil(error, @"Error while move test folders and document: %@", [error description]);
+                                                       
+                                                       self.testCompleted = YES;
+                                                   }];
+                }];
+            }];
+        }];
+    }];
+}
+
+- (void)testMoveFolder
+{
+    [self runTest:^ {
+        
+        [self setupMoveTestFoldersAndDocumentWithCompletionBlock:^(NSString *containerFolderId, CMISFolder *folder1, CMISFolder *folder2, CMISDocument *document) {
+            
+            [folder1 moveFromFolderWithId:containerFolderId toFolderWithId:folder2.identifier completionBlock:^(CMISObject *object, NSError *error) {
+                XCTAssertNil(error, @"Error while moving document: %@", [error description]);
+                XCTAssertNotNil(object, @"Moved document is nil but should not");
+                
+                [folder2 retrieveChildrenWithCompletionBlock:^(CMISPagedResult *result, NSError *error) {
+                    XCTAssertNil(error, @"Got error while retrieving children: %@", [error description]);
+                    XCTAssertNotNil(result, @"Return result should not be nil");
+                    
+                    NSArray *children = result.resultArray;
+                    XCTAssertNotNil(children, @"children should not be nil");
+                    CMISLogDebug(@"There are %d children", [children count]);
+                    XCTAssertTrue([children count] == 1, @"There should be at least 3 children");
+                    
+                    CMISObject *child = children[0];
+                    XCTAssertTrue([child isKindOfClass:[CMISFolder class]], @"The child of folder2 is not a CMISFolder but should be");
+                    CMISFolder *retrievedFolder = (CMISFolder *)child;
+                    XCTAssertTrue([retrievedFolder.name isEqualToString:folder1.name], @"Moved folder's name is not equal to original");
+                    
+                    [self.session.binding.objectService deleteTree:containerFolderId
+                                                        allVersion:YES
+                                                     unfileObjects:CMISDelete
+                                                 continueOnFailure:YES
+                                                   completionBlock:^(NSArray *failedObjects, NSError *error) {
+                                                       XCTAssertNil(error, @"Error while move test folders and document: %@", [error description]);
+                                                       
+                                                       self.testCompleted = YES;
+                                                   }];
+                }];
+            }];
+        }];
+    }];
+}
+
+- (void)setupMoveTestFoldersAndDocumentWithCompletionBlock:(void (^)(NSString *containerFolderId, CMISFolder *folder1, CMISFolder *folder2, CMISDocument *document))completionBlock
+{
+    // Setup test folder container
+    NSMutableDictionary *containerFolderProperties = [NSMutableDictionary dictionary];
+    NSString *containerFolderName = [NSString stringWithFormat:@"test-moveObject-%@", [self stringFromCurrentDate]];
+    [containerFolderProperties setObject:containerFolderName forKey:kCMISPropertyName];
+    [containerFolderProperties setObject:kCMISPropertyObjectTypeIdValueFolder forKey:kCMISPropertyObjectTypeId];
+    
+    NSMutableDictionary *propertiesFolder1 = [NSMutableDictionary dictionary];
+    NSString *folder1Name = [NSString stringWithFormat:@"folder1"];
+    [propertiesFolder1 setObject:folder1Name forKey:kCMISPropertyName];
+    [propertiesFolder1 setObject:kCMISPropertyObjectTypeIdValueFolder forKey:kCMISPropertyObjectTypeId];
+    
+    NSMutableDictionary *propertiesFolder2 = [NSMutableDictionary dictionary];
+    NSString *folder2Name = [NSString stringWithFormat:@"folder2"];
+    [propertiesFolder2 setObject:folder2Name forKey:kCMISPropertyName];
+    [propertiesFolder2 setObject:kCMISPropertyObjectTypeIdValueFolder forKey:kCMISPropertyObjectTypeId];
+    
+    // Setup test file
+    // Check if test file exists
+    NSString *filePath = [[NSBundle bundleForClass:[self class]] pathForResource:@"test_file.txt" ofType:nil];
+    XCTAssertTrue([[NSFileManager defaultManager] fileExistsAtPath:filePath],
+                  @"Test file 'test_file.txt' cannot be found as resource for the test");
+    
+    // Upload test file
+    NSString *documentName = [NSString stringWithFormat:@"test_file_%@.txt", [self stringFromCurrentDate]];
+    NSMutableDictionary *documentProperties = [NSMutableDictionary dictionary];
+    [documentProperties setObject:documentName forKey:kCMISPropertyName];
+    [documentProperties setObject:kCMISPropertyObjectTypeIdValueDocument forKey:kCMISPropertyObjectTypeId];
+    
+    // Create container folder
+    [self.rootFolder createFolder:containerFolderProperties completionBlock:^(NSString *containerFolderId, NSError *error) {
+        XCTAssertNil(error, @"Error while creating containerFolder in root folder: %@", [error description]);
+        
+        // Create folder 1
+        [self.session createFolder:propertiesFolder1 inFolder:containerFolderId completionBlock:^(NSString *folder1Id, NSError *error) {
+            XCTAssertNil(error, @"Error while creating folder1 in container folder: %@", [error description]);
+            
+            [self.session retrieveObject:folder1Id completionBlock:^(CMISObject *object, NSError *error) {
+                CMISFolder *folder1 = (CMISFolder *)object;
+                XCTAssertNil(error, @"Error while retrieving newly created folder: %@", [error description]);
+                XCTAssertNotNil(folder1, @"New folder should not be nil");
+                
+                // Create folder 2
+                [self.session createFolder:propertiesFolder2 inFolder:containerFolderId completionBlock:^(NSString *folder2Id, NSError *error) {
+                    XCTAssertNil(error, @"Error while creating folder2 in container folder: %@", [error description]);
+                    
+                    [self.session retrieveObject:folder2Id completionBlock:^(CMISObject *object, NSError *error) {
+                        CMISFolder *folder2 = (CMISFolder *)object;
+                        XCTAssertNil(error, @"Error while retrieving newly created folder: %@", [error description]);
+                        XCTAssertNotNil(folder2, @"New folder should not be nil");
+                        
+                        
+                        [self.session createDocumentFromFilePath:filePath mimeType:@"text/plain"
+                                                      properties:documentProperties
+                                                        inFolder:folder1Id
+                                                 completionBlock:^(NSString *objectId, NSError *error) {
+                                                     XCTAssertNil(error, @"Error while creating document in folder1 folder: %@", [error description]);
+                                                     
+                                                     [self.session retrieveObject:objectId completionBlock:^(CMISObject *object, NSError *error) {
+                                                         CMISDocument *document = (CMISDocument *)object;
+                                                         XCTAssertNil(error, @"Error while retrieving newly created document: %@", [error description]);
+                                                         XCTAssertNotNil(document, @"New document should not be nil");
+                                                         
+                                                         completionBlock(containerFolderId, folder1, folder2, document);
+                                                     }];
+                                                 } progressBlock:nil];
+                    }];
+                }];
+                
+            }];
+        }];
+    }];
+}
+
 - (void)testRetrieveAllVersionsOfDocument
 {
     [self runTest:^ {

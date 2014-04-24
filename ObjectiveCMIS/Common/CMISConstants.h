@@ -19,6 +19,8 @@
 
 #import <Foundation/Foundation.h>
 
+@interface CMISConstants : NSObject
+
 // Properties
 extern NSString * const kCMISPropertyObjectId;
 extern NSString * const kCMISPropertyName;
@@ -42,6 +44,7 @@ extern NSString * const kCMISPropertyBaseTypeId;
 extern NSString * const kCMISPropertyCheckinComment;
 extern NSString * const kCMISPropertySecondaryObjectTypeIds;
 extern NSString * const kCMISPropertyDescription;
+
 // Property values
 extern NSString * const kCMISPropertyObjectTypeIdValueDocument;
 extern NSString * const kCMISPropertyObjectTypeIdValueFolder;
@@ -51,8 +54,44 @@ extern NSString * const kCMISPropertyObjectTypeIdValueItem;
 extern NSString * const kCMISPropertyObjectTypeIdValueSecondary;
 
 // Session cache keys
-
 extern NSString * const kCMISSessionKeyWorkspaces;
+
+// Repository capability keys
+extern NSString * const kCMISRepositoryCapabilityACL;
+extern NSString * const kCMISRepositoryAllVersionsSearchable;
+extern NSString * const kCMISRepositoryCapabilityChanges;
+extern NSString * const kCMISRepositoryCapabilityContentStreamUpdatability;
+extern NSString * const kCMISRepositoryCapabilityJoin;
+extern NSString * const kCMISRepositoryCapabilityQuery;
+extern NSString * const kCMISRepositoryCapabilityRenditions;
+extern NSString * const kCMISRepositoryCapabilityPWCSearchable;
+extern NSString * const kCMISRepositoryCapabilityPWCUpdatable;
+extern NSString * const kCMISRepositoryCapabilityGetDescendants;
+extern NSString * const kCMISRepositoryCapabilityGetFolderTree;
+extern NSString * const kCMISRepositoryCapabilityOrderBy;
+extern NSString * const kCMISRepositoryCapabilityMultifiling;
+extern NSString * const kCMISRepositoryCapabilityUnfiling;
+extern NSString * const kCMISRepositoryCapabilityVersionSpecificFiling;
+extern NSString * const kCMISRepositoryCapabilityPropertyTypes;
+extern NSString * const kCMISRepositoryCapabilityNewTypeSettableAttributes;
+
+// Repository capability new type settable attributes keys
+extern NSString * const kCMISRepositoryCapabilityNewTypeSettableAttributesId;
+extern NSString * const kCMISRepositoryCapabilityNewTypeSettableAttributesLocalName;
+extern NSString * const kCMISRepositoryCapabilityNewTypeSettableAttributesLocalNamespace;
+extern NSString * const kCMISRepositoryCapabilityNewTypeSettableAttributesDisplayName;
+extern NSString * const kCMISRepositoryCapabilityNewTypeSettableAttributesQueryName;
+extern NSString * const kCMISRepositoryCapabilityNewTypeSettableAttributesDescription;
+extern NSString * const kCMISRepositoryCapabilityNewTypeSettableAttributesCreateable;
+extern NSString * const kCMISRepositoryCapabilityNewTypeSettableAttributesFileable;
+extern NSString * const kCMISRepositoryCapabilityNewTypeSettableAttributesQueryable;
+extern NSString * const kCMISRepositoryCapabilityNewTypeSettableAttributesFullTextIndexed;
+extern NSString * const kCMISRepositoryCapabilityNewTypeSettableAttributesIncludedInSuperTypeQuery;
+extern NSString * const kCMISRepositoryCapabilityNewTypeSettableAttributesControllablePolicy;
+extern NSString * const kCMISRepositoryCapabilityNewTypeSettableAttributesControllableAcl;
+
+// Repository capability createable property types key
+extern NSString * const kCMISRepositoryCapabilityCreateablePropertyTypesCanCreate;
 
 // URL parameters
 extern NSString * const kCMISParameterChangeToken;
@@ -76,6 +115,7 @@ extern NSString * const kCMISParameterRelativePathSegment;
 extern NSString * const kCMISParameterMajor;
 extern NSString * const kCMISParameterCheckin;
 extern NSString * const kCMISParameterCheckinComment;
+extern NSString * const kCMISParameterSourceFolderId;
 extern NSString * const kCMISParameterReturnVersion;
 extern NSString * const kCMISParameterTypeId;
 
@@ -90,3 +130,9 @@ extern NSString * const kCMISParameterValueReturnValueLatestMajor;
 extern NSString * const kCMISContentStreamAllowedValueRequired;
 extern NSString * const kCMISContentStreamAllowedValueAllowed;
 extern NSString * const kCMISContentStreamAllowedValueNotAllowed;
+
++ (NSSet *)repositoryCapabilityKeys;
++ (NSSet *)repositoryCapabilityNewTypeSettableAttributesKeys;
++ (NSSet *)repositoryCapabilityCreateablePropertyTypesKeys;
+
+@end

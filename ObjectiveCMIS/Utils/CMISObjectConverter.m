@@ -26,6 +26,7 @@
 #import "CMISSession.h"
 #import "CMISDateUtil.h"
 #import "CMISConstants.h"
+#import "CMISNSDictionary+CMISUtil.h"
 
 @interface CMISObjectConverter ()
 @property (nonatomic, weak) CMISSession *session;
@@ -464,5 +465,78 @@
         completionBlock([[NSArray alloc] init], nil);
     }
 }
+
++ (NSArray *)convertExtensions:(NSDictionary *)source cmisKeys:(NSSet *)cmisKeys
+{
+    if (!source) {
+        return nil;
+    }
+    
+    NSMutableArray *extensions = nil; // array of CMISExtensionElement's
+    
+    for (NSString *key in source.keyEnumerator) {
+        if ([cmisKeys containsObject:key]) {
+            continue;
+        }
+        
+        if (!extensions) {
+            extensions = [[NSMutableArray alloc] init];
+        }
+        
+        id value = [source cmis_objectForKeyNotNull:key];
+        if ([value isKindOfClass:NSDictionary.class]) {
+            [extensions addObject:[[CMISExtensionElement alloc] initNodeWithName:key namespaceUri:nil attributes:nil children:[CMISObjectConverter convertExtension:value]]];
+        } else if ([value isKindOfClass:NSArray.class]) {
+            [extensions addObjectsFromArray:[CMISObjectConverter convertExtension: key fromArray:value]];
+        } else {
+            [extensions addObject:[[CMISExtensionElement alloc] initLeafWithName:key namespaceUri:nil attributes:nil value:value]];
+        }
+    }
+    return extensions;
+}
+
++ (NSArray *)convertExtension:(NSDictionary *)dictionary
+{
+    if (!dictionary) {
+        return nil;
+    }
+    
+    NSMutableArray *extensions = [[NSMutableArray alloc] init]; // array of CMISExtensionElement's
+    
+    for (NSString *key in dictionary.keyEnumerator) {
+        id value = [dictionary cmis_objectForKeyNotNull:key];
+        if ([value isKindOfClass:NSDictionary.class]) {
+            [extensions addObject:[[CMISExtensionElement alloc] initNodeWithName:key namespaceUri:nil attributes:nil children:[CMISObjectConverter convertExtension:value]]];
+        } else if ([value isKindOfClass:NSArray.class]) {
+            [extensions addObjectsFromArray:[CMISObjectConverter convertExtension: key fromArray:value]];
+        } else {
+            [extensions addObject:[[CMISExtensionElement alloc] initLeafWithName:key namespaceUri:nil attributes:nil value:value]];
+        }
+    }
+    
+    return extensions;
+}
+
++ (NSArray *)convertExtension:(NSString *)key fromArray:(NSArray *)array
+{
+    if (!array) {
+        return nil;
+    }
+    
+    NSMutableArray *extensions = [[NSMutableArray alloc] init]; // array of CMISExtensionElement's
+    
+    for (id element in array) {
+        if ([element isKindOfClass:NSDictionary.class]) {
+            [extensions addObject:[[CMISExtensionElement alloc] initNodeWithName:key namespaceUri:nil attributes:nil children:[CMISObjectConverter convertExtension:element]]];
+        } else if ([element isKindOfClass:NSArray.class]) {
+            [extensions addObjectsFromArray:[CMISObjectConverter convertExtension: key fromArray:element]];
+        } else {
+            [extensions addObject:[[CMISExtensionElement alloc] initLeafWithName:key namespaceUri:nil attributes:nil value:element]];
+        }
+    }
+    
+    return extensions;
+}
+
 
 @end

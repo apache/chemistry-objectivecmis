@@ -19,6 +19,12 @@
 
 #import "CMISConstants.h"
 
+static NSSet *_repositoryCapabilityKeys;
+static NSSet *_repositoryCapabilityNewTypeSettableAttributesKeys;
+static NSSet *_repositoryCapabilityCreateablePropertyTypesKeys;
+
+@implementation CMISConstants
+
 // Properties
 
 NSString * const kCMISPropertyObjectId = @"cmis:objectId";
@@ -58,6 +64,43 @@ NSString * const kCMISPropertyObjectTypeIdValueSecondary = @"cmis:secondary";
 
 NSString * const kCMISSessionKeyWorkspaces = @"cmis_session_key_workspaces";
 
+// Repository capability keys
+NSString * const kCMISRepositoryCapabilityACL = @"capabilityACL";
+NSString * const kCMISRepositoryAllVersionsSearchable = @"capabilityAllVersionsSearchable";
+NSString * const kCMISRepositoryCapabilityChanges = @"capabilityChanges";
+NSString * const kCMISRepositoryCapabilityContentStreamUpdatability = @"capabilityContentStreamUpdatability";
+NSString * const kCMISRepositoryCapabilityJoin = @"capabilityJoin";
+NSString * const kCMISRepositoryCapabilityQuery = @"capabilityQuery";
+NSString * const kCMISRepositoryCapabilityRenditions = @"capabilityRenditions";
+NSString * const kCMISRepositoryCapabilityPWCSearchable = @"capabilityPWCSearchable";
+NSString * const kCMISRepositoryCapabilityPWCUpdatable = @"capabilityPWCUpdatable";
+NSString * const kCMISRepositoryCapabilityGetDescendants = @"capabilityGetDescendants";
+NSString * const kCMISRepositoryCapabilityGetFolderTree = @"capabilityGetFolderTree";
+NSString * const kCMISRepositoryCapabilityOrderBy = @"capabilityOrderBy";
+NSString * const kCMISRepositoryCapabilityMultifiling = @"capabilityMultifiling";
+NSString * const kCMISRepositoryCapabilityUnfiling = @"capabilityUnfiling";
+NSString * const kCMISRepositoryCapabilityVersionSpecificFiling = @"capabilityVersionSpecificFiling";
+NSString * const kCMISRepositoryCapabilityPropertyTypes = @"capabilityCreatablePropertyTypes";
+NSString * const kCMISRepositoryCapabilityNewTypeSettableAttributes = @"capabilityNewTypeSettableAttributes";
+
+// Repository capability new type settable attributes keys
+NSString * const kCMISRepositoryCapabilityNewTypeSettableAttributesId = @"id";
+NSString * const kCMISRepositoryCapabilityNewTypeSettableAttributesLocalName = @"localName";
+NSString * const kCMISRepositoryCapabilityNewTypeSettableAttributesLocalNamespace = @"localNamespace";
+NSString * const kCMISRepositoryCapabilityNewTypeSettableAttributesDisplayName = @"displayName";
+NSString * const kCMISRepositoryCapabilityNewTypeSettableAttributesQueryName = @"queryName";
+NSString * const kCMISRepositoryCapabilityNewTypeSettableAttributesDescription = @"description";
+NSString * const kCMISRepositoryCapabilityNewTypeSettableAttributesCreateable = @"creatable";
+NSString * const kCMISRepositoryCapabilityNewTypeSettableAttributesFileable = @"fileable";
+NSString * const kCMISRepositoryCapabilityNewTypeSettableAttributesQueryable = @"queryable";
+NSString * const kCMISRepositoryCapabilityNewTypeSettableAttributesFullTextIndexed = @"fulltextIndexed";
+NSString * const kCMISRepositoryCapabilityNewTypeSettableAttributesIncludedInSuperTypeQuery = @"includedInSupertypeQuery";
+NSString * const kCMISRepositoryCapabilityNewTypeSettableAttributesControllablePolicy = @"controllablePolicy";
+NSString * const kCMISRepositoryCapabilityNewTypeSettableAttributesControllableAcl = @"controllableACL";
+
+// Repository capability createable property types key
+NSString * const kCMISRepositoryCapabilityCreateablePropertyTypesCanCreate = @"canCreate";
+
 // Parameters
 NSString * const kCMISParameterChangeToken = @"changeToken";
 NSString * const kCMISParameterOverwriteFlag = @"overwriteFlag";
@@ -80,6 +123,7 @@ NSString * const kCMISParameterRelativePathSegment = @"includeRelativePathSegmen
 NSString * const kCMISParameterMajor = @"major";
 NSString * const kCMISParameterCheckin = @"checkin";
 NSString * const kCMISParameterCheckinComment = @"checkinComment";
+NSString * const kCMISParameterSourceFolderId = @"sourceFolderId";
 NSString * const kCMISParameterReturnVersion = @"returnVersion";
 NSString * const kCMISParameterTypeId = @"typeId";
 
@@ -94,3 +138,63 @@ NSString * const kCMISParameterValueReturnValueLatestMajor = @"latestmajor";
 NSString * const kCMISContentStreamAllowedValueRequired = @"required";
 NSString * const kCMISContentStreamAllowedValueAllowed = @"allowed";
 NSString * const kCMISContentStreamAllowedValueNotAllowed = @"notallowed";
+
++ (NSSet *)repositoryCapabilityKeys
+{
+    if(!_repositoryCapabilityKeys) {
+        _repositoryCapabilityKeys = [NSSet setWithObjects:
+                                     kCMISRepositoryCapabilityContentStreamUpdatability,
+                                     kCMISRepositoryCapabilityChanges,
+                                     kCMISRepositoryCapabilityRenditions,
+                                     kCMISRepositoryCapabilityGetDescendants,
+                                     kCMISRepositoryCapabilityGetFolderTree,
+                                     kCMISRepositoryCapabilityMultifiling,
+                                     kCMISRepositoryCapabilityUnfiling,
+                                     kCMISRepositoryCapabilityVersionSpecificFiling,
+                                     kCMISRepositoryCapabilityPWCSearchable,
+                                     kCMISRepositoryCapabilityPWCUpdatable,
+                                     kCMISRepositoryAllVersionsSearchable,
+                                     kCMISRepositoryCapabilityOrderBy,
+                                     kCMISRepositoryCapabilityQuery,
+                                     kCMISRepositoryCapabilityJoin,
+                                     kCMISRepositoryCapabilityACL,
+                                     kCMISRepositoryCapabilityPropertyTypes,
+                                     kCMISRepositoryCapabilityNewTypeSettableAttributes,
+                                     nil];
+    }
+    return _repositoryCapabilityKeys;
+}
+
++ (NSSet *)repositoryCapabilityNewTypeSettableAttributesKeys
+{
+    if(!_repositoryCapabilityNewTypeSettableAttributesKeys) {
+        _repositoryCapabilityNewTypeSettableAttributesKeys = [NSSet setWithObjects:
+                                                              kCMISRepositoryCapabilityNewTypeSettableAttributesId,
+                                                              kCMISRepositoryCapabilityNewTypeSettableAttributesLocalName,
+                                                              kCMISRepositoryCapabilityNewTypeSettableAttributesLocalNamespace,
+                                                              kCMISRepositoryCapabilityNewTypeSettableAttributesDisplayName,
+                                                              kCMISRepositoryCapabilityNewTypeSettableAttributesQueryName,
+                                                              kCMISRepositoryCapabilityNewTypeSettableAttributesDescription,
+                                                              kCMISRepositoryCapabilityNewTypeSettableAttributesCreateable,
+                                                              kCMISRepositoryCapabilityNewTypeSettableAttributesFileable,
+                                                              kCMISRepositoryCapabilityNewTypeSettableAttributesQueryable,
+                                                              kCMISRepositoryCapabilityNewTypeSettableAttributesFullTextIndexed,
+                                                              kCMISRepositoryCapabilityNewTypeSettableAttributesIncludedInSuperTypeQuery,
+                                                              kCMISRepositoryCapabilityNewTypeSettableAttributesControllablePolicy,
+                                                              kCMISRepositoryCapabilityNewTypeSettableAttributesControllableAcl,
+                                                              nil];
+    }
+    return _repositoryCapabilityNewTypeSettableAttributesKeys;
+}
+
++ (NSSet *)repositoryCapabilityCreateablePropertyTypesKeys
+{
+    if(!_repositoryCapabilityCreateablePropertyTypesKeys) {
+        _repositoryCapabilityCreateablePropertyTypesKeys = [NSSet setWithObjects:
+                                                              kCMISRepositoryCapabilityCreateablePropertyTypesCanCreate,
+                                                              nil];
+    }
+    return _repositoryCapabilityCreateablePropertyTypesKeys;
+}
+
+@end

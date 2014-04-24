@@ -524,6 +524,63 @@
     return request;
 }
 
+- (CMISRequest*)moveObject:(NSString *)objectId
+                fromFolder:(NSString *)sourceFolderId
+                  toFolder:(NSString *)targetFolderId
+           completionBlock:(void (^)(CMISObjectData *objectData, NSError *error))completionBlock
+{
+    // Validate params
+    if (!objectId) {
+        CMISLogError(@"Must provide an object id when moving it");
+        completionBlock(nil, [CMISErrors createCMISErrorWithCode:kCMISErrorCodeObjectNotFound detailedDescription:nil]);
+        return nil;
+    }
+    
+    if (!sourceFolderId) {
+        CMISLogError(@"Must provide a source folder id when moving an object");
+        completionBlock(nil, [CMISErrors createCMISErrorWithCode:kCMISErrorCodeObjectNotFound detailedDescription:nil]);
+        return nil;
+    }
+    
+    if (!targetFolderId) {
+        CMISLogError(@"Must provide a target folder id when moving an object");
+        completionBlock(nil, [CMISErrors createCMISErrorWithCode:kCMISErrorCodeObjectNotFound detailedDescription:nil]);
+        return nil;
+    }
+    
+    // Build property for objectId
+    CMISPropertyData *objectIdPropertyData = [CMISPropertyData createPropertyForId:kCMISPropertyObjectId idValue:objectId];
+    CMISProperties *properties = [[CMISProperties alloc] init];
+    [properties addProperty:objectIdPropertyData];
+    
+    
+    CMISRequest *request = [[CMISRequest alloc] init];
+    // Get Down link
+    [self loadLinkForObjectId:targetFolderId
+                     relation:kCMISLinkRelationDown
+                         type:kCMISMediaTypeChildren
+                  cmisRequest:request
+              completionBlock:^(NSString *downLink, NSError *error) {
+                  if (error) {
+                      CMISLogError(@"Could not retrieve down link: %@", error.description);
+                      if (completionBlock) {
+                          completionBlock(nil, [CMISErrors cmisError:error cmisErrorCode:kCMISErrorCodeObjectNotFound]);
+                      }
+                  } else {
+                      
+                      downLink = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterSourceFolderId value:sourceFolderId urlString:downLink];
+                      
+                      [self sendAtomEntryXmlToLink:downLink
+                                 httpRequestMethod:HTTP_POST
+                                        properties:properties
+                                       cmisRequest:request
+                                   completionBlock:completionBlock];
+                  }
+              }];
+    return request;
+}
+
+
 - (CMISRequest*)deleteTree:(NSString *)folderObjectId
                 allVersion:(BOOL)allVersions
              unfileObjects:(CMISUnfileObject)unfileObjects

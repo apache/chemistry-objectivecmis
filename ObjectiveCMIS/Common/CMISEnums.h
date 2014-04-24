@@ -148,6 +148,64 @@ typedef NS_ENUM(NSInteger, CMISContentStreamAllowedType)
     CMISContentStreamUnknown
 };
 
+// Repository Capability ACL
+typedef NS_ENUM(NSInteger, CMISCapabilityAcl)
+{
+    CMISCapabilityAclNone,
+    CMISCapabilityAclDiscover,
+    CMISCapabilityAclManage
+};
+
+// Repository Capability Changes
+typedef NS_ENUM(NSInteger, CMISCapabilityChanges)
+{
+    CMISCapabilityChangesNone,
+    CMISCapabilityChangesObjectIdsOnly,
+    CMISCapabilityChangesProperties,
+    CMISCapabilityChangesAll
+};
+
+// Repository Capability Content Stream Updates
+typedef NS_ENUM(NSInteger, CMISCapabilityContentStreamUpdates)
+{
+    CMISCapabilityContentStreamUpdatesNone,
+    CMISCapabilityContentStreamUpdatesPwcOnly,
+    CMISCapabilityContentStreamUpdatesAnytime
+};
+
+// Repository Capability Join
+typedef NS_ENUM(NSInteger, CMISCapabilityJoin)
+{
+    CMISCapabilityJoinNone,
+    CMISCapabilityJoinInnerOnly,
+    CMISCapabilityJoinInnerAndOuter
+};
+
+// Repository Capability Query
+typedef NS_ENUM(NSInteger, CMISCapabilityQuery)
+{
+    CMISCapabilityQueryNone,
+    CMISCapabilityQueryMetaDataOnly,
+    CMISCapabilityQueryFullTextOnly,
+    CMISCapabilityQueryBothSeparate,
+    CMISCapabilityQueryBothCombined
+};
+
+// Repository Capability Renditions
+typedef NS_ENUM(NSInteger, CMISCapabilityRenditions)
+{
+    CMISCapabilityRenditionsNone,
+    CMISCapabilityRenditionsRead
+};
+
+// Repository Capability Order By
+typedef NS_ENUM(NSInteger, CMISCapabilityOrderBy)
+{
+    CMISCapabilityOrderByNone,
+    CMISCapabilityOrderByCommon,
+    CMISCapabilityOrderByCustom
+};
+
 // ReturnVersion
 typedef NS_ENUM(NSInteger, CMISReturnVersion)
 {

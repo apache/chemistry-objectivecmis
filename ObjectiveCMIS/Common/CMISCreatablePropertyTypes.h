@@ -17,22 +17,25 @@
  under the License.
  */
 
-#import "CMISBrowserDiscoveryService.h"
-#import "CMISErrors.h"
+#import "CMISExtensionData.h"
 
-@implementation CMISBrowserDiscoveryService
+/**
+ * Holds the set of property data types for type creation and update.
+ *
+ * @cmis 1.1
+ */
+@interface CMISCreatablePropertyTypes : CMISExtensionData
 
-- (CMISRequest*)query:(NSString *)statement searchAllVersions:(BOOL)searchAllVersions
-        relationships:(CMISIncludeRelationship)relationships
-      renditionFilter:(NSString *)renditionFilter
-includeAllowableActions:(BOOL)includeAllowableActions
-             maxItems:(NSNumber *)maxItems
-            skipCount:(NSNumber *)skipCount
-      completionBlock:(void (^)(CMISObjectList *objectList, NSError *error))completionBlock
-{
-    NSString * message = [NSString stringWithFormat:@"%s is not implemented yet", __PRETTY_FUNCTION__];
-    NSException *exception = [NSException exceptionWithName:NSInvalidArgumentException reason:message userInfo:nil];
-    @throw exception;
-}
+/**
+ * Returns the set of property data types that can used to create or update
+ * a type definition.
+ *
+ * @return the available set of property data types.
+ *
+ * @cmis 1.1
+ */
+@property(nonatomic, strong) NSSet *canCreate;
+
+- (void)setCreateablePropertyTypeFromDictionary:(NSDictionary *)dictionary;
 
 @end
