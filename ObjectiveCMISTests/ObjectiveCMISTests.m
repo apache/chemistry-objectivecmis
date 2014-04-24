@@ -392,7 +392,11 @@
                     }
                 }
                 
-                XCTAssertNotNil(randomDoc, @"Can only continue test if test folder contains at least one document");
+                if(!randomDoc) { // stopping test here or else it would run until the test timeout is reached
+                    XCTAssertNotNil(randomDoc, @"Can only continue test if test folder contains at least one document");
+                    self.testCompleted = YES;
+                    return;
+                }
                 CMISLogDebug(@"Fetching content stream for document %@", randomDoc.name);
                 
                 // Writing content of CMIS document to local file

@@ -26,8 +26,6 @@
 @property (nonatomic, strong) NSString *name;
 @property (nonatomic, strong) NSString *desc;
 @property (nonatomic, strong) NSString *rootFolderId;
-@property (nonatomic, strong) NSString *rootFolderUrl;
-@property (nonatomic, strong) NSString *repositoryUrl;
 
 @property (nonatomic, strong) NSString *cmisVersionSupported;
 @property (nonatomic, strong) NSString *productName;

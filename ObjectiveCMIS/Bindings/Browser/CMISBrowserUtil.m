@@ -56,8 +56,8 @@
             repoInfo.productName = [repo cmis_objectForKeyNotNull:kCMISBrowserJSONProductName];
             repoInfo.productVersion = [repo cmis_objectForKeyNotNull:kCMISBrowserJSONProductVersion];
             repoInfo.rootFolderId = [repo cmis_objectForKeyNotNull:kCMISBrowserJSONRootFolderId];
-            repoInfo.repositoryUrl = [repo cmis_objectForKeyNotNull:kCMISBrowserJSONRepositoryUrl];
-            repoInfo.rootFolderUrl = [repo cmis_objectForKeyNotNull:kCMISBrowserJSONRootFolderUrl];
+            NSString *repositoryUrl = [repo cmis_objectForKeyNotNull:kCMISBrowserJSONRepositoryUrl];
+            NSString *rootFolderUrl = [repo cmis_objectForKeyNotNull:kCMISBrowserJSONRootFolderUrl];
             
             repoInfo.repositoryCapabilities = [repo cmis_objectForKeyNotNull:kCMISBrowserJSONCapabilities]; //TODO should be own type instead of dictionary
             //TOOD aclCapabilities
@@ -77,8 +77,8 @@
             
             // store the repo and root folder URLs in the session (when the repoId matches)
             if ([repoInfo.identifier isEqualToString:bindingSession.repositoryId]) {
-                [bindingSession setObject:repoInfo.rootFolderUrl forKey:kCMISBrowserBindingSessionKeyRootFolderUrl];
-                [bindingSession setObject:repoInfo.repositoryUrl forKey:kCMISBrowserBindingSessionKeyRepositoryUrl];
+                [bindingSession setObject:rootFolderUrl forKey:kCMISBrowserBindingSessionKeyRootFolderUrl];
+                [bindingSession setObject:repositoryUrl forKey:kCMISBrowserBindingSessionKeyRepositoryUrl];
             }
             
             [repositories setObject:repoInfo forKey:repoInfo.identifier];
@@ -174,6 +174,9 @@
         
         // handle extensions
         typeDef.extensions = [CMISBrowserUtil convertExtensions:jsonDictionary cmisKeys:[CMISBrowserConstants typeKeys]];
+    } else {
+        if (outError != NULL) *outError = [CMISErrors cmisError:serialisationError cmisErrorCode:kCMISErrorCodeRuntime];
+        return nil;
     }
     
     return typeDef;
@@ -322,22 +325,30 @@
         completionBlock(nil, [CMISErrors createCMISErrorWithCode:kCMISErrorCodeInvalidArgument detailedDescription:[NSString stringWithFormat:@"expected a dictionary but was %@", objectDictionary.class]]);
     }
     [CMISBrowserUtil convertObject:objectDictionary typeCache:typeCache completionBlock:^(CMISObjectData *objectData, NSError *error) {
-        if (position == 0) {
-            [convertedObjects addObject:objectData];
-            completionBlock(convertedObjects, error);
+        if (error){
+            completionBlock(nil, error);
         } else {
-            // TODO check if there is a better way on how to avoid a large call stack
-            // We need to do this workaround or else we would end up with a very large call stack
-            [CMISBrowserUtil performBlock:^{
-                [self convertObjects:objectsArray
-                            position:(position -1)
-                    convertedObjects:convertedObjects
-                           typeCache:typeCache
-                     completionBlock:^(NSArray *objects, NSError *error) {
-                         [convertedObjects addObject:objectData];
-                         completionBlock(objects, error);
-                     }];
-            }];
+            if (position == 0) {
+                [convertedObjects addObject:objectData];
+                completionBlock(convertedObjects, nil);
+            } else {
+                // TODO check if there is a better way on how to avoid a large call stack
+                // We need to do this workaround or else we would end up with a very large call stack
+                [CMISBrowserUtil performBlock:^{
+                    [self convertObjects:objectsArray
+                                position:(position -1)
+                        convertedObjects:convertedObjects
+                               typeCache:typeCache
+                         completionBlock:^(NSArray *objects, NSError *error) {
+                             if (error){
+                                 completionBlock(nil, error);
+                             } else {
+                                 [convertedObjects addObject:objectData];
+                                 completionBlock(objects, nil);
+                             }
+                         }];
+                }];
+            }
         }
     }];
 
@@ -370,11 +381,15 @@
         void (^continueConvertSuccinctPropertiesSecondaryObjectTypeDefinitions)(NSArray*) = ^(NSArray *secTypeDefs) {
             
             [self convertProperties:propertiesJson typeCache:typeCache typeDefinition:typeDef secondaryTypeDefinitions:secTypeDefs completionBlock:^(CMISProperties *properties, NSError *error){
-                if (extJson){
-                    properties.extensions = [CMISBrowserUtil convertExtensions:extJson cmisKeys:[NSSet set]];
+                if(error){
+                    completionBlock(nil, error);
+                } else {
+                    if (extJson){
+                        properties.extensions = [CMISBrowserUtil convertExtensions:extJson cmisKeys:[NSSet set]];
+                    }
+                    
+                    completionBlock(properties, nil);
                 }
-                
-                completionBlock(properties, nil);
             }];
         };
         
@@ -382,7 +397,11 @@
         NSArray *secTypeIds = [propertiesJson cmis_objectForKeyNotNull:kCMISPropertySecondaryObjectTypeIds];
         if (secTypeIds != nil && secTypeIds.count > 0) {
             [CMISBrowserUtil retrieveTypeDefinitions:secTypeIds typeCache:typeCache completionBlock:^(NSArray *typeDefinitions, NSError *error) {
-                continueConvertSuccinctPropertiesSecondaryObjectTypeDefinitions(typeDefinitions);
+                if(error){
+                    completionBlock(nil, error);
+                } else {
+                    continueConvertSuccinctPropertiesSecondaryObjectTypeDefinitions(typeDefinitions);
+                }
             }];
         } else {
             continueConvertSuccinctPropertiesSecondaryObjectTypeDefinitions(nil);
@@ -393,7 +412,11 @@
     CMISTypeDefinition *typeDef = nil;
     if ([[propertiesJson cmis_objectForKeyNotNull:kCMISPropertyObjectTypeId] isKindOfClass:NSString.class]){
         [typeCache typeDefinition:[propertiesJson cmis_objectForKeyNotNull:kCMISPropertyObjectTypeId] completionBlock:^(CMISTypeDefinition *typeDef, NSError *error){
-            continueConvertSuccinctPropertiesAndGetSecondaryObjectTypeDefinitions(typeDef);
+            if(error){
+                completionBlock(nil, error);
+            } else {
+                continueConvertSuccinctPropertiesAndGetSecondaryObjectTypeDefinitions(typeDef);
+            }
         }];
     } else {
         continueConvertSuccinctPropertiesAndGetSecondaryObjectTypeDefinitions(typeDef);
@@ -482,8 +505,12 @@
         
         if (!propDef) { //try to find property definition on folder
             [typeCache typeDefinition:kCMISPropertyObjectTypeIdValueFolder completionBlock:^(CMISTypeDefinition *typeDefinition, NSError *error) {
-                CMISPropertyDefinition *propertyDefinition = typeDefinition.propertyDefinitions[propName];
-                continueConvertSuccinctPropertiesTypeDefinitionFolder(propertyDefinition);
+                if (error){
+                    completionBlock(nil, error);
+                } else {
+                    CMISPropertyDefinition *propertyDefinition = typeDefinition.propertyDefinitions[propName];
+                    continueConvertSuccinctPropertiesTypeDefinitionFolder(propertyDefinition);
+                }
             }];
         } else {
             continueConvertSuccinctPropertiesTypeDefinitionFolder(propDef);
@@ -493,8 +520,12 @@
     
     if (!propDef) { //try to find property definition on document
         [typeCache typeDefinition:kCMISPropertyObjectTypeIdValueDocument completionBlock:^(CMISTypeDefinition *typeDefinition, NSError *error) {
-            CMISPropertyDefinition *propertyDefinition = typeDefinition.propertyDefinitions[propName];
-            continueConvertSuccinctPropertiesTypeDefinitionDocument(propertyDefinition);
+            if (error){
+                completionBlock(nil, error);
+            } else {
+                CMISPropertyDefinition *propertyDefinition = typeDefinition.propertyDefinitions[propName];
+                continueConvertSuccinctPropertiesTypeDefinitionDocument(propertyDefinition);
+            }
         }];
     } else {
         continueConvertSuccinctPropertiesTypeDefinitionDocument(propDef);
@@ -525,27 +556,33 @@
            typeDefinition:typeDef
  secondaryTypeDefinitions:secTypeDefs
           completionBlock:^(CMISPropertyData *propertyData, NSError *error) {
-              
-              if (position == 0) {
-                  [properties addProperty:propertyData];
-                  completionBlock(properties, error);
+              if (error){
+                  completionBlock(nil, error);
               } else {
-                  // TODO check if there is a better way on how to avoid a large call stack
-                  // We need to do this workaround or else we would end up with a very large call stack
-                  [CMISBrowserUtil performBlock:^{
-                      [self convertProperties:propNames
-                                     position:(position -1)
-                                   properties:properties
-                               propertiesJson:propertiesJson
-                                    typeCache:typeCache
-                               typeDefinition:typeDef
-                     secondaryTypeDefinitions:secTypeDefs
-                              completionBlock:^(CMISProperties *properties, NSError *error) {
-                                  [properties addProperty:propertyData];
-                                  completionBlock(properties, error);
-                                  
-                              }];
-                  }];
+                  if (position == 0) {
+                      [properties addProperty:propertyData];
+                      completionBlock(properties, nil);
+                  } else {
+                      // TODO check if there is a better way on how to avoid a large call stack
+                      // We need to do this workaround or else we would end up with a very large call stack
+                      [CMISBrowserUtil performBlock:^{
+                          [self convertProperties:propNames
+                                         position:(position -1)
+                                       properties:properties
+                                   propertiesJson:propertiesJson
+                                        typeCache:typeCache
+                                   typeDefinition:typeDef
+                         secondaryTypeDefinitions:secTypeDefs
+                                  completionBlock:^(CMISProperties *properties, NSError *error) {
+                                      if (error){
+                                          completionBlock(nil, error);
+                                      } else {
+                                          [properties addProperty:propertyData];
+                                          completionBlock(properties, nil);
+                                      }
+                                  }];
+                      }];
+                  }
               }
           }];
 }
@@ -585,8 +622,12 @@
                                      completionBlock(typeDefinitions, error);
                                  } else {
                                      [self retrieveTypeDefinitions:objectTypeIds position:(position - 1) typeCache:typeCache completionBlock:^(NSMutableArray *typeDefinitions, NSError *error) {
-                                         [typeDefinitions addObject:typeDefinition];
-                                         completionBlock(typeDefinitions, error);
+                                         if(error) {
+                                             completionBlock(nil, error);
+                                         } else {
+                                             [typeDefinitions addObject:typeDefinition];
+                                             completionBlock(typeDefinitions, nil);
+                                         }
                                      }];
                                  }
                              }

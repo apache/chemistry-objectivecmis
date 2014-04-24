@@ -69,18 +69,15 @@
                                            session:self.bindingSession
                                        cmisRequest:cmisRequest
                                    completionBlock:^(CMISHttpResponse *httpResponse, NSError *error) {
-                                       if (httpResponse) {
-                                           NSData *data = httpResponse.data;
-                                           if (data) {
-                                               NSError *parsingError = nil;
-                                               self.repositories = [CMISBrowserUtil repositoryInfoDictionaryFromJSONData:data
-                                                                                                          bindingSession:self.bindingSession
-                                                                                                                   error:&parsingError];
-                                               if (parsingError) {
-                                                   completionBlock(parsingError);
-                                               } else {
-                                                   completionBlock(nil);
-                                               }
+                                       if (httpResponse.statusCode == 200 && httpResponse.data) {
+                                           NSError *parsingError = nil;
+                                           self.repositories = [CMISBrowserUtil repositoryInfoDictionaryFromJSONData:httpResponse.data
+                                                                                                      bindingSession:self.bindingSession
+                                                                                                               error:&parsingError];
+                                           if (parsingError) {
+                                               completionBlock(parsingError);
+                                           } else {
+                                               completionBlock(nil);
                                            }
                                        } else {
                                            completionBlock(error);
