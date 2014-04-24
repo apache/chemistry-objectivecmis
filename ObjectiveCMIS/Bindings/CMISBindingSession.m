@@ -30,6 +30,7 @@ NSString * const kCMISBindingSessionKeyTypeByIdUriBuilder = @"cmis_session_key_t
 @property (nonatomic, strong, readwrite) NSString *repositoryId;
 @property (nonatomic, strong, readwrite) id<CMISAuthenticationProvider> authenticationProvider;
 @property (nonatomic, strong, readwrite) id<CMISNetworkProvider> networkProvider;
+@property (nonatomic, strong, readwrite) CMISTypeDefinitionCache *typeDefinitionCache;
 @property (nonatomic, strong, readwrite) NSMutableDictionary *sessionData;
 @end
 
@@ -58,6 +59,13 @@ NSString * const kCMISBindingSessionKeyTypeByIdUriBuilder = @"cmis_session_key_t
         // store all other data in the dictionary
         for (id key in sessionParameters.allKeys) {
             [self.sessionData setObject:[sessionParameters objectForKey:key] forKey:key];
+        }
+        
+        //set type definition cache after other data stored in the dictionary as the cache size is retrieved from the sessionData in the init method of the CMISTypeDefinitionCache
+        if(sessionParameters.typeDefinitionCache == nil) {
+            self.typeDefinitionCache = [[CMISTypeDefinitionCache alloc] initWithBindingSession:self];
+        } else {
+            self.typeDefinitionCache = sessionParameters.typeDefinitionCache;
         }
     }
     

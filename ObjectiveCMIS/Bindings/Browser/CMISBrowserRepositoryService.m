@@ -29,6 +29,7 @@
 #import "CMISConstants.h"
 #import "CMISBrowserConstants.h"
 #import "CMISURLUtil.h"
+#import "CMISBrowserBaseService+Protected.h"
 
 @interface CMISBrowserRepositoryService ()
 @property (nonatomic, strong) NSDictionary *repositories;
@@ -92,33 +93,32 @@
 - (CMISRequest*)retrieveTypeDefinition:(NSString *)typeId
                        completionBlock:(void (^)(CMISTypeDefinition *typeDefinition, NSError *error))completionBlock
 {
-    NSString *repoUrl = [self getRepositoryUrlWithSelector:kCMISBrowserJSONSelectorTypeDefinition];
-    repoUrl = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterTypeId value:typeId urlString:repoUrl];
+    NSString *repositoryId = self.bindingSession.repositoryId;
     
-    CMISRequest *cmisRequest = [[CMISRequest alloc] init];
+    // Check the cache first
+    CMISTypeDefinitionCache *typeDefinitionCache = self.bindingSession.typeDefinitionCache;
     
-    [self.bindingSession.networkProvider invokeGET:[NSURL URLWithString:repoUrl]
-                                           session:self.bindingSession
-                                       cmisRequest:cmisRequest
-                                   completionBlock:^(CMISHttpResponse *httpResponse, NSError *error) {
-                                       if (httpResponse) {
-                                           NSData *data = httpResponse.data;
-                                           if (data) {
-                                               NSError *parsingError = nil;
-                                               CMISTypeDefinition *typeDef = [CMISBrowserUtil typeDefinitionFromJSONData:data error:&parsingError];
-                                               if (parsingError) {
-                                                   completionBlock(nil, parsingError);
-                                               }
-                                               else {
-                                                   completionBlock(typeDef, nil);
-                                               }
-                                           }
-                                       } else {
-                                           completionBlock(nil, error);
-                                       }
-                                   }];
-    
-    return cmisRequest;
+    CMISTypeDefinition *typeDefinition = [typeDefinitionCache typeDefinitionForTypeId:typeId repositoryId:repositoryId];
+    if(typeDefinition){
+        completionBlock(typeDefinition, nil);
+        
+        return nil; //TODO is it correct to return nil here?
+    } else {
+        CMISRequest *cmisRequest = [[CMISRequest alloc] init];
+        
+        [self retrieveTypeDefinitionInternal:typeId cmisRequest:cmisRequest completionBlock:^(CMISTypeDefinition *typeDefinition, NSError *error) {
+            if (error){
+                completionBlock(nil, error);
+            } else {
+                // Put it into the cache
+                [typeDefinitionCache addTypeDefinition:typeDefinition repositoryId:repositoryId];
+                
+                completionBlock(typeDefinition, nil);
+            }
+        }];
+        
+        return cmisRequest;
+    }
 }
 
 @end

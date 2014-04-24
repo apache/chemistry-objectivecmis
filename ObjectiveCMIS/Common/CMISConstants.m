@@ -80,8 +80,6 @@ NSString * const kCMISParameterRelativePathSegment = @"includeRelativePathSegmen
 NSString * const kCMISParameterMajor = @"major";
 NSString * const kCMISParameterCheckin = @"checkin";
 NSString * const kCMISParameterCheckinComment = @"checkinComment";
-NSString * const kCMISParameterSelector = @"cmisselector";
-NSString * const kCMISParameterSuccinct = @"succinct";
 NSString * const kCMISParameterReturnVersion = @"returnVersion";
 NSString * const kCMISParameterTypeId = @"typeId";
 

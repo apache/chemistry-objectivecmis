@@ -154,6 +154,10 @@ NSString * const kCMISBrowserJSONRenditionHeight = @"height";
 NSString * const kCMISBrowserJSONRenditionWidth = @"width";
 NSString * const kCMISBrowserJSONRenditionDocumentId = @"renditionDocumentId";
 
+// JSON specific parameters
+NSString * const kCMISBrowserJSONParameterSelector = @"cmisselector";
+NSString * const kCMISBrowserJSONParameterSuccinct = @"succinct";
+
 +(NSSet *)objectKeys
 {
     if(!_objectKeys) {

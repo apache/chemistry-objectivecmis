@@ -45,7 +45,7 @@
     objectUrl = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterIncludePolicyIds boolValue:includePolicyIds urlString:objectUrl];
     objectUrl = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterIncludeAcl boolValue:includeACL urlString:objectUrl];
     objectUrl = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterReturnVersion value:[CMISEnums stringForReturnVersion:major] urlString:objectUrl];
-    objectUrl = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterSuccinct value:kCMISParameterValueTrue urlString:objectUrl];
+    objectUrl = [CMISURLUtil urlStringByAppendingParameter:kCMISBrowserJSONParameterSuccinct value:kCMISParameterValueTrue urlString:objectUrl];
     
     CMISRequest *cmisRequest = [[CMISRequest alloc] init];
     
@@ -54,14 +54,16 @@
                                        cmisRequest:cmisRequest
                                    completionBlock:^(CMISHttpResponse *httpResponse, NSError *error) {
                                        if (httpResponse.statusCode == 200 && httpResponse.data) {
+                                           CMISTypeCache *typeCache = [[CMISTypeCache alloc] initWithRepositoryId:self.bindingSession.repositoryId bindingService:self];
                                            NSError *parsingError = nil;
-                                           CMISObjectData *objectData = [CMISBrowserUtil objectDataFromJSONData:httpResponse.data error:&parsingError];
-                                           if (parsingError)
-                                           {
-                                               completionBlock(nil, parsingError);
-                                           } else {
-                                               completionBlock(objectData, nil);
-                                           }
+                                           [CMISBrowserUtil objectDataFromJSONData:httpResponse.data typeCache:typeCache completionBlock:^(CMISObjectData *objectData, NSError *error) {
+                                               if (error) {
+                                                   completionBlock(nil, parsingError);
+                                               } else {
+                                                   completionBlock(objectData, nil);
+                                               }
+                                           }];
+                                          
                                        } else {
                                            completionBlock(nil, error);
                                        }
@@ -78,7 +80,7 @@
     NSString *objectUrl = [self getObjectUrlObjectId:objectId selector:kCMISBrowserJSONSelectorVersions];
     objectUrl = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterFilter value:filter urlString:objectUrl];
     objectUrl = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterIncludeAllowableActions value:(includeAllowableActions ? @"true" : @"false") urlString:objectUrl];
-    objectUrl = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterSuccinct value:@"true" urlString:objectUrl];
+    objectUrl = [CMISURLUtil urlStringByAppendingParameter:kCMISBrowserJSONParameterSuccinct value:@"true" urlString:objectUrl];
     
     CMISRequest *cmisRequest = [[CMISRequest alloc] init];
     
@@ -87,14 +89,14 @@
                                        cmisRequest:cmisRequest
                                    completionBlock:^(CMISHttpResponse *httpResponse, NSError *error) {
                                        if (httpResponse.statusCode == 200 && httpResponse.data) {
-                                           NSError *parsingError = nil;
-                                           CMISObjectList *objectList = [CMISBrowserUtil objectListFromJSONData:httpResponse.data error:&parsingError];
-                                           if (!objectList.objects)
-                                           {
-                                               completionBlock(nil, parsingError);
-                                           } else {
-                                               completionBlock(objectList.objects, nil);
-                                           }
+                                           CMISTypeCache *typeCache = [[CMISTypeCache alloc] initWithRepositoryId:self.bindingSession.repositoryId bindingService:self];
+                                           [CMISBrowserUtil objectListFromJSONData:httpResponse.data typeCache:typeCache completionBlock:^(CMISObjectList *objectList, NSError *error) {
+                                               if (error) {
+                                                   completionBlock(nil, error);
+                                               } else {
+                                                   completionBlock(objectList.objects, nil);
+                                               }
+                                           }];
                                        } else {
                                            completionBlock(nil, error);
                                        }

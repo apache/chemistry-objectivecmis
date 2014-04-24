@@ -22,6 +22,7 @@
 #import "CMISBinding.h"
 #import "CMISAuthenticationProvider.h"
 #import "CMISNetworkProvider.h"
+#import "CMISTypeDefinitionCache.h"
 
 
 // Session param keys
@@ -38,6 +39,12 @@ extern NSString * const kCMISSessionParameterObjectConverterClassName;
  * Value should be an NSNumber, indicating the amount of objects whose links will be cached.
  */
 extern NSString * const kCMISSessionParameterLinkCacheSize;
+
+/**
+ * Key for setting the value of the cache of type definitions.
+ * Value should be an NSNumber, indicating the amount of type defintions will be cached.
+ */
+extern NSString * const kCMISSessionParameterTypeDefinitionCacheSize;
 
 
 @interface CMISSessionParameters : NSObject
@@ -58,6 +65,9 @@ extern NSString * const kCMISSessionParameterLinkCacheSize;
 
 // Network I/O
 @property (nonatomic, strong) id<CMISNetworkProvider> networkProvider;
+
+// Type definitions cache
+@property (nonatomic, strong) CMISTypeDefinitionCache *typeDefinitionCache;
 
 /** init with binding type
  */

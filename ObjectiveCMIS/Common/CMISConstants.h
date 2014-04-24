@@ -76,8 +76,6 @@ extern NSString * const kCMISParameterRelativePathSegment;
 extern NSString * const kCMISParameterMajor;
 extern NSString * const kCMISParameterCheckin;
 extern NSString * const kCMISParameterCheckinComment;
-extern NSString * const kCMISParameterSelector;
-extern NSString * const kCMISParameterSuccinct;
 extern NSString * const kCMISParameterReturnVersion;
 extern NSString * const kCMISParameterTypeId;
 

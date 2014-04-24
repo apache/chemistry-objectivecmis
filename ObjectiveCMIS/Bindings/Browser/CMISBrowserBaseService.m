@@ -21,6 +21,8 @@
 #import "CMISConstants.h"
 #import "CMISBrowserConstants.h"
 #import "CMISURLUtil.h"
+#import "CMISHttpResponse.h"
+#import "CMISBrowserUtil.h"
 
 @interface CMISBrowserBaseService ()
 @property (nonatomic, strong, readwrite) CMISBindingSession *bindingSession;
@@ -44,7 +46,7 @@
     NSString *rootUrl = [self.bindingSession objectForKey:kCMISBrowserBindingSessionKeyRootFolderUrl];
     
     NSString *objectUrl = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterObjectId value:objectId urlString:rootUrl];
-    objectUrl = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterSelector value:selector urlString:objectUrl];
+    objectUrl = [CMISURLUtil urlStringByAppendingParameter:kCMISBrowserJSONParameterSelector value:selector urlString:objectUrl];
     return objectUrl;
 }
 
@@ -53,15 +55,45 @@
     NSString *rootUrl = [self.bindingSession objectForKey:kCMISBrowserBindingSessionKeyRootFolderUrl];
     
     NSString *objectUrl = [CMISURLUtil urlStringByAppendingPath:path urlString:rootUrl];
-    objectUrl = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterSelector value:selector urlString:objectUrl];
+    objectUrl = [CMISURLUtil urlStringByAppendingParameter:kCMISBrowserJSONParameterSelector value:selector urlString:objectUrl];
     return objectUrl;
 }
 
 -(NSString *)getRepositoryUrlWithSelector:(NSString *)selector
 {
     NSString *repoUrl = [self.bindingSession objectForKey:kCMISBrowserBindingSessionKeyRepositoryUrl];
-    repoUrl = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterSelector value:selector urlString:repoUrl];
+    repoUrl = [CMISURLUtil urlStringByAppendingParameter:kCMISBrowserJSONParameterSelector value:selector urlString:repoUrl];
     return repoUrl;
+}
+
+- (CMISRequest*)retrieveTypeDefinitionInternal:(NSString *)typeId
+                                   cmisRequest:(CMISRequest *)cmisRequest
+                       completionBlock:(void (^)(CMISTypeDefinition *typeDefinition, NSError *error))completionBlock
+{
+    NSString *repoUrl = [self getRepositoryUrlWithSelector:kCMISBrowserJSONSelectorTypeDefinition];
+    repoUrl = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterTypeId value:typeId urlString:repoUrl];
+    
+    [self.bindingSession.networkProvider invokeGET:[NSURL URLWithString:repoUrl]
+                                           session:self.bindingSession
+                                       cmisRequest:cmisRequest
+                                   completionBlock:^(CMISHttpResponse *httpResponse, NSError *error) {
+                                       if (httpResponse) {
+                                           NSData *data = httpResponse.data;
+                                           if (data) {
+                                               NSError *parsingError = nil;
+                                               CMISTypeDefinition *typeDef = [CMISBrowserUtil typeDefinitionFromJSONData:data error:&parsingError];
+                                               if (parsingError) {
+                                                   completionBlock(nil, parsingError);
+                                               }
+                                               else {
+                                                   completionBlock(typeDef, nil);
+                                               }
+                                           }
+                                       } else {
+                                           completionBlock(nil, error);
+                                       }
+                                   }];
+    return cmisRequest;
 }
 
 @end

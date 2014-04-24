@@ -146,6 +146,10 @@ extern NSString * const kCMISBrowserJSONRenditionHeight;
 extern NSString * const kCMISBrowserJSONRenditionWidth;
 extern NSString * const kCMISBrowserJSONRenditionDocumentId;
 
+// JSON specific parameters
+extern NSString * const kCMISBrowserJSONParameterSelector;
+extern NSString * const kCMISBrowserJSONParameterSuccinct;
+
 + (NSSet *)objectKeys;
 + (NSSet *)repositoryInfoKeys;
 + (NSSet *)typeKeys;

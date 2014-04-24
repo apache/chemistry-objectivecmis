@@ -21,6 +21,7 @@
 #import "CMISSessionParameters.h"
 #import "CMISAuthenticationProvider.h"
 #import "CMISNetworkProvider.h"
+#import "CMISTypeDefinitionCache.h"
 
 // session key constants
 extern NSString * const kCMISBindingSessionKeyUrl;
@@ -35,6 +36,7 @@ extern NSString * const kCMISBindingSessionKeyTypeByIdUriBuilder;
 @property (nonatomic, strong, readonly) NSString *repositoryId;
 @property (nonatomic, strong, readonly) id<CMISAuthenticationProvider> authenticationProvider;
 @property (nonatomic, strong, readonly) id<CMISNetworkProvider> networkProvider;
+@property (nonatomic, strong, readonly) CMISTypeDefinitionCache *typeDefinitionCache;
 
 - (id)initWithSessionParameters:(CMISSessionParameters *)sessionParameters;
 

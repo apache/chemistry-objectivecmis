@@ -47,7 +47,7 @@
     objectUrl = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterIncludePathSegment boolValue:includePathSegment urlString:objectUrl];
     objectUrl = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterMaxItems numberValue:maxItems urlString:objectUrl];
     objectUrl = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterSkipCount numberValue:skipCount urlString:objectUrl];
-    objectUrl = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterSuccinct value:kCMISParameterValueTrue urlString:objectUrl];
+    objectUrl = [CMISURLUtil urlStringByAppendingParameter:kCMISBrowserJSONParameterSuccinct value:kCMISParameterValueTrue urlString:objectUrl];
     
     CMISRequest *cmisRequest = [[CMISRequest alloc] init];
     
@@ -58,14 +58,15 @@
                                        if (httpResponse) {
                                            NSData *data = httpResponse.data;
                                            if (data) {
-                                               NSError *parsingError = nil;
-                                               CMISObjectList *objectList = [CMISBrowserUtil objectListFromJSONData:data error:&parsingError];
-                                               if (parsingError)
-                                               {
-                                                   completionBlock(nil, parsingError);
-                                               } else {
-                                                   completionBlock(objectList, nil);
-                                               }
+                                               CMISTypeCache *typeCache = [[CMISTypeCache alloc] initWithRepositoryId:self.bindingSession.repositoryId bindingService:self];
+                                               [CMISBrowserUtil objectListFromJSONData:data typeCache:typeCache completionBlock:^(CMISObjectList *objectList, NSError *error) {
+                                                   if (error) {
+                                                       completionBlock(nil, error);
+                                                   } else {
+                                                       completionBlock(objectList, nil);
+                                                   }
+                                               }];
+                                               
                                            }
                                        } else {
                                            completionBlock(nil, error);

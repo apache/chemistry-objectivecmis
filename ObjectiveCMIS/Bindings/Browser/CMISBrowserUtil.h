@@ -22,6 +22,7 @@
 #import "CMISObjectData.h"
 #import "CMISObjectList.h"
 #import "CMISBindingSession.h"
+#import "CMISTypeCache.h"
 
 @interface CMISBrowserUtil : NSObject
 
@@ -38,12 +39,12 @@
 /**
  Returns a CMISObjectData object parsed from the given JSON data.
  */
-+ (CMISObjectData *)objectDataFromJSONData:(NSData *)jsonData error:(NSError **)outError;
++ (void)objectDataFromJSONData:(NSData *)jsonData typeCache:(CMISTypeCache *)typeCache completionBlock:(void(^)(CMISObjectData *objectData, NSError *error))completionBlock;
 
 /**
  Returns a CMISObjectList object parsed from the given JSON data.
  */
-+ (CMISObjectList *)objectListFromJSONData:(NSData *)jsonData error:(NSError **)outError;
++ (void)objectListFromJSONData:(NSData *)jsonData typeCache:(CMISTypeCache *)typeCache completionBlock:(void(^)(CMISObjectList *objectList, NSError *error))completionBlock;
 
 /**
  Returns an array of CMISRenditionData objects, parsed from the given JSON data.

@@ -116,10 +116,10 @@
                 typeDef = [CMISRelationshipTypeDefinition new];
                 
                 id allowedSourceTypes = [jsonDictionary cmis_objectForKeyNotNull:kCMISBrowserJSONAllowedSourceTypes];
-                if([allowedSourceTypes isKindOfClass:NSArray.class]){
+                if ([allowedSourceTypes isKindOfClass:NSArray.class]){
                     NSMutableArray *types = [[NSMutableArray alloc] init];
                     for (id type in allowedSourceTypes) {
-                        if(type){
+                        if (type){
                             [types addObject:type];
                         }
                     }
@@ -127,10 +127,10 @@
                 }
                 
                 id allowedTargetTypes = [jsonDictionary cmis_objectForKeyNotNull:kCMISBrowserJSONAllowedTargetTypes];
-                if([allowedTargetTypes isKindOfClass:NSArray.class]){
+                if ([allowedTargetTypes isKindOfClass:NSArray.class]){
                     NSMutableArray *types = [[NSMutableArray alloc] init];
                     for (id type in allowedTargetTypes) {
-                        if(type){
+                        if (type){
                             [types addObject:type];
                         }
                     }
@@ -179,7 +179,7 @@
     return typeDef;
 }
 
-+ (CMISObjectData *)objectDataFromJSONData:(NSData *)jsonData error:(NSError **)outError
++ (void)objectDataFromJSONData:(NSData *)jsonData typeCache:(CMISTypeCache *)typeCache completionBlock:(void(^)(CMISObjectData *objectData, NSError *error))completionBlock
 {
     // TODO: error handling i.e. if jsonData is nil, also handle outError being nil
 
@@ -187,16 +187,17 @@
     NSError *serialisationError = nil;
     id jsonDictionary = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:&serialisationError];
     
-    CMISObjectData *objectData = nil;
     if (!serialisationError) {
         // parse the json into a CMISObjectData object
-        objectData = [CMISBrowserUtil convertObject:jsonDictionary];
+        [CMISBrowserUtil convertObject:jsonDictionary typeCache:typeCache completionBlock:^(CMISObjectData *objectData, NSError *error) {
+            completionBlock(objectData, error);
+        }];
+    } else {
+        completionBlock(nil, [CMISErrors cmisError:serialisationError cmisErrorCode:kCMISErrorCodeRuntime]);
     }
-    
-    return objectData;
 }
 
-+ (CMISObjectList *)objectListFromJSONData:(NSData *)jsonData error:(NSError **)outError
++ (void)objectListFromJSONData:(NSData *)jsonData typeCache:(CMISTypeCache *)typeCache completionBlock:(void(^)(CMISObjectList *objectList, NSError *error))completionBlock
 {
     // TODO: error handling i.e. if jsonData is nil, also handle outError being nil
     
@@ -210,9 +211,8 @@
         objectList = [CMISObjectList new];
         
         // parse the objects
-        BOOL isArray = [jsonDictionary isKindOfClass:NSArray.class];
         NSArray *objectsArray;
-        if(isArray){
+        if ([jsonDictionary isKindOfClass:NSArray.class]){
             objectsArray = jsonDictionary;
             
             objectList.hasMoreItems = NO;
@@ -224,27 +224,20 @@
             objectList.hasMoreItems = [jsonDictionary cmis_boolForKey:kCMISBrowserJSONHasMoreItems];
             objectList.numItems = [jsonDictionary cmis_intForKey:kCMISBrowserJSONNumberItems];
         }
-        if (objectsArray) {
-            NSMutableArray *objects = [NSMutableArray arrayWithCapacity:objectsArray.count];
-            for (NSDictionary *dictionary in objectsArray) {
-                NSDictionary *objectDictionary;
-                if(isArray){
-                    objectDictionary = dictionary;
-                } else {
-                    objectDictionary = [dictionary cmis_objectForKeyNotNull:kCMISBrowserJSONObject];
-                }
-                CMISObjectData *objectData = [CMISBrowserUtil convertObject:objectDictionary];
-                if(objectData){
-                    [objects addObject:objectData];
-                }
+        
+        [CMISBrowserUtil convertObjects:objectsArray typeCache:typeCache completionBlock:^(NSArray *objects, NSError *error) {
+            if (error){
+                completionBlock(nil, error);
+            } else {
+                // pass objects to list
+                objectList.objects = objects;
+                
+                completionBlock(objectList, nil);
             }
-            
-            // pass objects to list
-            objectList.objects = objects;
-        }
+        }];
+    } else {
+        completionBlock(nil, [CMISErrors cmisError:serialisationError cmisErrorCode:kCMISErrorCodeRuntime]);
     }
-    
-    return objectList;
 }
 
 + (NSArray *)renditionsFromJSONData:(NSData *)jsonData error:(NSError **)outError
@@ -267,10 +260,10 @@
 #pragma mark -
 #pragma mark Private helper methods
 
-+ (CMISObjectData *)convertObject:(NSDictionary *)dictionary
++ (void)convertObject:(NSDictionary *)dictionary typeCache:(CMISTypeCache *)typeCache completionBlock:(void(^)(CMISObjectData *objectData, NSError *error))completionBlock
 {
-    if(!dictionary) {
-        return nil;
+    if (!dictionary) {
+        completionBlock(nil, nil);
     }
     
     CMISObjectData *objectData = [CMISObjectData new];
@@ -287,79 +280,336 @@
     
     // set the properties
     NSDictionary *propertiesExtension = [dictionary cmis_objectForKeyNotNull:kCMISBrowserJSONPropertiesExtension];
-    objectData.properties = [CMISBrowserUtil convertSuccinctProperties:propertiesJson propertiesExtension:propertiesExtension];
     
-    // relationships
-    NSArray *relationshipsJson = [dictionary cmis_objectForKeyNotNull:kCMISBrowserJSONRelationships];
-    objectData.relationships = [CMISBrowserUtil convertObjects:relationshipsJson];
-    
-    //renditions
-    NSArray *renditionsJson = [dictionary cmis_objectForKeyNotNull:kCMISBrowserJSONRenditions];
-    objectData.renditions = [self renditionsFromArray:renditionsJson];
-    
-    // handle extensions
-    objectData.extensions = [CMISBrowserUtil convertExtensions:dictionary cmisKeys:[CMISBrowserConstants objectKeys]];
-    
-    return objectData;
+    [CMISBrowserUtil convertSuccinctProperties:propertiesJson propertiesExtension:propertiesExtension typeCache:typeCache completionBlock:^(CMISProperties *properties, NSError *error) {
+        if (error){
+            completionBlock(nil, error);
+        } else {
+            objectData.properties = properties;
+            
+            // relationships
+            NSArray *relationshipsJson = [dictionary cmis_objectForKeyNotNull:kCMISBrowserJSONRelationships];
+            [CMISBrowserUtil convertObjects:relationshipsJson typeCache:typeCache completionBlock:^(NSArray *objects, NSError *error) {
+                if (error){
+                    completionBlock(nil, error);
+                } else {
+                    objectData.relationships = objects;
+                    
+                    //renditions
+                    NSArray *renditionsJson = [dictionary cmis_objectForKeyNotNull:kCMISBrowserJSONRenditions];
+                    objectData.renditions = [self renditionsFromArray:renditionsJson];
+                    
+                    // handle extensions
+                    objectData.extensions = [CMISBrowserUtil convertExtensions:dictionary cmisKeys:[CMISBrowserConstants objectKeys]];
+                    
+                    completionBlock(objectData, nil);
+                }
+            }];
+        }
+
+    }];
 }
 
-+ (NSArray *)convertObjects:(NSArray *)json
++ (void)convertObjects:(NSArray *)objectsArray position:(NSInteger)position convertedObjects:(NSMutableArray *)convertedObjects typeCache:(CMISTypeCache *)typeCache completionBlock:(void(^)(NSArray* objects, NSError *error))completionBlock
 {
-    if (!json){
-        return nil;
+    NSDictionary *dictionary = [objectsArray objectAtIndex:position];
+    NSDictionary *objectDictionary = [dictionary cmis_objectForKeyNotNull:kCMISBrowserJSONObject];
+    if (!objectDictionary) {
+        objectDictionary = dictionary;
     }
-    
-    NSMutableArray *result = [[NSMutableArray alloc] init];
-    for (id obj in json) {
-        //TODO check if obj is NSDictionary or else abort with error
-        CMISObjectData *relationship = [CMISBrowserUtil convertObject:obj];
-        if(relationship){
-            [result addObject:relationship];
+
+    if(![objectDictionary isKindOfClass:NSDictionary.class]){
+        completionBlock(nil, [CMISErrors createCMISErrorWithCode:kCMISErrorCodeInvalidArgument detailedDescription:[NSString stringWithFormat:@"expected a dictionary but was %@", objectDictionary.class]]);
+    }
+    [CMISBrowserUtil convertObject:objectDictionary typeCache:typeCache completionBlock:^(CMISObjectData *objectData, NSError *error) {
+        if (position == 0) {
+            [convertedObjects addObject:objectData];
+            completionBlock(convertedObjects, error);
+        } else {
+            // TODO check if there is a better way on how to avoid a large call stack
+            // We need to do this workaround or else we would end up with a very large call stack
+            [CMISBrowserUtil performBlock:^{
+                [self convertObjects:objectsArray
+                            position:(position -1)
+                    convertedObjects:convertedObjects
+                           typeCache:typeCache
+                     completionBlock:^(NSArray *objects, NSError *error) {
+                         [convertedObjects addObject:objectData];
+                         completionBlock(objects, error);
+                     }];
+            }];
         }
-    }
-    
-    return result;
+    }];
+
 }
 
-+ (CMISProperties *)convertSuccinctProperties:(NSDictionary *)propertiesJson propertiesExtension:(NSDictionary *)extJson
++ (void)convertObjects:(NSArray *)objectsArray typeCache:(CMISTypeCache *)typeCache completionBlock:(void(^)(NSArray* objects, NSError *error))completionBlock
 {
-    if(!propertiesJson) {
-        return nil;
+    NSMutableArray *objects = [NSMutableArray arrayWithCapacity:objectsArray.count];
+    if (objectsArray.count > 0) {
+        [CMISBrowserUtil convertObjects:objectsArray
+                               position:(objectsArray.count - 1) // start recursion with last item
+                       convertedObjects:objects
+                                 typeCache:typeCache
+                           completionBlock:^(NSArray *objects, NSError *error) {
+                               completionBlock(objects, error);
+                           }];
+    } else {
+        completionBlock([NSArray array], nil);
+    }
+}
+
++ (void)convertSuccinctProperties:(NSDictionary *)propertiesJson propertiesExtension:(NSDictionary *)extJson typeCache:(CMISTypeCache *)typeCache completionBlock:(void(^)(CMISProperties *properties, NSError *error))completionBlock
+{
+    if (!propertiesJson) {
+        completionBlock(nil, nil);
     }
     
-    // TODO convert properties according to typeDefinition
-    
-    // create properties
-    CMISProperties *properties = [CMISProperties new];
-    NSArray *propNames = [propertiesJson allKeys];
-    for (NSString *propName in propNames) {
-        CMISPropertyData *propertyData;
-        id propValue = [propertiesJson cmis_objectForKeyNotNull:propName];
-        if ([propValue isKindOfClass:[NSArray class]]) {
-            propertyData = [CMISPropertyData createPropertyForId:propName arrayValue:propValue type:CMISPropertyTypeString];
+    void (^continueConvertSuccinctPropertiesAndGetSecondaryObjectTypeDefinitions)(CMISTypeDefinition*) = ^(CMISTypeDefinition *typeDef) {
+        
+        void (^continueConvertSuccinctPropertiesSecondaryObjectTypeDefinitions)(NSArray*) = ^(NSArray *secTypeDefs) {
+            
+            [self convertProperties:propertiesJson typeCache:typeCache typeDefinition:typeDef secondaryTypeDefinitions:secTypeDefs completionBlock:^(CMISProperties *properties, NSError *error){
+                if (extJson){
+                    properties.extensions = [CMISBrowserUtil convertExtensions:extJson cmisKeys:[NSSet set]];
+                }
+                
+                completionBlock(properties, nil);
+            }];
+        };
+        
+        // Get secondary object type definitions
+        NSArray *secTypeIds = [propertiesJson cmis_objectForKeyNotNull:kCMISPropertySecondaryObjectTypeIds];
+        if (secTypeIds != nil && secTypeIds.count > 0) {
+            [CMISBrowserUtil retrieveTypeDefinitions:secTypeIds typeCache:typeCache completionBlock:^(NSArray *typeDefinitions, NSError *error) {
+                continueConvertSuccinctPropertiesSecondaryObjectTypeDefinitions(typeDefinitions);
+            }];
+        } else {
+            continueConvertSuccinctPropertiesSecondaryObjectTypeDefinitions(nil);
         }
-        else {
-            if(propValue){
-                propertyData = [CMISPropertyData createPropertyForId:propName stringValue:propValue];
-            } else {
-                //TODO create convenient method for nil values?
-                propertyData = [CMISPropertyData createPropertyForId:propName arrayValue:[NSArray array] type:CMISPropertyTypeString];
+    };
+    
+    // Get type definition for given object type id
+    CMISTypeDefinition *typeDef = nil;
+    if ([[propertiesJson cmis_objectForKeyNotNull:kCMISPropertyObjectTypeId] isKindOfClass:NSString.class]){
+        [typeCache typeDefinition:[propertiesJson cmis_objectForKeyNotNull:kCMISPropertyObjectTypeId] completionBlock:^(CMISTypeDefinition *typeDef, NSError *error){
+            continueConvertSuccinctPropertiesAndGetSecondaryObjectTypeDefinitions(typeDef);
+        }];
+    } else {
+        continueConvertSuccinctPropertiesAndGetSecondaryObjectTypeDefinitions(typeDef);
+    }
+}
+
++(void)convertProperty:(NSString *)propName propertiesJson:(NSDictionary *)propertiesJson typeCache:(CMISTypeCache *)typeCache typeDefinition:(CMISTypeDefinition *)typeDef secondaryTypeDefinitions:(NSArray *)secTypeDefs completionBlock:(void(^)(CMISPropertyData *propertyData, NSError *error))completionBlock {
+    CMISPropertyDefinition *propDef = nil;
+    if (typeDef){
+        propDef = typeDef.propertyDefinitions[propName];
+    }
+    
+    if (propDef == nil && secTypeDefs != nil) {
+        for (CMISTypeDefinition *secTypeDef in secTypeDefs) {
+            propDef = secTypeDef.propertyDefinitions[propName];
+            if (propDef){
+                break;
             }
         }
+    }
+    
+    void (^continueConvertSuccinctPropertiesTypeDefinitionDocument)(CMISPropertyDefinition*) = ^(CMISPropertyDefinition *propDef) {
         
-        [properties addProperty:propertyData];
+        void (^continueConvertSuccinctPropertiesTypeDefinitionFolder)(CMISPropertyDefinition*) = ^(CMISPropertyDefinition *propDef) {
+            
+            id propValue = [propertiesJson cmis_objectForKeyNotNull:propName];
+            NSArray *values = nil;
+            if ([propValue isKindOfClass:NSArray.class]) {
+                values = propValue;
+            } else if (propValue) {
+                values = [NSArray arrayWithObject:propValue];
+            }
+            
+            CMISPropertyData *propertyData;
+            
+            if (propDef){
+                
+                switch (propDef.propertyType) {
+                    case CMISPropertyTypeString:
+                    case CMISPropertyTypeId:
+                    case CMISPropertyTypeBoolean:
+                    case CMISPropertyTypeInteger:
+                    case CMISPropertyTypeDecimal:
+                    case CMISPropertyTypeHtml:
+                    case CMISPropertyTypeUri:
+                        propertyData = [CMISPropertyData createPropertyForId:propName arrayValue:values type:propDef.propertyType];
+                        break;
+                    case CMISPropertyTypeDateTime: {
+                        NSArray *dateValues = [CMISBrowserUtil convertNumbersToDates:values];
+                        propertyData = [CMISPropertyData createPropertyForId:propName arrayValue:dateValues type:propDef.propertyType];
+                        break;
+                    }
+                    default: {
+                        NSError *error = [CMISErrors createCMISErrorWithCode:kCMISErrorCodeInvalidArgument
+                                                         detailedDescription:@"Unknown property type!"];
+                        completionBlock(nil, error);
+                        return;
+                    }
+                }
+                propertyData.identifier = propName;
+                propertyData.displayName = propDef.displayName;
+                propertyData.queryName = propDef.queryName;
+                propertyData.localName = propDef.localName;
+            } else {
+                // this else block should only be reached in rare circumstances
+                // it may return incorrect types
+                if (values == nil) {
+                    propertyData = [CMISPropertyData createPropertyForId:propName arrayValue:nil type:CMISPropertyTypeString];
+                } else {
+                    id firstValue = values[0];
+                    if ([firstValue isKindOfClass:NSNumber.class]) {
+                        propertyData = [CMISPropertyData createPropertyForId:propName arrayValue:values type:CMISPropertyTypeInteger];
+                    } else {
+                        propertyData = [CMISPropertyData createPropertyForId:propName arrayValue:values type:CMISPropertyTypeString];
+                    }
+                }
+                
+                propertyData.identifier = propName;
+                propertyData.displayName = propName;
+                propertyData.queryName = nil;
+                propertyData.localName = nil;
+            }
+            
+            completionBlock(propertyData, nil);
+        };
+        
+        if (!propDef) { //try to find property definition on folder
+            [typeCache typeDefinition:kCMISPropertyObjectTypeIdValueFolder completionBlock:^(CMISTypeDefinition *typeDefinition, NSError *error) {
+                CMISPropertyDefinition *propertyDefinition = typeDefinition.propertyDefinitions[propName];
+                continueConvertSuccinctPropertiesTypeDefinitionFolder(propertyDefinition);
+            }];
+        } else {
+            continueConvertSuccinctPropertiesTypeDefinitionFolder(propDef);
+        }
+        
+    };
+    
+    if (!propDef) { //try to find property definition on document
+        [typeCache typeDefinition:kCMISPropertyObjectTypeIdValueDocument completionBlock:^(CMISTypeDefinition *typeDefinition, NSError *error) {
+            CMISPropertyDefinition *propertyDefinition = typeDefinition.propertyDefinitions[propName];
+            continueConvertSuccinctPropertiesTypeDefinitionDocument(propertyDefinition);
+        }];
+    } else {
+        continueConvertSuccinctPropertiesTypeDefinitionDocument(propDef);
+    }
+}
+
++ (NSArray *)convertNumbersToDates:(NSArray *)numbers
+{
+    if(!numbers) {
+        return nil;
     }
     
-    if(extJson){
-        properties.extensions = [CMISBrowserUtil convertExtensions:extJson cmisKeys:[NSSet set]];
+    NSMutableArray *dates = [[NSMutableArray alloc] initWithCapacity:numbers.count];
+    for (NSNumber *number in numbers) {
+        NSDate *date = [NSDate dateWithTimeIntervalSinceReferenceDate:[number doubleValue]];
+        [dates addObject:date];
     }
+    return dates;
+}
+
++ (void)convertProperties:(NSArray*)propNames position:(NSInteger)position properties:(CMISProperties *)properties propertiesJson:(NSDictionary *)propertiesJson typeCache:(CMISTypeCache *)typeCache typeDefinition:(CMISTypeDefinition *)typeDef secondaryTypeDefinitions:(NSArray *)secTypeDefs completionBlock:(void (^)(CMISProperties *properties, NSError *error))completionBlock
+{
+    NSString *propName = [propNames objectAtIndex:position];
     
-    return properties;
+    [self convertProperty:propName
+           propertiesJson:propertiesJson
+                typeCache:typeCache
+           typeDefinition:typeDef
+ secondaryTypeDefinitions:secTypeDefs
+          completionBlock:^(CMISPropertyData *propertyData, NSError *error) {
+              
+              if (position == 0) {
+                  [properties addProperty:propertyData];
+                  completionBlock(properties, error);
+              } else {
+                  // TODO check if there is a better way on how to avoid a large call stack
+                  // We need to do this workaround or else we would end up with a very large call stack
+                  [CMISBrowserUtil performBlock:^{
+                      [self convertProperties:propNames
+                                     position:(position -1)
+                                   properties:properties
+                               propertiesJson:propertiesJson
+                                    typeCache:typeCache
+                               typeDefinition:typeDef
+                     secondaryTypeDefinitions:secTypeDefs
+                              completionBlock:^(CMISProperties *properties, NSError *error) {
+                                  [properties addProperty:propertyData];
+                                  completionBlock(properties, error);
+                                  
+                              }];
+                  }];
+              }
+          }];
+}
+
++ (void)convertProperties:(NSDictionary *)propertiesJson typeCache:(CMISTypeCache *)typeCache typeDefinition:(CMISTypeDefinition *)typeDef secondaryTypeDefinitions:(NSArray *)secTypeDefs completionBlock:(void(^)(CMISProperties *properties, NSError *error))completionBlock
+{
+    // create properties
+    CMISProperties *properties = [CMISProperties new];
+    
+    NSArray *propNames = [propertiesJson allKeys];
+    if (propNames.count > 0) {
+        [CMISBrowserUtil convertProperties:propNames
+                                        position:(propNames.count - 1) // start recursion with last item
+                                properties:properties
+                            propertiesJson:propertiesJson
+                                 typeCache:typeCache
+                            typeDefinition:typeDef
+                  secondaryTypeDefinitions:secTypeDefs
+                           completionBlock:^(CMISProperties *properties, NSError *error) {
+                                     completionBlock(properties, error);
+                                 }];
+    } else {
+        completionBlock(properties, nil);
+    }
+}
+
++ (void)retrieveTypeDefinitions:(NSArray *)objectTypeIds position:(NSInteger)position typeCache:(CMISTypeCache *)typeCache completionBlock:(void (^)(NSMutableArray *typeDefinitions, NSError *error))completionBlock
+{
+    [typeCache typeDefinition:[objectTypeIds objectAtIndex:position]
+              completionBlock:^(CMISTypeDefinition *typeDefinition, NSError *error) {
+                             if (error){
+                                 completionBlock(nil, error);
+                             } else {
+                                 if (position == 0) {
+                                     NSMutableArray *typeDefinitions = [[NSMutableArray alloc] initWithCapacity:objectTypeIds.count];
+                                     [typeDefinitions addObject:typeDefinition];
+                                     completionBlock(typeDefinitions, error);
+                                 } else {
+                                     [self retrieveTypeDefinitions:objectTypeIds position:(position - 1) typeCache:typeCache completionBlock:^(NSMutableArray *typeDefinitions, NSError *error) {
+                                         [typeDefinitions addObject:typeDefinition];
+                                         completionBlock(typeDefinitions, error);
+                                     }];
+                                 }
+                             }
+                         }];
+}
+
++ (void)retrieveTypeDefinitions:(NSArray *)objectTypeIds typeCache:(CMISTypeCache *)typeCache completionBlock:(void (^)(NSArray *typeDefinitions, NSError *error))completionBlock
+{
+    if (objectTypeIds.count > 0) {
+        [CMISBrowserUtil retrieveTypeDefinitions:objectTypeIds
+                                        position:(objectTypeIds.count - 1) // start recursion with last item
+                                       typeCache:typeCache
+                                 completionBlock:^(NSMutableArray *typeDefinitions, NSError *error) {
+                                     completionBlock(typeDefinitions, error);
+                                 }];
+    } else {
+        completionBlock([[NSArray alloc] init], nil);
+    }
 }
 
 + (NSArray *)renditionsFromArray:(NSArray *)array
 {
-    if(!array) {
+    if (!array) {
         return nil;
     }
     NSMutableArray *renditions = [[NSMutableArray alloc] initWithCapacity:array.count];
@@ -385,7 +635,7 @@
 
 + (CMISPropertyDefinition *)convertPropertyDefinition:(NSDictionary *)propertyDictionary
 {
-    if(!propertyDictionary){
+    if (!propertyDictionary){
         return nil;
     }
     
@@ -522,5 +772,16 @@
     
     return extensions;
 }
+
+// TODO could be moved to category
++ (void)performBlock:(void (^)(void))block
+{
+    [CMISBrowserUtil performSelector:@selector(executeBlock:) onThread:[NSThread currentThread] withObject:block waitUntilDone:NO];
+}
+
++ (void)executeBlock:(void (^)(void))block {
+    block();
+}
+
 
 @end
