@@ -41,16 +41,29 @@
     return self;
 }
 
--(NSString *)getObjectUrlObjectId:(NSString *)objectId selector:(NSString *)selector
+- (NSString *)getRepositoryUrl
+{
+    NSString *repoUrl = [self.bindingSession objectForKey:kCMISBrowserBindingSessionKeyRepositoryUrl];
+    return repoUrl;
+}
+
+- (NSString *)getObjectUrlObjectId:(NSString *)objectId
 {
     NSString *rootUrl = [self.bindingSession objectForKey:kCMISBrowserBindingSessionKeyRootFolderUrl];
     
     NSString *objectUrl = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterObjectId value:objectId urlString:rootUrl];
+    
+    return objectUrl;
+}
+
+- (NSString *)getObjectUrlObjectId:(NSString *)objectId selector:(NSString *)selector
+{
+    NSString *objectUrl = [self getObjectUrlObjectId:objectId];
     objectUrl = [CMISURLUtil urlStringByAppendingParameter:kCMISBrowserJSONParameterSelector value:selector urlString:objectUrl];
     return objectUrl;
 }
 
--(NSString *)getObjectUrlByPath:(NSString *)path selector:(NSString *)selector
+- (NSString *)getObjectUrlByPath:(NSString *)path selector:(NSString *)selector
 {
     NSString *rootUrl = [self.bindingSession objectForKey:kCMISBrowserBindingSessionKeyRootFolderUrl];
     
@@ -59,9 +72,9 @@
     return objectUrl;
 }
 
--(NSString *)getRepositoryUrlWithSelector:(NSString *)selector
+- (NSString *)getRepositoryUrlWithSelector:(NSString *)selector
 {
-    NSString *repoUrl = [self.bindingSession objectForKey:kCMISBrowserBindingSessionKeyRepositoryUrl];
+    NSString *repoUrl = [self getRepositoryUrl];
     repoUrl = [CMISURLUtil urlStringByAppendingParameter:kCMISBrowserJSONParameterSelector value:selector urlString:repoUrl];
     return repoUrl;
 }

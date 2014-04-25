@@ -60,8 +60,10 @@ extern NSString * const kCMISBrowserJSONControllablePolicy;
 extern NSString * const kCMISBrowserJSONControllableAcl;
 extern NSString * const kCMISBrowserJSONPropertyDefinitions;
 extern NSString * const kCMISBrowserJSONTypeMutability;
+extern NSString * const kCMISBrowserJSONValue;
 extern NSString * const kCMISBrowserJSONPropertyType;
 extern NSString * const kCMISBrowserJSONCardinality;
+extern NSString * const kCMISBrowserJSONDatatype;
 extern NSString * const kCMISBrowserJSONUpdateability;
 extern NSString * const kCMISBrowserJSONInherited;
 extern NSString * const kCMISBrowserJSONRequired;
@@ -76,11 +78,14 @@ extern NSString * const kCMISBrowserJSONAllowableActions;
 extern NSString * const kCMISBrowserJSONRelationships;
 extern NSString * const kCMISBrowserJSONChangeEventInfo;
 extern NSString * const kCMISBrowserJSONAcl;
+extern NSString * const kCMISBrowserJSONAces;
 extern NSString * const kCMISBrowserJSONExactAcl;
+extern NSString * const kCMISBrowserJSONIsExact;
 extern NSString * const kCMISBrowserJSONPolicyIds;
 extern NSString * const kCMISBrowserJSONPolicyIdsIds;
 extern NSString * const kCMISBrowserJSONRenditions;
 extern NSString * const kCMISBrowserJSONObjects;
+extern NSString * const kCMISBrowserJSONResults;
 extern NSString * const kCMISBrowserJSONObject;
 extern NSString * const kCMISBrowserJSONHasMoreItems;
 extern NSString * const kCMISBrowserJSONNumberItems;
@@ -95,6 +100,10 @@ extern NSString * const kCMISBrowserJSONMinValue;
 extern NSString * const kCMISBrowserJSONMaxValue;
 extern NSString * const kCMISBrowserJSONPrecision;
 extern NSString * const kCMISBrowserJSONResolution;
+extern NSString * const kCMISBrowserJSONAcePrincipal;
+extern NSString * const kCMISBrowserJSONAcePrincipalId;
+extern NSString * const kCMISBrowserJSONAcePermissions;
+extern NSString * const kCMISBrowserJSONAceIsDirect;
 
 // JSON enum values
 extern NSString * const kCMISBrowserJSONPropertyTypeValueString;
@@ -150,10 +159,47 @@ extern NSString * const kCMISBrowserJSONRenditionDocumentId;
 extern NSString * const kCMISBrowserJSONParameterSelector;
 extern NSString * const kCMISBrowserJSONParameterSuccinct;
 
+// Browser binding control
+extern NSString * const kCMISBrowserJSONControlCmisAction;
+
+// Browser binding actions
+extern NSString * const kCMISBrowserJSONActionCreateType;
+extern NSString * const kCMISBrowserJSONActionUpdateType;
+extern NSString * const kCMISBrowserJSONActionDeleteType;
+extern NSString * const kCMISBrowserJSONActionCreateDocument;
+extern NSString * const kCMISBrowserJSONActionCreateDocumentFromSource;
+extern NSString * const kCMISBrowserJSONActionCreateFolder;
+extern NSString * const kCMISBrowserJSONActionCreateRelationship;
+extern NSString * const kCMISBrowserJSONActionCreatePolicy;
+extern NSString * const kCMISBrowserJSONActionCreateItem;
+extern NSString * const kCMISBrowserJSONActionUpdateProperties;
+extern NSString * const kCMISBrowserJSONActionBulkUpdate;
+extern NSString * const kCMISBrowserJSONActionDeleteContent;
+extern NSString * const kCMISBrowserJSONActionSetContent;
+extern NSString * const kCMISBrowserJSONActionAppendContent;
+extern NSString * const kCMISBrowserJSONActionDelete;
+extern NSString * const kCMISBrowserJSONActionDeleteTree;
+extern NSString * const kCMISBrowserJSONActionMove;
+extern NSString * const kCMISBrowserJSONActionAddObjectToFolder;
+extern NSString * const kCMISBrowserJSONActionRemoveObjectFromFolder;
+extern NSString * const kCMISBrowserJSONActionQuery;
+extern NSString * const kCMISBrowserJSONActionCheckOut;
+extern NSString * const kCMISBrowserJSONActionCancelCheckOut;
+extern NSString * const kCMISBrowserJSONActionCheckIn;
+extern NSString * const kCMISBrowserJSONActionApplyPolicy;
+extern NSString * const kCMISBrowserJSONActionRemovePolicy;
+extern NSString * const kCMISBrowserJSONActionApplyAcl;
+
 + (NSSet *)objectKeys;
 + (NSSet *)repositoryInfoKeys;
 + (NSSet *)typeKeys;
++ (NSSet *)propertyKeys;
 + (NSSet *)propertyTypeKeys;
 + (NSSet *)renditionKeys;
++ (NSSet *)objectListKeys;
++ (NSSet *)queryResultListKeys;
++ (NSSet *)aclKeys;
++ (NSSet *)aceKeys;
++ (NSSet *)principalKeys;
 
 @end

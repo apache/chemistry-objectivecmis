@@ -44,7 +44,7 @@
 /**
  Returns a CMISObjectList object parsed from the given JSON data.
  */
-+ (void)objectListFromJSONData:(NSData *)jsonData typeCache:(CMISTypeCache *)typeCache completionBlock:(void(^)(CMISObjectList *objectList, NSError *error))completionBlock;
++ (void)objectListFromJSONData:(NSData *)jsonData typeCache:(CMISTypeCache *)typeCache isQueryResult:(BOOL)isQueryResult completionBlock:(void(^)(CMISObjectList *objectList, NSError *error))completionBlock;
 
 /**
  Returns an array of CMISRenditionData objects, parsed from the given JSON data.

@@ -118,6 +118,8 @@ extern NSString * const kCMISParameterCheckinComment;
 extern NSString * const kCMISParameterSourceFolderId;
 extern NSString * const kCMISParameterReturnVersion;
 extern NSString * const kCMISParameterTypeId;
+extern NSString * const kCMISParameterStatement;
+extern NSString * const kCMISParameterSearchAllVersions;
 
 // Parameter Values
 extern NSString * const kCMISParameterValueTrue;

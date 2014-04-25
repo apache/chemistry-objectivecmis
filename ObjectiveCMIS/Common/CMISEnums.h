@@ -57,7 +57,8 @@ typedef NS_ENUM(NSInteger, CMISPropertyType)
     CMISPropertyTypeDecimal,
     CMISPropertyTypeHtml,
     CMISPropertyTypeString,
-    CMISPropertyTypeUri
+    CMISPropertyTypeUri,
+    CMISPropertyTypeUnknown
 };
 
 // Property cardinality options
@@ -222,5 +223,6 @@ typedef NS_ENUM(NSInteger, CMISReturnVersion)
 + (NSString *)stringForReturnVersion:(BOOL)major;
 + (CMISBaseType)enumForBaseId:(NSString *)baseId;
 + (CMISContentStreamAllowedType)enumForContentStreamAllowed:(NSString *)contentStreamAllowed;
++ (CMISPropertyType)enumForPropertyType:(NSString *)typeString;
 
 @end

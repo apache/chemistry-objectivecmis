@@ -18,11 +18,19 @@
  */
 
 #import "CMISBrowserDiscoveryService.h"
-#import "CMISErrors.h"
+#import "CMISRequest.h"
+#import "CMISHttpResponse.h"
+#import "CMISTypeCache.h"
+#import "CMISBrowserUtil.h"
+#import "CMISFormDataWriter.h"
+#import "CMISBrowserConstants.h"
+#import "CMISConstants.h"
+#import "CMISEnums.h"
 
 @implementation CMISBrowserDiscoveryService
 
-- (CMISRequest*)query:(NSString *)statement searchAllVersions:(BOOL)searchAllVersions
+- (CMISRequest*)query:(NSString *)statement
+    searchAllVersions:(BOOL)searchAllVersions
         relationships:(CMISIncludeRelationship)relationships
       renditionFilter:(NSString *)renditionFilter
 includeAllowableActions:(BOOL)includeAllowableActions
@@ -30,9 +38,41 @@ includeAllowableActions:(BOOL)includeAllowableActions
             skipCount:(NSNumber *)skipCount
       completionBlock:(void (^)(CMISObjectList *objectList, NSError *error))completionBlock
 {
-    NSString * message = [NSString stringWithFormat:@"%s is not implemented yet", __PRETTY_FUNCTION__];
-    NSException *exception = [NSException exceptionWithName:NSInvalidArgumentException reason:message userInfo:nil];
-    @throw exception;
+    NSString *url = [self getRepositoryUrl];
+
+    // prepare form data
+    CMISFormDataWriter *formData = [[CMISFormDataWriter alloc] initWithAction:kCMISBrowserJSONActionQuery];
+    [formData addParameter:kCMISParameterStatement value:statement];
+    [formData addParameter:kCMISParameterSearchAllVersions boolValue:searchAllVersions];
+    [formData addParameter:kCMISParameterIncludeAllowableActions boolValue:includeAllowableActions];
+    [formData addParameter:kCMISParameterIncludeRelationships value:[CMISEnums stringForIncludeRelationShip:relationships]];
+    [formData addParameter:kCMISParameterRenditionFilter value:renditionFilter];
+    [formData addParameter:kCMISParameterMaxItems value:maxItems];
+    [formData addParameter:kCMISParameterSkipCount value:skipCount];
+    // Important: No succinct flag here!!!
+    
+    CMISRequest *cmisRequest = [[CMISRequest alloc] init];
+    
+    [self.bindingSession.networkProvider invokePOST:[NSURL URLWithString:url]
+                                            session:self.bindingSession
+                                               body:formData.body
+                                            headers:formData.headers
+                                        cmisRequest:cmisRequest
+                                    completionBlock:^(CMISHttpResponse *httpResponse, NSError *error) {
+                                       if ((httpResponse.statusCode == 200 || httpResponse.statusCode == 201) && httpResponse.data) {
+                                           CMISTypeCache *typeCache = [[CMISTypeCache alloc] initWithRepositoryId:self.bindingSession.repositoryId bindingService:self];
+                                           [CMISBrowserUtil objectListFromJSONData:httpResponse.data typeCache:typeCache isQueryResult:YES completionBlock:^(CMISObjectList *objectList, NSError *error) {
+                                               if (error) {
+                                                   completionBlock(nil, error);
+                                               } else {
+                                                   completionBlock(objectList, nil);
+                                               }
+                                           }];
+                                       } else {
+                                           completionBlock(nil, error);
+                                       }
+                                   }];
+    return cmisRequest;
 }
 
 @end

@@ -22,8 +22,14 @@
 static NSSet *_objectKeys;
 static NSSet *_repositoryInfoKeys;
 static NSSet *_typeKeys;
+static NSSet *_propertyKeys;
 static NSSet *_propertyTypeKeys;
 static NSSet *_renditionKeys;
+static NSSet *_objectListKeys;
+static NSSet *_queryResultListKeys;
+static NSSet *_aclKeys;
+static NSSet *_aceKeys;
+static NSSet *_principalKeys;
 
 @implementation CMISBrowserConstants
 
@@ -68,6 +74,8 @@ NSString * const kCMISBrowserJSONPropertyDefinitions = @"propertyDefinitions";
 NSString * const kCMISBrowserJSONTypeMutability = @"typeMutability";
 NSString * const kCMISBrowserJSONPropertyType = @"propertyType";
 NSString * const kCMISBrowserJSONCardinality = @"cardinality";
+NSString * const kCMISBrowserJSONValue = @"value";
+NSString * const kCMISBrowserJSONDatatype = @"type";
 NSString * const kCMISBrowserJSONUpdateability = @"updatability";
 NSString * const kCMISBrowserJSONInherited = @"inherited";
 NSString * const kCMISBrowserJSONRequired = @"required";
@@ -82,14 +90,18 @@ NSString * const kCMISBrowserJSONAllowableActions = @"allowableActions";
 NSString * const kCMISBrowserJSONRelationships = @"relationships";
 NSString * const kCMISBrowserJSONChangeEventInfo = @"changeEventInfo";
 NSString * const kCMISBrowserJSONAcl = @"acl";
+NSString * const kCMISBrowserJSONAces = @"aces";
 NSString * const kCMISBrowserJSONExactAcl = @"exactACL";
+NSString * const kCMISBrowserJSONIsExact = @"isExact";
 NSString * const kCMISBrowserJSONPolicyIds = @"policyIds";
 NSString * const kCMISBrowserJSONPolicyIdsIds = @"ids";
 NSString * const kCMISBrowserJSONRenditions = @"renditions";
 NSString * const kCMISBrowserJSONObjects = @"objects";
+NSString * const kCMISBrowserJSONResults = @"results";
 NSString * const kCMISBrowserJSONObject = @"object";
 NSString * const kCMISBrowserJSONHasMoreItems = @"hasMoreItems";
 NSString * const kCMISBrowserJSONNumberItems = @"numItems";
+NSString * const kCMISBrowserJSONChangeLogToken = @"changeLogToken";
 NSString * const kCMISBrowserJSONThinClientUri = @"thinClientURI";
 NSString * const kCMISBrowserJSONChangesIncomplete = @"changesIncomplete";
 NSString * const kCMISBrowserJSONChangesOnType = @"changesOnType";
@@ -101,6 +113,11 @@ NSString * const kCMISBrowserJSONMinValue = @"minValue";
 NSString * const kCMISBrowserJSONMaxValue = @"maxValue";
 NSString * const kCMISBrowserJSONPrecision = @"precision";
 NSString * const kCMISBrowserJSONResolution = @"resolution";
+NSString * const kCMISBrowserJSONAcePrincipal = @"principal";
+NSString * const kCMISBrowserJSONAcePrincipalId = @"principalId";
+NSString * const kCMISBrowserJSONAcePermissions = @"permissions";
+NSString * const kCMISBrowserJSONAceIsDirect = @"isDirect";
+
 
 // JSON enum values
 NSString * const kCMISBrowserJSONPropertyTypeValueString = @"string";
@@ -158,7 +175,39 @@ NSString * const kCMISBrowserJSONRenditionDocumentId = @"renditionDocumentId";
 NSString * const kCMISBrowserJSONParameterSelector = @"cmisselector";
 NSString * const kCMISBrowserJSONParameterSuccinct = @"succinct";
 
-+(NSSet *)objectKeys
+// Browser binding control
+NSString * const kCMISBrowserJSONControlCmisAction = @"cmisaction";
+
+
+// Browser binding actions
+NSString * const kCMISBrowserJSONActionCreateType = @"createType";
+NSString * const kCMISBrowserJSONActionUpdateType = @"updateType";
+NSString * const kCMISBrowserJSONActionDeleteType = @"deleteType";
+NSString * const kCMISBrowserJSONActionCreateDocument = @"createDocument";
+NSString * const kCMISBrowserJSONActionCreateDocumentFromSource = @"createDocumentFromSource";
+NSString * const kCMISBrowserJSONActionCreateFolder = @"createFolder";
+NSString * const kCMISBrowserJSONActionCreateRelationship = @"createRelationship";
+NSString * const kCMISBrowserJSONActionCreatePolicy = @"createPolicy";
+NSString * const kCMISBrowserJSONActionCreateItem = @"createItem";
+NSString * const kCMISBrowserJSONActionUpdateProperties = @"update";
+NSString * const kCMISBrowserJSONActionBulkUpdate = @"bulkUpdate";
+NSString * const kCMISBrowserJSONActionDeleteContent = @"deleteContent";
+NSString * const kCMISBrowserJSONActionSetContent = @"setContent";
+NSString * const kCMISBrowserJSONActionAppendContent = @"appendContent";
+NSString * const kCMISBrowserJSONActionDelete = @"delete";
+NSString * const kCMISBrowserJSONActionDeleteTree = @"deleteTree";
+NSString * const kCMISBrowserJSONActionMove = @"move";
+NSString * const kCMISBrowserJSONActionAddObjectToFolder = @"addObjectToFolder";
+NSString * const kCMISBrowserJSONActionRemoveObjectFromFolder = @"removeObjectFromFolder";
+NSString * const kCMISBrowserJSONActionQuery = @"query";
+NSString * const kCMISBrowserJSONActionCheckOut = @"checkOut";
+NSString * const kCMISBrowserJSONActionCancelCheckOut = @"cancelCheckOut";
+NSString * const kCMISBrowserJSONActionCheckIn = @"checkIn";
+NSString * const kCMISBrowserJSONActionApplyPolicy = @"applyPolicy";
+NSString * const kCMISBrowserJSONActionRemovePolicy = @"removePolicy";
+NSString * const kCMISBrowserJSONActionApplyAcl = @"applyACL";
+
++ (NSSet *)objectKeys
 {
     if(!_objectKeys) {
         _objectKeys = [NSSet setWithObjects:
@@ -234,6 +283,22 @@ NSString * const kCMISBrowserJSONParameterSuccinct = @"succinct";
     return _typeKeys;
 }
 
++ (NSSet *)propertyKeys
+{
+    if(!_propertyKeys) {
+        _propertyKeys = [NSSet setWithObjects:
+                         kCMISBrowserJSONId,
+                         kCMISBrowserJSONLocalName,
+                         kCMISBrowserJSONDisplayName,
+                         kCMISBrowserJSONQueryName,
+                         kCMISBrowserJSONValue,
+                         kCMISBrowserJSONDatatype,
+                         kCMISBrowserJSONCardinality,
+                         nil];
+    }
+    return _propertyKeys;
+}
+
 + (NSSet *)propertyTypeKeys
 {
     if(!_propertyTypeKeys) {
@@ -264,7 +329,7 @@ NSString * const kCMISBrowserJSONParameterSuccinct = @"succinct";
     return _propertyTypeKeys;
 }
 
-+(NSSet *)renditionKeys
++ (NSSet *)renditionKeys
 {
     if(!_renditionKeys) {
         _renditionKeys = [NSSet setWithObjects:
@@ -279,6 +344,65 @@ NSString * const kCMISBrowserJSONParameterSuccinct = @"succinct";
                           nil];
     }
     return _renditionKeys;
+}
+
++ (NSSet *)objectListKeys
+{
+    if(!_objectListKeys) {
+        _objectListKeys = [NSSet setWithObjects:
+                           kCMISBrowserJSONObjects,
+                           kCMISBrowserJSONHasMoreItems,
+                           kCMISBrowserJSONNumberItems,
+                           kCMISBrowserJSONChangeLogToken,
+                           nil];
+    }
+    return _objectListKeys;
+}
+
++ (NSSet *)queryResultListKeys
+{
+    if(!_queryResultListKeys) {
+        _queryResultListKeys = [NSSet setWithObjects:
+                                kCMISBrowserJSONResults,
+                                kCMISBrowserJSONHasMoreItems,
+                                kCMISBrowserJSONNumberItems,
+                                nil];
+    }
+    return _queryResultListKeys;
+}
+
++ (NSSet *)aclKeys
+{
+    if(!_aclKeys) {
+        _aclKeys = [NSSet setWithObjects:
+                    kCMISBrowserJSONAces,
+                    kCMISBrowserJSONIsExact,
+                    nil];
+    }
+    return _aclKeys;
+}
+
++ (NSSet *)aceKeys
+{
+    if(!_aceKeys) {
+        _aceKeys = [NSSet setWithObjects:
+                    kCMISBrowserJSONAcePrincipal,
+                    kCMISBrowserJSONAcePrincipalId,
+                    kCMISBrowserJSONAcePermissions,
+                    kCMISBrowserJSONAceIsDirect,
+                    nil];
+    }
+    return _aceKeys;
+}
+
++ (NSSet *)principalKeys
+{
+    if(!_principalKeys) {
+        _principalKeys = [NSSet setWithObjects:
+                          kCMISBrowserJSONAcePrincipalId,
+                          nil];
+    }
+    return _principalKeys;
 }
 
 @end

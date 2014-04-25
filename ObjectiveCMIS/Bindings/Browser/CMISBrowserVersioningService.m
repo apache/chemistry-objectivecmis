@@ -90,7 +90,7 @@
                                    completionBlock:^(CMISHttpResponse *httpResponse, NSError *error) {
                                        if (httpResponse.statusCode == 200 && httpResponse.data) {
                                            CMISTypeCache *typeCache = [[CMISTypeCache alloc] initWithRepositoryId:self.bindingSession.repositoryId bindingService:self];
-                                           [CMISBrowserUtil objectListFromJSONData:httpResponse.data typeCache:typeCache completionBlock:^(CMISObjectList *objectList, NSError *error) {
+                                           [CMISBrowserUtil objectListFromJSONData:httpResponse.data typeCache:typeCache isQueryResult:NO completionBlock:^(CMISObjectList *objectList, NSError *error) {
                                                if (error) {
                                                    completionBlock(nil, error);
                                                } else {

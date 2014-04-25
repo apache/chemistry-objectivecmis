@@ -18,19 +18,17 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "CMISBindingSession.h"
 
-@interface CMISBrowserBaseService : NSObject
+@interface CMISFormDataWriter : NSObject
 
-@property (nonatomic, strong, readonly) CMISBindingSession *bindingSession;
-@property (nonatomic, strong, readonly) NSURL *browserUrl;
+- (id)initWithAction:(NSString *)action;
 
-- (id)initWithBindingSession:(CMISBindingSession *)session;
+- (void)addParameter:(NSString *)name value:(id)value;
 
-- (NSString *)getRepositoryUrl;
-- (NSString *)getObjectUrlObjectId:(NSString *)objectId;
-- (NSString *)getObjectUrlObjectId:(NSString *)objectId selector:(NSString *)selector;
-- (NSString *)getObjectUrlByPath:(NSString *)path selector:(NSString *)selector;
-- (NSString *)getRepositoryUrlWithSelector:(NSString *)selector;
+- (void)addParameter:(NSString *)name boolValue:(BOOL)value;
+
+- (NSDictionary *)headers;
+
+- (NSData *)body;
 
 @end

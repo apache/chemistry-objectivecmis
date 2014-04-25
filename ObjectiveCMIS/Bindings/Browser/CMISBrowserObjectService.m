@@ -27,6 +27,7 @@
 #import "CMISFileUtil.h"
 #import "CMISErrors.h"
 #import "CMISLog.h"
+#import "CMISFormDataWriter.h"
 
 @implementation CMISBrowserObjectService
 
@@ -292,9 +293,29 @@
                  allVersions:(BOOL)allVersions
              completionBlock:(void (^)(BOOL objectDeleted, NSError *error))completionBlock
 {
-    NSString * message = [NSString stringWithFormat:@"%s is not implemented yet", __PRETTY_FUNCTION__];
-    NSException *exception = [NSException exceptionWithName:NSInvalidArgumentException reason:message userInfo:nil];
-    @throw exception;
+    // build URL
+    NSString *objectUrl = [self getObjectUrlObjectId:objectId];
+    
+    CMISFormDataWriter *formData = [[CMISFormDataWriter alloc] initWithAction:kCMISBrowserJSONActionDelete];
+    [formData addParameter:kCMISParameterAllVersions boolValue:allVersions];
+    
+
+    CMISRequest *cmisRequest = [[CMISRequest alloc] init];
+    
+    // send
+    [self.bindingSession.networkProvider invokePOST:[NSURL URLWithString:objectUrl]
+                                            session:self.bindingSession
+                                               body:formData.body
+                                            headers:formData.headers
+                                        cmisRequest:cmisRequest
+                                    completionBlock:^(CMISHttpResponse *httpResponse, NSError *error) {
+                                        if ((httpResponse.statusCode == 200 || httpResponse.statusCode == 201) && httpResponse.data) {
+                                            completionBlock(YES, nil);
+                                        } else {
+                                            completionBlock(NO, [CMISErrors cmisError:error cmisErrorCode:kCMISErrorCodeUpdateConflict]);
+                                        }
+                                    }];
+    return cmisRequest;
 }
 
 - (CMISRequest*)createFolderInParentFolder:(NSString *)folderObjectId

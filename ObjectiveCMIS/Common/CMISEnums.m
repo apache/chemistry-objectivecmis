@@ -20,6 +20,7 @@
 #import "CMISEnums.h"
 #import "CMISLog.h"
 #import "CMISConstants.h"
+#import "CMISBrowserConstants.h"
 
 @implementation CMISEnums
 
@@ -101,6 +102,31 @@
     } else {
         return CMISContentStreamUnknown;
     }
+}
+
++ (CMISPropertyType)enumForPropertyType:(NSString *)typeString
+{
+    CMISPropertyType propertyType;
+    if ([typeString isEqualToString:kCMISBrowserJSONPropertyTypeValueString]) {
+        propertyType = CMISPropertyTypeString;
+    } else if ([typeString isEqualToString:kCMISBrowserJSONPropertyTypeValueId]) {
+        propertyType = CMISPropertyTypeId;
+    } else if ([typeString isEqualToString:kCMISBrowserJSONPropertyTypeValueInteger]) {
+        propertyType = CMISPropertyTypeInteger;
+    } else if ([typeString isEqualToString:kCMISBrowserJSONPropertyTypeValueDecimal]) {
+        propertyType = CMISPropertyTypeDecimal;
+    } else if ([typeString isEqualToString:kCMISBrowserJSONPropertyTypeValueBoolean]) {
+        propertyType = CMISPropertyTypeBoolean;
+    } else if ([typeString isEqualToString:kCMISBrowserJSONPropertyTypeValueDateTime]) {
+        propertyType = CMISPropertyTypeDateTime;
+    } else if ([typeString isEqualToString:kCMISBrowserJSONPropertyTypeValueHtml]) {
+        propertyType = CMISPropertyTypeHtml;
+    } else if ([typeString isEqualToString:kCMISBrowserJSONPropertyTypeValueUri]) {
+        propertyType = CMISPropertyTypeUri;
+    } else {
+        propertyType = CMISPropertyTypeUnknown;
+    }
+    return propertyType;
 }
 
 @end

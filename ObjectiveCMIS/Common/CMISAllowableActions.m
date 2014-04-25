@@ -72,9 +72,13 @@
 
 - (void)setAllowableActionsWithDictionary:(NSDictionary *)allowableActionsDict
 {
-    NSSet *filteredSet = [allowableActionsDict keysOfEntriesPassingTest:^BOOL(id key, id obj, BOOL *aMethod) 
+    NSSet *filteredSet = [allowableActionsDict keysOfEntriesPassingTest:^BOOL(id key, id obj, BOOL *aMethod)
                           {
-                              return [obj isEqualToString:@"true"];
+                              if([obj isKindOfClass:NSString.class]) {
+                                  return [obj isEqualToString:@"true"];
+                              } else {
+                                  return [obj boolValue];
+                              }
                           }];
     [self setAllowableActionsSet:filteredSet];
 }
