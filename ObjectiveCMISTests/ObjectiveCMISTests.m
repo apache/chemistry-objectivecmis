@@ -743,6 +743,7 @@
                                                  continueOnFailure:YES
                                                    completionBlock:^(NSArray *failedObjects, NSError *error) {
                                                        XCTAssertNil(error, @"Error while move test folders and document: %@", [error description]);
+                                                       XCTAssertTrue(failedObjects.count == 0, @"some objects could not be deleted");
                                                        
                                                        self.testCompleted = YES;
                                                    }];

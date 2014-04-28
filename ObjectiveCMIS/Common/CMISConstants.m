@@ -124,6 +124,7 @@ NSString * const kCMISParameterMajor = @"major";
 NSString * const kCMISParameterCheckin = @"checkin";
 NSString * const kCMISParameterCheckinComment = @"checkinComment";
 NSString * const kCMISParameterSourceFolderId = @"sourceFolderId";
+NSString * const kCMISParameterTargetFolderId = @"targetFolderId";
 NSString * const kCMISParameterReturnVersion = @"returnVersion";
 NSString * const kCMISParameterTypeId = @"typeId";
 NSString * const kCMISParameterStatement = @"statement";

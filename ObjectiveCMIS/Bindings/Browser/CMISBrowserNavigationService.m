@@ -81,9 +81,35 @@
               includeRelativePathSegment:(BOOL)includeRelativePathSegment
                          completionBlock:(void (^)(NSArray *parents, NSError *error))completionBlock
 {
-    NSString * message = [NSString stringWithFormat:@"%s is not implemented yet", __PRETTY_FUNCTION__];
-    NSException *exception = [NSException exceptionWithName:NSInvalidArgumentException reason:message userInfo:nil];
-    @throw exception;
+    NSString *objectUrl = [self getObjectUrlObjectId:objectId selector:kCMISBrowserJSONSelectorParents];
+    objectUrl = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterFilter value:filter urlString:objectUrl];
+    objectUrl = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterIncludeAllowableActions boolValue:includeAllowableActions urlString:objectUrl];
+    objectUrl = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterIncludeRelationships value:[CMISEnums stringForIncludeRelationShip:relationships] urlString:objectUrl];
+    objectUrl = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterRenditionFilter value:renditionFilter urlString:objectUrl];
+    objectUrl = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterRelativePathSegment boolValue:includeRelativePathSegment urlString:objectUrl];
+    objectUrl = [CMISURLUtil urlStringByAppendingParameter:kCMISBrowserJSONParameterSuccinct value:kCMISParameterValueTrue urlString:objectUrl];
+    
+    CMISRequest *cmisRequest = [[CMISRequest alloc] init];
+    
+    [self.bindingSession.networkProvider invokeGET:[NSURL URLWithString:objectUrl]
+                                           session:self.bindingSession
+                                       cmisRequest:cmisRequest
+                                   completionBlock:^(CMISHttpResponse *httpResponse, NSError *error) {
+                                       if (httpResponse.statusCode == 200 && httpResponse.data) {
+                                           CMISTypeCache *typeCache = [[CMISTypeCache alloc] initWithRepositoryId:self.bindingSession.repositoryId bindingService:self];
+                                           [CMISBrowserUtil objectParents:httpResponse.data typeCache:typeCache completionBlock:^(NSArray *objectParents, NSError *error) {
+                                               if (error) {
+                                                   completionBlock(nil, error);
+                                               } else {
+                                                   completionBlock(objectParents, nil);
+                                               }
+                                           }];
+                                       } else {
+                                           completionBlock(nil, error);
+                                       }
+                                   }];
+    
+    return cmisRequest;
 }
 
 @end

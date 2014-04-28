@@ -89,6 +89,9 @@
             
             [repositories setObject:repoInfo forKey:repoInfo.identifier];
         }
+    } else {
+        if (outError != NULL) *outError = [CMISErrors cmisError:serialisationError cmisErrorCode:kCMISErrorCodeRuntime];
+        return nil;
     }
 
     return repositories;
@@ -271,9 +274,53 @@
     if (!serialisationError) {
         // parse the json into a CMISObjectData object
         renditions = [CMISBrowserUtil renditionsFromArray:jsonDictionary];
+    } else {
+        if (outError != NULL) *outError = [CMISErrors cmisError:serialisationError cmisErrorCode:kCMISErrorCodeRuntime];
+        return nil;
     }
     
     return renditions;
+}
+
++ (NSArray *)failedToDeleteObjectsFromJSONData:(NSData *)jsonData error:(NSError **)outError
+{
+    // TODO: error handling i.e. if jsonData is nil, also handle outError being nil
+    
+    // parse the JSON response
+    NSError *serialisationError = nil;
+    id jsonDictionary = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:&serialisationError];
+    
+    if (!serialisationError) {
+        NSMutableArray *ids = [[NSMutableArray alloc] init];
+        NSArray *jsonIds = [jsonDictionary cmis_objectForKeyNotNull:kCMISBrowserJSONFailedToDeleteId];
+        
+        if (jsonIds) {
+            for (NSObject *obj in jsonIds) {
+                [ids addObject:obj.description]; //obj can't be nil as it came out of an array
+            }
+        }
+        
+        return ids;
+    } else {
+        if (outError != NULL) *outError = [CMISErrors cmisError:serialisationError cmisErrorCode:kCMISErrorCodeRuntime];
+        return nil;
+    }
+}
+
++ (void)objectParents:(NSData *)jsonData typeCache:(CMISTypeCache *)typeCache completionBlock:(void(^)(NSArray *objectParents, NSError *error))completionBlock
+{
+    // TODO: error handling i.e. if jsonData is nil, also handle outError being nil
+    
+    // parse the JSON response
+    NSError *serialisationError = nil;
+    id jsonDictionary = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:&serialisationError];
+    
+    if (!serialisationError) {
+        [self convertObjects:jsonDictionary typeCache:typeCache completionBlock:completionBlock];
+    } else {
+        completionBlock(nil, [CMISErrors cmisError:serialisationError cmisErrorCode:kCMISErrorCodeRuntime]);
+        return;
+    }
 }
 
 #pragma mark -

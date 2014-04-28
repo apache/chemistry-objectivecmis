@@ -100,6 +100,7 @@ extern NSString * const kCMISBrowserJSONMinValue;
 extern NSString * const kCMISBrowserJSONMaxValue;
 extern NSString * const kCMISBrowserJSONPrecision;
 extern NSString * const kCMISBrowserJSONResolution;
+extern NSString * const kCMISBrowserJSONFailedToDeleteId;
 extern NSString * const kCMISBrowserJSONAcePrincipal;
 extern NSString * const kCMISBrowserJSONAcePrincipalId;
 extern NSString * const kCMISBrowserJSONAcePermissions;
@@ -161,6 +162,8 @@ extern NSString * const kCMISBrowserJSONParameterSuccinct;
 
 // Browser binding control
 extern NSString * const kCMISBrowserJSONControlCmisAction;
+extern NSString * const kCMISBrowserJSONControlPropertyId;
+extern NSString * const kCMISBrowserJSONControlPropertyValue;
 
 // Browser binding actions
 extern NSString * const kCMISBrowserJSONActionCreateType;

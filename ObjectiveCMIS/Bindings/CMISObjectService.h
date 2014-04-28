@@ -215,7 +215,7 @@
 /**
  * Deletes the given folder and all of its subfolder and files
  *
- * Returns a list of objects which failed to be deleted.
+ * Returns a list of object ids which failed to be deleted.
  * completionBlock returns array of failed objects if any. NSError will be nil if successful
  */
 - (CMISRequest*)deleteTree:(NSString *)folderObjectId

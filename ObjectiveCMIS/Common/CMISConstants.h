@@ -116,6 +116,7 @@ extern NSString * const kCMISParameterMajor;
 extern NSString * const kCMISParameterCheckin;
 extern NSString * const kCMISParameterCheckinComment;
 extern NSString * const kCMISParameterSourceFolderId;
+extern NSString * const kCMISParameterTargetFolderId;
 extern NSString * const kCMISParameterReturnVersion;
 extern NSString * const kCMISParameterTypeId;
 extern NSString * const kCMISParameterStatement;

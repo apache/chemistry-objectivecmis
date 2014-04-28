@@ -113,6 +113,7 @@ NSString * const kCMISBrowserJSONMinValue = @"minValue";
 NSString * const kCMISBrowserJSONMaxValue = @"maxValue";
 NSString * const kCMISBrowserJSONPrecision = @"precision";
 NSString * const kCMISBrowserJSONResolution = @"resolution";
+NSString * const kCMISBrowserJSONFailedToDeleteId = @"ids";
 NSString * const kCMISBrowserJSONAcePrincipal = @"principal";
 NSString * const kCMISBrowserJSONAcePrincipalId = @"principalId";
 NSString * const kCMISBrowserJSONAcePermissions = @"permissions";
@@ -177,6 +178,8 @@ NSString * const kCMISBrowserJSONParameterSuccinct = @"succinct";
 
 // Browser binding control
 NSString * const kCMISBrowserJSONControlCmisAction = @"cmisaction";
+NSString * const kCMISBrowserJSONControlPropertyId = @"propertyId";
+NSString * const kCMISBrowserJSONControlPropertyValue = @"propertyValue";
 
 
 // Browser binding actions

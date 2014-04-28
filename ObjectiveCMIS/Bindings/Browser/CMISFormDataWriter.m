@@ -20,6 +20,8 @@
 #import "CMISFormDataWriter.h"
 #import "CMISConstants.h"
 #import "CMISBrowserConstants.h"
+#import "CMISEnums.h"
+#import "CMISLog.h"
 
 NSString * const kCMISFormDataContentTypeUrlEncoded = @"application/x-www-form-urlencoded;charset=utf-8";
 
@@ -60,6 +62,66 @@ NSString * const kCMISFormDataContentTypeUrlEncoded = @"application/x-www-form-u
 - (void)addParameter:(NSString *)name boolValue:(BOOL)value
 {
     [self addParameter:name value:(value? kCMISParameterValueTrue : kCMISParameterValueFalse)];
+}
+
+- (void)addSuccinctFlag:(BOOL)succinct
+{
+    if (succinct) {
+        [self addParameter:kCMISBrowserJSONParameterSuccinct value:kCMISParameterValueTrue];
+    }
+}
+
+- (void)addPropertiesParameters:(CMISProperties *)properties
+{
+    if (!properties) {
+        return;
+    }
+    
+    int idx = 0;
+    
+    for (CMISPropertyData *prop in properties.propertyList) {
+        
+        NSString *idxStr = [NSString stringWithFormat:@"[%d]", idx];
+        
+        
+        [self addParameter:[NSString stringWithFormat:@"%@%@", kCMISBrowserJSONControlPropertyId, idxStr] value:prop.identifier];
+        
+        if (prop.values && prop.values.count > 0) {
+            if (prop.values.count == 1) {
+                NSString *value = [self convertPropertyValue:prop.firstValue forPropertyType:prop.type];
+                [self addParameter:[NSString stringWithFormat:@"%@%@", kCMISBrowserJSONControlPropertyValue, idxStr] value:value];
+            } else {
+                int vidx = 0;
+                for (id obj in prop.values) {
+                    NSString *vidxStr = [NSString stringWithFormat:@"[%d]", vidx];
+                    NSString *value = [self convertPropertyValue:obj forPropertyType:prop.type];
+                    [self addParameter:[NSString stringWithFormat:@"%@%@%@", kCMISBrowserJSONControlPropertyValue, idxStr, vidxStr] value:value];
+                    vidx++;
+                }
+            }
+        }
+        
+        idx++;
+    }
+}
+
+// TODO should this method be part of CMISPropertyData class (as class method?)
+- (NSString *)convertPropertyValue:(id)value forPropertyType:(CMISPropertyType)type
+{
+    if (!value) {
+        return nil;
+    }
+    
+    if (type == CMISPropertyTypeBoolean) {
+        return [value boolValue] ? kCMISParameterValueTrue : kCMISParameterValueFalse;
+    } else if (type == CMISPropertyTypeDateTime) {
+        if ([value isKindOfClass:NSDate.class]) {
+            return [NSNumber numberWithDouble:[(NSDate *)value timeIntervalSinceReferenceDate]].description;
+        } else {
+            CMISLogWarning(@"value is not a date!");
+        }
+    }
+    return value;
 }
 
 - (NSDictionary *)headers

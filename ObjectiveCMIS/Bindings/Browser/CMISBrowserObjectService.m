@@ -28,6 +28,7 @@
 #import "CMISErrors.h"
 #import "CMISLog.h"
 #import "CMISFormDataWriter.h"
+#import "CMISStringInOutParameter.h"
 
 @implementation CMISBrowserObjectService
 
@@ -211,9 +212,47 @@
                           changeToken:(CMISStringInOutParameter *)changeTokenParam
                       completionBlock:(void (^)(NSError *error))completionBlock
 {
-    NSString * message = [NSString stringWithFormat:@"%s is not implemented yet", __PRETTY_FUNCTION__];
-    NSException *exception = [NSException exceptionWithName:NSInvalidArgumentException reason:message userInfo:nil];
-    @throw exception;
+    // we need an object id
+    if ((objectIdParam.inParameter == nil) || (objectIdParam.inParameter.length == 0)) {
+        completionBlock([CMISErrors createCMISErrorWithCode:kCMISErrorCodeInvalidArgument
+                                        detailedDescription:@"Object id must be set!"]);
+    }
+    
+    // build URL
+    NSString *objectUrl = [self getObjectUrlObjectId:objectIdParam.inParameter];
+    
+    // prepare form data
+    CMISFormDataWriter *formData = [[CMISFormDataWriter alloc] initWithAction:kCMISBrowserJSONActionDeleteContent];
+    [formData addParameter:kCMISParameterChangeToken value:changeTokenParam.inParameter];
+    [formData addSuccinctFlag:true];
+    
+    
+    CMISRequest *cmisRequest = [[CMISRequest alloc] init];
+    
+    // send
+    [self.bindingSession.networkProvider invokePOST:[NSURL URLWithString:objectUrl]
+                                            session:self.bindingSession
+                                               body:formData.body
+                                            headers:formData.headers
+                                        cmisRequest:cmisRequest
+                                    completionBlock:^(CMISHttpResponse *httpResponse, NSError *error) {
+                                        if ((httpResponse.statusCode == 200 || httpResponse.statusCode == 201) && httpResponse.data) {
+                                            CMISTypeCache *typeCache = [[CMISTypeCache alloc] initWithRepositoryId:self.bindingSession.repositoryId bindingService:self];
+                                            [CMISBrowserUtil objectDataFromJSONData:httpResponse.data typeCache:typeCache completionBlock:^(CMISObjectData *objectData, NSError *error) {
+                                                if (error) {
+                                                    completionBlock(error);
+                                                } else {
+                                                    objectIdParam.outParameter = objectData.identifier;
+                                                    changeTokenParam.outParameter = objectData.properties.propertiesDictionary[kCMISPropertyChangeToken];
+                                                    
+                                                    completionBlock(nil);
+                                                }
+                                            }];
+                                        } else {
+                                            completionBlock(error);
+                                        }
+                                    }];
+    return cmisRequest;
 }
 
 - (CMISRequest*)changeContentOfObject:(CMISStringInOutParameter *)objectIdParam
@@ -224,9 +263,30 @@
                       completionBlock:(void (^)(NSError *error))completionBlock
                         progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal))progressBlock
 {
-    NSString * message = [NSString stringWithFormat:@"%s is not implemented yet", __PRETTY_FUNCTION__];
-    NSException *exception = [NSException exceptionWithName:NSInvalidArgumentException reason:message userInfo:nil];
-    @throw exception;
+    NSInputStream *inputStream = [NSInputStream inputStreamWithFileAtPath:filePath];
+    if (inputStream == nil) {
+        CMISLogError(@"Could not find file %@", filePath);
+        if (completionBlock) {
+            completionBlock([CMISErrors createCMISErrorWithCode:kCMISErrorCodeInvalidArgument detailedDescription:nil]);
+        }
+        return nil;
+    }
+    
+    NSError *fileError = nil;
+    unsigned long long fileSize = [CMISFileUtil fileSizeForFileAtPath:filePath error:&fileError];
+    if (fileError) {
+        CMISLogError(@"Could not determine size of file %@: %@", filePath, [fileError description]);
+    }
+    
+    return [self changeContentOfObject:objectIdParam
+                toContentOfInputStream:inputStream
+                         bytesExpected:fileSize
+                              filename:[filePath lastPathComponent]
+                              mimeType:mimeType
+                     overwriteExisting:overwrite
+                           changeToken:changeTokenParam
+                       completionBlock:completionBlock
+                         progressBlock:progressBlock];
 }
 
 - (CMISRequest*)changeContentOfObject:(CMISStringInOutParameter *)objectId
@@ -322,9 +382,41 @@
                                 properties:(CMISProperties *)properties
                            completionBlock:(void (^)(NSString *objectId, NSError *error))completionBlock
 {
-    NSString * message = [NSString stringWithFormat:@"%s is not implemented yet", __PRETTY_FUNCTION__];
-    NSException *exception = [NSException exceptionWithName:NSInvalidArgumentException reason:message userInfo:nil];
-    @throw exception;
+    // build URL
+    NSString *folderObjectUrl = [self getObjectUrlObjectId:folderObjectId];
+    
+    // prepare form data
+    CMISFormDataWriter *formData = [[CMISFormDataWriter alloc] initWithAction:kCMISBrowserJSONActionCreateFolder];
+    [formData addPropertiesParameters:properties];
+    // TODO [formData addPoliciesParameters:policies];
+    // TODO [formData addAddAcesParameters:addAces];
+    // TODO [formData addRemoveAcesParameters:removeAces];
+    [formData addSuccinctFlag:true];
+    
+    
+    CMISRequest *cmisRequest = [[CMISRequest alloc] init];
+    
+    // send
+    [self.bindingSession.networkProvider invokePOST:[NSURL URLWithString:folderObjectUrl]
+                                            session:self.bindingSession
+                                               body:formData.body
+                                            headers:formData.headers
+                                        cmisRequest:cmisRequest
+                                    completionBlock:^(CMISHttpResponse *httpResponse, NSError *error) {
+                                        if ((httpResponse.statusCode == 200 || httpResponse.statusCode == 201) && httpResponse.data) {
+                                            CMISTypeCache *typeCache = [[CMISTypeCache alloc] initWithRepositoryId:self.bindingSession.repositoryId bindingService:self];
+                                            [CMISBrowserUtil objectDataFromJSONData:httpResponse.data typeCache:typeCache completionBlock:^(CMISObjectData *objectData, NSError *error) {
+                                                if (error) {
+                                                    completionBlock(nil, error);
+                                                } else {
+                                                    completionBlock(objectData.identifier, nil);
+                                                }
+                                            }];
+                                        } else {
+                                            completionBlock(nil, error);
+                                        }
+                                    }];
+    return cmisRequest;
 }
 
 - (CMISRequest*)moveObject:(NSString *)objectId
@@ -332,9 +424,45 @@
                   toFolder:(NSString *)targetFolderId
            completionBlock:(void (^)(CMISObjectData *objectData, NSError *error))completionBlock
 {
-    NSString * message = [NSString stringWithFormat:@"%s is not implemented yet", __PRETTY_FUNCTION__];
-    NSException *exception = [NSException exceptionWithName:NSInvalidArgumentException reason:message userInfo:nil];
-    @throw exception;
+    // we need an object id
+    if ((objectId == nil) || (objectId.length == 0)) {
+        completionBlock(nil, [CMISErrors createCMISErrorWithCode:kCMISErrorCodeInvalidArgument
+                                        detailedDescription:@"Object id must be set!"]);
+    }
+    
+    // build URL
+    NSString *objectUrl = [self getObjectUrlObjectId:objectId];
+    
+    // prepare form data
+    CMISFormDataWriter *formData = [[CMISFormDataWriter alloc] initWithAction:kCMISBrowserJSONActionMove];
+    [formData addParameter:kCMISParameterTargetFolderId value:targetFolderId];
+    [formData addParameter:kCMISParameterSourceFolderId value:sourceFolderId];
+    [formData addSuccinctFlag:true];
+    
+    
+    CMISRequest *cmisRequest = [[CMISRequest alloc] init];
+    
+    // send
+    [self.bindingSession.networkProvider invokePOST:[NSURL URLWithString:objectUrl]
+                                            session:self.bindingSession
+                                               body:formData.body
+                                            headers:formData.headers
+                                        cmisRequest:cmisRequest
+                                    completionBlock:^(CMISHttpResponse *httpResponse, NSError *error) {
+                                        if ((httpResponse.statusCode == 200 || httpResponse.statusCode == 201) && httpResponse.data) {
+                                            CMISTypeCache *typeCache = [[CMISTypeCache alloc] initWithRepositoryId:self.bindingSession.repositoryId bindingService:self];
+                                            [CMISBrowserUtil objectDataFromJSONData:httpResponse.data typeCache:typeCache completionBlock:^(CMISObjectData *objectData, NSError *error) {
+                                                if (error) {
+                                                    completionBlock(nil, error);
+                                                } else {
+                                                    completionBlock(objectData, nil);
+                                                }
+                                            }];
+                                        } else {
+                                            completionBlock(nil, error);
+                                        }
+                                    }];
+    return cmisRequest;
 }
 
 - (CMISRequest*)deleteTree:(NSString *)folderObjectId
@@ -343,9 +471,41 @@
          continueOnFailure:(BOOL)continueOnFailure
            completionBlock:(void (^)(NSArray *failedObjects, NSError *error))completionBlock
 {
-    NSString * message = [NSString stringWithFormat:@"%s is not implemented yet", __PRETTY_FUNCTION__];
-    NSException *exception = [NSException exceptionWithName:NSInvalidArgumentException reason:message userInfo:nil];
-    @throw exception;
+    // build URL
+    NSString *folderObjectUrl = [self getObjectUrlObjectId:folderObjectId];
+    
+    CMISFormDataWriter *formData = [[CMISFormDataWriter alloc] initWithAction:kCMISBrowserJSONActionDeleteTree];
+    [formData addParameter:kCMISParameterAllVersions boolValue:allVersions];
+    [formData addParameter:kCMISParameterUnfileObjects value:[CMISEnums stringForUnfileObject:unfileObjects]];
+    [formData addParameter:kCMISParameterContinueOnFailure boolValue:continueOnFailure];
+    
+    CMISRequest *cmisRequest = [[CMISRequest alloc] init];
+    
+    // send
+    [self.bindingSession.networkProvider invokePOST:[NSURL URLWithString:folderObjectUrl]
+                                            session:self.bindingSession
+                                               body:formData.body
+                                            headers:formData.headers
+                                        cmisRequest:cmisRequest
+                                    completionBlock:^(CMISHttpResponse *httpResponse, NSError *error) {
+                                        if ((httpResponse.statusCode == 200 || httpResponse.statusCode == 201) && httpResponse.data) {
+                                            NSError *error = nil;
+                                            if(httpResponse.data.length > 0) {
+                                                NSArray *failedToDeleteIds = [CMISBrowserUtil failedToDeleteObjectsFromJSONData:httpResponse.data error:&error];
+                                                if (error) {
+                                                    completionBlock(nil, error);
+                                                } else {
+                                                    completionBlock(failedToDeleteIds, nil);
+                                                }
+                                            } else {
+                                                completionBlock([NSArray array], nil);
+                                            }
+                                        } else {
+                                            completionBlock(nil, [CMISErrors cmisError:error cmisErrorCode:kCMISErrorCodeConnection]);
+                                        }
+                                    }];
+    
+    return cmisRequest;
 }
 
 - (CMISRequest*)updatePropertiesForObject:(CMISStringInOutParameter *)objectIdParam
@@ -353,9 +513,48 @@
                               changeToken:(CMISStringInOutParameter *)changeTokenParam
                           completionBlock:(void (^)(NSError *error))completionBlock
 {
-    NSString * message = [NSString stringWithFormat:@"%s is not implemented yet", __PRETTY_FUNCTION__];
-    NSException *exception = [NSException exceptionWithName:NSInvalidArgumentException reason:message userInfo:nil];
-    @throw exception;
+    // we need an object id
+    if ((objectIdParam.inParameter == nil) || (objectIdParam.inParameter.length == 0)) {
+        completionBlock([CMISErrors createCMISErrorWithCode:kCMISErrorCodeInvalidArgument
+                                        detailedDescription:@"Object id must be set!"]);
+    }
+    
+    // build URL
+    NSString *objectUrl = [self getObjectUrlObjectId:objectIdParam.inParameter];
+    
+    // prepare form data
+    CMISFormDataWriter *formData = [[CMISFormDataWriter alloc] initWithAction:kCMISBrowserJSONActionUpdateProperties];
+    [formData addPropertiesParameters:properties];
+    [formData addParameter:kCMISParameterChangeToken value:changeTokenParam.inParameter];
+    [formData addSuccinctFlag:true];
+    
+    
+    CMISRequest *cmisRequest = [[CMISRequest alloc] init];
+    
+    // send
+    [self.bindingSession.networkProvider invokePOST:[NSURL URLWithString:objectUrl]
+                                            session:self.bindingSession
+                                               body:formData.body
+                                            headers:formData.headers
+                                        cmisRequest:cmisRequest
+                                    completionBlock:^(CMISHttpResponse *httpResponse, NSError *error) {
+                                        if ((httpResponse.statusCode == 200 || httpResponse.statusCode == 201) && httpResponse.data) {
+                                            CMISTypeCache *typeCache = [[CMISTypeCache alloc] initWithRepositoryId:self.bindingSession.repositoryId bindingService:self];
+                                            [CMISBrowserUtil objectDataFromJSONData:httpResponse.data typeCache:typeCache completionBlock:^(CMISObjectData *objectData, NSError *error) {
+                                                if (error) {
+                                                    completionBlock(error);
+                                                } else {
+                                                    objectIdParam.outParameter = objectData.identifier;
+                                                    changeTokenParam.outParameter = objectData.properties.propertiesDictionary[kCMISPropertyChangeToken];
+                                                    
+                                                    completionBlock(nil);
+                                                }
+                                            }];
+                                        } else {
+                                            completionBlock(error);
+                                        }
+                                    }];
+    return cmisRequest;
 }
 
 - (CMISRequest*)retrieveRenditions:(NSString *)objectId

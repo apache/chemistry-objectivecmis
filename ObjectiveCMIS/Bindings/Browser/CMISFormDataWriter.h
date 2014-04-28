@@ -18,6 +18,7 @@
  */
 
 #import <Foundation/Foundation.h>
+#import "CMISProperties.h"
 
 @interface CMISFormDataWriter : NSObject
 
@@ -26,6 +27,10 @@
 - (void)addParameter:(NSString *)name value:(id)value;
 
 - (void)addParameter:(NSString *)name boolValue:(BOOL)value;
+
+- (void)addPropertiesParameters:(CMISProperties *)properties;
+
+- (void)addSuccinctFlag:(BOOL)succinct;
 
 - (NSDictionary *)headers;
 

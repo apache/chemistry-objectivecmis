@@ -51,4 +51,14 @@
  */
 + (NSArray *)renditionsFromJSONData:(NSData *)jsonData error:(NSError **)outError;
 
+/**
+ Returns an array of NSString objects that failed to be deleted, parsed from the given JSON data.
+ */
++ (NSArray *)failedToDeleteObjectsFromJSONData:(NSData *)jsonData error:(NSError **)outError;
+
+/**
+ Returns all object parents as an array of CMISObjectData objects, parsed from the given JSON data.
+ */
++ (void)objectParents:(NSData *)jsonData typeCache:(CMISTypeCache *)typeCache completionBlock:(void(^)(NSArray *objectParents, NSError *error))completionBlock;
+
 @end
