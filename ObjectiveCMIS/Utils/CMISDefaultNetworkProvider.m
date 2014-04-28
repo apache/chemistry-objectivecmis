@@ -302,7 +302,7 @@ completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))comple
             httpMethod = @"PUT";
             break;
         default:
-            CMISLogError(@"Invalid http request method: %d", httpRequestMethod);
+            CMISLogError(@"Invalid http request method: %d", (int)httpRequestMethod);
             return nil;
     }
     

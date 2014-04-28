@@ -39,7 +39,7 @@
             includeRelationShipString = @"both";
             break;
         default:
-            CMISLogError(@"Invalid enum type %d", includeRelationship);
+            CMISLogError(@"Invalid enum type %d", (int)includeRelationship);
             break;
     }
     return includeRelationShipString;
@@ -59,7 +59,7 @@
             unfileObjectString = @"delete";
             break;
         default:
-            CMISLogError(@"Inavlid enum type %d", unfileObject);
+            CMISLogError(@"Inavlid enum type %d", (int)unfileObject);
             break;
     }
     return unfileObjectString;

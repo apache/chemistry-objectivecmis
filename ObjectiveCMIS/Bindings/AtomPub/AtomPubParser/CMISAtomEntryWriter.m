@@ -202,7 +202,7 @@
             }
             default:
             {
-                CMISLogDebug(@"Property type did not match: %ld", propertyData.type);
+                CMISLogDebug(@"Property type did not match: %d", (int)propertyData.type);
                 break;
             }
         }
