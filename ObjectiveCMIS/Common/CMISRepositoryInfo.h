@@ -25,7 +25,7 @@
 
 @property (nonatomic, strong) NSString *identifier;
 @property (nonatomic, strong) NSString *name;
-@property (nonatomic, strong) NSString *desc;
+@property (nonatomic, strong) NSString *summary;
 @property (nonatomic, strong) NSString *rootFolderId;
 
 @property (nonatomic, strong) NSString *cmisVersionSupported;

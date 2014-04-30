@@ -57,7 +57,7 @@
             CMISRepositoryInfo *repoInfo = [CMISRepositoryInfo new];
             repoInfo.identifier = [repo cmis_objectForKeyNotNull:kCMISBrowserJSONRepositoryId];
             repoInfo.name = [repo cmis_objectForKeyNotNull:kCMISBrowserJSONRepositoryName];
-            repoInfo.desc = [repo cmis_objectForKeyNotNull:kCMISBrowserJSONRepositoryDescription];
+            repoInfo.summary = [repo cmis_objectForKeyNotNull:kCMISBrowserJSONRepositoryDescription];
             repoInfo.vendorName = [repo cmis_objectForKeyNotNull:kCMISBrowserJSONVendorName];
             repoInfo.productName = [repo cmis_objectForKeyNotNull:kCMISBrowserJSONProductName];
             repoInfo.productVersion = [repo cmis_objectForKeyNotNull:kCMISBrowserJSONProductVersion];
@@ -159,9 +159,9 @@
         }
 
         typeDef.baseTypeId = baseType;
-        typeDef.description = [jsonDictionary cmis_objectForKeyNotNull:kCMISBrowserJSONDescription];
+        typeDef.summary = [jsonDictionary cmis_objectForKeyNotNull:kCMISBrowserJSONDescription];
         typeDef.displayName = [jsonDictionary cmis_objectForKeyNotNull:kCMISBrowserJSONDisplayName];
-        typeDef.id = [jsonDictionary cmis_objectForKeyNotNull:kCMISBrowserJSONId];
+        typeDef.identifier = [jsonDictionary cmis_objectForKeyNotNull:kCMISBrowserJSONId];
         typeDef.controllablePolicy = [jsonDictionary cmis_boolForKey:kCMISBrowserJSONControllablePolicy];
         typeDef.controllableAcl = [jsonDictionary cmis_boolForKey:kCMISBrowserJSONControllableAcl];
         typeDef.creatable = [jsonDictionary cmis_boolForKey:kCMISBrowserJSONCreateable];
@@ -928,11 +928,11 @@
     
     // create property definition and add to type definition
     CMISPropertyDefinition *propDef = [CMISPropertyDefinition new];
-    propDef.id = [propertyDictionary cmis_objectForKeyNotNull:kCMISBrowserJSONId];
+    propDef.identifier = [propertyDictionary cmis_objectForKeyNotNull:kCMISBrowserJSONId];
     propDef.localName = [propertyDictionary cmis_objectForKeyNotNull:kCMISBrowserJSONLocalName];
     propDef.localNamespace = [propertyDictionary cmis_objectForKeyNotNull:kCMISBrowserJSONLocalNamespace];
     propDef.queryName = [propertyDictionary cmis_objectForKeyNotNull:kCMISBrowserJSONQueryName];
-    propDef.description = [propertyDictionary cmis_objectForKeyNotNull:kCMISBrowserJSONDescription];
+    propDef.summary = [propertyDictionary cmis_objectForKeyNotNull:kCMISBrowserJSONDescription];
     propDef.displayName = [propertyDictionary cmis_objectForKeyNotNull:kCMISBrowserJSONDisplayName];
     propDef.inherited = [propertyDictionary cmis_boolForKey:kCMISBrowserJSONInherited];
     propDef.openChoice = [propertyDictionary cmis_boolForKey:kCMISBrowserJSONOpenChoice];

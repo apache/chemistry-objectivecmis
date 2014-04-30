@@ -39,7 +39,7 @@
     if (self.internalPropertyDefinitions == nil) {
         self.internalPropertyDefinitions = [[NSMutableDictionary alloc] init];
     }
-    [self.internalPropertyDefinitions setObject:propertyDefinition forKey:propertyDefinition.id];
+    [self.internalPropertyDefinitions setObject:propertyDefinition forKey:propertyDefinition.identifier];
 }
 
 - (CMISPropertyDefinition *)propertyDefinitionForId:(NSString *)propertyId

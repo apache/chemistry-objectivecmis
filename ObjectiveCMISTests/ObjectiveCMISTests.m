@@ -201,7 +201,7 @@
             // test various aspects of type definition
             CMISTypeDefinition *typeDef = rootFolder.typeDefinition;
             XCTAssertNotNil(typeDef, @"Expected the type definition to be present");
-            XCTAssertTrue([typeDef.id isEqualToString:@"cmis:folder"], @"Expected typeDef.id to be cmis:folder but it was %@", typeDef.id);
+            XCTAssertTrue([typeDef.identifier isEqualToString:@"cmis:folder"], @"Expected typeDef.identifier to be cmis:folder but it was %@", typeDef.identifier);
             XCTAssertTrue([typeDef.localName isEqualToString:@"folder"], @"Expected typeDef.localName to be folder but it was %@", typeDef.localName);
             XCTAssertTrue([typeDef.queryName isEqualToString:@"cmis:folder"], @"Expected typeDef.queryName to be cmis:folder but it was %@", typeDef.queryName);
             XCTAssertTrue(typeDef.baseTypeId == CMISBaseTypeFolder, @"Expected baseTypeId to be cmis:folder");
@@ -215,8 +215,8 @@
             
             CMISPropertyDefinition *objectTypeIdDef = typeDef.propertyDefinitions[@"cmis:objectTypeId"];
             XCTAssertNotNil(objectTypeIdDef, @"Expected to find cmis:objectTypeId property definition");
-            XCTAssertTrue([objectTypeIdDef.id isEqualToString:@"cmis:objectTypeId"],
-                          @"Expected objectTypeIdDef.id to be cmis:objectTypeId but it was %@", objectTypeIdDef.id);
+            XCTAssertTrue([objectTypeIdDef.identifier isEqualToString:@"cmis:objectTypeId"],
+                          @"Expected objectTypeIdDef.id to be cmis:objectTypeId but it was %@", objectTypeIdDef.identifier);
             XCTAssertTrue([objectTypeIdDef.localName isEqualToString:@"objectTypeId"],
                           @"Expected objectTypeIdDef.localName to be objectTypeId but it was %@", objectTypeIdDef.localName);
             XCTAssertTrue(objectTypeIdDef.propertyType == CMISPropertyTypeId, @"Expected objectTypeId type to be id");
@@ -229,8 +229,8 @@
             if (secondaryTypeIdDef != nil)
             {
                 XCTAssertNotNil(secondaryTypeIdDef, @"Expected to find cmis:secondaryObjectTypeIds property definition");
-                XCTAssertTrue([secondaryTypeIdDef.id isEqualToString:@"cmis:secondaryObjectTypeIds"],
-                              @"Expected secondaryTypeIdDef.id to be cmis:secondaryObjectTypeIds but it was %@", secondaryTypeIdDef.id);
+                XCTAssertTrue([secondaryTypeIdDef.identifier isEqualToString:@"cmis:secondaryObjectTypeIds"],
+                              @"Expected secondaryTypeIdDef.id to be cmis:secondaryObjectTypeIds but it was %@", secondaryTypeIdDef.identifier);
                 XCTAssertTrue([secondaryTypeIdDef.localName isEqualToString:@"secondaryObjectTypeIds"],
                               @"Expected objectTypeIdDef.localName to be secondaryObjectTypeIds but it was %@", secondaryTypeIdDef.localName);
                 XCTAssertTrue(secondaryTypeIdDef.propertyType == CMISPropertyTypeId, @"Expected secondaryTypeIdDef type to be id");
@@ -1334,8 +1334,8 @@
              XCTAssertTrue(typeDefinition.baseTypeId == CMISBaseTypeDocument, @"Unexpected base type id");
              XCTAssertNotNil(typeDefinition.description, @"Type description should not be nil");
              XCTAssertNotNil(typeDefinition.displayName, @"Type displayName should not be nil");
-             XCTAssertNotNil(typeDefinition.id, @"Type id should not be nil");
-             XCTAssertTrue([typeDefinition.id isEqualToString:@"cmis:document"], @"Wrong id for type");
+             XCTAssertNotNil(typeDefinition.identifier, @"Type id should not be nil");
+             XCTAssertTrue([typeDefinition.identifier isEqualToString:@"cmis:document"], @"Wrong id for type");
              XCTAssertNotNil(typeDefinition.localName, @"Type local name should not be nil");
              XCTAssertNotNil(typeDefinition.localNameSpace, @"Type local namespace should not be nil");
              XCTAssertNotNil(typeDefinition.queryName, @"Type query name should not be nil");
@@ -1347,7 +1347,7 @@
                  CMISPropertyDefinition *propertyDefinition = [typeDefinition.propertyDefinitions objectForKey:key];
                  XCTAssertNotNil(propertyDefinition.description, @"Property definition description should not be nil");
                  XCTAssertNotNil(propertyDefinition.displayName, @"Property definition display name should not be nil");
-                 XCTAssertNotNil(propertyDefinition.id, @"Property definition id should not be nil");
+                 XCTAssertNotNil(propertyDefinition.identifier, @"Property definition id should not be nil");
                  XCTAssertNotNil(propertyDefinition.localName, @"Property definition local name should not be nil");
                  XCTAssertNotNil(propertyDefinition.localNamespace, @"Property definition local namespace should not be nil");
                  XCTAssertNotNil(propertyDefinition.queryName, @"Property definition query name should not be nil");

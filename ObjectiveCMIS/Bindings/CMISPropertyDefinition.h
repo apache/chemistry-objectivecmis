@@ -26,12 +26,12 @@
 @interface CMISPropertyDefinition : CMISExtensionData
 
 
-@property (nonatomic, strong) NSString *id;
+@property (nonatomic, strong) NSString *identifier;
 @property (nonatomic, strong) NSString *localName;
 @property (nonatomic, strong) NSString *localNamespace;
 @property (nonatomic, strong) NSString *displayName;
 @property (nonatomic, strong) NSString *queryName;
-@property (nonatomic, strong) NSString *description;
+@property (nonatomic, strong) NSString *summary;
 @property (nonatomic, assign) CMISPropertyType propertyType;
 @property (nonatomic, assign) CMISCardinality cardinality;
 @property (nonatomic, assign) CMISUpdatability updatability;

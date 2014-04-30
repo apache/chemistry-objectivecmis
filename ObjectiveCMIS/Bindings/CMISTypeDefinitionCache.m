@@ -75,7 +75,7 @@
 
 - (void)addTypeDefinition:(CMISTypeDefinition *)typeDefinition repositoryId:(NSString *)repositoryId
 {
-    TypeDefinitionCacheKey *key = [TypeDefinitionCacheKey initWithTypeDefinitionId:typeDefinition.id repositoryId:repositoryId];
+    TypeDefinitionCacheKey *key = [TypeDefinitionCacheKey initWithTypeDefinitionId:typeDefinition.identifier repositoryId:repositoryId];
     [self.typeDefinitionCache setObject:typeDefinition forKey:key];
     
 }

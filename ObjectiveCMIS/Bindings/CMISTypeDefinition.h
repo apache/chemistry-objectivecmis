@@ -26,15 +26,12 @@
 
 @interface CMISTypeDefinition : CMISExtensionData
 
-// TODO: rename "id" property to identifier as id is a reserved keyword in ObjectiveC
-// TODO: rename "description" property to summary as description is a reserved keyword in ObjectiveC
-
-@property (nonatomic, strong) NSString *id;
+@property (nonatomic, strong) NSString *identifier;
 @property (nonatomic, strong) NSString *localName;
 @property (nonatomic, strong) NSString *localNameSpace;
 @property (nonatomic, strong) NSString *displayName;
 @property (nonatomic, strong) NSString *queryName;
-@property (nonatomic, strong) NSString *description;
+@property (nonatomic, strong) NSString *summary;
 @property (nonatomic, assign) CMISBaseType baseTypeId;
 @property (nonatomic, strong) NSString *parentTypeId;
 

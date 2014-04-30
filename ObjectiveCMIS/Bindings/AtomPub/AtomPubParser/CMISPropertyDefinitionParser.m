@@ -113,7 +113,7 @@
             self.parentDelegate = nil;
         }
     } else if ([elementName isEqualToString:kCMISCoreId]) {
-        self.propertyDefinition.id = self.currentString;
+        self.propertyDefinition.identifier = self.currentString;
     } else if ([elementName isEqualToString:kCMISCoreLocalName]) {
         self.propertyDefinition.localName = self.currentString;
     } else if ([elementName isEqualToString:kCMISCoreLocalNamespace]) {
@@ -123,7 +123,7 @@
     } else if ([elementName isEqualToString:kCMISCoreQueryName]) {
         self.propertyDefinition.queryName = self.currentString;
     } else if ([elementName isEqualToString:kCMISCoreDescription]) {
-        self.propertyDefinition.description = self.currentString;
+        self.propertyDefinition.summary = self.currentString;
     } else if ([elementName isEqualToString:kCMISCoreCardinality]) {
         if ([self.currentString isEqualToString:@"multi"]) {
             self.propertyDefinition.cardinality = CMISCardinalityMulti;

@@ -99,7 +99,7 @@
         } else if ([elementName isEqualToString:kCMISCoreRepositoryName]) {
             self.currentRepositoryInfo.name = self.currentString;
         } else if ([elementName isEqualToString:kCMISCoreRepositoryDescription]) {
-            self.currentRepositoryInfo.desc = self.currentString;
+            self.currentRepositoryInfo.summary = self.currentString;
         } else if ([elementName isEqualToString:kCMISCoreVendorName]) {
             self.currentRepositoryInfo.vendorName = self.currentString;
         } else if ([elementName isEqualToString:kCMISCoreProductName]) {

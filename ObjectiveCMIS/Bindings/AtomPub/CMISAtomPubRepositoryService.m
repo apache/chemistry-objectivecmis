@@ -89,7 +89,7 @@
                 cmisRequest:request
             completionBlock:^(id object, NSError *error) {
         CMISTypeByIdUriBuilder *typeByIdUriBuilder = object;
-        typeByIdUriBuilder.id = typeId;
+        typeByIdUriBuilder.identifier = typeId;
         
         [self.bindingSession.networkProvider invokeGET:[typeByIdUriBuilder buildUrl]
                                                session:self.bindingSession

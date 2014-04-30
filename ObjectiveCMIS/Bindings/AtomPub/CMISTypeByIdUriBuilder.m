@@ -40,7 +40,7 @@
 
 - (NSURL *)buildUrl
 {
-    return [NSURL URLWithString:[self.templateUrl stringByReplacingOccurrencesOfString:@"{id}" withString:self.id]];
+    return [NSURL URLWithString:[self.templateUrl stringByReplacingOccurrencesOfString:@"{id}" withString:self.identifier]];
 }
 
 

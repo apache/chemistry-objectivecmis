@@ -22,7 +22,7 @@
 
 @interface CMISTypeByIdUriBuilder : NSObject
 
-@property (nonatomic, strong) NSString *id;
+@property (nonatomic, strong) NSString *identifier;
 
 /**
  * init the template URL with URL string
