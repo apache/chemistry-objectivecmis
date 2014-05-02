@@ -21,7 +21,7 @@
 #import "CMISTypeDefinition.h"
 #import "CMISBrowserBaseService.h"
 
-@interface CMISTypeCache : NSObject
+@interface CMISBrowserTypeCache : NSObject
 
 - (id)initWithRepositoryId:(NSString *)repositoryId bindingService:(CMISBrowserBaseService *)service;
 

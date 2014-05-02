@@ -210,7 +210,7 @@
     return typeDef;
 }
 
-+ (void)objectDataFromJSONData:(NSData *)jsonData typeCache:(CMISTypeCache *)typeCache completionBlock:(void(^)(CMISObjectData *objectData, NSError *error))completionBlock
++ (void)objectDataFromJSONData:(NSData *)jsonData typeCache:(CMISBrowserTypeCache *)typeCache completionBlock:(void(^)(CMISObjectData *objectData, NSError *error))completionBlock
 {
     // TODO: error handling i.e. if jsonData is nil, also handle outError being nil
 
@@ -228,7 +228,7 @@
     }
 }
 
-+ (void)objectListFromJSONData:(NSData *)jsonData typeCache:(CMISTypeCache *)typeCache isQueryResult:(BOOL)isQueryResult completionBlock:(void(^)(CMISObjectList *objectList, NSError *error))completionBlock
++ (void)objectListFromJSONData:(NSData *)jsonData typeCache:(CMISBrowserTypeCache *)typeCache isQueryResult:(BOOL)isQueryResult completionBlock:(void(^)(CMISObjectList *objectList, NSError *error))completionBlock
 {
     // TODO: error handling i.e. if jsonData is nil, also handle outError being nil
     
@@ -327,7 +327,7 @@
     }
 }
 
-+ (void)objectParents:(NSData *)jsonData typeCache:(CMISTypeCache *)typeCache completionBlock:(void(^)(NSArray *objectParents, NSError *error))completionBlock
++ (void)objectParents:(NSData *)jsonData typeCache:(CMISBrowserTypeCache *)typeCache completionBlock:(void(^)(NSArray *objectParents, NSError *error))completionBlock
 {
     // TODO: error handling i.e. if jsonData is nil, also handle outError being nil
     
@@ -346,7 +346,7 @@
 #pragma mark -
 #pragma mark Private helper methods
 
-+ (void)convertObject:(NSDictionary *)dictionary typeCache:(CMISTypeCache *)typeCache completionBlock:(void(^)(CMISObjectData *objectData, NSError *error))completionBlock
++ (void)convertObject:(NSDictionary *)dictionary typeCache:(CMISBrowserTypeCache *)typeCache completionBlock:(void(^)(CMISObjectData *objectData, NSError *error))completionBlock
 {
     if (!dictionary) {
         completionBlock(nil, nil);
@@ -431,7 +431,7 @@
 
 }
 
-+ (void)convertObjects:(NSArray *)objectsArray position:(NSInteger)position convertedObjects:(NSMutableArray *)convertedObjects typeCache:(CMISTypeCache *)typeCache completionBlock:(void(^)(NSArray* objects, NSError *error))completionBlock
++ (void)convertObjects:(NSArray *)objectsArray position:(NSInteger)position convertedObjects:(NSMutableArray *)convertedObjects typeCache:(CMISBrowserTypeCache *)typeCache completionBlock:(void(^)(NSArray* objects, NSError *error))completionBlock
 {
     NSDictionary *dictionary = [objectsArray objectAtIndex:position];
     NSDictionary *objectDictionary = [dictionary cmis_objectForKeyNotNull:kCMISBrowserJSONObject];
@@ -472,7 +472,7 @@
 
 }
 
-+ (void)convertObjects:(NSArray *)objectsArray typeCache:(CMISTypeCache *)typeCache completionBlock:(void(^)(NSArray* objects, NSError *error))completionBlock
++ (void)convertObjects:(NSArray *)objectsArray typeCache:(CMISBrowserTypeCache *)typeCache completionBlock:(void(^)(NSArray* objects, NSError *error))completionBlock
 {
     NSMutableArray *objects = [NSMutableArray arrayWithCapacity:objectsArray.count];
     if (objectsArray.count > 0) {
@@ -551,7 +551,7 @@
     return properties;
 }
 
-+ (void)convertSuccinctProperties:(NSDictionary *)propertiesJson propertiesExtension:(NSDictionary *)extJson typeCache:(CMISTypeCache *)typeCache completionBlock:(void(^)(CMISProperties *properties, NSError *error))completionBlock
++ (void)convertSuccinctProperties:(NSDictionary *)propertiesJson propertiesExtension:(NSDictionary *)extJson typeCache:(CMISBrowserTypeCache *)typeCache completionBlock:(void(^)(CMISProperties *properties, NSError *error))completionBlock
 {
     if (!propertiesJson) {
         completionBlock(nil, nil);
@@ -604,7 +604,7 @@
     }
 }
 
-+(void)convertProperty:(NSString *)propName propertiesJson:(NSDictionary *)propertiesJson typeCache:(CMISTypeCache *)typeCache typeDefinition:(CMISTypeDefinition *)typeDef secondaryTypeDefinitions:(NSArray *)secTypeDefs completionBlock:(void(^)(CMISPropertyData *propertyData, NSError *error))completionBlock {
++(void)convertProperty:(NSString *)propName propertiesJson:(NSDictionary *)propertiesJson typeCache:(CMISBrowserTypeCache *)typeCache typeDefinition:(CMISTypeDefinition *)typeDef secondaryTypeDefinitions:(NSArray *)secTypeDefs completionBlock:(void(^)(CMISPropertyData *propertyData, NSError *error))completionBlock {
     CMISPropertyDefinition *propDef = nil;
     if (typeDef){
         propDef = typeDef.propertyDefinitions[propName];
@@ -727,7 +727,7 @@
     return dates;
 }
 
-+ (void)convertProperties:(NSArray*)propNames position:(NSInteger)position properties:(CMISProperties *)properties propertiesJson:(NSDictionary *)propertiesJson typeCache:(CMISTypeCache *)typeCache typeDefinition:(CMISTypeDefinition *)typeDef secondaryTypeDefinitions:(NSArray *)secTypeDefs completionBlock:(void (^)(CMISProperties *properties, NSError *error))completionBlock
++ (void)convertProperties:(NSArray*)propNames position:(NSInteger)position properties:(CMISProperties *)properties propertiesJson:(NSDictionary *)propertiesJson typeCache:(CMISBrowserTypeCache *)typeCache typeDefinition:(CMISTypeDefinition *)typeDef secondaryTypeDefinitions:(NSArray *)secTypeDefs completionBlock:(void (^)(CMISProperties *properties, NSError *error))completionBlock
 {
     NSString *propName = [propNames objectAtIndex:position];
     
@@ -768,7 +768,7 @@
           }];
 }
 
-+ (void)convertProperties:(NSDictionary *)propertiesJson typeCache:(CMISTypeCache *)typeCache typeDefinition:(CMISTypeDefinition *)typeDef secondaryTypeDefinitions:(NSArray *)secTypeDefs completionBlock:(void(^)(CMISProperties *properties, NSError *error))completionBlock
++ (void)convertProperties:(NSDictionary *)propertiesJson typeCache:(CMISBrowserTypeCache *)typeCache typeDefinition:(CMISTypeDefinition *)typeDef secondaryTypeDefinitions:(NSArray *)secTypeDefs completionBlock:(void(^)(CMISProperties *properties, NSError *error))completionBlock
 {
     // create properties
     CMISProperties *properties = [CMISProperties new];
@@ -875,7 +875,7 @@
     return result;
 }
 
-+ (void)retrieveTypeDefinitions:(NSArray *)objectTypeIds position:(NSInteger)position typeCache:(CMISTypeCache *)typeCache completionBlock:(void (^)(NSMutableArray *typeDefinitions, NSError *error))completionBlock
++ (void)retrieveTypeDefinitions:(NSArray *)objectTypeIds position:(NSInteger)position typeCache:(CMISBrowserTypeCache *)typeCache completionBlock:(void (^)(NSMutableArray *typeDefinitions, NSError *error))completionBlock
 {
     [typeCache typeDefinition:[objectTypeIds objectAtIndex:position]
               completionBlock:^(CMISTypeDefinition *typeDefinition, NSError *error) {
@@ -900,7 +900,7 @@
                          }];
 }
 
-+ (void)retrieveTypeDefinitions:(NSArray *)objectTypeIds typeCache:(CMISTypeCache *)typeCache completionBlock:(void (^)(NSArray *typeDefinitions, NSError *error))completionBlock
++ (void)retrieveTypeDefinitions:(NSArray *)objectTypeIds typeCache:(CMISBrowserTypeCache *)typeCache completionBlock:(void (^)(NSArray *typeDefinitions, NSError *error))completionBlock
 {
     if (objectTypeIds.count > 0) {
         [CMISBrowserUtil retrieveTypeDefinitions:objectTypeIds

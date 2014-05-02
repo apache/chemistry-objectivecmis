@@ -20,12 +20,12 @@
 //
 // CMISAtomParserUtil
 //
-#import "CMISAtomParserUtil.h"
+#import "CMISAtomPubParserUtil.h"
 #import "CMISAtomPubConstants.h"
 #import "CMISDateUtil.h"
 #import "CMISLog.h"
 
-@implementation CMISAtomParserUtil
+@implementation CMISAtomPubParserUtil
 
 + (CMISPropertyType)atomPubTypeToInternalType:(NSString *)atomPubType
 {

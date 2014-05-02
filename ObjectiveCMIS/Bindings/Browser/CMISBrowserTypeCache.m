@@ -17,21 +17,21 @@
  under the License.
  */
 
-#import "CMISTypeCache.h"
+#import "CMISBrowserTypeCache.h"
 #import "CMISTypeDefinition.h"
 #import "CMISBrowserBaseService+Protected.h"
 #import "CMISRequest.h"
 #import "CMISTypeDefinitionCache.h"
 #import "CMISBindingSession.h"
 
-@interface CMISTypeCache ()
+@interface CMISBrowserTypeCache ()
 
 @property (nonatomic, weak) NSString * repositoryId;
 @property (nonatomic, weak) CMISBrowserBaseService * service;
 
 @end
 
-@implementation CMISTypeCache
+@implementation CMISBrowserTypeCache
 
 
 -(id)initWithRepositoryId:(NSString *)repositoryId bindingService:(CMISBrowserBaseService *)service

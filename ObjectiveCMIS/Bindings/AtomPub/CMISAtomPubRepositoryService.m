@@ -19,9 +19,9 @@
 
 #import "CMISAtomPubRepositoryService.h"
 #import "CMISAtomPubBaseService+Protected.h"
-#import "CMISWorkspace.h"
+#import "CMISAtomWorkspace.h"
 #import "CMISErrors.h"
-#import "CMISTypeByIdUriBuilder.h"
+#import "CMISAtomPubTypeByIdUriBuilder.h"
 #import "CMISHttpResponse.h"
 #import "CMISTypeDefinitionAtomEntryParser.h"
 #import "CMISLog.h"
@@ -67,7 +67,7 @@
     CMISRequest *request = [[CMISRequest alloc] init];
     [self retrieveCMISWorkspacesWithCMISRequest:request completionBlock:^(NSArray *cmisWorkSpaces, NSError *error) {
         if (cmisWorkSpaces != nil) {
-            for (CMISWorkspace *workspace in cmisWorkSpaces) {
+            for (CMISAtomWorkspace *workspace in cmisWorkSpaces) {
                 [self.repositories setObject:workspace.repositoryInfo forKey:workspace.repositoryInfo.identifier];
             }
         }
@@ -88,7 +88,7 @@
     [self retrieveFromCache:kCMISBindingSessionKeyTypeByIdUriBuilder
                 cmisRequest:request
             completionBlock:^(id object, NSError *error) {
-        CMISTypeByIdUriBuilder *typeByIdUriBuilder = object;
+        CMISAtomPubTypeByIdUriBuilder *typeByIdUriBuilder = object;
         typeByIdUriBuilder.identifier = typeId;
         
         [self.bindingSession.networkProvider invokeGET:[typeByIdUriBuilder buildUrl]

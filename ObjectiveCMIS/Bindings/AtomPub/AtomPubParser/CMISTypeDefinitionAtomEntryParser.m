@@ -90,7 +90,7 @@
              || [elementName isEqualToString:kCMISCorePropertyIntegerDefinition]
              || [elementName isEqualToString:kCMISCorePropertyDateTimeDefinition]
              || [elementName isEqualToString:kCMISCorePropertyDecimalDefinition]) {
-        self.childParserDelegate = [CMISPropertyDefinitionParser parserForPropertyDefinition:elementName withParentDelegate:self parser:parser];
+        self.childParserDelegate = [CMISAtomPubPropertyDefinitionParser parserForPropertyDefinition:elementName withParentDelegate:self parser:parser];
     }
 }
 

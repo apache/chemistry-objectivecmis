@@ -17,23 +17,22 @@
   under the License.
  */
 
-#import <Foundation/Foundation.h>
+#import "CMISAtomWorkspace.h"
+#import "CMISAtomCollection.h"
 
-@class CMISPropertyDefinition;
-@protocol CMISPropertyDefinitionDelegate;
+@implementation CMISAtomWorkspace
 
-@interface CMISPropertyDefinitionParser : NSObject <NSXMLParserDelegate>
 
-/// Initializes a child parser for an Atom Entry and takes over parsing control while parsing the Atom Entry
-+ (id)parserForPropertyDefinition:(NSString *)propertyDefinitionElementName
-               withParentDelegate:(id<NSXMLParserDelegate, CMISPropertyDefinitionDelegate>)parentDelegate
-               parser:(NSXMLParser *)parser;
-
-@end
-
-@protocol CMISPropertyDefinitionDelegate <NSObject>
-
-@optional
-- (void)propertyDefinitionParser:(id)propertyDefinitionParser didFinishParsingPropertyDefinition:(CMISPropertyDefinition *)propertyDefinition;
+- (NSString *)collectionHrefForCollectionType:(NSString *)collectionType
+{
+    if (self.collections != nil) {
+        for (CMISAtomCollection *collection in self.collections) {
+            if ([collection.type isEqualToString:collectionType]) {
+                return collection.href;
+            }
+        }
+    }
+    return nil;
+}
 
 @end

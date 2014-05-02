@@ -7,7 +7,7 @@
   "License"); you may not use this file except in compliance
   with the License.  You may obtain a copy of the License at
  
-     http://www.apache.org/licenses/LICENSE-2.0
+    http://www.apache.org/licenses/LICENSE-2.0
  
   Unless required by applicable law or agreed to in writing,
   software distributed under the License is distributed on an
@@ -17,29 +17,28 @@
   under the License.
  */
 
-#import "CMISAceParser.h"
+#import "CMISAtomPubPrincipalParser.h"
 #import "CMISAtomPubConstants.h"
 
-@interface CMISAceParser ()
+@interface CMISAtomPubPrincipalParser ()
 
-@property (nonatomic, strong) NSMutableSet *internalPermissionsSet;
-@property (nonatomic, weak) id<NSXMLParserDelegate, CMISAceParserDelegate> parentDelegate;
+@property (nonatomic, strong) NSMutableSet *internalAcesSet;
+@property (nonatomic, weak) id<NSXMLParserDelegate, CMISAtomPubPrincipalParserDelegate> parentDelegate;
 @property (nonatomic, strong) NSMutableString *string;
 
 @end
 
-@implementation CMISAceParser
+@implementation CMISAtomPubPrincipalParser
 
 
-- (id)initAceParserWithParentDelegate:(id<NSXMLParserDelegate, CMISAceParserDelegate>)parentDelegate parser:(NSXMLParser *)parser
+- (id)initPrincipalParserWithParentDelegate:(id<NSXMLParserDelegate, CMISAtomPubPrincipalParserDelegate>)parentDelegate parser:(NSXMLParser *)parser
 {
     self = [super init];
     if (self) {
         self.parentDelegate = parentDelegate;
         
-        self.internalPermissionsSet = [[NSMutableSet alloc] init];
-        self.ace = [[CMISAce alloc] init];
-        [self pushNewCurrentExtensionData:self.ace];
+        self.principal = [[CMISPrincipal alloc] init];
+        [self pushNewCurrentExtensionData:self.principal];
         
         // Setting Child Parser Delegate
         [parser setDelegate:self];
@@ -47,8 +46,8 @@
     return self;
 }
 
-+(id)aceParserWithParentDelegate:(id<NSXMLParserDelegate,CMISAceParserDelegate>)parentDelegate parser:(NSXMLParser *)parser{
-    return [[[self class] alloc] initAceParserWithParentDelegate:parentDelegate parser:parser];
++(id)principalParserWithParentDelegate:(id<NSXMLParserDelegate,CMISAtomPubPrincipalParserDelegate>)parentDelegate parser:(NSXMLParser *)parser{
+    return [[[self class] alloc] initPrincipalParserWithParentDelegate:parentDelegate parser:parser];
 }
 
 #pragma mark -
@@ -60,13 +59,11 @@
 {
     if ([namespaceURI isEqualToString:kCMISNamespaceCmis]) {
         
-        if ([elementName isEqualToString:kCMISAtomEntryPermission])  {
-            [self setInternalPermissionsSet:[NSMutableSet set]];
+        if ([elementName isEqualToString:kCMISAtomEntryPrincipal])  {
+            [self setInternalAcesSet:[NSMutableSet set]];
             
-            [self pushNewCurrentExtensionData:self.ace];
-            self.string = [NSMutableString string];
-        } else if ([elementName isEqualToString:kCMISAtomEntryPrincipal]) {
-            self.childParserDelegate = [CMISPrincipalParser principalParserWithParentDelegate:self parser:parser];
+            self.principal = [[CMISPrincipal alloc] init];
+            [self pushNewCurrentExtensionData:self.principal];
         } else {
             self.string = [NSMutableString string];
         }
@@ -85,34 +82,24 @@
 - (void)parser:(NSXMLParser *)parser didEndElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qName
 {
     if ([namespaceURI isEqualToString:kCMISNamespaceCmis]) {
-        if ([elementName isEqualToString:kCMISAtomEntryPermission] && !self.string) { //if string is not set it's the parent permission element
+        if ([elementName isEqualToString:kCMISAtomEntryPrincipal]) {
             // Save the extension data
             [self saveCurrentExtensionsAndPushPreviousExtensionData];
             
             if (self.parentDelegate) {
-                if ([self.parentDelegate respondsToSelector:@selector(aceParser:didFinishParsingAce:)]) {
-                    [self.parentDelegate performSelector:@selector(aceParser:didFinishParsingAce:) withObject:self withObject:self.ace];
+                if ([self.parentDelegate respondsToSelector:@selector(principalParser:didFinishParsingPrincipal:)]) {
+                    [self.parentDelegate performSelector:@selector(principalParser:didFinishParsingPrincipal:) withObject:self withObject:self.principal];
                 }
                 
                 // Reset Delegate to parent
                 [parser setDelegate:self.parentDelegate];
                 self.parentDelegate = nil;
             }
-        } else if ([elementName isEqualToString:kCMISAtomEntryPermission]) {
-            [self.internalPermissionsSet addObject:self.string];
-            self.ace.permissions = [self.internalPermissionsSet copy];
-        } else if ([elementName isEqualToString:kCMISAtomEntryDirect]) {
-            self.ace.isDirect = [self.string isEqualToString:@"true"] ? YES : NO;
-        }
-    }
+        } else if ([elementName isEqualToString:kCMISAtomEntryPrincipalId]) {
+            self.principal.principalId = self.string;
+        }    }
     
     self.string = nil;
-}
-
-
-#pragma mark - CMISPrincipalParserDelegate Methods
--(void)principalParser:(CMISPrincipalParser *)principalParser didFinishParsingPrincipal:(CMISPrincipal *)principal {
-    self.ace.principal = principal;
 }
 
 

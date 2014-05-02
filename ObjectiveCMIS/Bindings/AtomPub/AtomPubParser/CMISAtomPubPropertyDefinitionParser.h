@@ -18,16 +18,19 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "CMISRepositoryInfoParser.h"
 
-@interface CMISServiceDocumentParser : NSObject <NSXMLParserDelegate, CMISRepositoryInfoParserDelegate>
+@class CMISPropertyDefinition;
 
-/// Available after parsing the service document
-@property (nonatomic, strong, readonly) NSArray *workspaces;
+@protocol CMISAtomPubPropertyDefinitionDelegate <NSObject>
+@optional
+- (void)propertyDefinitionParser:(id)propertyDefinitionParser didFinishParsingPropertyDefinition:(CMISPropertyDefinition *)propertyDefinition;
+@end
 
-- (id)initWithData:(NSData*)atomData;
+@interface CMISAtomPubPropertyDefinitionParser : NSObject <NSXMLParserDelegate>
 
-/// parses the service document. returns NO if unsuccessful
-- (BOOL)parseAndReturnError:(NSError **)error;
+/// Initializes a child parser for an Atom Entry and takes over parsing control while parsing the Atom Entry
++ (id)parserForPropertyDefinition:(NSString *)propertyDefinitionElementName
+               withParentDelegate:(id<NSXMLParserDelegate, CMISAtomPubPropertyDefinitionDelegate>)parentDelegate
+               parser:(NSXMLParser *)parser;
 
 @end

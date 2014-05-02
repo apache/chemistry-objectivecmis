@@ -27,7 +27,7 @@
 #import "CMISFileUtil.h"
 #import "CMISErrors.h"
 #import "CMISLog.h"
-#import "CMISFormDataWriter.h"
+#import "CMISBroswerFormDataWriter.h"
 #import "CMISStringInOutParameter.h"
 
 @implementation CMISBrowserObjectService
@@ -57,7 +57,7 @@
                                        cmisRequest:cmisRequest
                                    completionBlock:^(CMISHttpResponse *httpResponse, NSError *error) {
                                        if (httpResponse.statusCode == 200 && httpResponse.data) {
-                                           CMISTypeCache *typeCache = [[CMISTypeCache alloc] initWithRepositoryId:self.bindingSession.repositoryId bindingService:self];
+                                           CMISBrowserTypeCache *typeCache = [[CMISBrowserTypeCache alloc] initWithRepositoryId:self.bindingSession.repositoryId bindingService:self];
                                            [CMISBrowserUtil objectDataFromJSONData:httpResponse.data typeCache:typeCache completionBlock:^(CMISObjectData *objectData, NSError *error) {
                                                if (error) {
                                                    completionBlock(nil, error);
@@ -99,7 +99,7 @@
                                        cmisRequest:cmisRequest
                                    completionBlock:^(CMISHttpResponse *httpResponse, NSError *error) {
                                        if (httpResponse.statusCode == 200 && httpResponse.data) {
-                                           CMISTypeCache *typeCache = [[CMISTypeCache alloc] initWithRepositoryId:self.bindingSession.repositoryId bindingService:self];
+                                           CMISBrowserTypeCache *typeCache = [[CMISBrowserTypeCache alloc] initWithRepositoryId:self.bindingSession.repositoryId bindingService:self];
                                            [CMISBrowserUtil objectDataFromJSONData:httpResponse.data typeCache:typeCache completionBlock:^(CMISObjectData *objectData, NSError *error) {
                                                if (error) {
                                                    completionBlock(nil, error);
@@ -222,7 +222,7 @@
     NSString *objectUrl = [self getObjectUrlObjectId:objectIdParam.inParameter];
     
     // prepare form data
-    CMISFormDataWriter *formData = [[CMISFormDataWriter alloc] initWithAction:kCMISBrowserJSONActionDeleteContent];
+    CMISBroswerFormDataWriter *formData = [[CMISBroswerFormDataWriter alloc] initWithAction:kCMISBrowserJSONActionDeleteContent];
     [formData addParameter:kCMISParameterChangeToken value:changeTokenParam.inParameter];
     [formData addSuccinctFlag:true];
     
@@ -237,7 +237,7 @@
                                         cmisRequest:cmisRequest
                                     completionBlock:^(CMISHttpResponse *httpResponse, NSError *error) {
                                         if ((httpResponse.statusCode == 200 || httpResponse.statusCode == 201) && httpResponse.data) {
-                                            CMISTypeCache *typeCache = [[CMISTypeCache alloc] initWithRepositoryId:self.bindingSession.repositoryId bindingService:self];
+                                            CMISBrowserTypeCache *typeCache = [[CMISBrowserTypeCache alloc] initWithRepositoryId:self.bindingSession.repositoryId bindingService:self];
                                             [CMISBrowserUtil objectDataFromJSONData:httpResponse.data typeCache:typeCache completionBlock:^(CMISObjectData *objectData, NSError *error) {
                                                 if (error) {
                                                     completionBlock(error);
@@ -318,7 +318,7 @@
     NSString *objectUrl = [self getObjectUrlObjectId:objectId.inParameter];
     
     // prepare form data
-    CMISFormDataWriter *formData = [[CMISFormDataWriter alloc] initWithAction:kCMISBrowserJSONActionSetContent contentStream:inputStream mediaType:mimeType];
+    CMISBroswerFormDataWriter *formData = [[CMISBroswerFormDataWriter alloc] initWithAction:kCMISBrowserJSONActionSetContent contentStream:inputStream mediaType:mimeType];
     [formData setFileName:filename];
     [formData addParameter:kCMISParameterOverwriteFlag boolValue:overwrite];
     [formData addParameter:kCMISParameterChangeToken value:changeToken.inParameter];
@@ -339,7 +339,7 @@
                                         endData:formData.endData
                                 completionBlock:^(CMISHttpResponse *httpResponse, NSError *error) {
                                     if ((httpResponse.statusCode == 200 || httpResponse.statusCode == 201) && httpResponse.data) {
-                                        CMISTypeCache *typeCache = [[CMISTypeCache alloc] initWithRepositoryId:self.bindingSession.repositoryId bindingService:self];
+                                        CMISBrowserTypeCache *typeCache = [[CMISBrowserTypeCache alloc] initWithRepositoryId:self.bindingSession.repositoryId bindingService:self];
                                         [CMISBrowserUtil objectDataFromJSONData:httpResponse.data typeCache:typeCache completionBlock:^(CMISObjectData *objectData, NSError *error) {
                                             if (error) {
                                                 completionBlock(error);
@@ -420,7 +420,7 @@
     NSString *folderObjectUrl = (folderObjectId != nil ? [self getObjectUrlObjectId:folderObjectId] : [self getRepositoryUrl]);
     
     // prepare form data
-    CMISFormDataWriter *formData = [[CMISFormDataWriter alloc] initWithAction:kCMISBrowserJSONActionCreateDocument contentStream:inputStream mediaType:mimeType];
+    CMISBroswerFormDataWriter *formData = [[CMISBroswerFormDataWriter alloc] initWithAction:kCMISBrowserJSONActionCreateDocument contentStream:inputStream mediaType:mimeType];
     [formData addPropertiesParameters:properties];
     // TODO [formData addParameter:kCMISParameterVersioningState value:versioningState];
     // TODO [formData addPoliciesParameters:policies];
@@ -443,7 +443,7 @@
                                         endData:formData.endData
                                 completionBlock:^(CMISHttpResponse *httpResponse, NSError *error) {
                                     if ((httpResponse.statusCode == 200 || httpResponse.statusCode == 201) && httpResponse.data) {
-                                        CMISTypeCache *typeCache = [[CMISTypeCache alloc] initWithRepositoryId:self.bindingSession.repositoryId bindingService:self];
+                                        CMISBrowserTypeCache *typeCache = [[CMISBrowserTypeCache alloc] initWithRepositoryId:self.bindingSession.repositoryId bindingService:self];
                                         [CMISBrowserUtil objectDataFromJSONData:httpResponse.data typeCache:typeCache completionBlock:^(CMISObjectData *objectData, NSError *error) {
                                             if (error) {
                                                 completionBlock(nil, error);
@@ -466,7 +466,7 @@
     // build URL
     NSString *objectUrl = [self getObjectUrlObjectId:objectId];
     
-    CMISFormDataWriter *formData = [[CMISFormDataWriter alloc] initWithAction:kCMISBrowserJSONActionDelete];
+    CMISBroswerFormDataWriter *formData = [[CMISBroswerFormDataWriter alloc] initWithAction:kCMISBrowserJSONActionDelete];
     [formData addParameter:kCMISParameterAllVersions boolValue:allVersions];
     
 
@@ -496,7 +496,7 @@
     NSString *folderObjectUrl = [self getObjectUrlObjectId:folderObjectId];
     
     // prepare form data
-    CMISFormDataWriter *formData = [[CMISFormDataWriter alloc] initWithAction:kCMISBrowserJSONActionCreateFolder];
+    CMISBroswerFormDataWriter *formData = [[CMISBroswerFormDataWriter alloc] initWithAction:kCMISBrowserJSONActionCreateFolder];
     [formData addPropertiesParameters:properties];
     // TODO [formData addPoliciesParameters:policies];
     // TODO [formData addAddAcesParameters:addAces];
@@ -514,7 +514,7 @@
                                         cmisRequest:cmisRequest
                                     completionBlock:^(CMISHttpResponse *httpResponse, NSError *error) {
                                         if ((httpResponse.statusCode == 200 || httpResponse.statusCode == 201) && httpResponse.data) {
-                                            CMISTypeCache *typeCache = [[CMISTypeCache alloc] initWithRepositoryId:self.bindingSession.repositoryId bindingService:self];
+                                            CMISBrowserTypeCache *typeCache = [[CMISBrowserTypeCache alloc] initWithRepositoryId:self.bindingSession.repositoryId bindingService:self];
                                             [CMISBrowserUtil objectDataFromJSONData:httpResponse.data typeCache:typeCache completionBlock:^(CMISObjectData *objectData, NSError *error) {
                                                 if (error) {
                                                     completionBlock(nil, error);
@@ -544,7 +544,7 @@
     NSString *objectUrl = [self getObjectUrlObjectId:objectId];
     
     // prepare form data
-    CMISFormDataWriter *formData = [[CMISFormDataWriter alloc] initWithAction:kCMISBrowserJSONActionMove];
+    CMISBroswerFormDataWriter *formData = [[CMISBroswerFormDataWriter alloc] initWithAction:kCMISBrowserJSONActionMove];
     [formData addParameter:kCMISParameterTargetFolderId value:targetFolderId];
     [formData addParameter:kCMISParameterSourceFolderId value:sourceFolderId];
     [formData addSuccinctFlag:true];
@@ -560,7 +560,7 @@
                                         cmisRequest:cmisRequest
                                     completionBlock:^(CMISHttpResponse *httpResponse, NSError *error) {
                                         if ((httpResponse.statusCode == 200 || httpResponse.statusCode == 201) && httpResponse.data) {
-                                            CMISTypeCache *typeCache = [[CMISTypeCache alloc] initWithRepositoryId:self.bindingSession.repositoryId bindingService:self];
+                                            CMISBrowserTypeCache *typeCache = [[CMISBrowserTypeCache alloc] initWithRepositoryId:self.bindingSession.repositoryId bindingService:self];
                                             [CMISBrowserUtil objectDataFromJSONData:httpResponse.data typeCache:typeCache completionBlock:^(CMISObjectData *objectData, NSError *error) {
                                                 if (error) {
                                                     completionBlock(nil, error);
@@ -584,7 +584,7 @@
     // build URL
     NSString *folderObjectUrl = [self getObjectUrlObjectId:folderObjectId];
     
-    CMISFormDataWriter *formData = [[CMISFormDataWriter alloc] initWithAction:kCMISBrowserJSONActionDeleteTree];
+    CMISBroswerFormDataWriter *formData = [[CMISBroswerFormDataWriter alloc] initWithAction:kCMISBrowserJSONActionDeleteTree];
     [formData addParameter:kCMISParameterAllVersions boolValue:allVersions];
     [formData addParameter:kCMISParameterUnfileObjects value:[CMISEnums stringForUnfileObject:unfileObjects]];
     [formData addParameter:kCMISParameterContinueOnFailure boolValue:continueOnFailure];
@@ -633,7 +633,7 @@
     NSString *objectUrl = [self getObjectUrlObjectId:objectIdParam.inParameter];
     
     // prepare form data
-    CMISFormDataWriter *formData = [[CMISFormDataWriter alloc] initWithAction:kCMISBrowserJSONActionUpdateProperties];
+    CMISBroswerFormDataWriter *formData = [[CMISBroswerFormDataWriter alloc] initWithAction:kCMISBrowserJSONActionUpdateProperties];
     [formData addPropertiesParameters:properties];
     [formData addParameter:kCMISParameterChangeToken value:changeTokenParam.inParameter];
     [formData addSuccinctFlag:true];
@@ -649,7 +649,7 @@
                                         cmisRequest:cmisRequest
                                     completionBlock:^(CMISHttpResponse *httpResponse, NSError *error) {
                                         if ((httpResponse.statusCode == 200 || httpResponse.statusCode == 201) && httpResponse.data) {
-                                            CMISTypeCache *typeCache = [[CMISTypeCache alloc] initWithRepositoryId:self.bindingSession.repositoryId bindingService:self];
+                                            CMISBrowserTypeCache *typeCache = [[CMISBrowserTypeCache alloc] initWithRepositoryId:self.bindingSession.repositoryId bindingService:self];
                                             [CMISBrowserUtil objectDataFromJSONData:httpResponse.data typeCache:typeCache completionBlock:^(CMISObjectData *objectData, NSError *error) {
                                                 if (error) {
                                                     completionBlock(error);

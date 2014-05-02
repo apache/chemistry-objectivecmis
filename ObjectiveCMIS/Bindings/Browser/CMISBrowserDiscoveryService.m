@@ -20,9 +20,9 @@
 #import "CMISBrowserDiscoveryService.h"
 #import "CMISRequest.h"
 #import "CMISHttpResponse.h"
-#import "CMISTypeCache.h"
+#import "CMISBrowserTypeCache.h"
 #import "CMISBrowserUtil.h"
-#import "CMISFormDataWriter.h"
+#import "CMISBroswerFormDataWriter.h"
 #import "CMISBrowserConstants.h"
 #import "CMISConstants.h"
 #import "CMISEnums.h"
@@ -41,7 +41,7 @@ includeAllowableActions:(BOOL)includeAllowableActions
     NSString *url = [self getRepositoryUrl];
 
     // prepare form data
-    CMISFormDataWriter *formData = [[CMISFormDataWriter alloc] initWithAction:kCMISBrowserJSONActionQuery];
+    CMISBroswerFormDataWriter *formData = [[CMISBroswerFormDataWriter alloc] initWithAction:kCMISBrowserJSONActionQuery];
     [formData addParameter:kCMISParameterStatement value:statement];
     [formData addParameter:kCMISParameterSearchAllVersions boolValue:searchAllVersions];
     [formData addParameter:kCMISParameterIncludeAllowableActions boolValue:includeAllowableActions];
@@ -60,7 +60,7 @@ includeAllowableActions:(BOOL)includeAllowableActions
                                         cmisRequest:cmisRequest
                                     completionBlock:^(CMISHttpResponse *httpResponse, NSError *error) {
                                        if ((httpResponse.statusCode == 200 || httpResponse.statusCode == 201) && httpResponse.data) {
-                                           CMISTypeCache *typeCache = [[CMISTypeCache alloc] initWithRepositoryId:self.bindingSession.repositoryId bindingService:self];
+                                           CMISBrowserTypeCache *typeCache = [[CMISBrowserTypeCache alloc] initWithRepositoryId:self.bindingSession.repositoryId bindingService:self];
                                            [CMISBrowserUtil objectListFromJSONData:httpResponse.data typeCache:typeCache isQueryResult:YES completionBlock:^(CMISObjectList *objectList, NSError *error) {
                                                if (error) {
                                                    completionBlock(nil, error);

@@ -23,13 +23,13 @@
 NSString * const kCMISRFC7232Reserved = @";?:@&=+$,[]";
 
 
-@interface NSString (CMISUtil)
+@interface NSString (CMISURLUtil)
 
 - (NSString *)replacePathWithPath:(NSString *)path;
 
 @end
 
-@implementation NSString (CMISUtil)
+@implementation NSString (CMISURLUtil)
 
 - (NSString *)replacePathWithPath:(NSString *)path
 {

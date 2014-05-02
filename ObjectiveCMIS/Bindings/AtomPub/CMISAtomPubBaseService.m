@@ -20,13 +20,13 @@
 #import "CMISAtomPubBaseService.h"
 #import "CMISAtomPubBaseService+Protected.h"
 #import "CMISHttpResponse.h"
-#import "CMISServiceDocumentParser.h"
+#import "CMISAtomPubServiceDocumentParser.h"
 #import "CMISConstants.h"
 #import "CMISAtomEntryParser.h"
-#import "CMISWorkspace.h"
+#import "CMISAtomWorkspace.h"
 #import "CMISErrors.h"
-#import "CMISObjectByPathUriBuilder.h"
-#import "CMISTypeByIdUriBuilder.h"
+#import "CMISAtomPubObjectByPathUriBuilder.h"
+#import "CMISAtomPubTypeByIdUriBuilder.h"
 #import "CMISLinkCache.h"
 #import "CMISLog.h"
 #import "CMISAtomEntryWriter.h"
@@ -84,7 +84,7 @@
     [self retrieveCMISWorkspacesWithCMISRequest:cmisRequest completionBlock:^(NSArray *cmisWorkSpaces, NSError *error) {
         if (!error) {
             BOOL repositoryFound = NO;
-            for (CMISWorkspace *workspace in cmisWorkSpaces) {
+            for (CMISAtomWorkspace *workspace in cmisWorkSpaces) {
                 if ([workspace.repositoryInfo.identifier isEqualToString:self.bindingSession.repositoryId])
                 {
                     repositoryFound = YES;
@@ -95,13 +95,13 @@
                     
                     
                     // Cache uri's and uri templates
-                    CMISObjectByIdUriBuilder *objectByIdUriBuilder = [[CMISObjectByIdUriBuilder alloc] initWithTemplateUrl:workspace.objectByIdUriTemplate];
+                    CMISAtomPubObjectByIdUriBuilder *objectByIdUriBuilder = [[CMISAtomPubObjectByIdUriBuilder alloc] initWithTemplateUrl:workspace.objectByIdUriTemplate];
                     [self.bindingSession setObject:objectByIdUriBuilder forKey:kCMISBindingSessionKeyObjectByIdUriBuilder];
                     
-                    CMISObjectByPathUriBuilder *objectByPathUriBuilder = [[CMISObjectByPathUriBuilder alloc] initWithTemplateUrl:workspace.objectByPathUriTemplate];
+                    CMISAtomPubObjectByPathUriBuilder *objectByPathUriBuilder = [[CMISAtomPubObjectByPathUriBuilder alloc] initWithTemplateUrl:workspace.objectByPathUriTemplate];
                     [self.bindingSession setObject:objectByPathUriBuilder forKey:kCMISBindingSessionKeyObjectByPathUriBuilder];
                     
-                    CMISTypeByIdUriBuilder *typeByIdUriBuilder = [[CMISTypeByIdUriBuilder alloc] initWithTemplateUrl:workspace.typeByIdUriTemplate];
+                    CMISAtomPubTypeByIdUriBuilder *typeByIdUriBuilder = [[CMISAtomPubTypeByIdUriBuilder alloc] initWithTemplateUrl:workspace.typeByIdUriTemplate];
                     [self.bindingSession setObject:typeByIdUriBuilder forKey:kCMISBindingSessionKeyTypeByIdUriBuilder];
                     
                     [self.bindingSession setObject:workspace.queryUriTemplate forKey:kCMISAtomBindingSessionKeyQueryUri];
@@ -139,7 +139,7 @@
                                                
                                                // Parse the cmis service document
                                                if (data) {
-                                                   CMISServiceDocumentParser *parser = [[CMISServiceDocumentParser alloc] initWithData:data];
+                                                   CMISAtomPubServiceDocumentParser *parser = [[CMISAtomPubServiceDocumentParser alloc] initWithData:data];
                                                    NSError *error = nil;
                                                    if ([parser parseAndReturnError:&error]) {
                                                        [self.bindingSession setObject:parser.workspaces forKey:kCMISSessionKeyWorkspaces];
@@ -186,7 +186,7 @@
     [self retrieveFromCache:kCMISBindingSessionKeyObjectByIdUriBuilder
                 cmisRequest:cmisRequest
             completionBlock:^(id object, NSError *error) {
-        CMISObjectByIdUriBuilder *objectByIdUriBuilder = object;
+        CMISAtomPubObjectByIdUriBuilder *objectByIdUriBuilder = object;
         objectByIdUriBuilder.objectId = objectId;
         objectByIdUriBuilder.filter = filter;
         objectByIdUriBuilder.includeACL = includeACL;
@@ -236,7 +236,7 @@
     [self retrieveFromCache:kCMISBindingSessionKeyObjectByPathUriBuilder
                 cmisRequest:cmisRequest
             completionBlock:^(id object, NSError *error) {
-        CMISObjectByPathUriBuilder *objectByPathUriBuilder = object;
+        CMISAtomPubObjectByPathUriBuilder *objectByPathUriBuilder = object;
         objectByPathUriBuilder.path = path;
         objectByPathUriBuilder.filter = filter;
         objectByPathUriBuilder.includeACL = includeACL;

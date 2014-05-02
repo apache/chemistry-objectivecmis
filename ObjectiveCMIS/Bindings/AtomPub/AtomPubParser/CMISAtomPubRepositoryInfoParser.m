@@ -17,17 +17,17 @@
   under the License.
  */
 
-#import "CMISRepositoryInfoParser.h"
+#import "CMISAtomPubRepositoryInfoParser.h"
 #import "CMISAtomPubConstants.h"
 #import "CMISAtomCollection.h"
 #import "CMISLog.h"
 #import "CMISRepositoryCapabilities.h"
 
-@interface CMISRepositoryInfoParser ()
+@interface CMISAtomPubRepositoryInfoParser ()
 
 @property (nonatomic, strong, readwrite) CMISRepositoryInfo *currentRepositoryInfo;
 
-@property (nonatomic, weak) id<NSXMLParserDelegate, CMISRepositoryInfoParserDelegate> parentDelegate;
+@property (nonatomic, weak) id<NSXMLParserDelegate, CMISAtomPubRepositoryInfoParserDelegate> parentDelegate;
 @property (nonatomic, strong) NSMutableString *currentString;
 @property (nonatomic, strong) CMISAtomCollection *currentCollection;
 
@@ -36,11 +36,11 @@
 @property (nonatomic, assign, getter = isParsingExtensionElement) BOOL parsingExtensionElement;
 @end
 
-@implementation CMISRepositoryInfoParser
+@implementation CMISAtomPubRepositoryInfoParser
 
 
 
-- (id)initRepositoryInfoParserWithParentDelegate:(id<NSXMLParserDelegate, CMISRepositoryInfoParserDelegate>)parentDelegate parser:(NSXMLParser *)parser
+- (id)initRepositoryInfoParserWithParentDelegate:(id<NSXMLParserDelegate, CMISAtomPubRepositoryInfoParserDelegate>)parentDelegate parser:(NSXMLParser *)parser
 {
     self = [super init];
     if (self) {
@@ -57,7 +57,7 @@
     return self;
 }
 
-+ (id)repositoryInfoParserWithParentDelegate:(id<NSXMLParserDelegate, CMISRepositoryInfoParserDelegate>)parentDelegate parser:(NSXMLParser *)parser
++ (id)repositoryInfoParserWithParentDelegate:(id<NSXMLParserDelegate, CMISAtomPubRepositoryInfoParserDelegate>)parentDelegate parser:(NSXMLParser *)parser
 {
     return [[self alloc] initRepositoryInfoParserWithParentDelegate:parentDelegate parser:parser];
 }

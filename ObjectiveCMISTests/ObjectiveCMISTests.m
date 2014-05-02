@@ -34,10 +34,9 @@
 #import "CMISPagedResult.h"
 #import "CMISRenditionData.h"
 #import "CMISRendition.h"
-#import "CMISAllowableActionsParser.h"
 #import "CMISAtomFeedParser.h"
-#import "CMISServiceDocumentParser.h"
-#import "CMISWorkspace.h"
+#import "CMISAtomPubServiceDocumentParser.h"
+#import "CMISAtomWorkspace.h"
 #import "CMISRequest.h"
 #import "CMISErrors.h"
 #import "CMISDateUtil.h"
@@ -1652,11 +1651,11 @@
     XCTAssertNotNil(atomData, @"AtomPubServiceDocument.xml is missing from the test target!");
     
     NSError *error = nil;
-    CMISServiceDocumentParser *serviceDocParser = [[CMISServiceDocumentParser alloc] initWithData:atomData];
+    CMISAtomPubServiceDocumentParser *serviceDocParser = [[CMISAtomPubServiceDocumentParser alloc] initWithData:atomData];
     XCTAssertTrue([serviceDocParser parseAndReturnError:&error], @"Failed to parse AtomPubServiceDocument.xml");
     
     NSArray *workspaces = [serviceDocParser workspaces];
-    CMISWorkspace *workspace = [workspaces objectAtIndex:0];
+    CMISAtomWorkspace *workspace = [workspaces objectAtIndex:0];
     CMISRepositoryInfo *repoInfo = workspace.repositoryInfo;
     
     XCTAssertTrue(repoInfo.extensions.count == 2, @"Expected 2 extension elements, but found %lu", (unsigned long)repoInfo.extensions.count);

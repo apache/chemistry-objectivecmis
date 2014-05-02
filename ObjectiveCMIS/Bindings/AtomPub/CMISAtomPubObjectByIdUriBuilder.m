@@ -17,16 +17,15 @@
   under the License.
  */
 
-#import "CMISObjectByPathUriBuilder.h"
+#import "CMISAtomPubObjectByIdUriBuilder.h"
 
-@interface CMISObjectByPathUriBuilder ()
+@interface CMISAtomPubObjectByIdUriBuilder ()
 
 @property (nonatomic, strong) NSString *templateUrl;
 
 @end
 
-
-@implementation CMISObjectByPathUriBuilder
+@implementation CMISAtomPubObjectByIdUriBuilder
 
 
 - (id)initWithTemplateUrl:(NSString *)templateUrl
@@ -34,22 +33,43 @@
     self = [super init];
     if (self) {
         self.templateUrl = templateUrl;
+
+        // Defaults
+        self.includeAllowableActions = YES;
+        self.relationships = CMISIncludeRelationshipNone;
+        self.returnVersion = NOT_PROVIDED;
     }
     return self;
 }
 
 - (NSURL *)buildUrl
 {
-    NSString *urlString = [self.templateUrl stringByReplacingOccurrencesOfString:@"{path}" withString:self.path];
+    NSString *urlString = [self.templateUrl stringByReplacingOccurrencesOfString:@"{id}" withString:self.objectId];
     urlString = [urlString stringByReplacingOccurrencesOfString:@"{filter}" withString:(self.filter != nil ? self.filter : @"")];
     urlString = [urlString stringByReplacingOccurrencesOfString:@"{includeAllowableActions}" withString:(self.includeAllowableActions ? @"true" : @"false")];
     urlString = [urlString stringByReplacingOccurrencesOfString:@"{includePolicyIds}" withString:(self.includePolicyIds ? @"true" : @"false")];
-    urlString = [urlString stringByReplacingOccurrencesOfString:@"{includeRelationships}" withString:[CMISEnums stringForIncludeRelationShip:self.relationships]];
+
+    NSString *includeRelationShipParam = [CMISEnums stringForIncludeRelationShip:self.relationships];
+    urlString = [urlString stringByReplacingOccurrencesOfString:@"{includeRelationships}" withString:includeRelationShipParam];
+
+
     urlString = [urlString stringByReplacingOccurrencesOfString:@"{includeACL}" withString:(self.includeACL ? @"true" : @"false")];
     urlString = [urlString stringByReplacingOccurrencesOfString:@"{renditionFilter}" withString:(self.renditionFilter != nil ? self.renditionFilter : @"")];
 
+    if (self.returnVersion != NOT_PROVIDED) {
+        NSString *returnVersionParam = nil;
+        if (self.returnVersion == THIS) {
+            returnVersionParam = @"this";
+        } else if (self.returnVersion == LATEST) {
+            returnVersionParam = @"latest";
+        } else {
+            returnVersionParam = @"latestmajor";
+        }
+
+        urlString = [NSString stringWithFormat:@"%@&returnVersion=%@", urlString, returnVersionParam];
+    }
+
     return [NSURL URLWithString:[urlString stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
 }
-
 
 @end

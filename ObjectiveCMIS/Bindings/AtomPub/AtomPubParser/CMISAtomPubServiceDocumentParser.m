@@ -17,21 +17,21 @@
   under the License.
  */
 
-#import "CMISServiceDocumentParser.h"
-#import "CMISWorkspace.h"
+#import "CMISAtomPubServiceDocumentParser.h"
+#import "CMISAtomWorkspace.h"
 #import "CMISAtomCollection.h"
 #import "CMISAtomLink.h"
 #import "CMISAtomPubConstants.h"
 #import "CMISLinkRelations.h"
 #import "CMISLog.h"
 
-@interface CMISServiceDocumentParser ()
+@interface CMISAtomPubServiceDocumentParser ()
 
 @property (nonatomic, strong) NSData *atomData;
 @property (nonatomic, strong) NSMutableArray *internalWorkspaces;
 
 @property (nonatomic, strong) NSMutableString *currentString;
-@property (nonatomic, strong) CMISWorkspace *currentWorkSpace;
+@property (nonatomic, strong) CMISAtomWorkspace *currentWorkSpace;
 @property (nonatomic, strong) CMISAtomCollection *currentCollection;
 @property (nonatomic, strong) NSMutableSet *currentAtomLinks;
 @property (nonatomic, strong) NSString *currentTemplate;
@@ -42,7 +42,7 @@
 @end
 
 
-@implementation CMISServiceDocumentParser
+@implementation CMISAtomPubServiceDocumentParser
 
 @synthesize atomData = _atomData;
 @synthesize internalWorkspaces = _internalWorkspaces;
@@ -101,9 +101,9 @@
     self.currentString = [[NSMutableString alloc] init];
 
     if ([elementName isEqualToString:kCMISAppWorkspace]) {
-        self.currentWorkSpace = [[CMISWorkspace alloc] init];
+        self.currentWorkSpace = [[CMISAtomWorkspace alloc] init];
     } else if ([elementName isEqualToString:kCMISRestAtomRepositoryInfo]) {
-        self.childParserDelegate = [CMISRepositoryInfoParser repositoryInfoParserWithParentDelegate:self parser:parser];
+        self.childParserDelegate = [CMISAtomPubRepositoryInfoParser repositoryInfoParserWithParentDelegate:self parser:parser];
     } else if ([elementName isEqualToString:kCMISAppCollection]) {
         self.currentCollection = [[CMISAtomCollection alloc] init];
         self.currentCollection.href = [attributeDict objectForKey:kCMISAtomLinkAttrHref];
@@ -172,7 +172,7 @@
 
 #pragma mark -
 #pragma mark CMISRepositoryInfoParserDelegate methods
-- (void)repositoryInfoParser:(CMISRepositoryInfoParser *)repositoryInfoParser didFinishParsingRepositoryInfo:(CMISRepositoryInfo *)repositoryInfo
+- (void)repositoryInfoParser:(CMISAtomPubRepositoryInfoParser *)repositoryInfoParser didFinishParsingRepositoryInfo:(CMISRepositoryInfo *)repositoryInfo
 {
     self.currentWorkSpace.repositoryInfo = repositoryInfo;
 }

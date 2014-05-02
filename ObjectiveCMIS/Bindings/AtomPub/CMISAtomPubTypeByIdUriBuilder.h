@@ -17,22 +17,20 @@
   under the License.
  */
 
-#import "CMISWorkspace.h"
-#import "CMISAtomCollection.h"
-
-@implementation CMISWorkspace
+#import <Foundation/Foundation.h>
 
 
-- (NSString *)collectionHrefForCollectionType:(NSString *)collectionType
-{
-    if (self.collections != nil) {
-        for (CMISAtomCollection *collection in self.collections) {
-            if ([collection.type isEqualToString:collectionType]) {
-                return collection.href;
-            }
-        }
-    }
-    return nil;
-}
+@interface CMISAtomPubTypeByIdUriBuilder : NSObject
+
+@property (nonatomic, strong) NSString *identifier;
+
+/**
+ * init the template URL with URL string
+ */
+- (id)initWithTemplateUrl:(NSString *)templateUrl;
+/**
+ * @return the ready to use Url
+ */
+- (NSURL *)buildUrl;
 
 @end

@@ -23,7 +23,7 @@
 @class CMISSessionParameters;
 @class CMISLinkRelations;
 
-@interface CMISWorkspace : NSObject
+@interface CMISAtomWorkspace : NSObject
 
 @property (nonatomic, strong) CMISSessionParameters *sessionParameters;
 @property (nonatomic, strong) CMISRepositoryInfo *repositoryInfo;

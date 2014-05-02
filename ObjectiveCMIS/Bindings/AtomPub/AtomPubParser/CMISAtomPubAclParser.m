@@ -17,22 +17,22 @@
   under the License.
  */
 
-#import "CMISAclParser.h"
+#import "CMISAtomPubAclParser.h"
 #import "CMISAtomPubConstants.h"
-#import "CMISAceParser.h"
+#import "CMISAtomPubAceParser.h"
 
-@interface CMISAclParser ()
+@interface CMISAtomPubAclParser ()
 
 @property (nonatomic, strong) NSMutableSet *internalAcesSet;
-@property (nonatomic, weak) id<NSXMLParserDelegate, CMISAclParserDelegate> parentDelegate;
+@property (nonatomic, weak) id<NSXMLParserDelegate, CMISAtomPubAclParserDelegate> parentDelegate;
 @property (nonatomic, strong) NSMutableString *string;
 
 @end
 
-@implementation CMISAclParser
+@implementation CMISAtomPubAclParser
 
 
-- (id)initAclParserWithParentDelegate:(id<NSXMLParserDelegate, CMISAclParserDelegate>)parentDelegate parser:(NSXMLParser *)parser
+- (id)initAclParserWithParentDelegate:(id<NSXMLParserDelegate, CMISAtomPubAclParserDelegate>)parentDelegate parser:(NSXMLParser *)parser
 {
     self = [super init];
     if (self)  {
@@ -48,7 +48,7 @@
     return self;
 }
 
-+(id)aclParserWithParentDelegate:(id<NSXMLParserDelegate,CMISAclParserDelegate>)parentDelegate parser:(NSXMLParser *)parser{
++(id)aclParserWithParentDelegate:(id<NSXMLParserDelegate,CMISAtomPubAclParserDelegate>)parentDelegate parser:(NSXMLParser *)parser{
     return [[[self class] alloc] initAclParserWithParentDelegate:parentDelegate parser:parser];
 }
 
@@ -66,7 +66,7 @@
             self.acl = [[CMISAcl alloc] init];
             [self pushNewCurrentExtensionData:self.acl];
         } else if ([elementName isEqualToString:kCMISAtomEntryPermission]) {
-            self.childParserDelegate = [CMISAceParser aceParserWithParentDelegate:self parser:parser];
+            self.childParserDelegate = [CMISAtomPubAceParser aceParserWithParentDelegate:self parser:parser];
         } else {
             self.string = [NSMutableString string];
         }
@@ -105,7 +105,7 @@
 }
 
 #pragma mark - CMISAceParserDelegate Methods
--(void)aceParser:(CMISAceParser *)aceParser didFinishParsingAce:(CMISAce *)ace{
+-(void)aceParser:(CMISAtomPubAceParser *)aceParser didFinishParsingAce:(CMISAce *)ace{
     [self.internalAcesSet addObject:ace];
     self.acl.aces = [self.internalAcesSet copy];
 }

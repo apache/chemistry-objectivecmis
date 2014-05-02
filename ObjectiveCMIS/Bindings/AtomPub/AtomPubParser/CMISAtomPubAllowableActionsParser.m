@@ -17,27 +17,27 @@
   under the License.
  */
 
-#import "CMISAllowableActionsParser.h"
+#import "CMISAtomPubAllowableActionsParser.h"
 #import "CMISAtomPubConstants.h"
 
-@interface CMISAllowableActionsParser ()
+@interface CMISAtomPubAllowableActionsParser ()
 
 @property (nonatomic, strong) NSMutableDictionary *internalAllowableActionsDict;
-@property (nonatomic, weak) id<NSXMLParserDelegate, CMISAllowableActionsParserDelegate> parentDelegate;
+@property (nonatomic, weak) id<NSXMLParserDelegate, CMISAtomPubAllowableActionsParserDelegate> parentDelegate;
 @property (nonatomic, strong) NSMutableString *string;
 @property (nonatomic, strong) NSData *atomData;
 
 // Private init Used for child delegate parser
-- (id)initWithParentDelegate:(id<NSXMLParserDelegate, CMISAllowableActionsParserDelegate>)parentDelegate parser:(NSXMLParser *)parser;
+- (id)initWithParentDelegate:(id<NSXMLParserDelegate, CMISAtomPubAllowableActionsParserDelegate>)parentDelegate parser:(NSXMLParser *)parser;
 @end
 
 
-@implementation CMISAllowableActionsParser
+@implementation CMISAtomPubAllowableActionsParser
 
 #pragma mark - 
 #pragma mark Init/Create methods
 
-- (id)initWithParentDelegate:(id<NSXMLParserDelegate, CMISAllowableActionsParserDelegate>)parentDelegate parser:(NSXMLParser *)parser 
+- (id)initWithParentDelegate:(id<NSXMLParserDelegate, CMISAtomPubAllowableActionsParserDelegate>)parentDelegate parser:(NSXMLParser *)parser
 {
     self = [self initWithData:nil];
     if (self)  {
@@ -53,7 +53,7 @@
     return self;
 }
 
-+ (id)allowableActionsParserWithParentDelegate:(id<NSXMLParserDelegate, CMISAllowableActionsParserDelegate>)parentDelegate parser:(NSXMLParser *)parser
++ (id)allowableActionsParserWithParentDelegate:(id<NSXMLParserDelegate, CMISAtomPubAllowableActionsParserDelegate>)parentDelegate parser:(NSXMLParser *)parser
 {
     return [[[self class] alloc] initWithParentDelegate:parentDelegate parser:parser];
 }

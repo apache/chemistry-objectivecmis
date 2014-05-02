@@ -17,28 +17,17 @@
   under the License.
  */
 
-
 #import <Foundation/Foundation.h>
-#import "CMISEnums.h"
+#import "CMISAtomPubRepositoryInfoParser.h"
 
-@interface CMISObjectByIdUriBuilder : NSObject
+@interface CMISAtomPubServiceDocumentParser : NSObject <NSXMLParserDelegate, CMISAtomPubRepositoryInfoParserDelegate>
 
-@property (nonatomic, strong) NSString *objectId;
-@property (nonatomic, strong) NSString *filter;
-@property BOOL includeAllowableActions;
-@property BOOL includePolicyIds;
-@property CMISIncludeRelationship relationships;
-@property BOOL includeACL;
-@property (nonatomic, strong) NSString *renditionFilter;
-@property CMISReturnVersion returnVersion;
+/// Available after parsing the service document
+@property (nonatomic, strong, readonly) NSArray *workspaces;
 
-/**
- * initialise with the template URL string
- */
-- (id)initWithTemplateUrl:(NSString *)templateUrl;
-/**
- * returns the URL
- */
-- (NSURL *)buildUrl;
+- (id)initWithData:(NSData*)atomData;
+
+/// parses the service document. returns NO if unsuccessful
+- (BOOL)parseAndReturnError:(NSError **)error;
 
 @end

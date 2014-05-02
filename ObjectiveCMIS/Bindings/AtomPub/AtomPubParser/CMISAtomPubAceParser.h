@@ -17,26 +17,28 @@
   under the License.
  */
 
-#import <UIKit/UIKit.h>
+#import <Foundation/Foundation.h>
 #import "CMISAtomPubExtensionDataParserBase.h"
-#import "CMISPrincipal.h"
+#import "CMISAce.h"
+#import "CMISAtomPubPrincipalParser.h"
 
-@class CMISPrincipalParser;
+@class CMISAtomPubAceParser;
 
-@protocol CMISPrincipalParserDelegate <NSObject>
+@protocol CMISAtomPubAceParserDelegate <NSObject>
 @required
-/// parses principal delegate method
-- (void)principalParser:(CMISPrincipalParser *)principalParser didFinishParsingPrincipal:(CMISPrincipal *)principal;
+/// parses access control entry delegate method
+- (void)aceParser:(CMISAtomPubAceParser *)aceParser didFinishParsingAce:(CMISAce *)ace;
 @end
 
-@interface CMISPrincipalParser : CMISAtomPubExtensionDataParserBase <NSXMLParserDelegate>
+@interface CMISAtomPubAceParser : CMISAtomPubExtensionDataParserBase <NSXMLParserDelegate, CMISAtomPubPrincipalParserDelegate>
 
-@property (nonatomic, strong) CMISPrincipal *principal;
+
+@property (nonatomic, strong) CMISAce *ace;
 
 /// Designated Initializer
-- (id)initPrincipalParserWithParentDelegate:(id<NSXMLParserDelegate, CMISPrincipalParserDelegate>)parentDelegate parser:(NSXMLParser *)parser;
+- (id)initAceParserWithParentDelegate:(id<NSXMLParserDelegate, CMISAtomPubAceParserDelegate>)parentDelegate parser:(NSXMLParser *)parser;
 
-/// parses principals
-+(id)principalParserWithParentDelegate:(id<NSXMLParserDelegate, CMISPrincipalParserDelegate>)parentDelegate parser:(NSXMLParser *)parser;
+/// parses access control entries
++(id)aceParserWithParentDelegate:(id<NSXMLParserDelegate, CMISAtomPubAceParserDelegate>)parentDelegate parser:(NSXMLParser *)parser;
 
 @end

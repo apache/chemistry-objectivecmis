@@ -17,24 +17,28 @@
   under the License.
  */
 
-//
-// CMISAtomParserUtil
-//
+
 #import <Foundation/Foundation.h>
 #import "CMISEnums.h"
 
+@interface CMISAtomPubObjectByIdUriBuilder : NSObject
 
-
-@interface CMISAtomParserUtil : NSObject
+@property (nonatomic, strong) NSString *objectId;
+@property (nonatomic, strong) NSString *filter;
+@property BOOL includeAllowableActions;
+@property BOOL includePolicyIds;
+@property CMISIncludeRelationship relationships;
+@property BOOL includeACL;
+@property (nonatomic, strong) NSString *renditionFilter;
+@property CMISReturnVersion returnVersion;
 
 /**
- * converts an atomPubType to a CMISPropertyType object
+ * initialise with the template URL string
  */
-+ (CMISPropertyType)atomPubTypeToInternalType:(NSString *)atomPubType;
-
+- (id)initWithTemplateUrl:(NSString *)templateUrl;
 /**
- * parses the property value and adds it to an array
+ * returns the URL
  */
-+ (void)parsePropertyValue:(NSString *)stringValue propertyType:(NSString *)propertyType addToArray:(NSMutableArray*)array;
+- (NSURL *)buildUrl;
 
 @end

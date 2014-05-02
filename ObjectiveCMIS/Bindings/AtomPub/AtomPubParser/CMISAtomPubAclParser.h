@@ -6,9 +6,9 @@
   to you under the Apache License, Version 2.0 (the
   "License"); you may not use this file except in compliance
   with the License.  You may obtain a copy of the License at
-
+ 
     http://www.apache.org/licenses/LICENSE-2.0
-
+ 
   Unless required by applicable law or agreed to in writing,
   software distributed under the License is distributed on an
   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -18,19 +18,26 @@
  */
 
 #import <Foundation/Foundation.h>
+#import "CMISAtomPubExtensionDataParserBase.h"
+#import "CMISAcl.h"
+#import "CMISAtomPubAceParser.h"
 
+@class CMISAtomPubAclParser;
 
-@interface CMISTypeByIdUriBuilder : NSObject
+@protocol CMISAtomPubAclParserDelegate <NSObject>
+@required
+/// parses acl delegate method
+- (void)aclParser:(CMISAtomPubAclParser *)aclParser didFinishParsingAcl:(CMISAcl *)acl;
+@end
 
-@property (nonatomic, strong) NSString *identifier;
+@interface CMISAtomPubAclParser : CMISAtomPubExtensionDataParserBase <NSXMLParserDelegate, CMISAtomPubAceParserDelegate>
 
-/**
- * init the template URL with URL string
- */
-- (id)initWithTemplateUrl:(NSString *)templateUrl;
-/**
- * @return the ready to use Url
- */
-- (NSURL *)buildUrl;
+@property (nonatomic, strong) CMISAcl *acl;
+
+/// Designated Initializer
+- (id)initAclParserWithParentDelegate:(id<NSXMLParserDelegate, CMISAtomPubAclParserDelegate>)parentDelegate parser:(NSXMLParser *)parser;
+
+/// parses acl
++(id)aclParserWithParentDelegate:(id<NSXMLParserDelegate, CMISAtomPubAclParserDelegate>)parentDelegate parser:(NSXMLParser *)parser;
 
 @end

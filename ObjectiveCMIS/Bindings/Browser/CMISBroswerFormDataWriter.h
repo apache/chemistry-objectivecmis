@@ -20,7 +20,7 @@
 #import <Foundation/Foundation.h>
 #import "CMISProperties.h"
 
-@interface CMISFormDataWriter : NSObject
+@interface CMISBroswerFormDataWriter : NSObject
 
 - (id)initWithAction:(NSString *)action;
 

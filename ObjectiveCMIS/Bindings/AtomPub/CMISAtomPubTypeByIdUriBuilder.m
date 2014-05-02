@@ -17,21 +17,31 @@
   under the License.
  */
 
-#import <Foundation/Foundation.h>
-#import "CMISAtomPubPropertyDefinitionParser.h"
+#import "CMISAtomPubTypeByIdUriBuilder.h"
 
-@class CMISTypeDefinition;
+@interface CMISAtomPubTypeByIdUriBuilder ()
 
-// TODO: should we merge this parser with the generic AtomEntry parser?
-@interface CMISTypeDefinitionAtomEntryParser : NSObject <NSXMLParserDelegate, CMISAtomPubPropertyDefinitionDelegate>
+@property (nonatomic, strong) NSString *templateUrl;
 
-/**
-* Available after a successful parse.
-*/
-@property (nonatomic, strong, readonly) CMISTypeDefinition *typeDefinition;
+@end
 
-- (id)initWithData:(NSData *)atomData;
-/// parses the type definition. returns NO if unsuccessful
-- (BOOL)parseAndReturnError:(NSError **)error;
+
+@implementation CMISAtomPubTypeByIdUriBuilder
+
+
+- (id)initWithTemplateUrl:(NSString *)templateUrl
+{
+    self = [super init];
+       if (self) {
+           self.templateUrl = templateUrl;
+       }
+       return self;
+}
+
+- (NSURL *)buildUrl
+{
+    return [NSURL URLWithString:[self.templateUrl stringByReplacingOccurrencesOfString:@"{id}" withString:self.identifier]];
+}
+
 
 @end

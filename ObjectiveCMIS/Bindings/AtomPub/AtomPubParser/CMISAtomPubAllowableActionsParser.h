@@ -6,9 +6,9 @@
   to you under the Apache License, Version 2.0 (the
   "License"); you may not use this file except in compliance
   with the License.  You may obtain a copy of the License at
- 
+
     http://www.apache.org/licenses/LICENSE-2.0
- 
+
   Unless required by applicable law or agreed to in writing,
   software distributed under the License is distributed on an
   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -18,27 +18,30 @@
  */
 
 #import <Foundation/Foundation.h>
+#import "CMISAllowableActions.h"
 #import "CMISAtomPubExtensionDataParserBase.h"
-#import "CMISAce.h"
-#import "CMISPrincipalParser.h"
 
-@class CMISAceParser;
+@class CMISAtomPubAllowableActionsParser;
 
-@protocol CMISAceParserDelegate <NSObject>
-@required
-/// parses access control entry delegate method
-- (void)aceParser:(CMISAceParser *)aceParser didFinishParsingAce:(CMISAce *)ace;
+@protocol CMISAtomPubAllowableActionsParserDelegate <NSObject>
+@optional
+- (void)allowableActionsParser:(CMISAtomPubAllowableActionsParser *)parser didFinishParsingAllowableActions:(CMISAllowableActions *)allowableActions;
+
 @end
 
-@interface CMISAceParser : CMISAtomPubExtensionDataParserBase <NSXMLParserDelegate, CMISPrincipalParserDelegate>
 
+@interface CMISAtomPubAllowableActionsParser : CMISAtomPubExtensionDataParserBase <NSXMLParserDelegate>
 
-@property (nonatomic, strong) CMISAce *ace;
-
+@property (nonatomic, strong) CMISAllowableActions *allowableActions;
 /// Designated Initializer
-- (id)initAceParserWithParentDelegate:(id<NSXMLParserDelegate, CMISAceParserDelegate>)parentDelegate parser:(NSXMLParser *)parser;
+- (id)initWithData:(NSData*)atomData;
 
-/// parses access control entries
-+(id)aceParserWithParentDelegate:(id<NSXMLParserDelegate, CMISAceParserDelegate>)parentDelegate parser:(NSXMLParser *)parser;
+/**
+ parse method. returns NO if unsuccessful
+ */
+- (BOOL)parseAndReturnError:(NSError **)error;
+
+/// Delegates parsing to child parser, ensure that the Element is 'allowableActions'
++ (id)allowableActionsParserWithParentDelegate:(id<NSXMLParserDelegate, CMISAtomPubAllowableActionsParserDelegate>)parentDelegate parser:(NSXMLParser *)parser;
 
 @end

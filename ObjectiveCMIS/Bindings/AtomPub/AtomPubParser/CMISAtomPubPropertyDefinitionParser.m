@@ -17,23 +17,23 @@
   under the License.
  */
 
-#import "CMISPropertyDefinitionParser.h"
+#import "CMISAtomPubPropertyDefinitionParser.h"
 #import "CMISPropertyDefinition.h"
 #import "CMISAtomPubConstants.h"
 #import "CMISLog.h"
 
-@interface CMISPropertyDefinitionParser ()
+@interface CMISAtomPubPropertyDefinitionParser ()
 
 @property(nonatomic, strong, readwrite) CMISPropertyDefinition *propertyDefinition;
 @property(nonatomic, strong, readwrite) NSString *currentString;
 
 // Properties if used as child delegate parser
-@property(nonatomic, weak) id <NSXMLParserDelegate, CMISPropertyDefinitionDelegate> parentDelegate;
+@property(nonatomic, weak) id <NSXMLParserDelegate, CMISAtomPubPropertyDefinitionDelegate> parentDelegate;
 
 @end
 
 
-@implementation CMISPropertyDefinitionParser
+@implementation CMISAtomPubPropertyDefinitionParser
 
 
 - (id)init
@@ -46,7 +46,7 @@
 }
 
 - (id)initWithPropertyDefinition:(NSString *)propertyDefinitionElementName
-              withParentDelegate:(id <NSXMLParserDelegate, CMISPropertyDefinitionDelegate>)parentDelegate
+              withParentDelegate:(id <NSXMLParserDelegate, CMISAtomPubPropertyDefinitionDelegate>)parentDelegate
               parser:(NSXMLParser *)parser
 {
     self = [self init];
@@ -77,10 +77,10 @@
 #pragma mark Class methods
 
 + (id)parserForPropertyDefinition:(NSString *)propertyDefinitionElementName
-               withParentDelegate:(id <NSXMLParserDelegate, CMISPropertyDefinitionDelegate>)parentDelegate
+               withParentDelegate:(id <NSXMLParserDelegate, CMISAtomPubPropertyDefinitionDelegate>)parentDelegate
                            parser:(NSXMLParser *)parser
 {
-    return [[CMISPropertyDefinitionParser alloc] initWithPropertyDefinition:propertyDefinitionElementName withParentDelegate:parentDelegate parser:parser];
+    return [[CMISAtomPubPropertyDefinitionParser alloc] initWithPropertyDefinition:propertyDefinitionElementName withParentDelegate:parentDelegate parser:parser];
 }
 
 #pragma mark NSXMLParserDelegate methods

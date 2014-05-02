@@ -17,7 +17,7 @@
  under the License.
  */
 
-#import "CMISFormDataWriter.h"
+#import "CMISBroswerFormDataWriter.h"
 #import "CMISConstants.h"
 #import "CMISBrowserConstants.h"
 #import "CMISEnums.h"
@@ -27,7 +27,7 @@
 NSString * const kCMISFormDataContentTypeUrlEncoded = @"application/x-www-form-urlencoded;charset=utf-8";
 NSString * const kCMISFormDataContentTypeFormData = @"multipart/form-data; boundary=";
 
-@interface CMISFormDataWriter ()
+@interface CMISBroswerFormDataWriter ()
 
 @property (nonatomic, strong) NSInputStream *contentStream;
 @property (nonatomic, strong) NSMutableDictionary *parameters;
@@ -37,7 +37,7 @@ NSString * const kCMISFormDataContentTypeFormData = @"multipart/form-data; bound
 
 @end
 
-@implementation CMISFormDataWriter
+@implementation CMISBroswerFormDataWriter
 
 - (id)initWithAction:(NSString *)action
 {

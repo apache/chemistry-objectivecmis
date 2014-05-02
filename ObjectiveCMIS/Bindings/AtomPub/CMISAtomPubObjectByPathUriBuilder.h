@@ -21,7 +21,7 @@
 #import "CMISEnums.h"
 
 
-@interface CMISObjectByPathUriBuilder : NSObject
+@interface CMISAtomPubObjectByPathUriBuilder : NSObject
 
 @property (nonatomic, strong) NSString *path;
 @property (nonatomic, strong) NSString *filter;

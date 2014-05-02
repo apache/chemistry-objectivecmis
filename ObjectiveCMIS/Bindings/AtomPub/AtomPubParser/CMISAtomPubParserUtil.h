@@ -17,31 +17,22 @@
   under the License.
  */
 
-#import "CMISTypeByIdUriBuilder.h"
+//
+// CMISAtomParserUtil
+//
+#import <Foundation/Foundation.h>
+#import "CMISEnums.h"
 
-@interface CMISTypeByIdUriBuilder ()
+@interface CMISAtomPubParserUtil : NSObject
 
-@property (nonatomic, strong) NSString *templateUrl;
+/**
+ * converts an atomPubType to a CMISPropertyType object
+ */
++ (CMISPropertyType)atomPubTypeToInternalType:(NSString *)atomPubType;
 
-@end
-
-
-@implementation CMISTypeByIdUriBuilder
-
-
-- (id)initWithTemplateUrl:(NSString *)templateUrl
-{
-    self = [super init];
-       if (self) {
-           self.templateUrl = templateUrl;
-       }
-       return self;
-}
-
-- (NSURL *)buildUrl
-{
-    return [NSURL URLWithString:[self.templateUrl stringByReplacingOccurrencesOfString:@"{id}" withString:self.identifier]];
-}
-
+/**
+ * parses the property value and adds it to an array
+ */
++ (void)parsePropertyValue:(NSString *)stringValue propertyType:(NSString *)propertyType addToArray:(NSMutableArray*)array;
 
 @end
