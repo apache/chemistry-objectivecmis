@@ -111,6 +111,7 @@ extern NSString * const kCMISParameterStreamId;
 extern NSString * const kCMISParameterAllVersions;
 extern NSString * const kCMISParameterContinueOnFailure;
 extern NSString * const kCMISParameterUnfileObjects;
+extern NSString * const kCMISParameterVersioningState;
 extern NSString * const kCMISParameterRelativePathSegment;
 extern NSString * const kCMISParameterMajor;
 extern NSString * const kCMISParameterCheckin;
@@ -128,6 +129,18 @@ extern NSString * const kCMISParameterValueFalse;
 extern NSString * const kCMISParameterValueReturnValueThis;
 extern NSString * const kCMISParameterValueReturnValueLatest;
 extern NSString * const kCMISParameterValueReturnValueLatestMajor;
+
+// Media Types
+extern NSString * const kCMISMediaTypeService;
+extern NSString * const kCMISMediaTypeFeed;
+extern NSString * const kCMISMediaTypeEntry;
+extern NSString * const kCMISMediaTypeChildren;
+extern NSString * const kCMISMediaTypeDescendants;
+extern NSString * const kCMISMediaTypeQuery;
+extern NSString * const kCMISMediaTypeAllowableAction;
+extern NSString * const kCMISMediaTypeAcl;
+extern NSString * const kCMISMediaTypeCmisAtom;
+extern NSString * const kCMISMediaTypeOctetStream;
 
 //ContentStreamAllowed enum values
 extern NSString * const kCMISContentStreamAllowedValueRequired;

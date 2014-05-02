@@ -37,6 +37,25 @@
 #import "CMISPrincipal.h"
 #import "CMISAllowableActions.h"
 
+@interface NSObject (CMISUtil)
+
++ (void)performBlock:(void (^)(void))block;
+
+@end
+
+@implementation NSObject (CMISUtil)
+
++ (void)performBlock:(void (^)(void))block
+{
+    [NSObject performSelector:@selector(executeBlock:) onThread:[NSThread currentThread] withObject:block waitUntilDone:NO];
+}
+
++ (void)executeBlock:(void (^)(void))block {
+    block();
+}
+
+@end
+
 @implementation CMISBrowserUtil
 
 + (NSDictionary *)repositoryInfoDictionaryFromJSONData:(NSData *)jsonData bindingSession:(CMISBindingSession *)bindingSession error:(NSError **)outError
@@ -248,12 +267,13 @@
                 objectList.objects = objects;
                 
                 // handle extension data
-                if (isQueryResult) {
-                    objectList.extensions = [CMISObjectConverter convertExtensions:jsonDictionary cmisKeys:[CMISBrowserConstants queryResultListKeys]];
-                } else {
-                    objectList.extensions = [CMISObjectConverter convertExtensions:jsonDictionary cmisKeys:[CMISBrowserConstants objectListKeys]];
+                if([jsonDictionary isKindOfClass:NSDictionary.class]) {
+                    if (isQueryResult) {
+                        objectList.extensions = [CMISObjectConverter convertExtensions:jsonDictionary cmisKeys:[CMISBrowserConstants queryResultListKeys]];
+                    } else {
+                        objectList.extensions = [CMISObjectConverter convertExtensions:jsonDictionary cmisKeys:[CMISBrowserConstants objectListKeys]];
+                    }
                 }
-                
                 completionBlock(objectList, nil);
             }
         }];
@@ -700,8 +720,8 @@
     }
     
     NSMutableArray *dates = [[NSMutableArray alloc] initWithCapacity:numbers.count];
-    for (NSNumber *number in numbers) {
-        NSDate *date = [NSDate dateWithTimeIntervalSinceReferenceDate:[number doubleValue]];
+    for (NSNumber *miliseconds in numbers) {
+        NSDate *date = [NSDate dateWithTimeIntervalSince1970:[miliseconds doubleValue] / 1000.0]; // miliseconds to seconds
         [dates addObject:date];
     }
     return dates;
@@ -969,16 +989,6 @@
     propDef.extensions = [CMISObjectConverter convertExtensions:propertyDictionary cmisKeys:[CMISBrowserConstants propertyTypeKeys]];
     
     return propDef;
-}
-
-// TODO could be moved to category
-+ (void)performBlock:(void (^)(void))block
-{
-    [CMISBrowserUtil performSelector:@selector(executeBlock:) onThread:[NSThread currentThread] withObject:block waitUntilDone:NO];
-}
-
-+ (void)executeBlock:(void (^)(void))block {
-    block();
 }
 
 

@@ -85,8 +85,9 @@ const NSUInteger kRawBufferSize = 24576;
 
 @property (nonatomic, assign) unsigned long long bytesUploaded;
 @property (nonatomic, copy) void (^progressBlock)(unsigned long long bytesUploaded, unsigned long long bytesTotal);
+@property (nonatomic, assign) BOOL useCombinedInputStream;
 @property (nonatomic, assign) BOOL base64Encoding;
-@property (nonatomic, strong) NSInputStream *base64InputStream;
+@property (nonatomic, strong) NSInputStream *combinedInputStream;
 @property (nonatomic, strong) NSOutputStream *encoderStream;
 @property (nonatomic, strong) NSData *streamStartData;
 @property (nonatomic, strong) NSData *streamEndData;
@@ -125,8 +126,8 @@ const NSUInteger kRawBufferSize = 24576;
     httpRequest.additionalHeaders = additionalHeaders;
     httpRequest.bytesExpected = bytesExpected;
     httpRequest.authenticationProvider = authenticationProvider;
-    httpRequest.base64Encoding = NO;
-    httpRequest.base64InputStream = nil;
+    httpRequest.combinedInputStream = NO;
+    httpRequest.combinedInputStream = nil;
     httpRequest.encoderStream = nil;
     
     if (![httpRequest startRequest:urlRequest]) {
@@ -139,7 +140,7 @@ const NSUInteger kRawBufferSize = 24576;
 + (id)startRequest:(NSMutableURLRequest *)urlRequest
         httpMethod:(CMISHttpRequestMethod)httpRequestMethod
        inputStream:(NSInputStream*)inputStream
-           headers:(NSDictionary*)addionalHeaders
+           headers:(NSDictionary*)additionalHeaders
      bytesExpected:(unsigned long long)bytesExpected
 authenticationProvider:(id<CMISAuthenticationProvider>) authenticationProvider
     cmisProperties:(CMISProperties *)cmisProperties
@@ -152,13 +153,44 @@ authenticationProvider:(id<CMISAuthenticationProvider>) authenticationProvider
                                                             progressBlock:progressBlock];
     
     httpRequest.inputStream = inputStream;
-    httpRequest.additionalHeaders = addionalHeaders;
+    httpRequest.additionalHeaders = additionalHeaders;
     httpRequest.bytesExpected = bytesExpected;
+    httpRequest.useCombinedInputStream = YES;
     httpRequest.base64Encoding = YES;
     httpRequest.authenticationProvider = authenticationProvider;
     
     [httpRequest prepareStreams];
     [httpRequest prepareXMLWithCMISProperties:cmisProperties mimeType:mimeType];
+    if (![httpRequest startRequest:urlRequest]) {
+        httpRequest = nil;
+    }
+    
+    return httpRequest;
+}
+
++ (id)startRequest:(NSMutableURLRequest *)urlRequest
+        httpMethod:(CMISHttpRequestMethod)httpRequestMethod
+       inputStream:(NSInputStream *)inputStream
+           headers:(NSDictionary *)additionalHeaders
+     bytesExpected:(unsigned long long)bytesExpected
+authenticationProvider:(id<CMISAuthenticationProvider>)authenticationProvider
+         startData:(NSData *)startData endData:(NSData *)endData
+   completionBlock:(void (^)(CMISHttpResponse *, NSError *))completionBlock
+     progressBlock:(void (^)(unsigned long long, unsigned long long))progressBlock
+{
+    CMISHttpUploadRequest *httpRequest = [[self alloc] initWithHttpMethod:httpRequestMethod
+                                                          completionBlock:completionBlock
+                                                            progressBlock:progressBlock];
+    
+    httpRequest.inputStream = inputStream;
+    httpRequest.additionalHeaders = additionalHeaders;
+    httpRequest.bytesExpected = bytesExpected;
+    httpRequest.useCombinedInputStream = YES;
+    httpRequest.base64Encoding = NO;
+    httpRequest.authenticationProvider = authenticationProvider;
+    
+    [httpRequest prepareStreams];
+    [httpRequest setStartData:startData endData:endData];
     if (![httpRequest startRequest:urlRequest]) {
         httpRequest = nil;
     }
@@ -181,19 +213,21 @@ authenticationProvider:(id<CMISAuthenticationProvider>) authenticationProvider
 
 
 /**
- if we are using on-the-go base64 encoding, we will use the base64InputStream in URL connections/request.
+ if we are using on-the-go base64 encoding, we will use the combinedInputStream in URL connections/request.
  In this case a little extra work is required: i.e. we need to provide the length of the encoded data stream (including
  the XML data).
  */
 - (BOOL)startRequest:(NSMutableURLRequest*)urlRequest
 {
-    if (self.base64Encoding)
+    if (self.useCombinedInputStream)
     {
-        if (self.base64InputStream) {
-            urlRequest.HTTPBodyStream = self.base64InputStream;
-            NSMutableDictionary *headers = [NSMutableDictionary dictionaryWithDictionary:self.additionalHeaders];
-            [headers setValue:[NSString stringWithFormat:@"%llu", self.encodedLength] forKey:@"Content-Length"];
-            self.additionalHeaders = [NSDictionary dictionaryWithDictionary:headers];
+        if (self.combinedInputStream) {
+            urlRequest.HTTPBodyStream = self.combinedInputStream;
+            if(self.base64Encoding) {
+                NSMutableDictionary *headers = [NSMutableDictionary dictionaryWithDictionary:self.additionalHeaders];
+                [headers setValue:[NSString stringWithFormat:@"%llu", self.encodedLength] forKey:@"Content-Length"];
+                self.additionalHeaders = [NSDictionary dictionaryWithDictionary:headers];
+            }
         }
     }
     else
@@ -203,7 +237,7 @@ authenticationProvider:(id<CMISAuthenticationProvider>) authenticationProvider
         }
     }
     BOOL startSuccess = [super startRequest:urlRequest];
-    if (self.base64Encoding) {
+    if (self.useCombinedInputStream) {
         [self.encoderStream open];
     }
 
@@ -216,7 +250,7 @@ authenticationProvider:(id<CMISAuthenticationProvider>) authenticationProvider
     self.progressBlock = nil;
     
     [super cancel];
-    if (self.base64Encoding) {
+    if (self.useCombinedInputStream) {
         [self stopSendWithStatus:@"connection has been cancelled."];
     }
 }
@@ -235,7 +269,7 @@ authenticationProvider:(id<CMISAuthenticationProvider>) authenticationProvider
 totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite
 {
     if (self.progressBlock) {
-        if (self.base64Encoding) {
+        if (self.useCombinedInputStream && self.base64Encoding) {
             // Show the actual transmitted raw data size to the user, not the base64 encoded size
             totalBytesWritten = [CMISHttpUploadRequest rawEncodedLength:totalBytesWritten];
             if (totalBytesWritten > totalBytesExpectedToWrite) {
@@ -260,7 +294,7 @@ totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite
 {
     [super connection:connection didFailWithError:error];
     
-    if (self.base64Encoding) {
+    if (self.useCombinedInputStream) {
         [self stopSendWithStatus:@"connection is being terminated with error."];
     }
     self.progressBlock = nil;
@@ -274,7 +308,7 @@ totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection
 {
     [super connectionDidFinishLoading:connection];
-    if (self.base64Encoding) {
+    if (self.useCombinedInputStream) {
         [self stopSendWithStatus:@"Connection finished as expected."];
     }
     
@@ -287,9 +321,9 @@ totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite
  The action is in the case where the eventCode == NSStreamEventHasSpaceAvailable
  
  Note 1:
- The output stream (encoderStream) is paired with the encoded input stream (base64InputStream) which is the one
+ The output stream (encoderStream) is paired with the encoded input stream (combinedInputStream) which is the one
  the active URL connection uses to read from. Thereby any data made available to the outputstream will be available to this input stream as well.
- Any action on the output stream (like close) will also affect this base64InputStream.
+ Any action on the output stream (like close) will also affect this combinedInputStream.
  
  Note 2:
  since we are encoding "on the fly" we are dealing with 2 different buffer sizes. The encoded buffer size kFullBufferSize, and the
@@ -311,8 +345,8 @@ totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite
 {
     switch (eventCode){
         case NSStreamEventOpenCompleted:{
-            if (self.base64InputStream.streamStatus != NSStreamStatusOpen) {
-                [self.base64InputStream open]; // this seems to work around the 'Stream ... is sending an event before being opened' Apple bug
+            if (self.combinedInputStream.streamStatus != NSStreamStatusOpen) {
+                [self.combinedInputStream open]; // this seems to work around the 'Stream ... is sending an event before being opened' Apple bug
             }
             if (self.inputStream.streamStatus != NSStreamStatusOpen) {
                 [self.inputStream open];
@@ -325,14 +359,14 @@ totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite
             break;
 
         case NSStreamEventHasSpaceAvailable: {
-            if (self.base64InputStream) {
-                NSStreamStatus inputStatus = self.base64InputStream.streamStatus;
+            if (self.combinedInputStream) {
+                NSStreamStatus inputStatus = self.combinedInputStream.streamStatus;
                 if (inputStatus == NSStreamStatusClosed) {
-                    CMISLogTrace(@"Base64InputStream %@ is closed", self.base64InputStream);
+                    CMISLogTrace(@"combinedInputStream %@ is closed", self.combinedInputStream);
                 } else if (inputStatus == NSStreamStatusAtEnd){
-                    CMISLogTrace(@"Base64InputStream %@ has reached the end", self.base64InputStream);
+                    CMISLogTrace(@"combinedInputStream %@ has reached the end", self.combinedInputStream);
                 } else if (inputStatus == NSStreamStatusError){
-                    CMISLogTrace(@"Base64InputStream %@ input stream error: %@", self.base64InputStream, self.base64InputStream.streamError);
+                    CMISLogTrace(@"combinedInputStream %@ input stream error: %@", self.combinedInputStream, self.combinedInputStream.streamError);
                     [self stopSendWithStatus:@"Network read error"];
                 }
             }
@@ -350,7 +384,13 @@ totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite
                     if (-1 == rawBytesRead) {
                         [self stopSendWithStatus:@"Error while reading from source input stream"];
                     } else if (0 != rawBytesRead) {
-                        NSData *encodedBuffer = [CMISBase64Encoder dataByEncodingText:[NSData dataWithBytes:rawBuffer length:rawBytesRead]];
+                        
+                        NSData *encodedBuffer;
+                        if (self.base64Encoding) {
+                            encodedBuffer = [CMISBase64Encoder dataByEncodingText:[NSData dataWithBytes:rawBuffer length:rawBytesRead]];
+                        } else {
+                            encodedBuffer = [NSData dataWithBytes:rawBuffer length:rawBytesRead];
+                        }
                         self.dataBuffer = [NSData dataWithData:encodedBuffer];
                         self.bufferOffset = 0;
                         self.bufferLimit = encodedBuffer.length;
@@ -413,9 +453,10 @@ totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite
 
 
 #pragma private methods
+
+// TODO this method could be moved down to the respective atom class
 - (void)prepareXMLWithCMISProperties:(CMISProperties *)cmisProperties mimeType:(NSString *)mimeType
 {
-    self.bufferOffset = 0;
     CMISAtomEntryWriter *writer = [[CMISAtomEntryWriter alloc] init];
     writer.cmisProperties = cmisProperties;
     writer.mimeType = mimeType;
@@ -424,19 +465,36 @@ totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite
     NSString *xmlContentStart = [writer xmlContentStartElement];
     
     NSString *start = [NSString stringWithFormat:@"%@%@", xmlStart, xmlContentStart];
-    self.streamStartData = [NSMutableData dataWithData:[start dataUsingEncoding:NSUTF8StringEncoding]];
-    self.bufferLimit = self.streamStartData.length;
-    self.dataBuffer = [NSData dataWithData:self.streamStartData];
+    NSData *startData = [NSMutableData dataWithData:[start dataUsingEncoding:NSUTF8StringEncoding]];
     
     NSString *xmlContentEnd = [writer xmlContentEndElement];
     NSString *xmlProperties = [writer xmlPropertiesElements];
     NSString *end = [NSString stringWithFormat:@"%@%@", xmlContentEnd, xmlProperties];
-    self.streamEndData = [end dataUsingEncoding:NSUTF8StringEncoding];
+    NSData *endData = [end dataUsingEncoding:NSUTF8StringEncoding];
     
-    unsigned long long encodedLength = [CMISHttpUploadRequest base64EncodedLength:self.bytesExpected];
+    [self setStartData:startData endData:endData bytesExpected:[CMISHttpUploadRequest base64EncodedLength:self.bytesExpected]];
+    
+    self.encodedLength = self.bytesExpected;
+}
+
+- (void)setStartData:(NSData *)startData endData:(NSData *)endData
+{
+    [self setStartData:startData endData:endData bytesExpected:self.bytesExpected];
+}
+
+- (void)setStartData:(NSData *)startData endData:(NSData *)endData bytesExpected:(unsigned long long)bytesExpected
+{
+    self.bufferOffset = 0;
+    
+    self.streamStartData = startData;
+    self.bufferLimit = startData.length;
+    self.dataBuffer = [NSData dataWithData:startData];
+    
+    self.streamEndData = endData;
+    
+    unsigned long long encodedLength = bytesExpected;
     encodedLength += self.streamStartData.length;
     encodedLength += self.streamEndData.length;
-    self.encodedLength = encodedLength;
     
     // update the originally provided expected bytes with encoded length
     self.bytesExpected = encodedLength;
@@ -453,7 +511,7 @@ totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite
     [NSStream createBoundInputStream:&requestInputStream outputStream:&outputStream];
     assert(requestInputStream != nil);
     assert(outputStream != nil);
-    self.base64InputStream = requestInputStream;
+    self.combinedInputStream = requestInputStream;
     self.encoderStream = outputStream;
     self.encoderStream.delegate = self;
     [self.encoderStream scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
@@ -498,7 +556,7 @@ totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite
         [self.encoderStream close];
         self.encoderStream = nil;
     }
-    self.base64InputStream = nil;
+    self.combinedInputStream = nil;
     if(self.inputStream != nil){
         [self.inputStream close];
         self.inputStream = nil;

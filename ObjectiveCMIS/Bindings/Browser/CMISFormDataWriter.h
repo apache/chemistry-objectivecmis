@@ -24,16 +24,29 @@
 
 - (id)initWithAction:(NSString *)action;
 
+- (id)initWithAction:(NSString *)action contentStream:(NSInputStream *)contentStream mediaType:(NSString *)mediaType;
+
 - (void)addParameter:(NSString *)name value:(id)value;
 
 - (void)addParameter:(NSString *)name boolValue:(BOOL)value;
 
+/// if the fileName is not set the value of the property with id kCMISPropertyName will be used for the form data content name
 - (void)addPropertiesParameters:(CMISProperties *)properties;
 
 - (void)addSuccinctFlag:(BOOL)succinct;
 
+/// the filenName will be used for the form data content name
+- (void)setFileName:(NSString *)fileName;
+
 - (NSDictionary *)headers;
 
+/// call this method to get the http request body form data if no content stream is used
 - (NSData *)body;
+
+/// call this method to get the start of the http request body form data if a content stream is set
+- (NSData *)startData;
+
+/// call this method to get the end of the http request body form data if a content stream is set
+- (NSData *)endData;
 
 @end

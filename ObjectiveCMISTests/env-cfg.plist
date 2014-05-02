@@ -34,7 +34,7 @@
 		</dict>
 		<dict>
 			<key>disabled</key>
-			<true/>
+			<false/>
 			<key>summary</key>
 			<string>Alfresco v4.2.0 Enterprise. OpenCMIS (PublicAPI) AtomPub 1.0</string>
 			<key>username</key>
@@ -48,7 +48,7 @@
 		</dict>
 		<dict>
 			<key>disabled</key>
-			<false/>
+			<true/>
 			<key>summary</key>
 			<string>Alfresco v4.2.0 Enterprise. OpenCMIS (PublicAPI) Browser 1.1</string>
 			<key>binding</key>

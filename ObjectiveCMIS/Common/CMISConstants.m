@@ -119,6 +119,7 @@ NSString * const kCMISParameterStreamId = @"streamId";
 NSString * const kCMISParameterAllVersions = @"allVersions";
 NSString * const kCMISParameterContinueOnFailure= @"continueOnFailure";
 NSString * const kCMISParameterUnfileObjects = @"unfileObjects";
+NSString * const kCMISParameterVersioningState = @"versioningState";
 NSString * const kCMISParameterRelativePathSegment = @"includeRelativePathSegment";
 NSString * const kCMISParameterMajor = @"major";
 NSString * const kCMISParameterCheckin = @"checkin";
@@ -136,6 +137,18 @@ NSString * const kCMISParameterValueFalse = @"false";
 NSString * const kCMISParameterValueReturnValueThis = @"this";
 NSString * const kCMISParameterValueReturnValueLatest = @"latest";
 NSString * const kCMISParameterValueReturnValueLatestMajor = @"latestmajor";
+
+// Media Types
+NSString * const kCMISMediaTypeService = @"application/atomsvc+xml";
+NSString * const kCMISMediaTypeFeed = @"application/atom+xml;type=feed";
+NSString * const kCMISMediaTypeEntry = @"application/atom+xml;type=entry";
+NSString * const kCMISMediaTypeChildren = @"application/atom+xml;type=feed";
+NSString * const kCMISMediaTypeDescendants = @"application/cmistree+xml";
+NSString * const kCMISMediaTypeQuery = @"application/cmisquery+xml";
+NSString * const kCMISMediaTypeAllowableAction  = @"application/cmisallowableactions+xml";
+NSString * const kCMISMediaTypeAcl = @"application/cmisacl+xml";
+NSString * const kCMISMediaTypeCmisAtom = @"application/cmisatom+xml";
+NSString * const kCMISMediaTypeOctetStream = @"application/octet-stream";
 
 //ContentStreamAllowed enum values
 NSString * const kCMISContentStreamAllowedValueRequired = @"required";

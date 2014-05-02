@@ -22,28 +22,37 @@
 #import "CMISBrowserConstants.h"
 #import "CMISEnums.h"
 #import "CMISLog.h"
+#import "CMISMimeHelper.h"
 
 NSString * const kCMISFormDataContentTypeUrlEncoded = @"application/x-www-form-urlencoded;charset=utf-8";
+NSString * const kCMISFormDataContentTypeFormData = @"multipart/form-data; boundary=";
 
 @interface CMISFormDataWriter ()
 
+@property (nonatomic, strong) NSInputStream *contentStream;
 @property (nonatomic, strong) NSMutableDictionary *parameters;
 @property (nonatomic, strong) NSString *boundary;
+@property (nonatomic, strong) NSString *mediaType;
+@property (nonatomic, strong) NSString *fileName;
 
 @end
 
 @implementation CMISFormDataWriter
 
-
-
 - (id)initWithAction:(NSString *)action
+{
+    return [self initWithAction:action contentStream:nil mediaType:nil];
+}
+
+- (id)initWithAction:(NSString *)action contentStream:(NSInputStream *)contentStream mediaType:(NSString *)mediaType
 {
     self = [super init];
     if (self) {
         self.parameters = [[NSMutableDictionary alloc] init];
         
         [self addParameter:kCMISBrowserJSONControlCmisAction value:action];
-        //self.contentStream = contentStream;
+        self.contentStream = contentStream;
+        self.mediaType = mediaType;
         self.boundary = [NSString stringWithFormat:@"aPacHeCheMIStryoBjECtivEcmiS%x%a%x", (unsigned int) action.hash, CFAbsoluteTimeGetCurrent(), (unsigned int) self.hash];
         
     }
@@ -75,6 +84,10 @@ NSString * const kCMISFormDataContentTypeUrlEncoded = @"application/x-www-form-u
 {
     if (!properties) {
         return;
+    }
+    
+    if(!self.fileName){
+        self.fileName = [properties propertyValueForId:kCMISPropertyName];   
     }
     
     int idx = 0;
@@ -116,7 +129,7 @@ NSString * const kCMISFormDataContentTypeUrlEncoded = @"application/x-www-form-u
         return [value boolValue] ? kCMISParameterValueTrue : kCMISParameterValueFalse;
     } else if (type == CMISPropertyTypeDateTime) {
         if ([value isKindOfClass:NSDate.class]) {
-            return [NSNumber numberWithDouble:[(NSDate *)value timeIntervalSinceReferenceDate]].description;
+            return [NSNumber numberWithDouble:[(NSDate *)value timeIntervalSince1970] * 1000.0].description; //seconds to milliseconds
         } else {
             CMISLogWarning(@"value is not a date!");
         }
@@ -126,27 +139,101 @@ NSString * const kCMISFormDataContentTypeUrlEncoded = @"application/x-www-form-u
 
 - (NSDictionary *)headers
 {
-    return @{@"Content-Type" : kCMISFormDataContentTypeUrlEncoded};
+    NSString *contentType = self.contentStream == nil ? kCMISFormDataContentTypeUrlEncoded : [NSString stringWithFormat:@"%@%@", kCMISFormDataContentTypeFormData, self.boundary];
+    return @{@"Content-Type" : contentType};
 }
 
 - (NSData *)body
 {
-    BOOL first = YES;
-    NSData *amp = [@"&" dataUsingEncoding:NSUTF8StringEncoding];
-    NSMutableData *data = [[NSMutableData alloc] init];
-    
-    for (NSString *parameterKey in self.parameters) {
-        if (first) {
-            first = NO;
-        } else {
-            [data appendData:amp];
+    if (self.contentStream == nil) {
+        BOOL first = YES;
+        NSData *amp = [@"&" dataUsingEncoding:NSUTF8StringEncoding];
+        NSMutableData *data = [[NSMutableData alloc] init];
+        
+        for (NSString *parameterKey in self.parameters) {
+            if (first) {
+                first = NO;
+            } else {
+                [data appendData:amp];
+            }
+            NSString *parameterValue = [self.parameters[parameterKey] stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+            NSString *parameter = [NSString stringWithFormat:@"%@=%@", parameterKey, parameterValue];
+            [data appendData:[parameter dataUsingEncoding:NSUTF8StringEncoding]];
         }
-        NSString *parameterValue = [self.parameters[parameterKey] stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-        NSString *parameter = [NSString stringWithFormat:@"%@=%@", parameterKey, parameterValue];
-        [data appendData:[parameter dataUsingEncoding:NSUTF8StringEncoding]];
-    }
 
-    return data;
+        return data;
+    } else {
+        CMISLogError(@"this method should not be called when content stream is set. Use startData and endData method to retrieve the data.");
+        return nil;
+    }
+}
+
+- (NSData *)startData
+{
+    if (self.contentStream) {
+        NSMutableData *data = [[NSMutableData alloc] init];
+
+        [self appendLine:data];
+        
+        // parameters
+        for (NSString *paramKey in self.parameters) {
+            [self appendLine:data string:[NSString stringWithFormat:@"--%@", self.boundary]];
+            [self appendLine:data string:[NSString stringWithFormat:@"Content-Disposition: form-data; name=\"%@\"", paramKey]];
+            [self appendLine:data string:@"Content-Type: text/plain; charset=utf-8"];
+            [self appendLine:data];
+            [self appendLine:data string:self.parameters[paramKey]];
+        }
+        
+        // content
+        if (self.fileName == nil || self.fileName.length == 0) {
+            self.fileName = @"content";
+        }
+        
+        if (self.mediaType == nil ||
+            [self.mediaType rangeOfString:@"/"].location < 1 ||
+            [self.mediaType rangeOfString:@"\n"].location > -1 ||
+            [self.mediaType rangeOfString:@"\r"].location > -1) {
+            self.mediaType = kCMISMediaTypeOctetStream;
+        }
+
+        [self appendLine:data string:[NSString stringWithFormat:@"--%@", self.boundary]];
+        [self appendLine:data string:[NSString stringWithFormat:@"Content-Disposition: %@",
+                  [CMISMimeHelper encodeContentDisposition:kCMISMimeHelperDispositionFormDataContent fileName:self.fileName]]];
+        [self appendLine:data string:[NSString stringWithFormat:@"Content-Type: %@", self.mediaType]];
+        [self appendLine:data string:@"Content-Transfer-Encoding: binary"];
+        [self appendLine:data];
+        
+        return data;
+    } else {
+        CMISLogError(@"this method should not be called when content stream is nil. Use body method to retrieve the data.");
+        return nil;
+    }
+}
+
+- (NSData *)endData
+{
+    if (self.contentStream) {
+        NSMutableData *data = [[NSMutableData alloc] init];
+        
+        [self appendLine:data];
+        [self appendLine:data string:[NSString stringWithFormat:@"--%@--", self.boundary]];
+        
+        return data;
+    } else {
+        CMISLogError(@"this method should not be called when content stream is nil. Use body method to retrieve the data.");
+        return nil;
+    }
+}
+
+- (void)appendLine:(NSMutableData *)data
+{
+    [self appendLine:data string:nil];
+}
+
+- (void)appendLine:(NSMutableData *)data string:(NSString *)s
+{
+    s = s ? [NSString stringWithFormat:@"%@\r\n", s] : @"\r\n";
+    [data appendData:[s dataUsingEncoding:NSUTF8StringEncoding]];
 }
 
 @end

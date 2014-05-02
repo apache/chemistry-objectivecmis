@@ -20,6 +20,47 @@
 #import "CMISURLUtil.h"
 #import "CMISConstants.h"
 
+NSString * const kCMISRFC7232Reserved = @";?:@&=+$,[]";
+
+
+@interface NSString (CMISUtil)
+
+- (NSString *)replacePathWithPath:(NSString *)path;
+
+@end
+
+@implementation NSString (CMISUtil)
+
+- (NSString *)replacePathWithPath:(NSString *)path
+{
+    NSMutableString *serverUrl = [[NSMutableString alloc] init];
+    
+    NSURL *tmp = [[NSURL alloc] initWithString:self];
+    
+    if(tmp.scheme){
+        [serverUrl appendFormat:@"%@://", tmp.scheme];
+    }
+    if(tmp.host){
+        [serverUrl appendString:tmp.host];
+    }
+    if(tmp.port){
+        [serverUrl appendFormat:@":%@", [tmp.port stringValue]];
+    }
+    if(path){
+        [serverUrl appendString:path];
+    }
+    if(tmp.query){
+        [serverUrl appendFormat:@"?%@", tmp.query];
+    }
+    
+    if(serverUrl.length == 0){ //this happens when it's not a valid url
+        [serverUrl appendString:self];
+    }
+    
+    return serverUrl;
+}
+
+@end
 
 @implementation CMISURLUtil
 
@@ -60,9 +101,25 @@
 
 + (NSString *)urlStringByAppendingPath:(NSString *)path urlString:(NSString *)urlString
 {
-    NSURL *url = [[NSURL URLWithString:urlString] URLByAppendingPathComponent:path];
+    if(!path){
+        return urlString;
+    }
     
-    return [url absoluteString];
+    if([path rangeOfString:@"/"].location == 0) {
+        path = [path substringFromIndex:1];
+    }
+    
+    NSURL *url = [[NSURL URLWithString:urlString] URLByAppendingPathComponent:path];
+
+    // quote some additional reserved characters
+    path = CFBridgingRelease(CFURLCreateStringByAddingPercentEscapes(NULL,
+                                                                     (CFStringRef)url.path,
+                                                                     NULL,
+                                                                     (CFStringRef)kCMISRFC7232Reserved,
+                                                                     kCFStringEncodingUTF8));
+    
+    
+    return [[url absoluteString] replacePathWithPath:path];
 }
 
 + (NSURL *)urlStringByAppendingParameter:(NSString *)parameterName value:(NSString *)parameterValue url:(NSURL *)url

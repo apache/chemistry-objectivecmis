@@ -165,6 +165,43 @@ completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))comple
     }
 }
 
+- (void)invoke:(NSURL *)url
+    httpMethod:(CMISHttpRequestMethod)httpRequestMethod
+       session:(CMISBindingSession *)session
+   inputStream:(NSInputStream *)inputStream
+       headers:(NSDictionary *)additionalHeaders
+ bytesExpected:(unsigned long long)bytesExpected
+   cmisRequest:(CMISRequest *)cmisRequest
+     startData:(NSData *)startData
+       endData:(NSData *)endData
+completionBlock:(void (^)(CMISHttpResponse *, NSError *))completionBlock
+ progressBlock:(void (^)(unsigned long long, unsigned long long))progressBlock
+{
+    if (!cmisRequest.isCancelled) {
+        NSMutableURLRequest *urlRequest = [CMISDefaultNetworkProvider createRequestForUrl:url
+                                                                               httpMethod:httpRequestMethod
+                                                                                  session:session];
+        
+        CMISHttpUploadRequest* request = [CMISHttpUploadRequest startRequest:urlRequest
+                                                                  httpMethod:httpRequestMethod
+                                                                 inputStream:inputStream
+                                                                     headers:additionalHeaders
+                                                               bytesExpected:bytesExpected
+                                                      authenticationProvider:session.authenticationProvider
+                                                              startData:startData
+                                                                    endData:endData
+                                                             completionBlock:completionBlock
+                                                               progressBlock:progressBlock];
+        if (request){
+            cmisRequest.httpRequest = request;
+        }
+    } else {
+        if (completionBlock) {
+            completionBlock(nil, [CMISErrors createCMISErrorWithCode:kCMISErrorCodeCancelled
+                                                 detailedDescription:@"Request was cancelled"]);
+        }
+    }
+}
 
 - (void)invoke:(NSURL *)url
     httpMethod:(CMISHttpRequestMethod)httpRequestMethod

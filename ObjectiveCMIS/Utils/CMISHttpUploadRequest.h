@@ -56,4 +56,19 @@ authenticationProvider:(id<CMISAuthenticationProvider>) authenticationProvider
    completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))completionBlock
      progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal))progressBlock;
 
+/**
+ * starts a URL request with a provided input stream. The input stream has to point to the raw NON-encoded data set. This method will first write the 
+ * provided start data, afterwards the content of the input stream and then the provided end data.
+ */
++ (id)startRequest:(NSMutableURLRequest *)urlRequest
+        httpMethod:(CMISHttpRequestMethod)httpRequestMethod
+       inputStream:(NSInputStream*)sourceInputStream
+           headers:(NSDictionary*)additionalHeaders
+     bytesExpected:(unsigned long long)bytesExpected
+authenticationProvider:(id<CMISAuthenticationProvider>) authenticationProvider
+         startData:(NSData *)startData
+           endData:(NSData *)endData
+   completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))completionBlock
+     progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal))progressBlock;
+
 @end

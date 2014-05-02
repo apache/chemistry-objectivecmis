@@ -43,6 +43,7 @@
 #import "CMISDateUtil.h"
 #import "CMISLog.h"
 #import "CMISURLUtil.h"
+#import "CMISMimeHelper.h"
 
 @interface ObjectiveCMISTests ()
 
@@ -2036,7 +2037,7 @@
     }];
 }
 
--(void)testUrlUtilAppendParameter
+- (void)testUrlUtilAppendParameter
 {
     NSString *path;
     
@@ -2065,7 +2066,7 @@
     XCTAssertEqualObjects(path, @"https://example.com:12345/path1/path2?param1=value1", @"expected url with with one parameter and it's value");
 }
 
--(void)testUrlUtilAppendPath
+- (void)testUrlUtilAppendPath
 {
     NSString *path;
     
@@ -2083,6 +2084,35 @@
     
     path = [CMISURLUtil urlStringByAppendingPath:@"subPath" urlString:@"scheme://host:12345/path?parm1=value1"];
     XCTAssertEqualObjects(path, @"scheme://host:12345/path/subPath?parm1=value1", @"expected url with sub path component, parmater and it's value");
+    
+    path = [CMISURLUtil urlStringByAppendingPath:@"subPath" urlString:@"scheme://host:12345/path?parm1=value1&param2=value2"];
+    XCTAssertEqualObjects(path, @"scheme://host:12345/path/subPath?parm1=value1&param2=value2", @"expected url with sub path component, multiple parmaters and their values");
+    
+    path = [CMISURLUtil urlStringByAppendingPath:@"/aPath" urlString:@"scheme://host:12345/test"];
+    XCTAssertEqualObjects(path, @"scheme://host:12345/test/aPath", @"expected url with sub path component");
+    
+    path = [CMISURLUtil urlStringByAppendingPath:@"/aPath" urlString:@"scheme://host:12345/test/"];
+    XCTAssertEqualObjects(path, @"scheme://host:12345/test/aPath", @"expected url with sub path component");
+    
+    // multi-segment path with special chars, space turns into %20
+    path = [CMISURLUtil urlStringByAppendingPath:@"path/caf\u00e9 d@d" urlString:@"http://host/test/"];
+    XCTAssertEqualObjects(path, @"http://host/test/path/caf%C3%A9%20d%40d", @"expected url with encoded path component");
+    NSLog(@"%@", path);
+}
+
+- (void)testEncodeContentDisposition
+{
+    XCTAssertEqualObjects(@"inline; filename=foo.bar", [CMISMimeHelper encodeContentDisposition:@"inline" fileName:@"foo.bar"], @"wrong encoded content disposition");
+    XCTAssertEqualObjects(@"attachment; filename=foo.bar", [CMISMimeHelper encodeContentDisposition:nil fileName:@"foo.bar"], @"wrong encoded content disposition");
+    XCTAssertEqualObjects(@"attachment; filename*=UTF-8''caf%C3%A9.pdf", [CMISMimeHelper encodeContentDisposition:nil fileName:@"caf\u00e9.pdf"], @"wrong encoded content disposition");
+
+    // TODO how to add those unicode control characters directly into the string?
+    uint codeValue1;
+    [[NSScanner scannerWithString:@"0x0081"] scanHexInt:&codeValue1];
+    uint codeValue2;
+    [[NSScanner scannerWithString:@"0x0082"] scanHexInt:&codeValue2];
+    NSString *fileName = [NSString stringWithFormat:@" '*%% abc %C%C\r\n\t", (unichar)codeValue1, (unichar)codeValue2];
+    XCTAssertEqualObjects(@"attachment; filename*=UTF-8''%20%27%2A%25%20abc%20%C2%81%C2%82%0D%0A%09", [CMISMimeHelper encodeContentDisposition:nil fileName:fileName], @"wrong encoded content disposition");
 }
 
 @end
