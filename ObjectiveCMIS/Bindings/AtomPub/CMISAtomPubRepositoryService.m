@@ -19,6 +19,7 @@
 
 #import "CMISAtomPubRepositoryService.h"
 #import "CMISAtomPubBaseService+Protected.h"
+#import "CMISAtomPubConstants.h"
 #import "CMISAtomWorkspace.h"
 #import "CMISErrors.h"
 #import "CMISAtomPubTypeByIdUriBuilder.h"
@@ -85,7 +86,7 @@
         return nil;
     }
     CMISRequest *request = [[CMISRequest alloc] init];
-    [self retrieveFromCache:kCMISBindingSessionKeyTypeByIdUriBuilder
+    [self retrieveFromCache:kCMISAtomBindingSessionKeyTypeByIdUriBuilder
                 cmisRequest:request
             completionBlock:^(id object, NSError *error) {
         CMISAtomPubTypeByIdUriBuilder *typeByIdUriBuilder = object;

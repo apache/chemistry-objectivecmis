@@ -127,4 +127,14 @@ NSString * const kCMISRFC7232Reserved = @";?:@&=+$,[]";
     return [NSURL URLWithString:[CMISURLUtil urlStringByAppendingParameter:parameterName value:parameterValue urlString:[url absoluteString]]];
 }
 
++ (NSString *)encodeUrlParameterValue:(NSString *)value
+{
+    NSString *encodedValue = CFBridgingRelease(CFURLCreateStringByAddingPercentEscapes(NULL,
+                                                                                       (CFStringRef)value,
+                                                                                       NULL,
+                                                                                       (CFStringRef)kCMISRFC7232Reserved,
+                                                                                       kCFStringEncodingUTF8));
+    return encodedValue;
+}
+
 @end

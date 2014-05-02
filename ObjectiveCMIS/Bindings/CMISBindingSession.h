@@ -25,10 +25,6 @@
 
 // session key constants
 extern NSString * const kCMISBindingSessionKeyUrl;
-extern NSString * const kCMISBindingSessionKeyObjectByIdUriBuilder;
-extern NSString * const kCMISBindingSessionKeyObjectByPathUriBuilder;
-extern NSString * const kCMISBindingSessionKeyChildrenByIdUriBuilder;
-extern NSString * const kCMISBindingSessionKeyTypeByIdUriBuilder;
 
 @interface CMISBindingSession : NSObject
 

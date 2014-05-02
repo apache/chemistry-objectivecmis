@@ -20,6 +20,10 @@
 #import "CMISAtomPubConstants.h"
 
 // Session keys
+NSString * const kCMISAtomBindingSessionKeyObjectByIdUriBuilder = @"cmis_session_key_atom_objectbyid_uri_builder";
+NSString * const kCMISAtomBindingSessionKeyObjectByPathUriBuilder = @"cmis_session_key_atom_objectbypath_uri_builder";
+NSString * const kCMISAtomBindingSessionKeyChildrenByIdUriBuilder = @"cmis_session_key_atom_childrenbyid_uri_builder";
+NSString * const kCMISAtomBindingSessionKeyTypeByIdUriBuilder = @"cmis_session_key_atom_type_by_id_uri_builder";
 NSString * const kCMISAtomBindingSessionKeyQueryUri = @"cmis_session_key_atom_query_uri";
 NSString * const kCMISAtomBindingSessionKeyQueryCollection = @"cmis_session_key_atom_query_collection";
 NSString * const kCMISAtomBindingSessionKeyCheckedoutCollection = @"cmis_session_key_atom_checkedout_collection";

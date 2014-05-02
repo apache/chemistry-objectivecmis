@@ -20,10 +20,6 @@
 #import "CMISBindingSession.h"
 
 NSString * const kCMISBindingSessionKeyUrl = @"cmis_session_key_url";
-NSString * const kCMISBindingSessionKeyObjectByIdUriBuilder = @"cmis_session_key_objectbyid_uri_builder";
-NSString * const kCMISBindingSessionKeyObjectByPathUriBuilder = @"cmis_session_key_objectbypath_uri_builder";
-NSString * const kCMISBindingSessionKeyChildrenByIdUriBuilder = @"cmis_session_key_childrenbyid_uri_builder";
-NSString * const kCMISBindingSessionKeyTypeByIdUriBuilder = @"cmis_session_key_type_by_id_uri_builder";
 
 @interface CMISBindingSession ()
 @property (nonatomic, strong, readwrite) NSString *username;

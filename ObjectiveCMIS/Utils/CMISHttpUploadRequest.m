@@ -126,7 +126,7 @@ const NSUInteger kRawBufferSize = 24576;
     httpRequest.additionalHeaders = additionalHeaders;
     httpRequest.bytesExpected = bytesExpected;
     httpRequest.authenticationProvider = authenticationProvider;
-    httpRequest.combinedInputStream = NO;
+    httpRequest.useCombinedInputStream = NO;
     httpRequest.combinedInputStream = nil;
     httpRequest.encoderStream = nil;
     
@@ -174,7 +174,8 @@ authenticationProvider:(id<CMISAuthenticationProvider>) authenticationProvider
            headers:(NSDictionary *)additionalHeaders
      bytesExpected:(unsigned long long)bytesExpected
 authenticationProvider:(id<CMISAuthenticationProvider>)authenticationProvider
-         startData:(NSData *)startData endData:(NSData *)endData
+         startData:(NSData *)startData
+           endData:(NSData *)endData
    completionBlock:(void (^)(CMISHttpResponse *, NSError *))completionBlock
      progressBlock:(void (^)(unsigned long long, unsigned long long))progressBlock
 {

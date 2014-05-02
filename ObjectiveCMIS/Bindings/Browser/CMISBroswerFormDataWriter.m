@@ -23,6 +23,7 @@
 #import "CMISEnums.h"
 #import "CMISLog.h"
 #import "CMISMimeHelper.h"
+#import "CMISURLUtil.h"
 
 NSString * const kCMISFormDataContentTypeUrlEncoded = @"application/x-www-form-urlencoded;charset=utf-8";
 NSString * const kCMISFormDataContentTypeFormData = @"multipart/form-data; boundary=";
@@ -156,8 +157,8 @@ NSString * const kCMISFormDataContentTypeFormData = @"multipart/form-data; bound
             } else {
                 [data appendData:amp];
             }
-            NSString *parameterValue = [self.parameters[parameterKey] stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-            NSString *parameter = [NSString stringWithFormat:@"%@=%@", parameterKey, parameterValue];
+            NSString *encodedParameterValue = [CMISURLUtil encodeUrlParameterValue:self.parameters[parameterKey]];
+            NSString *parameter = [NSString stringWithFormat:@"%@=%@", parameterKey, encodedParameterValue];
             [data appendData:[parameter dataUsingEncoding:NSUTF8StringEncoding]];
         }
 

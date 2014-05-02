@@ -96,13 +96,13 @@
                     
                     // Cache uri's and uri templates
                     CMISAtomPubObjectByIdUriBuilder *objectByIdUriBuilder = [[CMISAtomPubObjectByIdUriBuilder alloc] initWithTemplateUrl:workspace.objectByIdUriTemplate];
-                    [self.bindingSession setObject:objectByIdUriBuilder forKey:kCMISBindingSessionKeyObjectByIdUriBuilder];
+                    [self.bindingSession setObject:objectByIdUriBuilder forKey:kCMISAtomBindingSessionKeyObjectByIdUriBuilder];
                     
                     CMISAtomPubObjectByPathUriBuilder *objectByPathUriBuilder = [[CMISAtomPubObjectByPathUriBuilder alloc] initWithTemplateUrl:workspace.objectByPathUriTemplate];
-                    [self.bindingSession setObject:objectByPathUriBuilder forKey:kCMISBindingSessionKeyObjectByPathUriBuilder];
+                    [self.bindingSession setObject:objectByPathUriBuilder forKey:kCMISAtomBindingSessionKeyObjectByPathUriBuilder];
                     
                     CMISAtomPubTypeByIdUriBuilder *typeByIdUriBuilder = [[CMISAtomPubTypeByIdUriBuilder alloc] initWithTemplateUrl:workspace.typeByIdUriTemplate];
-                    [self.bindingSession setObject:typeByIdUriBuilder forKey:kCMISBindingSessionKeyTypeByIdUriBuilder];
+                    [self.bindingSession setObject:typeByIdUriBuilder forKey:kCMISAtomBindingSessionKeyTypeByIdUriBuilder];
                     
                     [self.bindingSession setObject:workspace.queryUriTemplate forKey:kCMISAtomBindingSessionKeyQueryUri];
                     
@@ -183,7 +183,7 @@
                    cmisRequest:(CMISRequest *)cmisRequest
                completionBlock:(void (^)(CMISObjectData *objectData, NSError *error))completionBlock
 {
-    [self retrieveFromCache:kCMISBindingSessionKeyObjectByIdUriBuilder
+    [self retrieveFromCache:kCMISAtomBindingSessionKeyObjectByIdUriBuilder
                 cmisRequest:cmisRequest
             completionBlock:^(id object, NSError *error) {
         CMISAtomPubObjectByIdUriBuilder *objectByIdUriBuilder = object;
@@ -233,7 +233,7 @@
                          cmisRequest:(CMISRequest *)cmisRequest
                      completionBlock:(void (^)(CMISObjectData *objectData, NSError *error))completionBlock
 {
-    [self retrieveFromCache:kCMISBindingSessionKeyObjectByPathUriBuilder
+    [self retrieveFromCache:kCMISAtomBindingSessionKeyObjectByPathUriBuilder
                 cmisRequest:cmisRequest
             completionBlock:^(id object, NSError *error) {
         CMISAtomPubObjectByPathUriBuilder *objectByPathUriBuilder = object;

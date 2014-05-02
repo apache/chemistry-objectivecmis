@@ -37,6 +37,9 @@
 #import "CMISPrincipal.h"
 #import "CMISAllowableActions.h"
 
+NSString * const kCMISBrowserMinValueJSONProperty = @"\"minValue\":0.0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000049,";
+NSString * const kCMISBrowserMaxValueJSONProperty = @"\"maxValue\":179769313486231570000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000,";
+
 @interface NSObject (CMISUtil)
 
 + (void)performBlock:(void (^)(void))block;
@@ -123,6 +126,23 @@
     // parse the JSON response
     NSError *serialisationError = nil;
     id jsonDictionary = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:&serialisationError];
+    
+    // HACK: An Apple bug can cause deserialisation to fail if very small or very large numbers are used.
+    // This is usually caused when the web service providing the JSON has used a MIN or MAX value for the data type.
+    // If an error occurred attempt to remove the offending data and re-try the deserialisation.
+    if (serialisationError)
+    {
+        // convert to string
+        NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+        
+        // remove the minValue and maxValue properties as they are effectively indicating any reasonable value is valid
+        jsonString = [jsonString stringByReplacingOccurrencesOfString:kCMISBrowserMinValueJSONProperty withString:@""];
+        jsonString = [jsonString stringByReplacingOccurrencesOfString:kCMISBrowserMaxValueJSONProperty withString:@""];
+        
+        // re-try and JSON parse
+        serialisationError = nil;
+        jsonDictionary = [NSJSONSerialization JSONObjectWithData:[jsonString dataUsingEncoding:NSUTF8StringEncoding] options:0 error:&serialisationError];
+    }
     
     CMISTypeDefinition *typeDef = nil;
     if (!serialisationError) {

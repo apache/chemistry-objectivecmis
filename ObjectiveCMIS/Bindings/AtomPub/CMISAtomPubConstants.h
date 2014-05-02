@@ -20,6 +20,10 @@
 #import <Foundation/Foundation.h>
 
 // Session keys
+extern NSString * const kCMISAtomBindingSessionKeyObjectByIdUriBuilder;
+extern NSString * const kCMISAtomBindingSessionKeyObjectByPathUriBuilder;
+extern NSString * const kCMISAtomBindingSessionKeyChildrenByIdUriBuilder;
+extern NSString * const kCMISAtomBindingSessionKeyTypeByIdUriBuilder;
 extern NSString * const kCMISAtomBindingSessionKeyQueryUri;
 extern NSString * const kCMISAtomBindingSessionKeyQueryCollection;
 extern NSString * const kCMISAtomBindingSessionKeyCheckedoutCollection;
