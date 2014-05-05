@@ -130,7 +130,7 @@ NSString * const kCMISFormDataContentTypeFormData = @"multipart/form-data; bound
         return [value boolValue] ? kCMISParameterValueTrue : kCMISParameterValueFalse;
     } else if (type == CMISPropertyTypeDateTime) {
         if ([value isKindOfClass:NSDate.class]) {
-            return [NSNumber numberWithDouble:[(NSDate *)value timeIntervalSince1970] * 1000.0].description; //seconds to milliseconds
+            return [NSNumber numberWithUnsignedLongLong:[(NSDate *)value timeIntervalSince1970] * 1000].description; //seconds to milliseconds
         } else {
             CMISLogWarning(@"value is not a date!");
         }

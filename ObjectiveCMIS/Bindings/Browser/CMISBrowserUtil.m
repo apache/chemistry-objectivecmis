@@ -741,7 +741,7 @@ NSString * const kCMISBrowserMaxValueJSONProperty = @"\"maxValue\":1797693134862
     
     NSMutableArray *dates = [[NSMutableArray alloc] initWithCapacity:numbers.count];
     for (NSNumber *miliseconds in numbers) {
-        NSDate *date = [NSDate dateWithTimeIntervalSince1970:[miliseconds doubleValue] / 1000.0]; // miliseconds to seconds
+        NSDate *date = [NSDate dateWithTimeIntervalSince1970:[miliseconds unsignedLongLongValue] / 1000.0]; // miliseconds to seconds
         [dates addObject:date];
     }
     return dates;
