@@ -431,31 +431,42 @@
     
     CMISRequest *cmisRequest = [[CMISRequest alloc] init];
     
+    void (^responseHandlingBlock) (CMISHttpResponse*, NSError*) = ^(CMISHttpResponse *httpResponse, NSError *error) {
+        if ((httpResponse.statusCode == 200 || httpResponse.statusCode == 201) && httpResponse.data) {
+            CMISBrowserTypeCache *typeCache = [[CMISBrowserTypeCache alloc] initWithRepositoryId:self.bindingSession.repositoryId bindingService:self];
+            [CMISBrowserUtil objectDataFromJSONData:httpResponse.data typeCache:typeCache completionBlock:^(CMISObjectData *objectData, NSError *error) {
+                if (error) {
+                    completionBlock(nil, error);
+                } else {
+                    completionBlock(objectData.identifier, nil);
+                }
+            }];
+        } else {
+            completionBlock(nil, error);
+        }
+    };
+    
     // send
-    [self.bindingSession.networkProvider invoke:[NSURL URLWithString:folderObjectUrl]
-                                     httpMethod:HTTP_POST
-                                        session:self.bindingSession
-                                    inputStream:inputStream
-                                        headers:formData.headers
-                                  bytesExpected:bytesExpected
-                                    cmisRequest:cmisRequest
-                                      startData:formData.startData
-                                        endData:formData.endData
-                                completionBlock:^(CMISHttpResponse *httpResponse, NSError *error) {
-                                    if ((httpResponse.statusCode == 200 || httpResponse.statusCode == 201) && httpResponse.data) {
-                                        CMISBrowserTypeCache *typeCache = [[CMISBrowserTypeCache alloc] initWithRepositoryId:self.bindingSession.repositoryId bindingService:self];
-                                        [CMISBrowserUtil objectDataFromJSONData:httpResponse.data typeCache:typeCache completionBlock:^(CMISObjectData *objectData, NSError *error) {
-                                            if (error) {
-                                                completionBlock(nil, error);
-                                            } else {
-                                                completionBlock(objectData.identifier, nil);
-                                            }
-                                        }];
-                                    } else {
-                                        completionBlock(nil, error);
-                                    }
-                                }
-                                  progressBlock:progressBlock];
+    if (inputStream) {
+        [self.bindingSession.networkProvider invoke:[NSURL URLWithString:folderObjectUrl]
+                                         httpMethod:HTTP_POST
+                                            session:self.bindingSession
+                                        inputStream:inputStream
+                                            headers:formData.headers
+                                      bytesExpected:bytesExpected
+                                        cmisRequest:cmisRequest
+                                          startData:formData.startData
+                                            endData:formData.endData
+                                    completionBlock:responseHandlingBlock
+                                      progressBlock:progressBlock];
+    } else {
+        [self.bindingSession.networkProvider invokePOST:[NSURL URLWithString:folderObjectUrl]
+                                                session:self.bindingSession
+                                                   body:formData.body
+                                                headers:formData.headers
+                                            cmisRequest:cmisRequest
+                                        completionBlock:responseHandlingBlock];
+    }
     return cmisRequest;
 }
 
