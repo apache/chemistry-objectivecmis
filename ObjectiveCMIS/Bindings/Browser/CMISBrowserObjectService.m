@@ -41,7 +41,7 @@
        includeAllowableActions:(BOOL)includeAllowableActions
                completionBlock:(void (^)(CMISObjectData *objectData, NSError *error))completionBlock
 {
-    NSString *objectUrl = [self getObjectUrlObjectId:objectId selector:kCMISBrowserJSONSelectorObject];
+    NSString *objectUrl = [self retrieveObjectUrlForObjectWithId:objectId selector:kCMISBrowserJSONSelectorObject];
     objectUrl = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterFilter value:filter urlString:objectUrl];
     objectUrl = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterIncludeAllowableActions boolValue:includeAllowableActions urlString:objectUrl];
     objectUrl = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterIncludeRelationships value:[CMISEnums stringForIncludeRelationShip:relationships] urlString:objectUrl];
@@ -83,7 +83,7 @@
              includeAllowableActions:(BOOL)includeAllowableActions
                      completionBlock:(void (^)(CMISObjectData *objectData, NSError *error))completionBlock
 {
-    NSString *objectUrl = [self getObjectUrlByPath:path selector:kCMISBrowserJSONSelectorObject];
+    NSString *objectUrl = [self retrieveObjectUrlForObjectWithPath:path selector:kCMISBrowserJSONSelectorObject];
     objectUrl = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterFilter value:filter urlString:objectUrl];
     objectUrl = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterIncludeAllowableActions boolValue:includeAllowableActions urlString:objectUrl];
     objectUrl = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterIncludeRelationships value:[CMISEnums stringForIncludeRelationShip:relationships] urlString:objectUrl];
@@ -219,7 +219,7 @@
     }
     
     // build URL
-    NSString *objectUrl = [self getObjectUrlObjectId:objectIdParam.inParameter];
+    NSString *objectUrl = [self retrieveObjectUrlForObjectWithId:objectIdParam.inParameter];
     
     // prepare form data
     CMISBroswerFormDataWriter *formData = [[CMISBroswerFormDataWriter alloc] initWithAction:kCMISBrowserJSONActionDeleteContent];
@@ -315,7 +315,7 @@
     }
     
     // build URL
-    NSString *objectUrl = [self getObjectUrlObjectId:objectId.inParameter];
+    NSString *objectUrl = [self retrieveObjectUrlForObjectWithId:objectId.inParameter];
     
     // prepare form data
     CMISBroswerFormDataWriter *formData = [[CMISBroswerFormDataWriter alloc] initWithAction:kCMISBrowserJSONActionSetContent contentStream:inputStream mediaType:mimeType];
@@ -417,7 +417,7 @@
     }
     
     // build URL
-    NSString *folderObjectUrl = (folderObjectId != nil ? [self getObjectUrlObjectId:folderObjectId] : [self getRepositoryUrl]);
+    NSString *folderObjectUrl = (folderObjectId != nil ? [self retrieveObjectUrlForObjectWithId:folderObjectId] : [self retrieveRepositoryUrl]);
     
     // prepare form data
     CMISBroswerFormDataWriter *formData = [[CMISBroswerFormDataWriter alloc] initWithAction:kCMISBrowserJSONActionCreateDocument contentStream:inputStream mediaType:mimeType];
@@ -475,7 +475,7 @@
              completionBlock:(void (^)(BOOL objectDeleted, NSError *error))completionBlock
 {
     // build URL
-    NSString *objectUrl = [self getObjectUrlObjectId:objectId];
+    NSString *objectUrl = [self retrieveObjectUrlForObjectWithId:objectId];
     
     CMISBroswerFormDataWriter *formData = [[CMISBroswerFormDataWriter alloc] initWithAction:kCMISBrowserJSONActionDelete];
     [formData addParameter:kCMISParameterAllVersions boolValue:allVersions];
@@ -504,7 +504,7 @@
                            completionBlock:(void (^)(NSString *objectId, NSError *error))completionBlock
 {
     // build URL
-    NSString *folderObjectUrl = [self getObjectUrlObjectId:folderObjectId];
+    NSString *folderObjectUrl = [self retrieveObjectUrlForObjectWithId:folderObjectId];
     
     // prepare form data
     CMISBroswerFormDataWriter *formData = [[CMISBroswerFormDataWriter alloc] initWithAction:kCMISBrowserJSONActionCreateFolder];
@@ -552,7 +552,7 @@
     }
     
     // build URL
-    NSString *objectUrl = [self getObjectUrlObjectId:objectId];
+    NSString *objectUrl = [self retrieveObjectUrlForObjectWithId:objectId];
     
     // prepare form data
     CMISBroswerFormDataWriter *formData = [[CMISBroswerFormDataWriter alloc] initWithAction:kCMISBrowserJSONActionMove];
@@ -593,7 +593,7 @@
            completionBlock:(void (^)(NSArray *failedObjects, NSError *error))completionBlock
 {
     // build URL
-    NSString *folderObjectUrl = [self getObjectUrlObjectId:folderObjectId];
+    NSString *folderObjectUrl = [self retrieveObjectUrlForObjectWithId:folderObjectId];
     
     CMISBroswerFormDataWriter *formData = [[CMISBroswerFormDataWriter alloc] initWithAction:kCMISBrowserJSONActionDeleteTree];
     [formData addParameter:kCMISParameterAllVersions boolValue:allVersions];
@@ -641,7 +641,7 @@
     }
     
     // build URL
-    NSString *objectUrl = [self getObjectUrlObjectId:objectIdParam.inParameter];
+    NSString *objectUrl = [self retrieveObjectUrlForObjectWithId:objectIdParam.inParameter];
     
     // prepare form data
     CMISBroswerFormDataWriter *formData = [[CMISBroswerFormDataWriter alloc] initWithAction:kCMISBrowserJSONActionUpdateProperties];
@@ -684,7 +684,7 @@
                          skipCount:(NSNumber *)skipCount
                    completionBlock:(void (^)(NSArray *renditions, NSError *error))completionBlock
 {
-    NSString *objectUrl = [self getObjectUrlObjectId:objectId selector:kCMISBrowserJSONSelectorRenditions];
+    NSString *objectUrl = [self retrieveObjectUrlForObjectWithId:objectId selector:kCMISBrowserJSONSelectorRenditions];
     objectUrl = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterRenditionFilter value:renditionFilter urlString:objectUrl];
     objectUrl = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterMaxItems value:[maxItems stringValue] urlString:objectUrl];
     objectUrl = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterSkipCount value:[skipCount stringValue] urlString:objectUrl];

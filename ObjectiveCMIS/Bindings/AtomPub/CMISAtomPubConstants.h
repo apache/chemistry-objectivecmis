@@ -35,7 +35,6 @@ extern NSString * const kCMISAtomFeedNumItems;
 // Entry
 extern NSString * const kCMISAtomEntry;
 extern NSString * const kCMISAtomEntryLink;
-extern NSString * const kCMISAtomEntryLinkTypeAtomFeed;
 extern NSString * const kCMISAtomEntryRel;
 extern NSString * const kCMISAtomEntryHref;
 extern NSString * const kCMISAtomEntryType;
@@ -67,6 +66,13 @@ extern NSString * const kCMISAtomEntryDirect;
 // Collections
 extern NSString * const kCMISAtomCollectionQuery;
 extern NSString * const kCMISAtomCollectionCheckedout;
+
+// Media Types
+extern NSString * const kCMISMediaTypeFeed;
+extern NSString * const kCMISMediaTypeEntry;
+extern NSString * const kCMISMediaTypeChildren;
+extern NSString * const kCMISMediaTypeDescendants;
+extern NSString * const kCMISMediaTypeQuery;
 
 // Links
 extern NSString * const kCMISLinkRelationDown;

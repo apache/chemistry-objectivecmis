@@ -41,7 +41,7 @@
                       includeAllowableActions:(BOOL)includeAllowableActions
                               completionBlock:(void (^)(CMISObjectData *objectData, NSError *error))completionBlock
 {
-    NSString *objectUrl = [self getObjectUrlObjectId:objectId selector:kCMISBrowserJSONSelectorObject];
+    NSString *objectUrl = [self retrieveObjectUrlForObjectWithId:objectId selector:kCMISBrowserJSONSelectorObject];
     objectUrl = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterFilter value:filter urlString:objectUrl];
     objectUrl = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterIncludeAllowableActions boolValue:includeAllowableActions urlString:objectUrl];
     objectUrl = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterIncludeRelationships value:[CMISEnums stringForIncludeRelationShip:relationships] urlString:objectUrl];
@@ -81,7 +81,7 @@
             includeAllowableActions:(BOOL)includeAllowableActions
                     completionBlock:(void (^)(NSArray *objects, NSError *error))completionBlock
 {    
-    NSString *objectUrl = [self getObjectUrlObjectId:objectId selector:kCMISBrowserJSONSelectorVersions];
+    NSString *objectUrl = [self retrieveObjectUrlForObjectWithId:objectId selector:kCMISBrowserJSONSelectorVersions];
     objectUrl = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterFilter value:filter urlString:objectUrl];
     objectUrl = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterIncludeAllowableActions value:(includeAllowableActions ? @"true" : @"false") urlString:objectUrl];
     objectUrl = [CMISURLUtil urlStringByAppendingParameter:kCMISBrowserJSONParameterSuccinct value:@"true" urlString:objectUrl];
@@ -125,7 +125,7 @@
     }
     
     // build URL
-    NSString *objectUrl = [self getObjectUrlObjectId:objectId];
+    NSString *objectUrl = [self retrieveObjectUrlForObjectWithId:objectId];
     
     // prepare form data
     CMISBroswerFormDataWriter *formData = [[CMISBroswerFormDataWriter alloc] initWithAction:kCMISBrowserJSONActionCheckOut];
@@ -173,7 +173,7 @@
     }
     
     // build URL
-    NSString *objectUrl = [self getObjectUrlObjectId:objectId];
+    NSString *objectUrl = [self retrieveObjectUrlForObjectWithId:objectId];
     
     // prepare form data
     CMISBroswerFormDataWriter *formData = [[CMISBroswerFormDataWriter alloc] initWithAction:kCMISBrowserJSONActionCancelCheckOut];
@@ -283,7 +283,7 @@
     }
     
     // build URL
-    NSString *objectUrl = [self getObjectUrlObjectId:objectId];
+    NSString *objectUrl = [self retrieveObjectUrlForObjectWithId:objectId];
     
     // prepare form data
     CMISBroswerFormDataWriter *formData = [[CMISBroswerFormDataWriter alloc] initWithAction:kCMISBrowserJSONActionCheckIn contentStream:inputStream mediaType:mimeType];

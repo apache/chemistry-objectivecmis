@@ -38,7 +38,7 @@ includeAllowableActions:(BOOL)includeAllowableActions
             skipCount:(NSNumber *)skipCount
       completionBlock:(void (^)(CMISObjectList *objectList, NSError *error))completionBlock
 {
-    NSString *url = [self getRepositoryUrl];
+    NSString *url = [self retrieveRepositoryUrl];
 
     // prepare form data
     CMISBroswerFormDataWriter *formData = [[CMISBroswerFormDataWriter alloc] initWithAction:kCMISBrowserJSONActionQuery];

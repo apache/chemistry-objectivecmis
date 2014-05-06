@@ -27,10 +27,10 @@
 
 - (id)initWithBindingSession:(CMISBindingSession *)session;
 
-- (NSString *)getRepositoryUrl;
-- (NSString *)getObjectUrlObjectId:(NSString *)objectId;
-- (NSString *)getObjectUrlObjectId:(NSString *)objectId selector:(NSString *)selector;
-- (NSString *)getObjectUrlByPath:(NSString *)path selector:(NSString *)selector;
-- (NSString *)getRepositoryUrlWithSelector:(NSString *)selector;
+- (NSString *)retrieveRepositoryUrl;
+- (NSString *)retrieveRepositoryUrlWithSelector:(NSString *)selector;
+- (NSString *)retrieveObjectUrlForObjectWithId:(NSString *)objectId;
+- (NSString *)retrieveObjectUrlForObjectWithId:(NSString *)objectId selector:(NSString *)selector;
+- (NSString *)retrieveObjectUrlForObjectWithPath:(NSString *)path selector:(NSString *)selector;
 
 @end

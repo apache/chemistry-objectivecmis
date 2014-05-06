@@ -138,16 +138,7 @@ NSString * const kCMISParameterValueReturnValueThis = @"this";
 NSString * const kCMISParameterValueReturnValueLatest = @"latest";
 NSString * const kCMISParameterValueReturnValueLatestMajor = @"latestmajor";
 
-// Media Types
-NSString * const kCMISMediaTypeService = @"application/atomsvc+xml";
-NSString * const kCMISMediaTypeFeed = @"application/atom+xml;type=feed";
-NSString * const kCMISMediaTypeEntry = @"application/atom+xml;type=entry";
-NSString * const kCMISMediaTypeChildren = @"application/atom+xml;type=feed";
-NSString * const kCMISMediaTypeDescendants = @"application/cmistree+xml";
-NSString * const kCMISMediaTypeQuery = @"application/cmisquery+xml";
-NSString * const kCMISMediaTypeAllowableAction  = @"application/cmisallowableactions+xml";
-NSString * const kCMISMediaTypeAcl = @"application/cmisacl+xml";
-NSString * const kCMISMediaTypeCmisAtom = @"application/cmisatom+xml";
+// Common Media Types
 NSString * const kCMISMediaTypeOctetStream = @"application/octet-stream";
 
 //ContentStreamAllowed enum values

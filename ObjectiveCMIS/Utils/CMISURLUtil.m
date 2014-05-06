@@ -23,45 +23,6 @@
 NSString * const kCMISRFC7232Reserved = @";?:@&=+$,[]";
 
 
-@interface NSString (CMISURLUtil)
-
-- (NSString *)replacePathWithPath:(NSString *)path;
-
-@end
-
-@implementation NSString (CMISURLUtil)
-
-- (NSString *)replacePathWithPath:(NSString *)path
-{
-    NSMutableString *serverUrl = [[NSMutableString alloc] init];
-    
-    NSURL *tmp = [[NSURL alloc] initWithString:self];
-    
-    if(tmp.scheme){
-        [serverUrl appendFormat:@"%@://", tmp.scheme];
-    }
-    if(tmp.host){
-        [serverUrl appendString:tmp.host];
-    }
-    if(tmp.port){
-        [serverUrl appendFormat:@":%@", [tmp.port stringValue]];
-    }
-    if(path){
-        [serverUrl appendString:path];
-    }
-    if(tmp.query){
-        [serverUrl appendFormat:@"?%@", tmp.query];
-    }
-    
-    if(serverUrl.length == 0){ //this happens when it's not a valid url
-        [serverUrl appendString:self];
-    }
-    
-    return serverUrl;
-}
-
-@end
-
 @implementation CMISURLUtil
 
 + (NSString *)urlStringByAppendingParameter:(NSString *)parameterName boolValue:(BOOL)parameterValue urlString:(NSString *)urlString
@@ -118,8 +79,7 @@ NSString * const kCMISRFC7232Reserved = @";?:@&=+$,[]";
                                                                      (CFStringRef)kCMISRFC7232Reserved,
                                                                      kCFStringEncodingUTF8));
     
-    
-    return [[url absoluteString] replacePathWithPath:path];
+    return [self replacePathInUrl:[url absoluteString] withPath:path];
 }
 
 + (NSURL *)urlStringByAppendingParameter:(NSString *)parameterName value:(NSString *)parameterValue url:(NSURL *)url
@@ -135,6 +95,38 @@ NSString * const kCMISRFC7232Reserved = @";?:@&=+$,[]";
                                                                                        (CFStringRef)kCMISRFC7232Reserved,
                                                                                        kCFStringEncodingUTF8));
     return encodedValue;
+}
+
+#pragma mark -
+#pragma mark Private helper methods
+
++ (NSString *)replacePathInUrl:(NSString *)url withPath:(NSString *)replacementPath
+{
+    NSMutableString *serverUrl = [[NSMutableString alloc] init];
+    
+    NSURL *tmp = [[NSURL alloc] initWithString:url];
+    
+    if(tmp.scheme){
+        [serverUrl appendFormat:@"%@://", tmp.scheme];
+    }
+    if(tmp.host){
+        [serverUrl appendString:tmp.host];
+    }
+    if(tmp.port){
+        [serverUrl appendFormat:@":%@", [tmp.port stringValue]];
+    }
+    if(replacementPath){
+        [serverUrl appendString:replacementPath];
+    }
+    if(tmp.query){
+        [serverUrl appendFormat:@"?%@", tmp.query];
+    }
+    
+    if(serverUrl.length == 0){ //this happens when it's not a valid url
+        [serverUrl appendString:url];
+    }
+    
+    return serverUrl;
 }
 
 @end

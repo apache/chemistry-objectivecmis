@@ -35,7 +35,6 @@ NSString * const kCMISAtomFeedNumItems = @"numItems";
 // Entry
 NSString * const kCMISAtomEntry = @"entry";
 NSString * const kCMISAtomEntryLink = @"link";
-NSString * const kCMISAtomEntryLinkTypeAtomFeed = @"application/atom+xml;type=feed";
 NSString * const kCMISAtomEntryRel = @"rel";
 NSString * const kCMISAtomEntryHref = @"href";
 NSString * const kCMISAtomEntryType = @"type";
@@ -67,6 +66,13 @@ NSString * const kCMISAtomEntryDirect = @"direct";
 // Collections
 NSString * const kCMISAtomCollectionQuery = @"query";
 NSString * const kCMISAtomCollectionCheckedout = @"checkedout";
+
+// Media Types
+NSString * const kCMISMediaTypeFeed = @"application/atom+xml;type=feed";
+NSString * const kCMISMediaTypeEntry = @"application/atom+xml;type=entry";
+NSString * const kCMISMediaTypeChildren = @"application/atom+xml;type=feed";
+NSString * const kCMISMediaTypeDescendants = @"application/cmistree+xml";
+NSString * const kCMISMediaTypeQuery = @"application/cmisquery+xml";
 
 // Links
 NSString * const kCMISLinkRelationDown = @"down";
