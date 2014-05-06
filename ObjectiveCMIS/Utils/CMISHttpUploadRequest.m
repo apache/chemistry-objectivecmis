@@ -96,15 +96,6 @@ const NSUInteger kRawBufferSize = 24576;
 @property (nonatomic, assign, readwrite) size_t bufferOffset;
 @property (nonatomic, assign, readwrite) size_t bufferLimit;
 
-- (void)stopSendWithStatus:(NSString *)statusString;
-+ (unsigned long long)base64EncodedLength:(unsigned long long)contentSize;
-- (void)prepareXMLWithCMISProperties:(CMISProperties *)cmisProperties mimeType:(NSString *)mimeType;
-- (void)prepareStreams;
-
-- (id)initWithHttpMethod:(CMISHttpRequestMethod)httpRequestMethod
-         completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))completionBlock
-           progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal))progressBlock;
-
 @end
 
 
@@ -139,43 +130,13 @@ const NSUInteger kRawBufferSize = 24576;
 
 + (id)startRequest:(NSMutableURLRequest *)urlRequest
         httpMethod:(CMISHttpRequestMethod)httpRequestMethod
-       inputStream:(NSInputStream*)inputStream
-           headers:(NSDictionary*)additionalHeaders
-     bytesExpected:(unsigned long long)bytesExpected
-authenticationProvider:(id<CMISAuthenticationProvider>) authenticationProvider
-    cmisProperties:(CMISProperties *)cmisProperties
-          mimeType:(NSString *)mimeType
-   completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))completionBlock
-     progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal))progressBlock
-{
-    CMISHttpUploadRequest *httpRequest = [[self alloc] initWithHttpMethod:httpRequestMethod
-                                                          completionBlock:completionBlock
-                                                            progressBlock:progressBlock];
-    
-    httpRequest.inputStream = inputStream;
-    httpRequest.additionalHeaders = additionalHeaders;
-    httpRequest.bytesExpected = bytesExpected;
-    httpRequest.useCombinedInputStream = YES;
-    httpRequest.base64Encoding = YES;
-    httpRequest.authenticationProvider = authenticationProvider;
-    
-    [httpRequest prepareStreams];
-    [httpRequest prepareXMLWithCMISProperties:cmisProperties mimeType:mimeType];
-    if (![httpRequest startRequest:urlRequest]) {
-        httpRequest = nil;
-    }
-    
-    return httpRequest;
-}
-
-+ (id)startRequest:(NSMutableURLRequest *)urlRequest
-        httpMethod:(CMISHttpRequestMethod)httpRequestMethod
        inputStream:(NSInputStream *)inputStream
            headers:(NSDictionary *)additionalHeaders
      bytesExpected:(unsigned long long)bytesExpected
 authenticationProvider:(id<CMISAuthenticationProvider>)authenticationProvider
          startData:(NSData *)startData
            endData:(NSData *)endData
+ useBase64Encoding:(BOOL)useBase64Encoding
    completionBlock:(void (^)(CMISHttpResponse *, NSError *))completionBlock
      progressBlock:(void (^)(unsigned long long, unsigned long long))progressBlock
 {
@@ -184,14 +145,15 @@ authenticationProvider:(id<CMISAuthenticationProvider>)authenticationProvider
                                                             progressBlock:progressBlock];
     
     httpRequest.inputStream = inputStream;
+    httpRequest.streamStartData = startData;
+    httpRequest.streamEndData = endData;
     httpRequest.additionalHeaders = additionalHeaders;
     httpRequest.bytesExpected = bytesExpected;
     httpRequest.useCombinedInputStream = YES;
-    httpRequest.base64Encoding = NO;
+    httpRequest.base64Encoding = useBase64Encoding;
     httpRequest.authenticationProvider = authenticationProvider;
     
     [httpRequest prepareStreams];
-    [httpRequest setStartData:startData endData:endData];
     if (![httpRequest startRequest:urlRequest]) {
         httpRequest = nil;
     }
@@ -455,43 +417,19 @@ totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite
 
 #pragma private methods
 
-// TODO this method could be moved down to the respective atom class
-- (void)prepareXMLWithCMISProperties:(CMISProperties *)cmisProperties mimeType:(NSString *)mimeType
-{
-    CMISAtomEntryWriter *writer = [[CMISAtomEntryWriter alloc] init];
-    writer.cmisProperties = cmisProperties;
-    writer.mimeType = mimeType;
-    
-    NSString *xmlStart = [writer xmlStartElement];
-    NSString *xmlContentStart = [writer xmlContentStartElement];
-    
-    NSString *start = [NSString stringWithFormat:@"%@%@", xmlStart, xmlContentStart];
-    NSData *startData = [NSMutableData dataWithData:[start dataUsingEncoding:NSUTF8StringEncoding]];
-    
-    NSString *xmlContentEnd = [writer xmlContentEndElement];
-    NSString *xmlProperties = [writer xmlPropertiesElements];
-    NSString *end = [NSString stringWithFormat:@"%@%@", xmlContentEnd, xmlProperties];
-    NSData *endData = [end dataUsingEncoding:NSUTF8StringEncoding];
-    
-    [self setStartData:startData endData:endData bytesExpected:[CMISHttpUploadRequest base64EncodedLength:self.bytesExpected]];
-    
-    self.encodedLength = self.bytesExpected;
-}
-
-- (void)setStartData:(NSData *)startData endData:(NSData *)endData
-{
-    [self setStartData:startData endData:endData bytesExpected:self.bytesExpected];
-}
-
-- (void)setStartData:(NSData *)startData endData:(NSData *)endData bytesExpected:(unsigned long long)bytesExpected
+- (void)prepareStreams
 {
     self.bufferOffset = 0;
     
-    self.streamStartData = startData;
-    self.bufferLimit = startData.length;
-    self.dataBuffer = [NSData dataWithData:startData];
+    self.bufferLimit = self.streamStartData.length;
+    self.dataBuffer = [NSData dataWithData:self.streamStartData];
     
-    self.streamEndData = endData;
+    unsigned long long bytesExpected = self.bytesExpected;
+    
+    if (self.base64Encoding) {
+        // if base64 encoding is being used we need to adjust the bytesExpected
+        bytesExpected = [CMISHttpUploadRequest base64EncodedLength:self.bytesExpected];
+    }
     
     unsigned long long encodedLength = bytesExpected;
     encodedLength += self.streamStartData.length;
@@ -499,10 +437,8 @@ totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite
     
     // update the originally provided expected bytes with encoded length
     self.bytesExpected = encodedLength;
-}
-
-- (void)prepareStreams
-{
+    self.encodedLength = self.bytesExpected;
+    
     if (self.inputStream.streamStatus != NSStreamStatusOpen) {
         [self.inputStream open];
     }

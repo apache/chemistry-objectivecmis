@@ -309,6 +309,7 @@
                                     cmisRequest:cmisRequest
                                       startData:formData.startData
                                         endData:formData.endData
+                              useBase64Encoding:NO
                                 completionBlock:^(CMISHttpResponse *httpResponse, NSError *error) {
                                     if ((httpResponse.statusCode == 200 || httpResponse.statusCode == 201) && httpResponse.data) {
                                         CMISBrowserTypeCache *typeCache = [[CMISBrowserTypeCache alloc] initWithRepositoryId:self.bindingSession.repositoryId bindingService:self];

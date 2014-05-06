@@ -408,6 +408,21 @@
         return;
     }
     
+    // generate start and end XML
+    CMISAtomEntryWriter *writer = [[CMISAtomEntryWriter alloc] init];
+    writer.cmisProperties = properties;
+    writer.mimeType = contentMimeType;
+    
+    NSString *xmlStart = [writer xmlStartElement];
+    NSString *xmlContentStart = [writer xmlContentStartElement];
+    NSString *start = [NSString stringWithFormat:@"%@%@", xmlStart, xmlContentStart];
+    NSData *startData = [NSMutableData dataWithData:[start dataUsingEncoding:NSUTF8StringEncoding]];
+    
+    NSString *xmlContentEnd = [writer xmlContentEndElement];
+    NSString *xmlProperties = [writer xmlPropertiesElements];
+    NSString *end = [NSString stringWithFormat:@"%@%@", xmlContentEnd, xmlProperties];
+    NSData *endData = [end dataUsingEncoding:NSUTF8StringEncoding];
+    
     // The underlying CMISHttpUploadRequest object generates the atom entry. The base64 encoded content is generated on
     // the fly to support very large files.
     [self.bindingSession.networkProvider invoke:[NSURL URLWithString:link]
@@ -417,8 +432,9 @@
                                         headers:[NSDictionary dictionaryWithObject:kCMISMediaTypeEntry forKey:@"Content-type"]
                                   bytesExpected:bytesExpected
                                     cmisRequest:request
-                                 cmisProperties:properties
-                                       mimeType:contentMimeType
+                                      startData:startData
+                                        endData:endData
+                              useBase64Encoding:YES
                                 completionBlock:^(CMISHttpResponse *response, NSError *error) {
                                     if (error) {
                                         CMISLogError(@"HTTP error when sending atom entry: %@", error);
