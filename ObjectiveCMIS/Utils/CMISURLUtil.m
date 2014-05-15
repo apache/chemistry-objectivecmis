@@ -21,6 +21,7 @@
 #import "CMISConstants.h"
 
 NSString * const kCMISRFC7232Reserved = @";?:@&=+$,[]";
+NSString * const kCMISRFC3986Reserved = @"!*'();:@&=+$,/?%#[]";
 
 
 @implementation CMISURLUtil
@@ -92,7 +93,7 @@ NSString * const kCMISRFC7232Reserved = @";?:@&=+$,[]";
     NSString *encodedValue = CFBridgingRelease(CFURLCreateStringByAddingPercentEscapes(NULL,
                                                                                        (CFStringRef)value,
                                                                                        NULL,
-                                                                                       (CFStringRef)kCMISRFC7232Reserved,
+                                                                                       (CFStringRef)kCMISRFC3986Reserved,
                                                                                        kCFStringEncodingUTF8));
     return encodedValue;
 }

@@ -2114,4 +2114,14 @@
     XCTAssertEqualObjects(@"attachment; filename*=UTF-8''%20%27%2A%25%20abc%20%C2%81%C2%82%0D%0A%09", [CMISMimeHelper encodeContentDisposition:nil fileName:fileName], @"wrong encoded content disposition");
 }
 
+- (void)testEncodeUrlParameterValue
+{
+    XCTAssertEqualObjects(@"test%20%2B%20%2Fvalue%20%26%20", [CMISURLUtil encodeUrlParameterValue:@"test + /value & "], @"wrong encoded url parameter value");
+    XCTAssertEqualObjects(@"%20%25%20%22%20", [CMISURLUtil encodeUrlParameterValue:@" % \" "], @"wrong encoded url parameter value");
+    XCTAssertEqualObjects(@"%20%60~%21%40%23%24%25%5E%26%2A%28%29_%2B-%3D%7B%7D%5B%5D%7C%5C%3A%3B%22%27%3C%2C%3E.%3F%2FAZaz", [CMISURLUtil encodeUrlParameterValue:@" `~!@#$%^&*()_+-={}[]|\\:;\"'<,>.?/AZaz"], @"wrong encoded url parameter value");
+    XCTAssertEqualObjects(@"%E5%BD%BC%E5%BE%97", [CMISURLUtil encodeUrlParameterValue:@"彼得"], @"wrong encoded url parameter value");
+    
+    XCTAssertEqualObjects(@"%C3%BC%C3%A4%C3%B6%C3%9C%C3%84%C3%96%C3%A9%C4%9F", [CMISURLUtil encodeUrlParameterValue:@"üäöÜÄÖéğ"], @"wrong encoded url parameter value");
+}
+
 @end
