@@ -23,7 +23,7 @@
 
 @implementation CMISRepositoryCapabilities
 
--(void) setCapability:(NSString*)capabilityKey value:(NSString*)capabilityValue {
+-(void) setCapability:(NSString*)capabilityKey value:(id)capabilityValue {
     if ([capabilityKey isEqualToString:kCMISRepositoryAllVersionsSearchable]) {
         self.allVersionsSearchable = [capabilityValue boolValue];
     } else if ([capabilityKey isEqualToString:kCMISRepositoryCapabilityACL]) {
@@ -99,7 +99,10 @@
             CMISLogWarning(@"WARNING: Unknown Repository Capability Order By Value");
         }
     } else if ([capabilityKey isEqualToString:kCMISRepositoryCapabilityPropertyTypes]) {
-        
+        if(capabilityValue) {
+            self.creatablePropertyTypes = [[CMISCreatablePropertyTypes alloc] init];
+            [self.creatablePropertyTypes setCreateablePropertyTypeFromDictionary:capabilityValue];
+        }
     } else if ([capabilityKey isEqualToString:kCMISRepositoryCapabilityPWCSearchable]) {
         self.pwcSearchable = [capabilityValue boolValue];
     } else if ([capabilityKey isEqualToString:kCMISRepositoryCapabilityPWCUpdatable]) {
@@ -114,8 +117,11 @@
         }
     } else if ([capabilityKey isEqualToString:kCMISRepositoryCapabilityVersionSpecificFiling]) {
         self.supportsVersionSpecificFiling = [capabilityValue boolValue];
-    } else if ([capabilityKey isEqualToString:kCMISRepositoryCapabilityTypeSettableAttributes]) {
-        
+    } else if ([capabilityKey isEqualToString:kCMISRepositoryCapabilityNewTypeSettableAttributes]) {
+        if(capabilityValue) {
+            self.typeSettableAttributes = [[CMISNewTypeSettableAttributes alloc] init];
+            [self.typeSettableAttributes setNewTypeSettableAttributesFromDictionary:capabilityValue];
+        }
     } else if ([capabilityKey isEqualToString:kCMISRepositoryCapabilityUnfiling]) {
         self.supportsUnfiling = [capabilityValue boolValue];
     } else {

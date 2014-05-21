@@ -36,4 +36,6 @@
  */
 @property(nonatomic, strong) NSSet *canCreate;
 
+- (void)setCreateablePropertyTypeFromDictionary:(NSDictionary *)dictionary;
+
 @end

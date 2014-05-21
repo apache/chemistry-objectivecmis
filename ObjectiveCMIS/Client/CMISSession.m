@@ -116,7 +116,7 @@
             self.objectConverter = [[CMISObjectConverter alloc] initWithSession:self];
         }
         
-        self.typeCache = [[NSMutableDictionary alloc] init];
+        self.typeCache = [[NSMutableDictionary alloc] init]; //TODO this typeCache should be replaced by a binding specific type definition cache
     
         // TODO: setup locale
         // TODO: setup default session parameters

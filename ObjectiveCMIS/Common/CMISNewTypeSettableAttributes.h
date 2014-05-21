@@ -148,4 +148,6 @@
  */
 @property(nonatomic, assign) BOOL canSetControllableAcl;
 
+- (void)setNewTypeSettableAttributesFromDictionary:(NSDictionary *)dictionary;
+
 @end

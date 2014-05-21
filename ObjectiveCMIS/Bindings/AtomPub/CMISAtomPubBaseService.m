@@ -20,13 +20,13 @@
 #import "CMISAtomPubBaseService.h"
 #import "CMISAtomPubBaseService+Protected.h"
 #import "CMISHttpResponse.h"
-#import "CMISServiceDocumentParser.h"
+#import "CMISAtomPubServiceDocumentParser.h"
 #import "CMISConstants.h"
 #import "CMISAtomEntryParser.h"
-#import "CMISWorkspace.h"
+#import "CMISAtomWorkspace.h"
 #import "CMISErrors.h"
-#import "CMISObjectByPathUriBuilder.h"
-#import "CMISTypeByIdUriBuilder.h"
+#import "CMISAtomPubObjectByPathUriBuilder.h"
+#import "CMISAtomPubTypeByIdUriBuilder.h"
 #import "CMISLinkCache.h"
 #import "CMISLog.h"
 #import "CMISAtomEntryWriter.h"
@@ -46,7 +46,7 @@
     self = [super init];
     if (self) {
         self.bindingSession = session;
-        self.atomPubUrl = [session objectForKey:kCMISBindingSessionKeyAtomPubUrl];
+        self.atomPubUrl = [session objectForKey:kCMISBindingSessionKeyUrl];
     }
     return self;
 }
@@ -84,27 +84,27 @@
     [self retrieveCMISWorkspacesWithCMISRequest:cmisRequest completionBlock:^(NSArray *cmisWorkSpaces, NSError *error) {
         if (!error) {
             BOOL repositoryFound = NO;
-            for (CMISWorkspace *workspace in cmisWorkSpaces) {
+            for (CMISAtomWorkspace *workspace in cmisWorkSpaces) {
                 if ([workspace.repositoryInfo.identifier isEqualToString:self.bindingSession.repositoryId])
                 {
                     repositoryFound = YES;
                     
                     // Cache collections
-                    [self.bindingSession setObject:[workspace collectionHrefForCollectionType:kCMISAtomCollectionQuery] forKey:kCMISBindingSessionKeyQueryCollection];
-                    [self.bindingSession setObject:[workspace collectionHrefForCollectionType:kCMISAtomCollectionCheckedout] forKey:kCMISBindingSessionKeyCheckedoutCollection];
+                    [self.bindingSession setObject:[workspace collectionHrefForCollectionType:kCMISAtomCollectionQuery] forKey:kCMISAtomBindingSessionKeyQueryCollection];
+                    [self.bindingSession setObject:[workspace collectionHrefForCollectionType:kCMISAtomCollectionCheckedout] forKey:kCMISAtomBindingSessionKeyCheckedoutCollection];
                     
                     
                     // Cache uri's and uri templates
-                    CMISObjectByIdUriBuilder *objectByIdUriBuilder = [[CMISObjectByIdUriBuilder alloc] initWithTemplateUrl:workspace.objectByIdUriTemplate];
-                    [self.bindingSession setObject:objectByIdUriBuilder forKey:kCMISBindingSessionKeyObjectByIdUriBuilder];
+                    CMISAtomPubObjectByIdUriBuilder *objectByIdUriBuilder = [[CMISAtomPubObjectByIdUriBuilder alloc] initWithTemplateUrl:workspace.objectByIdUriTemplate];
+                    [self.bindingSession setObject:objectByIdUriBuilder forKey:kCMISAtomBindingSessionKeyObjectByIdUriBuilder];
                     
-                    CMISObjectByPathUriBuilder *objectByPathUriBuilder = [[CMISObjectByPathUriBuilder alloc] initWithTemplateUrl:workspace.objectByPathUriTemplate];
-                    [self.bindingSession setObject:objectByPathUriBuilder forKey:kCMISBindingSessionKeyObjectByPathUriBuilder];
+                    CMISAtomPubObjectByPathUriBuilder *objectByPathUriBuilder = [[CMISAtomPubObjectByPathUriBuilder alloc] initWithTemplateUrl:workspace.objectByPathUriTemplate];
+                    [self.bindingSession setObject:objectByPathUriBuilder forKey:kCMISAtomBindingSessionKeyObjectByPathUriBuilder];
                     
-                    CMISTypeByIdUriBuilder *typeByIdUriBuilder = [[CMISTypeByIdUriBuilder alloc] initWithTemplateUrl:workspace.typeByIdUriTemplate];
-                    [self.bindingSession setObject:typeByIdUriBuilder forKey:kCMISBindingSessionKeyTypeByIdUriBuilder];
+                    CMISAtomPubTypeByIdUriBuilder *typeByIdUriBuilder = [[CMISAtomPubTypeByIdUriBuilder alloc] initWithTemplateUrl:workspace.typeByIdUriTemplate];
+                    [self.bindingSession setObject:typeByIdUriBuilder forKey:kCMISAtomBindingSessionKeyTypeByIdUriBuilder];
                     
-                    [self.bindingSession setObject:workspace.queryUriTemplate forKey:kCMISBindingSessionKeyQueryUri];
+                    [self.bindingSession setObject:workspace.queryUriTemplate forKey:kCMISAtomBindingSessionKeyQueryUri];
                     
                     break;
                 }
@@ -139,7 +139,7 @@
                                                
                                                // Parse the cmis service document
                                                if (data) {
-                                                   CMISServiceDocumentParser *parser = [[CMISServiceDocumentParser alloc] initWithData:data];
+                                                   CMISAtomPubServiceDocumentParser *parser = [[CMISAtomPubServiceDocumentParser alloc] initWithData:data];
                                                    NSError *error = nil;
                                                    if ([parser parseAndReturnError:&error]) {
                                                        [self.bindingSession setObject:parser.workspaces forKey:kCMISSessionKeyWorkspaces];
@@ -183,10 +183,10 @@
                    cmisRequest:(CMISRequest *)cmisRequest
                completionBlock:(void (^)(CMISObjectData *objectData, NSError *error))completionBlock
 {
-    [self retrieveFromCache:kCMISBindingSessionKeyObjectByIdUriBuilder
+    [self retrieveFromCache:kCMISAtomBindingSessionKeyObjectByIdUriBuilder
                 cmisRequest:cmisRequest
             completionBlock:^(id object, NSError *error) {
-        CMISObjectByIdUriBuilder *objectByIdUriBuilder = object;
+        CMISAtomPubObjectByIdUriBuilder *objectByIdUriBuilder = object;
         objectByIdUriBuilder.objectId = objectId;
         objectByIdUriBuilder.filter = filter;
         objectByIdUriBuilder.includeACL = includeACL;
@@ -233,10 +233,10 @@
                          cmisRequest:(CMISRequest *)cmisRequest
                      completionBlock:(void (^)(CMISObjectData *objectData, NSError *error))completionBlock
 {
-    [self retrieveFromCache:kCMISBindingSessionKeyObjectByPathUriBuilder
+    [self retrieveFromCache:kCMISAtomBindingSessionKeyObjectByPathUriBuilder
                 cmisRequest:cmisRequest
             completionBlock:^(id object, NSError *error) {
-        CMISObjectByPathUriBuilder *objectByPathUriBuilder = object;
+        CMISAtomPubObjectByPathUriBuilder *objectByPathUriBuilder = object;
         objectByPathUriBuilder.path = path;
         objectByPathUriBuilder.filter = filter;
         objectByPathUriBuilder.includeACL = includeACL;
@@ -273,17 +273,17 @@
 
 - (CMISLinkCache *)linkCache
 {
-    CMISLinkCache *linkCache = [self.bindingSession objectForKey:kCMISBindingSessionKeyLinkCache];
+    CMISLinkCache *linkCache = [self.bindingSession objectForKey:kCMISAtomBindingSessionKeyLinkCache];
     if (linkCache == nil) {
         linkCache = [[CMISLinkCache alloc] initWithBindingSession:self.bindingSession];
-        [self.bindingSession setObject:linkCache forKey:kCMISBindingSessionKeyLinkCache];
+        [self.bindingSession setObject:linkCache forKey:kCMISAtomBindingSessionKeyLinkCache];
     }
     return linkCache;
 }
 
 - (void)clearCacheFromService
 {
-    CMISLinkCache *linkCache = [self.bindingSession objectForKey:kCMISBindingSessionKeyLinkCache];
+    CMISLinkCache *linkCache = [self.bindingSession objectForKey:kCMISAtomBindingSessionKeyLinkCache];
     if (linkCache != nil) {
         [linkCache removeAllLinks];
     }    
@@ -408,6 +408,21 @@
         return;
     }
     
+    // generate start and end XML
+    CMISAtomEntryWriter *writer = [[CMISAtomEntryWriter alloc] init];
+    writer.cmisProperties = properties;
+    writer.mimeType = contentMimeType;
+    
+    NSString *xmlStart = [writer xmlStartElement];
+    NSString *xmlContentStart = [writer xmlContentStartElement];
+    NSString *start = [NSString stringWithFormat:@"%@%@", xmlStart, xmlContentStart];
+    NSData *startData = [NSMutableData dataWithData:[start dataUsingEncoding:NSUTF8StringEncoding]];
+    
+    NSString *xmlContentEnd = [writer xmlContentEndElement];
+    NSString *xmlProperties = [writer xmlPropertiesElements];
+    NSString *end = [NSString stringWithFormat:@"%@%@", xmlContentEnd, xmlProperties];
+    NSData *endData = [end dataUsingEncoding:NSUTF8StringEncoding];
+    
     // The underlying CMISHttpUploadRequest object generates the atom entry. The base64 encoded content is generated on
     // the fly to support very large files.
     [self.bindingSession.networkProvider invoke:[NSURL URLWithString:link]
@@ -417,8 +432,9 @@
                                         headers:[NSDictionary dictionaryWithObject:kCMISMediaTypeEntry forKey:@"Content-type"]
                                   bytesExpected:bytesExpected
                                     cmisRequest:request
-                                 cmisProperties:properties
-                                       mimeType:contentMimeType
+                                      startData:startData
+                                        endData:endData
+                              useBase64Encoding:YES
                                 completionBlock:^(CMISHttpResponse *response, NSError *error) {
                                     if (error) {
                                         CMISLogError(@"HTTP error when sending atom entry: %@", error);

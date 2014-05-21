@@ -19,22 +19,14 @@
 
 #import "CMISBindingSession.h"
 
-NSString * const kCMISBindingSessionKeyAtomPubUrl = @"cmis_session_key_atompub_url";
-NSString * const kCMISBindingSessionKeyObjectByIdUriBuilder = @"cmis_session_key_objectbyid_uri_builder";
-NSString * const kCMISBindingSessionKeyObjectByPathUriBuilder = @"cmis_session_key_objectbypath_uri_builder";
-NSString * const kCMISBindingSessionKeyTypeByIdUriBuilder = @"cmis_session_key_type_by_id_uri_builder";
-NSString * const kCMISBindingSessionKeyQueryUri = @"cmis_session_key_query_uri";
-
-NSString * const kCMISBindingSessionKeyQueryCollection = @"cmis_session_key_query_collection";
-NSString * const kCMISBindingSessionKeyCheckedoutCollection = @"cmis_session_key_checkedout_collection";
-
-NSString * const kCMISBindingSessionKeyLinkCache = @"cmis_session_key_link_cache";
+NSString * const kCMISBindingSessionKeyUrl = @"cmis_session_key_url";
 
 @interface CMISBindingSession ()
 @property (nonatomic, strong, readwrite) NSString *username;
 @property (nonatomic, strong, readwrite) NSString *repositoryId;
 @property (nonatomic, strong, readwrite) id<CMISAuthenticationProvider> authenticationProvider;
 @property (nonatomic, strong, readwrite) id<CMISNetworkProvider> networkProvider;
+@property (nonatomic, strong, readwrite) CMISTypeDefinitionCache *typeDefinitionCache;
 @property (nonatomic, strong, readwrite) NSMutableDictionary *sessionData;
 @end
 
@@ -53,11 +45,23 @@ NSString * const kCMISBindingSessionKeyLinkCache = @"cmis_session_key_link_cache
         self.authenticationProvider = sessionParameters.authenticationProvider;
         self.networkProvider = sessionParameters.networkProvider;
         
-        // store all other data in the dictionary
-        [self.sessionData setObject:sessionParameters.atomPubUrl forKey:kCMISBindingSessionKeyAtomPubUrl];
+        if (sessionParameters.bindingType == CMISBindingTypeAtomPub) {
+            [self.sessionData setObject:sessionParameters.atomPubUrl forKey:kCMISBindingSessionKeyUrl];
+        }
+        else {
+            [self.sessionData setObject:sessionParameters.browserUrl forKey:kCMISBindingSessionKeyUrl];
+        }
         
+        // store all other data in the dictionary
         for (id key in sessionParameters.allKeys) {
             [self.sessionData setObject:[sessionParameters objectForKey:key] forKey:key];
+        }
+        
+        //set type definition cache after other data stored in the dictionary as the cache size is retrieved from the sessionData in the init method of the CMISTypeDefinitionCache
+        if(sessionParameters.typeDefinitionCache == nil) {
+            self.typeDefinitionCache = [[CMISTypeDefinitionCache alloc] initWithBindingSession:self];
+        } else {
+            self.typeDefinitionCache = sessionParameters.typeDefinitionCache;
         }
     }
     

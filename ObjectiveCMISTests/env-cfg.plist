@@ -5,8 +5,8 @@
 	<key>environments</key>
 	<array>
 		<dict>
-            <key>disabled</key>
-			<true/>
+			<key>disabled</key>
+			<false/>
 			<key>summary</key>
 			<string>Alfresco v4.0.0 Enterprise. Legacy (Webscript)</string>
 			<key>username</key>
@@ -19,8 +19,8 @@
 			<string>368eca28-be2b-4a8d-8bbb-1d7997af7930</string>
 		</dict>
 		<dict>
-            <key>disabled</key>
-			<true/>
+			<key>disabled</key>
+			<false/>
 			<key>summary</key>
 			<string>Alfresco v4.0.0 Enterprise. OpenCMIS AtomPub 1.0</string>
 			<key>username</key>
@@ -33,6 +33,8 @@
 			<string>368eca28-be2b-4a8d-8bbb-1d7997af7930</string>
 		</dict>
 		<dict>
+			<key>disabled</key>
+			<false/>
 			<key>summary</key>
 			<string>Alfresco v4.2.0 Enterprise. OpenCMIS (PublicAPI) AtomPub 1.0</string>
 			<key>username</key>
@@ -41,6 +43,22 @@
 			<string>unittest</string>
 			<key>url</key>
 			<string>http://ec2-54-195-83-189.eu-west-1.compute.amazonaws.com/alfresco/api/-default-/public/cmis/versions/1.0/atom</string>
+			<key>repositoryId</key>
+			<string>-default-</string>
+		</dict>
+		<dict>
+			<key>disabled</key>
+			<false/>
+			<key>summary</key>
+			<string>Alfresco v4.2.0 Enterprise. OpenCMIS (PublicAPI) Browser 1.1</string>
+			<key>binding</key>
+			<string>browser</string>
+			<key>username</key>
+			<string>cmis</string>
+			<key>password</key>
+			<string>unittest</string>
+			<key>url</key>
+			<string>http://ec2-54-195-83-189.eu-west-1.compute.amazonaws.com/alfresco/api/-default-/public/cmis/versions/1.1/browser</string>
 			<key>repositoryId</key>
 			<string>-default-</string>
 		</dict>

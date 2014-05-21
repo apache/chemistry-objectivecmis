@@ -104,7 +104,11 @@
     if ([value isKindOfClass:[NSArray class]]) {
         propertyData.values = [value copy];
     } else {
-        propertyData.values = [NSArray arrayWithObject:value];
+        if(value){
+            propertyData.values = [NSArray arrayWithObject:value];
+        } else {
+            propertyData.values = [NSArray array];
+        }
     }
     propertyData.type = type;
     return propertyData;

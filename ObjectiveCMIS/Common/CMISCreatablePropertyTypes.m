@@ -18,7 +18,38 @@
  */
 
 #import "CMISCreatablePropertyTypes.h"
+#import "CMISLog.h"
+#import "CMISObjectConverter.h"
+#import "CMISConstants.h"
+#import "CMISNSDictionary+CMISUtil.h"
 
 @implementation CMISCreatablePropertyTypes
+
+- (void)setCreateablePropertyTypeFromDictionary:(NSDictionary *)dictionary
+{
+    if([dictionary isKindOfClass:NSDictionary.class]){
+        
+        NSArray *canCreateJson = [dictionary cmis_objectForKeyNotNull:kCMISRepositoryCapabilityCreateablePropertyTypesCanCreate];
+        if(canCreateJson){
+            if([canCreateJson isKindOfClass:NSArray.class]){
+                NSMutableSet *canCreate = [[NSMutableSet alloc] init];
+                
+                for (id o in canCreateJson) {
+                    if(o){
+                        [canCreate addObject:o];
+                    }
+                }
+                
+                self.canCreate = canCreate;
+            } else {
+                CMISLogWarning(@"expected an array but was %@", canCreateJson.class);
+            }
+        }
+
+        self.extensions = [CMISObjectConverter convertExtensions:dictionary cmisKeys:[CMISConstants repositoryCapabilityCreateablePropertyTypesKeys]];
+    } else {
+        CMISLogWarning(@"expected a dictionary but was %@", dictionary.class);
+    }
+}
 
 @end

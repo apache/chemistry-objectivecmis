@@ -134,10 +134,11 @@ completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))comple
        headers:(NSDictionary *)additionalHeaders
  bytesExpected:(unsigned long long)bytesExpected
    cmisRequest:(CMISRequest *)cmisRequest
-cmisProperties:(CMISProperties *)cmisProperties
-      mimeType:(NSString *)mimeType
-completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))completionBlock
- progressBlock:(void (^)(unsigned long long bytesDownloaded, unsigned long long bytesTotal))progressBlock
+     startData:(NSData *)startData
+       endData:(NSData *)endData
+useBase64Encoding:(BOOL)useBase64Encoding
+completionBlock:(void (^)(CMISHttpResponse *, NSError *))completionBlock
+ progressBlock:(void (^)(unsigned long long, unsigned long long))progressBlock
 {
     if (!cmisRequest.isCancelled) {
         NSMutableURLRequest *urlRequest = [CMISDefaultNetworkProvider createRequestForUrl:url
@@ -150,8 +151,9 @@ completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))comple
                                                                      headers:additionalHeaders
                                                                bytesExpected:bytesExpected
                                                       authenticationProvider:session.authenticationProvider
-                                                              cmisProperties:cmisProperties
-                                                                    mimeType:mimeType
+                                                              startData:startData
+                                                                    endData:endData
+                                                           useBase64Encoding:useBase64Encoding
                                                              completionBlock:completionBlock
                                                                progressBlock:progressBlock];
         if (request){
@@ -164,7 +166,6 @@ completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))comple
         }
     }
 }
-
 
 - (void)invoke:(NSURL *)url
     httpMethod:(CMISHttpRequestMethod)httpRequestMethod

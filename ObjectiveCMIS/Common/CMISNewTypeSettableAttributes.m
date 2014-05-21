@@ -18,7 +18,34 @@
  */
 
 #import "CMISNewTypeSettableAttributes.h"
+#import "CMISNSDictionary+CMISUtil.h"
+#import "CMISLog.h"
+#import "CMISConstants.h"
+#import "CMISObjectConverter.h"
 
 @implementation CMISNewTypeSettableAttributes
+
+- (void)setNewTypeSettableAttributesFromDictionary:(NSDictionary *)dictionary
+{
+    if([dictionary isKindOfClass:NSDictionary.class]){
+        self.canSetId = [dictionary cmis_boolForKey:kCMISRepositoryCapabilityNewTypeSettableAttributesId];
+        self.canSetLocalName = [dictionary cmis_boolForKey:kCMISRepositoryCapabilityNewTypeSettableAttributesLocalName];
+        self.canSetLocalNamespace = [dictionary cmis_boolForKey:kCMISRepositoryCapabilityNewTypeSettableAttributesLocalNamespace];
+        self.canSetDisplayName = [dictionary cmis_boolForKey:kCMISRepositoryCapabilityNewTypeSettableAttributesDisplayName];
+        self.canSetQueryName = [dictionary cmis_boolForKey:kCMISRepositoryCapabilityNewTypeSettableAttributesQueryName];
+        self.canSetDescription = [dictionary cmis_boolForKey:kCMISRepositoryCapabilityNewTypeSettableAttributesDescription];
+        self.canSetCreatable = [dictionary cmis_boolForKey:kCMISRepositoryCapabilityNewTypeSettableAttributesCreateable];
+        self.canSetFileable = [dictionary cmis_boolForKey:kCMISRepositoryCapabilityNewTypeSettableAttributesFileable];
+        self.canSetQueryable = [dictionary cmis_boolForKey:kCMISRepositoryCapabilityNewTypeSettableAttributesQueryable];
+        self.canSetFulltextIndexed = [dictionary cmis_boolForKey:kCMISRepositoryCapabilityNewTypeSettableAttributesFullTextIndexed];
+        self.canSetIncludedInSupertypeQuery = [dictionary cmis_boolForKey:kCMISRepositoryCapabilityNewTypeSettableAttributesIncludedInSuperTypeQuery];
+        self.canSetControllablePolicy = [dictionary cmis_boolForKey:kCMISRepositoryCapabilityNewTypeSettableAttributesControllablePolicy];
+        self.canSetControllableAcl = [dictionary cmis_boolForKey:kCMISRepositoryCapabilityNewTypeSettableAttributesControllableAcl];
+        
+        self.extensions = [CMISObjectConverter convertExtensions:dictionary cmisKeys:[CMISConstants repositoryCapabilityNewTypeSettableAttributesKeys]];
+    } else {
+        CMISLogWarning(@"expected a dictionary but was %@", dictionary.class);
+    }
+}
 
 @end

@@ -39,12 +39,21 @@
     if (self.internalPropertyDefinitions == nil) {
         self.internalPropertyDefinitions = [[NSMutableDictionary alloc] init];
     }
-    [self.internalPropertyDefinitions setObject:propertyDefinition forKey:propertyDefinition.id];
+    [self.internalPropertyDefinitions setObject:propertyDefinition forKey:propertyDefinition.identifier];
 }
 
 - (CMISPropertyDefinition *)propertyDefinitionForId:(NSString *)propertyId
 {
     return [self.internalPropertyDefinitions objectForKey:propertyId];
+}
+
+-(void)setParentTypeId:(NSString *)parentTypeId
+{
+    if (!parentTypeId || parentTypeId.length == 0) {
+        _parentTypeId = nil;
+    } else {
+        _parentTypeId = parentTypeId;
+    }
 }
 
 @end

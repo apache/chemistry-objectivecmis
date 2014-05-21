@@ -25,13 +25,15 @@
 
 @property (nonatomic, strong) NSString *identifier;
 @property (nonatomic, strong) NSString *name;
-@property (nonatomic, strong) NSString *desc;
+@property (nonatomic, strong) NSString *summary;
 @property (nonatomic, strong) NSString *rootFolderId;
 
 @property (nonatomic, strong) NSString *cmisVersionSupported;
 @property (nonatomic, strong) NSString *productName;
 @property (nonatomic, strong) NSString *productVersion;
 @property (nonatomic, strong) NSString *vendorName;
+@property (nonatomic, strong) NSString *thinClientUri;
+@property (nonatomic, strong) NSString *latestChangeLogToken;
 
 /**
  * Returns principal ID for an anonymous user (any authenticated user). This

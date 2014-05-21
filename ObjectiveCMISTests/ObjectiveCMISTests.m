@@ -34,14 +34,15 @@
 #import "CMISPagedResult.h"
 #import "CMISRenditionData.h"
 #import "CMISRendition.h"
-#import "CMISAllowableActionsParser.h"
 #import "CMISAtomFeedParser.h"
-#import "CMISServiceDocumentParser.h"
-#import "CMISWorkspace.h"
+#import "CMISAtomPubServiceDocumentParser.h"
+#import "CMISAtomWorkspace.h"
 #import "CMISRequest.h"
 #import "CMISErrors.h"
 #import "CMISDateUtil.h"
 #import "CMISLog.h"
+#import "CMISURLUtil.h"
+#import "CMISMimeHelper.h"
 
 @interface ObjectiveCMISTests ()
 
@@ -140,8 +141,14 @@
 - (void)testAuthenticateWithInvalidCredentials
 {
     [self runTest:^ {
-        CMISSessionParameters *bogusParams = [[CMISSessionParameters alloc] initWithBindingType:CMISBindingTypeAtomPub];
-        bogusParams.atomPubUrl = self.parameters.atomPubUrl;
+        CMISSessionParameters *bogusParams = nil;
+        if (self.parameters.bindingType == CMISBindingTypeAtomPub) {
+            bogusParams = [[CMISSessionParameters alloc] initWithBindingType:CMISBindingTypeAtomPub];
+            bogusParams.atomPubUrl = self.parameters.atomPubUrl;
+        } else {
+            bogusParams = [[CMISSessionParameters alloc] initWithBindingType:CMISBindingTypeBrowser];
+            bogusParams.browserUrl = self.parameters.browserUrl;
+        }
         bogusParams.repositoryId = self.parameters.repositoryId;
         bogusParams.username = @"bogus";
         bogusParams.password = @"sugob";
@@ -168,8 +175,9 @@
         XCTAssertNotNil(repoInfo, @"repoInfo object should not be nil");
 
         // check the repository info is what we expect
-        XCTAssertTrue(repoInfo.productVersion.length > 0, @"Product Version should not be zero-length");
-        XCTAssertTrue([repoInfo.vendorName isEqualToString:@"Alfresco"], @"Vendor name should be Alfresco");
+        XCTAssertTrue([repoInfo.productVersion rangeOfString:@"4."].length > 0, @"Product Version should be 4.x.x, but was %@", repoInfo.productVersion);
+        XCTAssertTrue([repoInfo.productName hasPrefix:@"Alfresco"], @"Product name should start with Alfresco, but was %@", repoInfo.productName);
+        XCTAssertTrue([repoInfo.vendorName isEqualToString:@"Alfresco"], @"Vendor name should be Alfresco, but was %@", repoInfo.vendorName);
 
         // retrieve the root folder
         [self.session retrieveRootFolderWithCompletionBlock:^(CMISFolder *rootFolder, NSError *error) {
@@ -189,6 +197,52 @@
             
             NSDate *modifiedDate = rootFolder.lastModificationDate;
             XCTAssertNotNil(modifiedDate, @"modified date should not be nil");
+            
+            // test various aspects of type definition
+            CMISTypeDefinition *typeDef = rootFolder.typeDefinition;
+            XCTAssertNotNil(typeDef, @"Expected the type definition to be present");
+            XCTAssertTrue([typeDef.identifier isEqualToString:@"cmis:folder"], @"Expected typeDef.identifier to be cmis:folder but it was %@", typeDef.identifier);
+            XCTAssertTrue([typeDef.localName isEqualToString:@"folder"], @"Expected typeDef.localName to be folder but it was %@", typeDef.localName);
+            XCTAssertTrue([typeDef.queryName isEqualToString:@"cmis:folder"], @"Expected typeDef.queryName to be cmis:folder but it was %@", typeDef.queryName);
+            XCTAssertTrue(typeDef.baseTypeId == CMISBaseTypeFolder, @"Expected baseTypeId to be cmis:folder");
+            XCTAssertTrue(typeDef.creatable, @"Expected creatable to be true");
+            XCTAssertTrue(typeDef.fileable, @"Expected fileable to be true");
+            XCTAssertTrue(typeDef.queryable, @"Expected queryable to be true");
+            XCTAssertTrue(typeDef.fullTextIndexed, @"Expected fullTextIndexed to be true");
+            XCTAssertTrue(typeDef.includedInSupertypeQuery, @"Expected includedInSupertypeQuery to be true");
+            XCTAssertTrue(typeDef.controllableAcl, @"Expected controllableAcl to be true");
+            XCTAssertFalse(typeDef.controllablePolicy, @"Expected controllablePolicy to be false");
+            
+            CMISPropertyDefinition *objectTypeIdDef = typeDef.propertyDefinitions[@"cmis:objectTypeId"];
+            XCTAssertNotNil(objectTypeIdDef, @"Expected to find cmis:objectTypeId property definition");
+            XCTAssertTrue([objectTypeIdDef.identifier isEqualToString:@"cmis:objectTypeId"],
+                          @"Expected objectTypeIdDef.id to be cmis:objectTypeId but it was %@", objectTypeIdDef.identifier);
+            XCTAssertTrue([objectTypeIdDef.localName isEqualToString:@"objectTypeId"],
+                          @"Expected objectTypeIdDef.localName to be objectTypeId but it was %@", objectTypeIdDef.localName);
+            XCTAssertTrue(objectTypeIdDef.propertyType == CMISPropertyTypeId, @"Expected objectTypeId type to be id");
+            XCTAssertTrue(objectTypeIdDef.cardinality == CMISCardinalitySingle, @"Expected objectTypeId cardinality to be single");
+            XCTAssertTrue(objectTypeIdDef.updatability == CMISUpdatabilityOnCreate, @"Expected objectTypeId updatability to be oncreate");
+            XCTAssertTrue(objectTypeIdDef.required, @"Expected objectTypeId to be required");
+            
+            // test secondary type id when using the 1.1 bindings
+            CMISPropertyDefinition *secondaryTypeIdDef = typeDef.propertyDefinitions[@"cmis:secondaryObjectTypeIds"];
+            if (secondaryTypeIdDef != nil)
+            {
+                XCTAssertNotNil(secondaryTypeIdDef, @"Expected to find cmis:secondaryObjectTypeIds property definition");
+                XCTAssertTrue([secondaryTypeIdDef.identifier isEqualToString:@"cmis:secondaryObjectTypeIds"],
+                              @"Expected secondaryTypeIdDef.id to be cmis:secondaryObjectTypeIds but it was %@", secondaryTypeIdDef.identifier);
+                XCTAssertTrue([secondaryTypeIdDef.localName isEqualToString:@"secondaryObjectTypeIds"],
+                              @"Expected objectTypeIdDef.localName to be secondaryObjectTypeIds but it was %@", secondaryTypeIdDef.localName);
+                XCTAssertTrue(secondaryTypeIdDef.propertyType == CMISPropertyTypeId, @"Expected secondaryTypeIdDef type to be id");
+                XCTAssertTrue(secondaryTypeIdDef.cardinality == CMISCardinalityMulti, @"Expected secondaryTypeIdDef cardinality to be multi");
+                XCTAssertTrue(secondaryTypeIdDef.updatability == CMISUpdatabilityReadWrite, @"Expected secondaryTypeIdDef updatability to be readwrite");
+                XCTAssertFalse(secondaryTypeIdDef.required, @"Expected secondaryTypeIdDef to be optional");
+            }
+            
+            // test some other random properties
+            CMISPropertyDefinition *creationDateDef = typeDef.propertyDefinitions[@"cmis:creationDate"];
+            XCTAssertTrue(creationDateDef.propertyType == CMISPropertyTypeDateTime, @"Expected creationDateDef type to be datetime");
+            XCTAssertTrue(creationDateDef.updatability == CMISUpdatabilityReadOnly, @"Expected creationDateDef updatability to be readonly");
             
             // retrieve the children of the root folder, there should be more than 10!
             [rootFolder retrieveChildrenWithCompletionBlock:^(CMISPagedResult *pagedResult, NSError *error) {
@@ -242,22 +296,22 @@
                     }
                     
                     
-                    // Bug on Alfresco server. Uncomment when fixed.
                     // Fetch third page, just to be sure
-                    //    CMISPagedResult *thirdPageResult = [secondPageResult fetchNextPageAndReturnError:&error];
-                    //    STAssertNil(error, @"Got error while retrieving children: %@", [error description]);
-                    //    STAssertTrue(thirdPageResult.hasMoreItems, @"There should still be more children");
-                    //    STAssertTrue(thirdPageResult.numItems > 6, @"The test repository should have more than 6 objects");
-                    //    STAssertTrue(thirdPageResult.resultArray.count == 2, @"Expected 2 children in the page, but got %d", thirdPageResult.resultArray.count);
-                    //
-                    //    // Verify if no double object ids were found
-                    //    for (CMISObject *object in thirdPageResult.resultArray)
-                    //    {
-                    //        STAssertTrue(![objectIds containsObject:object.identifier], @"Object was already returned in a previous page. This is a serious impl bug!");
-                    //        [objectIds addObject:object.identifier];
-                    //    }
+                    [secondPageResult fetchNextPageWithCompletionBlock:^(CMISPagedResult *thirdPageResult, NSError *error) {
+                        XCTAssertNil(error, @"Got error while retrieving children: %@", [error description]);
+                        XCTAssertTrue(thirdPageResult.hasMoreItems, @"There should still be more children");
+                        XCTAssertTrue(thirdPageResult.numItems > 6, @"The test repository should have more than 6 objects");
+                        XCTAssertTrue(thirdPageResult.resultArray.count == 2, @"Expected 2 children in the page, but got %lu", (unsigned long)thirdPageResult.resultArray.count);
                     
-                    self.testCompleted = YES;
+                        // Verify if no double object ids were found
+                        for (CMISObject *object in thirdPageResult.resultArray)
+                        {
+                            XCTAssertTrue(![objectIds containsObject:object.identifier], @"Object was already returned in a previous page. This is a serious impl bug!");
+                            [objectIds addObject:object.identifier];
+                        }
+                        
+                        self.testCompleted = YES;
+                    }];
                 }];
             }];
         }];
@@ -284,8 +338,8 @@
             XCTAssertNotNil(document.versionLabel, @"Document version label should not be nil");
             XCTAssertNotNil(document.versionSeriesId, @"Document version series id should not be nil");
             XCTAssertTrue(document.isLatestVersion, @"Document should be latest version");
-            //XCTAssertTrue(document.isLatestMajorVersion, @"Document should be latest major version");
-            XCTAssertFalse(document.isMajorVersion, @"Document should be major version");
+            //XCTAssertFalse(document.isLatestMajorVersion, @"Document should be latest major version");
+            XCTAssertFalse(document.isMajorVersion, @"Document should not be major version");
             
             XCTAssertNotNil(document.contentStreamId, @"Document content stream id should not be nil");
             XCTAssertNotNil(document.contentStreamFileName, @"Document content stream file name should not be nil");
@@ -338,7 +392,11 @@
                     }
                 }
                 
-                XCTAssertNotNil(randomDoc, @"Can only continue test if test folder contains at least one document");
+                if(!randomDoc) { // stopping test here or else it would run until the test timeout is reached
+                    XCTAssertNotNil(randomDoc, @"Can only continue test if test folder contains at least one document");
+                    self.testCompleted = YES;
+                    return;
+                }
                 CMISLogDebug(@"Fetching content stream for document %@", randomDoc.name);
                 
                 // Writing content of CMIS document to local file
@@ -417,44 +475,44 @@
         
         // Upload test file
         self.request = [self.session createDocumentFromFilePath:filePath
-                                        mimeType:@"application/pdf"
-                                      properties:documentProperties
-                                        inFolder:self.rootFolder.identifier
-                                 completionBlock: ^ (NSString *newObjectId, NSError *error) {
-                                     
-                                     XCTAssertNotNil(error, @"Failed to cancel upload");
-                                     XCTAssertTrue(error.code == kCMISErrorCodeCancelled, @"Expected error code to be 6 (kCMISErrorCodeCancelled) but it was %ld", (long)error.code);
-                                     XCTAssertNil(newObjectId, @"Did not expect to recieve a new object id");
-                                     
-                                     // ensure the object was not created on the server
-                                     NSString *path = [NSString stringWithFormat:@"/%@", documentName];
-                                     [self.session retrieveObjectByPath:path completionBlock:^(CMISObject *object, NSError *error) {
-                                         XCTAssertNotNil(error, @"Expected to get an error when attempting to retrieve cancelled upload");
-                                         XCTAssertTrue(error.code == kCMISErrorCodeObjectNotFound, @"Expected error code to be 257 (kCMISErrorCodeObjectNotFound) but it was %ld", (long)error.code);
-                                         XCTAssertNil(object, @"Did not expect the object to be created on the server");
-                                         
-                                         if (object != nil)
-                                         {
-                                             // if object was created, cleanup
-                                             [self deleteDocumentAndVerify:(CMISDocument *)object completionBlock:^{
-                                                 self.testCompleted = YES;
-                                             }];
-                                         }
-                                         else
-                                         {
-                                             self.testCompleted = YES;
-                                         }
-                                     }];
-                                 }
-                                   progressBlock: ^ (unsigned long long uploadedBytes, unsigned long long totalBytes) {
-                                       CMISLogDebug(@"upload progress %i/%i", uploadedBytes, totalBytes);
-                                       if (uploadedBytes > 0) {
-                                           // as soon as some data was uploaded cancel the request
-                                           [self.request cancel];
-                                           CMISLogDebug(@"create cancelled");
-                                           self.request = nil;
-                                       }
-                                   }];
+                                                       mimeType:@"application/pdf"
+                                                     properties:documentProperties
+                                                       inFolder:self.rootFolder.identifier
+                                                completionBlock: ^ (NSString *newObjectId, NSError *error) {
+                                                    
+                                                    XCTAssertNotNil(error, @"Failed to cancel upload");
+                                                    XCTAssertTrue(error.code == kCMISErrorCodeCancelled, @"Expected error code to be 6 (kCMISErrorCodeCancelled) but it was %ld", (long)error.code);
+                                                    XCTAssertNil(newObjectId, @"Did not expect to recieve a new object id");
+                                                    
+                                                    // ensure the object was not created on the server
+                                                    NSString *path = [NSString stringWithFormat:@"/%@", documentName];
+                                                    [self.session retrieveObjectByPath:path completionBlock:^(CMISObject *object, NSError *error) {
+                                                        XCTAssertNotNil(error, @"Expected to get an error when attempting to retrieve cancelled upload");
+                                                        XCTAssertTrue(error.code == kCMISErrorCodeObjectNotFound, @"Expected error code to be 257 (kCMISErrorCodeObjectNotFound) but it was %ld", (long)error.code);
+                                                        XCTAssertNil(object, @"Did not expect the object to be created on the server");
+                                                        
+                                                        if (object != nil)
+                                                        {
+                                                            // if object was created, cleanup
+                                                            [self deleteDocumentAndVerify:(CMISDocument *)object completionBlock:^{
+                                                                self.testCompleted = YES;
+                                                            }];
+                                                        }
+                                                        else
+                                                        {
+                                                            self.testCompleted = YES;
+                                                        }
+                                                    }];
+                                                }
+                                                  progressBlock: ^ (unsigned long long uploadedBytes, unsigned long long totalBytes) {
+                                                      CMISLogDebug(@"upload progress %i/%i", uploadedBytes, totalBytes);
+                                                      if (uploadedBytes > 0) {
+                                                          // as soon as some data was uploaded cancel the request
+                                                          [self.request cancel];
+                                                          CMISLogDebug(@"create cancelled");
+                                                          self.request = nil;
+                                                      }
+                                                  }];
     }];
 }
 
@@ -593,9 +651,7 @@
                 XCTAssertNil(error, @"Got error while creating document: %@", [error description]);
                 self.testCompleted = YES;
             }
-        } progressBlock:^(unsigned long long bytesUploaded, unsigned long long total){
-            CMISLogDebug(@"upload progress %i/%i", bytesUploaded, total);
-        }];
+        } progressBlock:^(unsigned long long bytesUploaded, unsigned long long total){}];
         
     }];
 }
@@ -676,7 +732,6 @@
                }
                progressBlock:^(unsigned long long bytesUploaded, unsigned long long bytesTotal)
                {
-                   CMISLogDebug(@"upload progress %i/%i", bytesUploaded, bytesTotal);
                    XCTAssertTrue((long long)bytesUploaded > previousBytesUploaded, @"No progress was made");
                    previousBytesUploaded = bytesUploaded;
                }];
@@ -743,6 +798,7 @@
                                                  continueOnFailure:YES
                                                    completionBlock:^(NSArray *failedObjects, NSError *error) {
                                                        XCTAssertNil(error, @"Error while move test folders and document: %@", [error description]);
+                                                       XCTAssertTrue(failedObjects.count == 0, @"some objects could not be deleted");
                                                        
                                                        self.testCompleted = YES;
                                                    }];
@@ -1349,8 +1405,8 @@
              XCTAssertTrue(typeDefinition.baseTypeId == CMISBaseTypeDocument, @"Unexpected base type id");
              XCTAssertNotNil(typeDefinition.description, @"Type description should not be nil");
              XCTAssertNotNil(typeDefinition.displayName, @"Type displayName should not be nil");
-             XCTAssertNotNil(typeDefinition.id, @"Type id should not be nil");
-             XCTAssertTrue([typeDefinition.id isEqualToString:@"cmis:document"], @"Wrong id for type");
+             XCTAssertNotNil(typeDefinition.identifier, @"Type id should not be nil");
+             XCTAssertTrue([typeDefinition.identifier isEqualToString:@"cmis:document"], @"Wrong id for type");
              XCTAssertNotNil(typeDefinition.localName, @"Type local name should not be nil");
              XCTAssertNotNil(typeDefinition.localNameSpace, @"Type local namespace should not be nil");
              XCTAssertNotNil(typeDefinition.queryName, @"Type query name should not be nil");
@@ -1362,7 +1418,7 @@
                  CMISPropertyDefinition *propertyDefinition = [typeDefinition.propertyDefinitions objectForKey:key];
                  XCTAssertNotNil(propertyDefinition.description, @"Property definition description should not be nil");
                  XCTAssertNotNil(propertyDefinition.displayName, @"Property definition display name should not be nil");
-                 XCTAssertNotNil(propertyDefinition.id, @"Property definition id should not be nil");
+                 XCTAssertNotNil(propertyDefinition.identifier, @"Property definition id should not be nil");
                  XCTAssertNotNil(propertyDefinition.localName, @"Property definition local name should not be nil");
                  XCTAssertNotNil(propertyDefinition.localNamespace, @"Property definition local namespace should not be nil");
                  XCTAssertNotNil(propertyDefinition.queryName, @"Property definition query name should not be nil");
@@ -1666,11 +1722,11 @@
     XCTAssertNotNil(atomData, @"AtomPubServiceDocument.xml is missing from the test target!");
     
     NSError *error = nil;
-    CMISServiceDocumentParser *serviceDocParser = [[CMISServiceDocumentParser alloc] initWithData:atomData];
+    CMISAtomPubServiceDocumentParser *serviceDocParser = [[CMISAtomPubServiceDocumentParser alloc] initWithData:atomData];
     XCTAssertTrue([serviceDocParser parseAndReturnError:&error], @"Failed to parse AtomPubServiceDocument.xml");
     
     NSArray *workspaces = [serviceDocParser workspaces];
-    CMISWorkspace *workspace = [workspaces objectAtIndex:0];
+    CMISAtomWorkspace *workspace = [workspaces objectAtIndex:0];
     CMISRepositoryInfo *repoInfo = workspace.repositoryInfo;
     
     XCTAssertTrue(repoInfo.extensions.count == 2, @"Expected 2 extension elements, but found %lu", (unsigned long)repoInfo.extensions.count);
@@ -2049,6 +2105,94 @@
             }];
         }];
     }];
+}
+
+- (void)testUrlUtilAppendParameter
+{
+    NSString *path;
+    
+    path = [CMISURLUtil urlStringByAppendingParameter:@"param1" value:@"value1" urlString:@"scheme://host:12345/path?"];
+    XCTAssertEqualObjects(path, @"scheme://host:12345/path?param1=value1", @"expected url with with one parameter and it's value");
+    
+    path = [CMISURLUtil urlStringByAppendingParameter:@"param1" value:@"value1" urlString:@"scheme://host:12345/path"];
+    XCTAssertEqualObjects(path, @"scheme://host:12345/path?param1=value1", @"expected url with with one parameter and it's value");
+    
+    path = [CMISURLUtil urlStringByAppendingParameter:@"param2" value:@"value2" urlString:@"scheme://host:12345/path?param1=value1"];
+    XCTAssertEqualObjects(path, @"scheme://host:12345/path?param1=value1&param2=value2", @"expected url with with two parameters plus value");
+    
+    path = [CMISURLUtil urlStringByAppendingParameter:@"umlautParam" value:@"välüe1" urlString:@"scheme://host:12345/path"];
+    XCTAssertEqualObjects(path, @"scheme://host:12345/path?umlautParam=v%C3%A4l%C3%BCe1", @"expected url with with encoded value");
+    
+    path = [CMISURLUtil urlStringByAppendingParameter:nil value:@"paramIsNil" urlString:@"scheme://host:12345/path"];
+    XCTAssertEqualObjects(path, @"scheme://host:12345/path", @"expected url not to be modified as parameter is nil");
+    
+    path = [CMISURLUtil urlStringByAppendingParameter:@"valueIsNil" value:nil urlString:@"scheme://host:12345/path"];
+    XCTAssertEqualObjects(path, @"scheme://host:12345/path", @"expected url not to be modified as value is nil");
+    
+    path = [CMISURLUtil urlStringByAppendingParameter:@"param1" value:@"value1" urlString:@"scheme://host/"];
+    XCTAssertEqualObjects(path, @"scheme://host/?param1=value1", @"expected url (no port) with with one parameter and it's value");
+    
+    path = [CMISURLUtil urlStringByAppendingParameter:@"param1" value:@"value1" urlString:@"https://example.com:12345/path1/path2"];
+    XCTAssertEqualObjects(path, @"https://example.com:12345/path1/path2?param1=value1", @"expected url with with one parameter and it's value");
+}
+
+- (void)testUrlUtilAppendPath
+{
+    NSString *path;
+    
+    path = [CMISURLUtil urlStringByAppendingPath:@"aPath" urlString:@"scheme://host:12345?"];
+    XCTAssertEqualObjects(path, @"scheme://host:12345/aPath?", @"expected url with path");
+    
+    path = [CMISURLUtil urlStringByAppendingPath:@"subPath" urlString:@"scheme://host:12345/path?"];
+    XCTAssertEqualObjects(path, @"scheme://host:12345/path/subPath?", @"expected url with sub path component");
+    
+    path = [CMISURLUtil urlStringByAppendingPath:@"subPath" urlString:@"scheme://host:12345/path"];
+    XCTAssertEqualObjects(path, @"scheme://host:12345/path/subPath", @"expected url with sub path component");
+    
+    path = [CMISURLUtil urlStringByAppendingPath:@"subPath" urlString:@"scheme://host:12345/path/"];
+    XCTAssertEqualObjects(path, @"scheme://host:12345/path/subPath", @"expected url with sub path component");
+    
+    path = [CMISURLUtil urlStringByAppendingPath:@"subPath" urlString:@"scheme://host:12345/path?parm1=value1"];
+    XCTAssertEqualObjects(path, @"scheme://host:12345/path/subPath?parm1=value1", @"expected url with sub path component, parmater and it's value");
+    
+    path = [CMISURLUtil urlStringByAppendingPath:@"subPath" urlString:@"scheme://host:12345/path?parm1=value1&param2=value2"];
+    XCTAssertEqualObjects(path, @"scheme://host:12345/path/subPath?parm1=value1&param2=value2", @"expected url with sub path component, multiple parmaters and their values");
+    
+    path = [CMISURLUtil urlStringByAppendingPath:@"/aPath" urlString:@"scheme://host:12345/test"];
+    XCTAssertEqualObjects(path, @"scheme://host:12345/test/aPath", @"expected url with sub path component");
+    
+    path = [CMISURLUtil urlStringByAppendingPath:@"/aPath" urlString:@"scheme://host:12345/test/"];
+    XCTAssertEqualObjects(path, @"scheme://host:12345/test/aPath", @"expected url with sub path component");
+    
+    // multi-segment path with special chars, space turns into %20
+    path = [CMISURLUtil urlStringByAppendingPath:@"path/caf\u00e9 d@d" urlString:@"http://host/test/"];
+    XCTAssertEqualObjects(path, @"http://host/test/path/caf%C3%A9%20d%40d", @"expected url with encoded path component");
+    NSLog(@"%@", path);
+}
+
+- (void)testEncodeContentDisposition
+{
+    XCTAssertEqualObjects(@"inline; filename=foo.bar", [CMISMimeHelper encodeContentDisposition:@"inline" fileName:@"foo.bar"], @"wrong encoded content disposition");
+    XCTAssertEqualObjects(@"attachment; filename=foo.bar", [CMISMimeHelper encodeContentDisposition:nil fileName:@"foo.bar"], @"wrong encoded content disposition");
+    XCTAssertEqualObjects(@"attachment; filename*=UTF-8''caf%C3%A9.pdf", [CMISMimeHelper encodeContentDisposition:nil fileName:@"caf\u00e9.pdf"], @"wrong encoded content disposition");
+
+    // TODO how to add those unicode control characters directly into the string?
+    uint codeValue1;
+    [[NSScanner scannerWithString:@"0x0081"] scanHexInt:&codeValue1];
+    uint codeValue2;
+    [[NSScanner scannerWithString:@"0x0082"] scanHexInt:&codeValue2];
+    NSString *fileName = [NSString stringWithFormat:@" '*%% abc %C%C\r\n\t", (unichar)codeValue1, (unichar)codeValue2];
+    XCTAssertEqualObjects(@"attachment; filename*=UTF-8''%20%27%2A%25%20abc%20%C2%81%C2%82%0D%0A%09", [CMISMimeHelper encodeContentDisposition:nil fileName:fileName], @"wrong encoded content disposition");
+}
+
+- (void)testEncodeUrlParameterValue
+{
+    XCTAssertEqualObjects(@"test%20%2B%20%2Fvalue%20%26%20", [CMISURLUtil encodeUrlParameterValue:@"test + /value & "], @"wrong encoded url parameter value");
+    XCTAssertEqualObjects(@"%20%25%20%22%20", [CMISURLUtil encodeUrlParameterValue:@" % \" "], @"wrong encoded url parameter value");
+    XCTAssertEqualObjects(@"%20%60~%21%40%23%24%25%5E%26%2A%28%29_%2B-%3D%7B%7D%5B%5D%7C%5C%3A%3B%22%27%3C%2C%3E.%3F%2FAZaz", [CMISURLUtil encodeUrlParameterValue:@" `~!@#$%^&*()_+-={}[]|\\:;\"'<,>.?/AZaz"], @"wrong encoded url parameter value");
+    XCTAssertEqualObjects(@"%E5%BD%BC%E5%BE%97", [CMISURLUtil encodeUrlParameterValue:@"彼得"], @"wrong encoded url parameter value");
+    
+    XCTAssertEqualObjects(@"%C3%BC%C3%A4%C3%B6%C3%9C%C3%84%C3%96%C3%A9%C4%9F", [CMISURLUtil encodeUrlParameterValue:@"üäöÜÄÖéğ"], @"wrong encoded url parameter value");
 }
 
 @end

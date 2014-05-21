@@ -46,7 +46,6 @@
 
     for (NSDictionary *envDict in environmentArray) {
         NSString *summary = envDict[@"summary"];
-
         NSNumber *disabled = envDict[@"disabled"];
         if ([disabled boolValue])
         {
@@ -54,30 +53,50 @@
             continue;
         }
         
-        NSString *url = envDict[@"url"];
-        NSString *repositoryId = envDict[@"repositoryId"];
-        NSString *username = envDict[@"username"];
-        NSString *password = envDict[@"password"];
+        NSString *binding = [envDict valueForKey:@"binding"];
+        NSString *url = [envDict valueForKey:@"url"];
+        NSString *repositoryId = [envDict valueForKey:@"repositoryId"];
+        NSString *username = [envDict valueForKey:@"username"];
+        NSString *password = [envDict valueForKey:@"password"];
 
-        CMISLogDebug(@">------------------- Running test against %@ -------------------<", summary);
+        // ensure there is a binding value, default to atom
+        if (binding == nil)
+        {
+            binding = @"atom";
+        }
         
         self.testCompleted = NO;
-        [self setupCmisSession:url repositoryId:repositoryId username:username password:password extraSessionParameters:extraSessionParameters completionBlock:^{
+        [self setupCmisSessionWithBinding:binding url:url repositoryId:repositoryId
+                                 username:username password:password
+                   extraSessionParameters:extraSessionParameters completionBlock:^{
             self.testCompleted = NO;
+            
+            CMISLogDebug(@">------------------- Running test against %@ -------------------<", summary);
+            
             testBlock();
         }];
-        [self waitForCompletion:90];
+        [self waitForCompletion:20];
     }
 }
 
-- (void)setupCmisSession:(NSString *)url repositoryId:(NSString *)repositoryId username:(NSString *)username
-                  password:(NSString *)password extraSessionParameters:(NSDictionary *)extraSessionParameters
-         completionBlock:(void (^)(void))completionBlock
+- (void)setupCmisSessionWithBinding:(NSString *)binding url:(NSString *)url repositoryId:(NSString *)repositoryId
+                           username:(NSString *)username password:(NSString *)password
+             extraSessionParameters:(NSDictionary *)extraSessionParameters
+                    completionBlock:(void (^)(void))completionBlock
 {
-    self.parameters = [[CMISSessionParameters alloc] initWithBindingType:CMISBindingTypeAtomPub];
+    if ([binding isEqualToString:@"browser"])
+    {
+        self.parameters = [[CMISSessionParameters alloc] initWithBindingType:CMISBindingTypeBrowser];
+        self.parameters.browserUrl = [NSURL URLWithString:url];
+    }
+    else
+    {
+        self.parameters = [[CMISSessionParameters alloc] initWithBindingType:CMISBindingTypeAtomPub];
+        self.parameters.atomPubUrl = [NSURL URLWithString:url];
+    }
+    
     self.parameters.username = username;
     self.parameters.password = password;
-    self.parameters.atomPubUrl = [NSURL URLWithString:url];
     self.parameters.repositoryId = repositoryId;
 
     // Extra cmis params could be provided as method parameter
@@ -133,6 +152,7 @@
         CMISDocument *document = (CMISDocument *)object;
         XCTAssertNotNil(document, @"Did not find test document for versioning test");
         XCTAssertTrue(document.isLatestVersion, @"Should have 'true' for the property 'isLatestVersion");
+        //XCTAssertFalse(document.isLatestMajorVersion, @"Should have 'false' for the property 'isLatestMajorVersion"); // the latest version is a minor one
         XCTAssertFalse(document.isMajorVersion, @"Should have 'false' for the property 'isMajorVersion");
         
         completionBlock(document);

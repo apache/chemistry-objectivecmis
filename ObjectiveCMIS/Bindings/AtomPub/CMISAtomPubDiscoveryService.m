@@ -45,7 +45,7 @@ includeAllowableActions:(BOOL)includeAllowableActions
     }
     
     // Validate query uri
-    NSString *queryUrlString = [self.bindingSession objectForKey:kCMISBindingSessionKeyQueryCollection];
+    NSString *queryUrlString = [self.bindingSession objectForKey:kCMISAtomBindingSessionKeyQueryCollection];
     if (queryUrlString == nil) {
         CMISLogDebug(@"Unknown repository or query not supported!");
         completionBlock(nil, [CMISErrors createCMISErrorWithCode:kCMISErrorCodeObjectNotFound detailedDescription:nil]);

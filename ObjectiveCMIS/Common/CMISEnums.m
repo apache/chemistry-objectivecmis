@@ -19,6 +19,8 @@
 
 #import "CMISEnums.h"
 #import "CMISLog.h"
+#import "CMISConstants.h"
+#import "CMISBrowserConstants.h"
 
 @implementation CMISEnums
 
@@ -63,6 +65,68 @@
             break;
     }
     return unfileObjectString;
+}
+
++ (NSString *)stringForReturnVersion:(BOOL)major
+{
+    return major == NO ? kCMISParameterValueReturnValueLatest : kCMISParameterValueReturnValueLatestMajor;
+}
+
++ (CMISBaseType)enumForBaseId:(NSString *)baseId
+{
+    if([kCMISPropertyObjectTypeIdValueDocument isEqualToString:baseId]) {
+        return CMISBaseTypeDocument;
+    } else if([kCMISPropertyObjectTypeIdValueFolder isEqualToString:baseId]) {
+        return CMISBaseTypeFolder;
+    } else if([kCMISPropertyObjectTypeIdValueRelationship isEqualToString:baseId]) {
+        return CMISBaseTypeRelationship;
+    } else if([kCMISPropertyObjectTypeIdValuePolicy isEqualToString:baseId]) {
+        return CMISBaseTypePolicy;
+    } else if([kCMISPropertyObjectTypeIdValueItem isEqualToString:baseId]) {
+        return CMISBaseTypeItem;
+    } else if([kCMISPropertyObjectTypeIdValueSecondary isEqualToString:baseId]) {
+        return CMISBaseTypeSecondary;
+    } else {
+        return CMISBaseTypeUnknown;
+    }
+}
+
++ (CMISContentStreamAllowedType)enumForContentStreamAllowed:(NSString *)contentStreamAllowed
+{
+    if([kCMISContentStreamAllowedValueAllowed isEqualToString:contentStreamAllowed]) {
+        return CMISContentStreamAllowed;
+    } else if([kCMISContentStreamAllowedValueNotAllowed isEqualToString:contentStreamAllowed]) {
+        return CMISContentStreamNotAllowed;
+    } else if([kCMISContentStreamAllowedValueRequired isEqualToString:contentStreamAllowed]) {
+        return CMISContentStreamRequired;
+    } else {
+        return CMISContentStreamUnknown;
+    }
+}
+
++ (CMISPropertyType)enumForPropertyType:(NSString *)typeString
+{
+    CMISPropertyType propertyType;
+    if ([typeString isEqualToString:kCMISBrowserJSONPropertyTypeValueString]) {
+        propertyType = CMISPropertyTypeString;
+    } else if ([typeString isEqualToString:kCMISBrowserJSONPropertyTypeValueId]) {
+        propertyType = CMISPropertyTypeId;
+    } else if ([typeString isEqualToString:kCMISBrowserJSONPropertyTypeValueInteger]) {
+        propertyType = CMISPropertyTypeInteger;
+    } else if ([typeString isEqualToString:kCMISBrowserJSONPropertyTypeValueDecimal]) {
+        propertyType = CMISPropertyTypeDecimal;
+    } else if ([typeString isEqualToString:kCMISBrowserJSONPropertyTypeValueBoolean]) {
+        propertyType = CMISPropertyTypeBoolean;
+    } else if ([typeString isEqualToString:kCMISBrowserJSONPropertyTypeValueDateTime]) {
+        propertyType = CMISPropertyTypeDateTime;
+    } else if ([typeString isEqualToString:kCMISBrowserJSONPropertyTypeValueHtml]) {
+        propertyType = CMISPropertyTypeHtml;
+    } else if ([typeString isEqualToString:kCMISBrowserJSONPropertyTypeValueUri]) {
+        propertyType = CMISPropertyTypeUri;
+    } else {
+        propertyType = CMISPropertyTypeUnknown;
+    }
+    return propertyType;
 }
 
 @end

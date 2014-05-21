@@ -119,14 +119,14 @@
  *
  * @cmis 1.1
  */
-@property(nonatomic, strong) CMISCreatablePropertyTypes *creatablePropertyTypes; // TODO: Set this attribute when we have browser binding
+@property(nonatomic, strong) CMISCreatablePropertyTypes *creatablePropertyTypes;
 
 /**
  *
  * @cmis 1.1
  */
-@property(nonatomic, strong) CMISNewTypeSettableAttributes *typeSettableAttributes; // TODO: Set this attribute when we have browser binding
+@property(nonatomic, strong) CMISNewTypeSettableAttributes *typeSettableAttributes;
 
--(void) setCapability:(NSString*)capabilityKey value:(NSString*)capabilityValue;
+-(void) setCapability:(NSString*)capabilityKey value:(id)capabilityValue;
 
 @end

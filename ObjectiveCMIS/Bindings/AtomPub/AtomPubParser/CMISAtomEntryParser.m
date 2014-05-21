@@ -20,7 +20,7 @@
 #import "CMISAtomEntryParser.h"
 #import "CMISAtomLink.h"
 #import "CMISRenditionData.h"
-#import "CMISAtomParserUtil.h"
+#import "CMISAtomPubParserUtil.h"
 
 @interface CMISAtomEntryParser ()
 
@@ -150,10 +150,10 @@
             self.currentRendition = [[CMISRenditionData alloc] init];
         } else if ([elementName isEqualToString:kCMISAtomEntryAllowableActions]) {
             // Delegate parsing to child parser for allowableActions element
-            self.childParserDelegate = [CMISAllowableActionsParser allowableActionsParserWithParentDelegate:self parser:parser];
+            self.childParserDelegate = [CMISAtomPubAllowableActionsParser allowableActionsParserWithParentDelegate:self parser:parser];
         } else if ([elementName isEqualToString:kCMISAtomEntryAcl]) {
             // Delegate parsing to child parser for acl element
-            self.childParserDelegate = [CMISAclParser aclParserWithParentDelegate:self parser:parser];
+            self.childParserDelegate = [CMISAtomPubAclParser aclParserWithParentDelegate:self parser:parser];
         } else if ([elementName isEqualToString:kCMISCoreRelationship]) {
             // NOTE: we're currently ignoring the relationship element so set a flag to check
             self.parsingRelationship = YES;
@@ -196,7 +196,7 @@
 {
    
     if ([elementName isEqualToString:kCMISAtomEntryValue]) {
-        [CMISAtomParserUtil parsePropertyValue:self.string propertyType:self.currentPropertyType addToArray:self.propertyValues];
+        [CMISAtomPubParserUtil parsePropertyValue:self.string propertyType:self.currentPropertyType addToArray:self.propertyValues];
     } else if (self.currentRendition != nil) {
         if ([elementName isEqualToString:kCMISCoreStreamId]) {
             self.currentRendition.streamId = self.string;
@@ -309,13 +309,13 @@
 #pragma mark -
 #pragma mark CMISAllowableActionsParserDelegate Methods
 
-- (void)allowableActionsParser:(CMISAllowableActionsParser *)parser didFinishParsingAllowableActions:(CMISAllowableActions *)allowableActions
+- (void)allowableActionsParser:(CMISAtomPubAllowableActionsParser *)parser didFinishParsingAllowableActions:(CMISAllowableActions *)allowableActions
 {
     self.objectData.allowableActions = allowableActions;
 }
 
 #pragma mark - CMISAclParserDelegate Methods
--(void)aclParser:(CMISAclParser *)aclParser didFinishParsingAcl:(CMISAcl *)acl{
+-(void)aclParser:(CMISAtomPubAclParser *)aclParser didFinishParsingAcl:(CMISAcl *)acl{
     self.objectData.acl = acl;
     [self.objectData.acl setIsExact:self.isExcatAcl];
 }

@@ -40,6 +40,7 @@ typedef NS_ENUM(NSInteger, CMISErrorCodes)
     kCMISErrorCodeNoRootFolderFound = 4,
     kCMISErrorCodeNoRepositoryFound = 5,
     kCMISErrorCodeCancelled = 6,
+    kCMISErrorCodeParsingFailed = 7,
     
     //error ranges for General errors
     kCMISErrorCodeGeneralMinimum = 256,
@@ -80,6 +81,7 @@ extern NSString * const kCMISErrorDescriptionUnauthorized;
 extern NSString * const kCMISErrorDescriptionNoRootFolderFound;
 extern NSString * const kCMISErrorDescriptionRepositoryNotFound;
 extern NSString * const kCMISErrorDescriptionCancelled;
+extern NSString * const kCMISErrorDescriptionParsingFailed;
 //General errors as defined in 2.2.1.4.1 of spec
 extern NSString * const kCMISErrorDescriptionInvalidArgument;
 extern NSString * const kCMISErrorDescriptionObjectNotFound;

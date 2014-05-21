@@ -90,7 +90,7 @@
              || [elementName isEqualToString:kCMISCorePropertyIntegerDefinition]
              || [elementName isEqualToString:kCMISCorePropertyDateTimeDefinition]
              || [elementName isEqualToString:kCMISCorePropertyDecimalDefinition]) {
-        self.childParserDelegate = [CMISPropertyDefinitionParser parserForPropertyDefinition:elementName withParentDelegate:self parser:parser];
+        self.childParserDelegate = [CMISAtomPubPropertyDefinitionParser parserForPropertyDefinition:elementName withParentDelegate:self parser:parser];
     }
 }
 
@@ -111,7 +111,7 @@
         self.isParsingTypeDefinition = NO;
     } else if ([elementName isEqualToString:kCMISCoreId]) {
         if (self.isParsingTypeDefinition){
-            self.typeDefinition.id = self.currentString;
+            self.typeDefinition.identifier = self.currentString;
         }
     } else if ([elementName isEqualToString:kCMISCoreLocalName]) {
         if (self.isParsingTypeDefinition) {
@@ -131,7 +131,7 @@
         }
     } else if ([elementName isEqualToString:kCMISCoreDescription]) {
         if (self.isParsingTypeDefinition) {
-            self.typeDefinition.description = self.currentString;
+            self.typeDefinition.summary = self.currentString;
         }
     } else if ([elementName isEqualToString:kCMISCoreBaseId]) {
         if (self.isParsingTypeDefinition) {
