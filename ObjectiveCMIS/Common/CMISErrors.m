@@ -30,7 +30,7 @@ NSString * const kCMISErrorDomainName = @"org.apache.chemistry.objectivecmis";
  */
 //Basic Errors
 
-NSString * const kCMISErrorDescriptionNoReturn = @"Unknown Error";
+NSString * const kCMISErrorDescriptionUnknown = @"Unknown Error";
 NSString * const kCMISErrorDescriptionConnection = @"Connection Error";
 NSString * const kCMISErrorDescriptionProxyAuthentication = @"Proxy Authentication Error";
 NSString * const kCMISErrorDescriptionUnauthorized = @"Unauthorized access error";
@@ -38,6 +38,7 @@ NSString * const kCMISErrorDescriptionNoRootFolderFound =  @"Root Folder Not Fou
 NSString * const kCMISErrorDescriptionRepositoryNotFound =  @"Repository Not Found Error";
 NSString * const kCMISErrorDescriptionCancelled = @"Operation Cancelled";
 NSString * const kCMISErrorDescriptionParsingFailed = @"Parsing Failed";
+NSString * const kCMISErrorDescriptionNoNetworkConnection = @"No Network Connection";
 
 //General errors as defined in 2.2.1.4.1 of spec
 NSString * const kCMISErrorDescriptionInvalidArgument = @"Invalid Argument Error";
@@ -90,8 +91,8 @@ NSString * const kCMISErrorDescriptionVersioning = @"Versioning Error";
 + (NSString *)localizedDescriptionForCode:(CMISErrorCodes)code
 {
     switch (code) {
-        case kCMISErrorCodeNoReturn:
-            return kCMISErrorDescriptionNoReturn;
+        case kCMISErrorCodeUnknown:
+            return kCMISErrorDescriptionUnknown;
         case kCMISErrorCodeConnection:
             return kCMISErrorDescriptionConnection;
         case kCMISErrorCodeProxyAuthentication:
@@ -106,6 +107,8 @@ NSString * const kCMISErrorDescriptionVersioning = @"Versioning Error";
             return kCMISErrorDescriptionCancelled;
         case kCMISErrorCodeParsingFailed:
             return kCMISErrorDescriptionParsingFailed;
+        case kCMISErrorCodeNoNetworkConnection:
+            return kCMISErrorDescriptionNoNetworkConnection;
         case kCMISErrorCodeInvalidArgument:
             return kCMISErrorDescriptionInvalidArgument;
         case kCMISErrorCodeObjectNotFound:
@@ -133,7 +136,7 @@ NSString * const kCMISErrorDescriptionVersioning = @"Versioning Error";
         case kCMISErrorCodeVersioning:
             return kCMISErrorDescriptionVersioning;
         default:
-            return kCMISErrorDescriptionNoReturn;
+            return kCMISErrorDescriptionUnknown;
     }
     
 }

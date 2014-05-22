@@ -140,6 +140,10 @@
 		5892CC15192CB91300C7734A /* CMISNSDictionary+CMISUtil.h in Headers */ = {isa = PBXBuildFile; fileRef = 5892CC11192CB91300C7734A /* CMISNSDictionary+CMISUtil.h */; };
 		5892CC16192CB91300C7734A /* CMISNSDictionary+CMISUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 5892CC12192CB91300C7734A /* CMISNSDictionary+CMISUtil.m */; };
 		5892CC17192CB93E00C7734A /* CMISNSDictionary+CMISUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 5892CC12192CB91300C7734A /* CMISNSDictionary+CMISUtil.m */; };
+		5892CC1A192CE23F00C7734A /* CMISReachability.h in Headers */ = {isa = PBXBuildFile; fileRef = 5892CC18192CE23F00C7734A /* CMISReachability.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		5892CC1B192CE23F00C7734A /* CMISReachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 5892CC19192CE23F00C7734A /* CMISReachability.m */; };
+		5892CC20192CEE3E00C7734A /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5892CC1F192CEE3E00C7734A /* SystemConfiguration.framework */; };
+		5892CC21192CEE4B00C7734A /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5892CC1F192CEE3E00C7734A /* SystemConfiguration.framework */; };
 		750CB2BE159C56A5004576F7 /* AllowableActions.xml in Resources */ = {isa = PBXBuildFile; fileRef = 750CB2BB159C56A5004576F7 /* AllowableActions.xml */; };
 		750CB2BF159C56A5004576F7 /* FolderChildren-webscripts.xml in Resources */ = {isa = PBXBuildFile; fileRef = 750CB2BC159C56A5004576F7 /* FolderChildren-webscripts.xml */; };
 		750CB2C0159C56A5004576F7 /* FolderChildren-opencmis.xml in Resources */ = {isa = PBXBuildFile; fileRef = 750CB2BD159C56A5004576F7 /* FolderChildren-opencmis.xml */; };
@@ -386,6 +390,10 @@
 		5892CC10192CB91300C7734A /* CMISMimeHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CMISMimeHelper.m; path = Utils/CMISMimeHelper.m; sourceTree = "<group>"; };
 		5892CC11192CB91300C7734A /* CMISNSDictionary+CMISUtil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "CMISNSDictionary+CMISUtil.h"; path = "Utils/CMISNSDictionary+CMISUtil.h"; sourceTree = "<group>"; };
 		5892CC12192CB91300C7734A /* CMISNSDictionary+CMISUtil.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "CMISNSDictionary+CMISUtil.m"; path = "Utils/CMISNSDictionary+CMISUtil.m"; sourceTree = "<group>"; };
+		5892CC18192CE23F00C7734A /* CMISReachability.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CMISReachability.h; path = Utils/CMISReachability.h; sourceTree = "<group>"; };
+		5892CC19192CE23F00C7734A /* CMISReachability.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CMISReachability.m; path = Utils/CMISReachability.m; sourceTree = "<group>"; };
+		5892CC1C192CE2F700C7734A /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
+		5892CC1F192CEE3E00C7734A /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		750CB2BB159C56A5004576F7 /* AllowableActions.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = AllowableActions.xml; sourceTree = "<group>"; };
 		750CB2BC159C56A5004576F7 /* FolderChildren-webscripts.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = "FolderChildren-webscripts.xml"; sourceTree = "<group>"; };
 		750CB2BD159C56A5004576F7 /* FolderChildren-opencmis.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = "FolderChildren-opencmis.xml"; sourceTree = "<group>"; };
@@ -516,6 +524,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5892CC20192CEE3E00C7734A /* SystemConfiguration.framework in Frameworks */,
 				828072A715153DE800EF635C /* Foundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -524,6 +533,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5892CC21192CEE4B00C7734A /* SystemConfiguration.framework in Frameworks */,
 				828073DE15154F9400EF635C /* MobileCoreServices.framework in Frameworks */,
 				828072B815153DE900EF635C /* Foundation.framework in Frameworks */,
 				828072BB15153DE900EF635C /* libObjectiveCMIS.a in Frameworks */,
@@ -611,6 +621,8 @@
 		828072A515153DE800EF635C /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				5892CC1F192CEE3E00C7734A /* SystemConfiguration.framework */,
+				5892CC1C192CE2F700C7734A /* Security.framework */,
 				82807383151542F400EF635C /* MobileCoreServices.framework */,
 				828072A615153DE800EF635C /* Foundation.framework */,
 			);
@@ -818,6 +830,8 @@
 				5892CC12192CB91300C7734A /* CMISNSDictionary+CMISUtil.m */,
 				828073291515407000EF635C /* CMISObjectConverter.h */,
 				8280732A1515407000EF635C /* CMISObjectConverter.m */,
+				5892CC18192CE23F00C7734A /* CMISReachability.h */,
+				5892CC19192CE23F00C7734A /* CMISReachability.m */,
 				4EA61BD31564F70C00C759E4 /* CMISStringInOutParameter.h */,
 				4EA61BD41564F70C00C759E4 /* CMISStringInOutParameter.m */,
 				4EA61BD51564F70C00C759E4 /* CMISURLUtil.h */,
@@ -984,6 +998,7 @@
 				FE417D5715761A0C009056AA /* CMISOperationContext.h in Headers */,
 				5892CB80192CB65D00C7734A /* CMISFolderTypeDefinition.h in Headers */,
 				FE417D5915761A0C009056AA /* CMISPagedResult.h in Headers */,
+				5892CC1A192CE23F00C7734A /* CMISReachability.h in Headers */,
 				FE417D6315761A34009056AA /* CMISLinkCache.h in Headers */,
 				FE417D6515761A34009056AA /* CMISPropertyDefinition.h in Headers */,
 				FE417D6715761A34009056AA /* CMISTypeDefinition.h in Headers */,
@@ -1208,6 +1223,7 @@
 				5892CBBC192CB7D900C7734A /* CMISAtomEntryParser.m in Sources */,
 				4EA61BEA1564F75000C759E4 /* CMISErrors.m in Sources */,
 				5892CB75192CB5DF00C7734A /* CMISLinkRelations.m in Sources */,
+				5892CC1B192CE23F00C7734A /* CMISReachability.m in Sources */,
 				752067F6156AC06300231A5D /* CMISExtensionData.m in Sources */,
 				5892CBF9192CB83800C7734A /* CMISBroswerFormDataWriter.m in Sources */,
 				752067FB156AC0FE00231A5D /* CMISExtensionElement.m in Sources */,
@@ -1367,6 +1383,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
+				CLANG_ENABLE_MODULES = YES;
 				DSTROOT = /tmp/ObjectiveCMIS.dst;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "ObjectiveCMIS/ObjectiveCMIS-Prefix.pch";
@@ -1383,6 +1400,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
+				CLANG_ENABLE_MODULES = YES;
 				DSTROOT = /tmp/ObjectiveCMIS.dst;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "ObjectiveCMIS/ObjectiveCMIS-Prefix.pch";
@@ -1399,6 +1417,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
+				CLANG_ENABLE_MODULES = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
@@ -1414,6 +1433,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
+				CLANG_ENABLE_MODULES = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",

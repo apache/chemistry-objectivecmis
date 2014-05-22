@@ -21,6 +21,7 @@
 #import "CMISHttpResponse.h"
 #import "CMISErrors.h"
 #import "CMISLog.h"
+#import "CMISReachability.h"
 
 //Exception names as returned in the <!--exception> tag
 NSString * const kCMISExceptionInvalidArgument         = @"invalidArgument";
@@ -76,6 +77,8 @@ NSString * const kCMISExceptionVersioning              = @"versioning";
 
 - (BOOL)startRequest:(NSMutableURLRequest*)urlRequest
 {
+    BOOL startedRequest = NO;
+
     if (self.requestBody) {
         if ([CMISLog sharedInstance].logLevel == CMISLogLevelTrace) {
             CMISLogTrace(@"Request body: %@", [[NSString alloc] initWithData:self.requestBody encoding:NSUTF8StringEncoding]);
@@ -93,18 +96,25 @@ NSString * const kCMISExceptionVersioning              = @"versioning";
     }];
     
     self.connection = [[NSURLConnection alloc] initWithRequest:urlRequest delegate:self startImmediately:NO];
-    if (self.connection) {
+    CMISReachability *reachability = [CMISReachability networkReachability];
+    
+    if (self.connection && reachability.hasNetworkConnection) {
         [self.connection scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:NSRunLoopCommonModes];
         [self.connection start];
-        return YES;
-    } else {
+        startedRequest = YES;
+    } else if (!reachability.hasNetworkConnection) {
+        NSError *noConnectionError = [CMISErrors createCMISErrorWithCode:kCMISErrorCodeNoNetworkConnection detailedDescription:kCMISErrorDescriptionNoNetworkConnection];
+        [self connection:self.connection didFailWithError:noConnectionError];
+    }
+    else {
         if (self.completionBlock) {
             NSString *detailedDescription = [NSString stringWithFormat:@"Could not create connection to %@", urlRequest.URL];
             NSError *cmisError = [CMISErrors createCMISErrorWithCode:kCMISErrorCodeConnection detailedDescription:detailedDescription];
             self.completionBlock(nil, cmisError);
         }
-        return NO;
     }
+    
+    return startedRequest;
 }
 
 - (void)cancel
@@ -163,7 +173,15 @@ NSString * const kCMISExceptionVersioning              = @"versioning";
     [self.authenticationProvider updateWithHttpURLResponse:self.response];
 
     if (self.completionBlock) {
-        CMISErrorCodes cmisErrorCode = (error.code == NSURLErrorCancelled) ? kCMISErrorCodeCancelled : kCMISErrorCodeConnection;
+        CMISErrorCodes cmisErrorCode = kCMISErrorCodeConnection;
+        
+        // swap error code if necessary
+        if (error.code == NSURLErrorCancelled) {
+            cmisErrorCode = kCMISErrorCodeCancelled;
+        } else if (error.code == kCMISErrorCodeNoNetworkConnection) {
+            cmisErrorCode = kCMISErrorCodeNoNetworkConnection;
+        }
+        
         NSError *cmisError = [CMISErrors cmisError:error cmisErrorCode:cmisErrorCode];
         self.completionBlock(nil, cmisError);
     }
