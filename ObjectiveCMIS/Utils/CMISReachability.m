@@ -108,6 +108,10 @@ void handleFlags(SCNetworkReachabilityFlags flags)
             [returnReachability startNotifier];
         }
     }
+    else
+    {
+        CMISLogWarning(@"Failed to create reachability reference for address %@", hostAddress);
+    }
     
     return returnReachability;
 }
@@ -124,6 +128,14 @@ void handleFlags(SCNetworkReachabilityFlags flags)
         {
             started = YES;
         }
+        else
+        {
+            CMISLogWarning(@"Failed to schedule network reachability with run loop");
+        }
+    }
+    else
+    {
+        CMISLogWarning(@"Failed to set network reachability callback");
     }
     
     return started;
@@ -135,7 +147,14 @@ void handleFlags(SCNetworkReachabilityFlags flags)
     
     if (self.networkReachabilityRef != NULL)
     {
-        SCNetworkReachabilityUnscheduleFromRunLoop(self.networkReachabilityRef, CFRunLoopGetCurrent(), kCFRunLoopDefaultMode);
+        if (SCNetworkReachabilityUnscheduleFromRunLoop(self.networkReachabilityRef, CFRunLoopGetCurrent(), kCFRunLoopDefaultMode))
+        {
+            stopped = YES;
+        }
+        else
+        {
+            CMISLogWarning(@"Failed to unschedule network reachability from run loop");
+        }
     }
     
     return stopped;

@@ -223,7 +223,7 @@
     // Validate params
     if (!objectId) {
         CMISLogError(@"Must provide an objectId when checking in");
-        completionBlock(NO, [CMISErrors createCMISErrorWithCode:kCMISErrorCodeObjectNotFound detailedDescription:nil]);
+        completionBlock(nil, [CMISErrors createCMISErrorWithCode:kCMISErrorCodeObjectNotFound detailedDescription:nil]);
         return nil;
     }
     

@@ -14,9 +14,9 @@
 			<key>password</key>
 			<string>unittest</string>
 			<key>url</key>
-			<string>http://ec2-54-247-141-218.eu-west-1.compute.amazonaws.com/alfresco/service/api/cmis</string>
+			<string>http://ec2-176-34-173-67.eu-west-1.compute.amazonaws.com/alfresco/service/api/cmis</string>
 			<key>repositoryId</key>
-			<string>368eca28-be2b-4a8d-8bbb-1d7997af7930</string>
+			<string>62e5f6d6-7c82-47f8-ad45-c2cbcc5a4e23</string>
 		</dict>
 		<dict>
 			<key>disabled</key>
@@ -28,9 +28,9 @@
 			<key>password</key>
 			<string>unittest</string>
 			<key>url</key>
-			<string>http://ec2-54-247-141-218.eu-west-1.compute.amazonaws.com/alfresco/cmisatom</string>
+			<string>http://ec2-176-34-173-67.eu-west-1.compute.amazonaws.com/alfresco/cmisatom</string>
 			<key>repositoryId</key>
-			<string>368eca28-be2b-4a8d-8bbb-1d7997af7930</string>
+			<string>62e5f6d6-7c82-47f8-ad45-c2cbcc5a4e23</string>
 		</dict>
 		<dict>
 			<key>disabled</key>

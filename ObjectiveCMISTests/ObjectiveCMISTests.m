@@ -452,7 +452,7 @@
 
                  self.testCompleted = YES;
              } progressBlock:^(unsigned long long bytesDownloaded, unsigned long long bytesTotal) {
-                 CMISLogDebug(@"download progress %i/%i", bytesDownloaded, bytesTotal);
+                 CMISLogDebug(@"download progress %llu/%llu", bytesDownloaded, bytesTotal);
                  if (bytesDownloaded > 0) { // as soon as some data was downloaded cancel the request
                      [self.request cancel];
                      CMISLogDebug(@"download cancelled");
@@ -505,7 +505,7 @@
                                                     }];
                                                 }
                                                   progressBlock: ^ (unsigned long long uploadedBytes, unsigned long long totalBytes) {
-                                                      CMISLogDebug(@"upload progress %i/%i", uploadedBytes, totalBytes);
+                                                      CMISLogDebug(@"upload progress %llu/%llu", uploadedBytes, totalBytes);
                                                       if (uploadedBytes > 0) {
                                                           // as soon as some data was uploaded cancel the request
                                                           [self.request cancel];
@@ -2061,10 +2061,10 @@
                         }];
                         
                     } progressBlock:^(unsigned long long bytesDownloaded, unsigned long long bytesTotal) {
-                          CMISLogDebug(@"download progress %i/%i", bytesDownloaded, bytesTotal);
+                          CMISLogDebug(@"download progress %llu/%llu", bytesDownloaded, bytesTotal);
                     }];
                 } progressBlock:^(unsigned long long bytesUploaded, unsigned long long bytesTotal) {
-                      CMISLogDebug(@"upload progress %i/%i", bytesUploaded, bytesTotal);
+                      CMISLogDebug(@"upload progress %llu/%llu", bytesUploaded, bytesTotal);
                 }];
             }];
         }];
@@ -2104,6 +2104,102 @@
                 }];
             }];
         }];
+    }];
+}
+
+- (void)testSecondaryTypes
+{
+    [self runTest:^ {
+        
+        // only run this test on servers that support the 1.1 CMIS spec.
+        if ([self.session.repositoryInfo.cmisVersionSupported isEqualToString:@"1.1"])
+        {
+            NSString *filePath = [[NSBundle bundleForClass:[self class]] pathForResource:@"test_file.txt" ofType:nil];
+            XCTAssertTrue([[NSFileManager defaultManager] fileExistsAtPath:filePath],
+                          @"Test file 'test_file.txt' cannot be found as resource for the test");
+            
+            // Upload test file
+            NSString *documentName = [NSString stringWithFormat:@"test_file_%@.txt", [self stringFromCurrentDate]];
+            NSMutableDictionary *documentProperties = [NSMutableDictionary dictionary];
+            [documentProperties setObject:documentName forKey:kCMISPropertyName];
+            [documentProperties setObject:kCMISPropertyObjectTypeIdValueDocument forKey:kCMISPropertyObjectTypeId];
+            
+            // add cm:titled secondary type
+            [documentProperties setObject:[NSArray arrayWithObject:@"P:cm:titled"] forKey:kCMISPropertySecondaryObjectTypeIds];
+            
+            [self.rootFolder createDocumentFromFilePath:filePath mimeType:@"text/plain" properties:documentProperties completionBlock:^ (NSString *objectId, NSError *createError) {
+                
+                if (objectId) {
+                    XCTAssertNotNil(objectId, @"Object id received should be non-nil");
+                    
+                    // Verify creation
+                    [self.session retrieveObject:objectId completionBlock:^(CMISObject *object, NSError *retrieveError) {
+                        CMISDocument *document = (CMISDocument *)object;
+                        XCTAssertTrue([documentName isEqualToString:document.name],
+                                      @"Document name of created document is wrong: should be %@, but was %@", documentName, document.name);
+                        
+                        // ensure the "titled" aspect/secondary type is present
+                        CMISProperties *createdProperties = document.properties;
+                        CMISPropertyData *secondaryTypesProperty = [createdProperties propertyForId:kCMISPropertySecondaryObjectTypeIds];
+                        XCTAssertNotNil(secondaryTypesProperty, @"Expected secondary types property to be present");
+                        
+                        NSArray *secondaryTypesValues = secondaryTypesProperty.values;
+                        XCTAssertNotNil(secondaryTypesValues, @"Expected secondary types property to have a value");
+                        
+                        // we should have the cm:titled and cm:author secondary types in the array
+                        XCTAssertTrue([secondaryTypesValues containsObject:@"P:cm:titled"],
+                                      @"Expected secondary types values to contain P:cm:titled but it was %@", secondaryTypesValues);
+                        XCTAssertTrue([secondaryTypesValues containsObject:@"P:cm:author"],
+                                      @"Expected secondary types values to contain P:cm:author but it was %@", secondaryTypesValues);
+                        
+                        // add and remove a secondary type value
+                        NSMutableArray *updatedValues = [NSMutableArray arrayWithArray:secondaryTypesValues];
+                        [updatedValues removeObject:@"P:cm:titled"];
+                        [updatedValues addObject:@"P:exif:exif"];
+                        
+                        NSMutableDictionary *updatedProperties = [NSMutableDictionary dictionary];
+                        [updatedProperties setObject:updatedValues forKey:kCMISPropertySecondaryObjectTypeIds];
+                        
+                        [document updateProperties:updatedProperties completionBlock:^(CMISObject *updatedObject, NSError *updateError) {
+                            if (object != nil) {
+                                
+                                CMISDocument *updatedDocument = (CMISDocument *)updatedObject;
+                                CMISPropertyData *updatedSecondaryTypesProperty = [updatedDocument.properties propertyForId:kCMISPropertySecondaryObjectTypeIds];
+                                XCTAssertNotNil(updatedSecondaryTypesProperty, @"Expected updated secondary types property to be present");
+                                
+                                // check it contains the correct entries
+                                XCTAssertTrue([updatedSecondaryTypesProperty.values containsObject:@"P:exif:exif"],
+                                              @"Expected the updated secondary types property to contain exif:exif but it was %@", updatedSecondaryTypesProperty.values);
+                                XCTAssertFalse([updatedSecondaryTypesProperty.values containsObject:@"P:cm:titled"],
+                                              @"Expected cm:titled to be missing from the updated secondary types property but it was %@", updatedSecondaryTypesProperty.values);
+                                
+                                // Cleanup after ourselves
+                                [document deleteAllVersionsWithCompletionBlock:^(BOOL documentDeleted, NSError *deleteError) {
+                                    XCTAssertNil(deleteError, @"Error while deleting created document: %@", [deleteError description]);
+                                    XCTAssertTrue(documentDeleted, @"Document was not deleted");
+                                    
+                                    self.testCompleted = YES;
+                                }];
+                            }
+                            else
+                            {
+                                XCTAssertNil(updateError, @"Got error while updating document: %@", [updateError description]);
+                                self.testCompleted = YES;
+                            }
+                        }];
+                    }];
+                } else {
+                    XCTAssertNil(createError, @"Got error while creating document: %@", [createError description]);
+                    
+                    self.testCompleted = YES;
+                }
+            }
+            progressBlock: nil];
+        }
+        else
+        {
+            self.testCompleted = YES;
+        }
     }];
 }
 

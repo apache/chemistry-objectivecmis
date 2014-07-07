@@ -34,7 +34,8 @@
         } else if ([capabilityValue isEqualToString:@"manage"]) {
             self.capabilityAcl = CMISCapabilityAclManage;
         } else {
-            CMISLogWarning(@"WARNING: Unknown Repository Capability ACL Value");
+            self.capabilityAcl = CMISCapabilityAclNone;
+            CMISLogWarning(@"WARNING: Unknown Repository Capability ACL Value: %@, defaulting to none", capabilityValue);
         }
     } else if ([capabilityKey isEqualToString:kCMISRepositoryCapabilityChanges]) {
         if ([capabilityValue isEqualToString:@"none"]) {
@@ -46,7 +47,8 @@
         } else if ([capabilityValue isEqualToString:@"all"]) {
             self.capabilityChanges = CMISCapabilityChangesAll;
         } else {
-            CMISLogWarning(@"WARNING: Unknown Repository Capability Changes Value");
+            self.capabilityChanges = CMISCapabilityChangesNone;
+            CMISLogWarning(@"WARNING: Unknown Repository Capability Changes Value: %@, defaulting to none", capabilityValue);
         }
     } else if ([capabilityKey isEqualToString:kCMISRepositoryCapabilityContentStreamUpdatability]) {
         if ([capabilityValue isEqualToString:@"none"]) {
@@ -56,7 +58,8 @@
         } else if ([capabilityValue isEqualToString:@"pwconly"]) {
             self.capabilityContentStreamUpdates = CMISCapabilityContentStreamUpdatesPwcOnly;
         } else {
-            CMISLogWarning(@"WARNING: Unknown Repository Capability Updatability Value");
+            self.capabilityContentStreamUpdates = CMISCapabilityContentStreamUpdatesNone;
+            CMISLogWarning(@"WARNING: Unknown Repository Capability Updatability Value: %@, defaulting to none", capabilityValue);
         }
     } else if ([capabilityKey isEqualToString:kCMISRepositoryCapabilityGetDescendants]) {
         self.supportsGetDescendants = [capabilityValue boolValue];
@@ -70,7 +73,8 @@
         } else if ([capabilityValue isEqualToString:@"innerandouter"]) {
             self.capabilityJoin = CMISCapabilityJoinInnerAndOuter;
         } else {
-            CMISLogWarning(@"WARNING: Unknown Repository Capability Join Value");
+            self.capabilityJoin = CMISCapabilityJoinNone;
+            CMISLogWarning(@"WARNING: Unknown Repository Capability Join Value: %@, defaulting to none", capabilityValue);
         }
     } else if ([capabilityKey isEqualToString:kCMISRepositoryCapabilityQuery]) {
         if ([capabilityValue isEqualToString:@"none"]) {
@@ -84,7 +88,8 @@
         } else if ([capabilityValue isEqualToString:@"bothcombined"]) {
             self.capabilityQuery = CMISCapabilityQueryBothCombined;
         } else {
-            CMISLogWarning(@"WARNING: Unknown Repository Capability Query Value");
+            self.capabilityQuery = CMISCapabilityQueryNone;
+            CMISLogWarning(@"WARNING: Unknown Repository Capability Query Value: %@, defaulting to none", capabilityValue);
         }
     } else if ([capabilityKey isEqualToString:kCMISRepositoryCapabilityMultifiling]) {
         self.supportsMultifiling = [capabilityValue boolValue];
@@ -96,7 +101,8 @@
         } else if ([capabilityValue isEqualToString:@"custom"]) {
             self.capabilityOrderBy = CMISCapabilityOrderByCustom;
         } else {
-            CMISLogWarning(@"WARNING: Unknown Repository Capability Order By Value");
+            self.capabilityOrderBy = CMISCapabilityOrderByNone;
+            CMISLogWarning(@"WARNING: Unknown Repository Capability Order By Value: %@, defaulting to none", capabilityValue);
         }
     } else if ([capabilityKey isEqualToString:kCMISRepositoryCapabilityPropertyTypes]) {
         if(capabilityValue) {
@@ -109,11 +115,12 @@
         self.pwcUpdatable = [capabilityValue boolValue];
     } else if ([capabilityKey isEqualToString:kCMISRepositoryCapabilityRenditions]) {
         if ([capabilityValue isEqualToString:@"none"]) {
-            self.capabilityRendition = CMISCapabilityOrderByNone;
+            self.capabilityRendition = CMISCapabilityRenditionsNone;
         } else if ([capabilityValue isEqualToString:@"read"]) {
-            self.capabilityRendition = CMISCapabilityOrderByCommon;
+            self.capabilityRendition = CMISCapabilityRenditionsRead;
         } else {
-            CMISLogWarning(@"WARNING: Unknown Repository Renditions Value");
+            self.capabilityRendition = CMISCapabilityRenditionsNone;
+            CMISLogWarning(@"WARNING: Unknown Repository Renditions Value: %@, defaulting to none", capabilityValue);
         }
     } else if ([capabilityKey isEqualToString:kCMISRepositoryCapabilityVersionSpecificFiling]) {
         self.supportsVersionSpecificFiling = [capabilityValue boolValue];
@@ -125,7 +132,7 @@
     } else if ([capabilityKey isEqualToString:kCMISRepositoryCapabilityUnfiling]) {
         self.supportsUnfiling = [capabilityValue boolValue];
     } else {
-        CMISLogWarning(@"WARNING: Unknown Repository Capability Key");
+        CMISLogWarning(@"WARNING: Unknown Repository Capability Key: %@", capabilityKey);
     }
 }
 
