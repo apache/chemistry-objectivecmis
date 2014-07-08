@@ -27,11 +27,11 @@
 		258998DE18D73D5A0091BA96 /* CMISAcl.m in Sources */ = {isa = PBXBuildFile; fileRef = 258998DA18D73D5A0091BA96 /* CMISAcl.m */; };
 		258998E118D73D900091BA96 /* CMISPrincipal.h in Headers */ = {isa = PBXBuildFile; fileRef = 258998DF18D73D900091BA96 /* CMISPrincipal.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		258998E218D73D900091BA96 /* CMISPrincipal.m in Sources */ = {isa = PBXBuildFile; fileRef = 258998E018D73D900091BA96 /* CMISPrincipal.m */; };
-		25F7211F1907E0FE00B2FD66 /* CMISCreatablePropertyTypes.h in Headers */ = {isa = PBXBuildFile; fileRef = 25F721191907E0FE00B2FD66 /* CMISCreatablePropertyTypes.h */; };
+		25F7211F1907E0FE00B2FD66 /* CMISCreatablePropertyTypes.h in Headers */ = {isa = PBXBuildFile; fileRef = 25F721191907E0FE00B2FD66 /* CMISCreatablePropertyTypes.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		25F721201907E0FE00B2FD66 /* CMISCreatablePropertyTypes.m in Sources */ = {isa = PBXBuildFile; fileRef = 25F7211A1907E0FE00B2FD66 /* CMISCreatablePropertyTypes.m */; };
-		25F721211907E0FE00B2FD66 /* CMISNewTypeSettableAttributes.h in Headers */ = {isa = PBXBuildFile; fileRef = 25F7211B1907E0FE00B2FD66 /* CMISNewTypeSettableAttributes.h */; };
+		25F721211907E0FE00B2FD66 /* CMISNewTypeSettableAttributes.h in Headers */ = {isa = PBXBuildFile; fileRef = 25F7211B1907E0FE00B2FD66 /* CMISNewTypeSettableAttributes.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		25F721221907E0FE00B2FD66 /* CMISNewTypeSettableAttributes.m in Sources */ = {isa = PBXBuildFile; fileRef = 25F7211C1907E0FE00B2FD66 /* CMISNewTypeSettableAttributes.m */; };
-		25F721231907E0FE00B2FD66 /* CMISRepositoryCapabilities.h in Headers */ = {isa = PBXBuildFile; fileRef = 25F7211D1907E0FE00B2FD66 /* CMISRepositoryCapabilities.h */; };
+		25F721231907E0FE00B2FD66 /* CMISRepositoryCapabilities.h in Headers */ = {isa = PBXBuildFile; fileRef = 25F7211D1907E0FE00B2FD66 /* CMISRepositoryCapabilities.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		25F721241907E0FE00B2FD66 /* CMISRepositoryCapabilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 25F7211E1907E0FE00B2FD66 /* CMISRepositoryCapabilities.m */; };
 		278B269C177BB10B0049C229 /* CMISStandardAuthenticationProvider.h in Headers */ = {isa = PBXBuildFile; fileRef = 82C1C62C153427E4009B7B3D /* CMISStandardAuthenticationProvider.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		278B269F177BB3000049C229 /* CMISStandardUntrustedSSLAuthenticationProvider.h in Headers */ = {isa = PBXBuildFile; fileRef = 278B269D177BB3000049C229 /* CMISStandardUntrustedSSLAuthenticationProvider.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -60,84 +60,84 @@
 		4EA61BE91564F75000C759E4 /* CMISErrors.h in Headers */ = {isa = PBXBuildFile; fileRef = 4EA61BE71564F75000C759E4 /* CMISErrors.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4EA61BEA1564F75000C759E4 /* CMISErrors.m in Sources */ = {isa = PBXBuildFile; fileRef = 4EA61BE81564F75000C759E4 /* CMISErrors.m */; };
 		4EA61BEB1564F75000C759E4 /* CMISErrors.m in Sources */ = {isa = PBXBuildFile; fileRef = 4EA61BE81564F75000C759E4 /* CMISErrors.m */; };
-		5892CB74192CB5DF00C7734A /* CMISLinkRelations.h in Headers */ = {isa = PBXBuildFile; fileRef = 5892CB72192CB5DF00C7734A /* CMISLinkRelations.h */; };
+		5892CB74192CB5DF00C7734A /* CMISLinkRelations.h in Headers */ = {isa = PBXBuildFile; fileRef = 5892CB72192CB5DF00C7734A /* CMISLinkRelations.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5892CB75192CB5DF00C7734A /* CMISLinkRelations.m in Sources */ = {isa = PBXBuildFile; fileRef = 5892CB73192CB5DF00C7734A /* CMISLinkRelations.m */; };
-		5892CB80192CB65D00C7734A /* CMISFolderTypeDefinition.h in Headers */ = {isa = PBXBuildFile; fileRef = 5892CB76192CB65D00C7734A /* CMISFolderTypeDefinition.h */; };
+		5892CB80192CB65D00C7734A /* CMISFolderTypeDefinition.h in Headers */ = {isa = PBXBuildFile; fileRef = 5892CB76192CB65D00C7734A /* CMISFolderTypeDefinition.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5892CB81192CB65D00C7734A /* CMISFolderTypeDefinition.m in Sources */ = {isa = PBXBuildFile; fileRef = 5892CB77192CB65D00C7734A /* CMISFolderTypeDefinition.m */; };
-		5892CB82192CB65D00C7734A /* CMISItemTypeDefinition.h in Headers */ = {isa = PBXBuildFile; fileRef = 5892CB78192CB65D00C7734A /* CMISItemTypeDefinition.h */; };
+		5892CB82192CB65D00C7734A /* CMISItemTypeDefinition.h in Headers */ = {isa = PBXBuildFile; fileRef = 5892CB78192CB65D00C7734A /* CMISItemTypeDefinition.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5892CB83192CB65D00C7734A /* CMISItemTypeDefinition.m in Sources */ = {isa = PBXBuildFile; fileRef = 5892CB79192CB65D00C7734A /* CMISItemTypeDefinition.m */; };
-		5892CB84192CB65D00C7734A /* CMISRelationshipTypeDefinition.h in Headers */ = {isa = PBXBuildFile; fileRef = 5892CB7A192CB65D00C7734A /* CMISRelationshipTypeDefinition.h */; };
+		5892CB84192CB65D00C7734A /* CMISRelationshipTypeDefinition.h in Headers */ = {isa = PBXBuildFile; fileRef = 5892CB7A192CB65D00C7734A /* CMISRelationshipTypeDefinition.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5892CB85192CB65D00C7734A /* CMISRelationshipTypeDefinition.m in Sources */ = {isa = PBXBuildFile; fileRef = 5892CB7B192CB65D00C7734A /* CMISRelationshipTypeDefinition.m */; };
-		5892CB86192CB65D00C7734A /* CMISSecondaryTypeDefinition.h in Headers */ = {isa = PBXBuildFile; fileRef = 5892CB7C192CB65D00C7734A /* CMISSecondaryTypeDefinition.h */; };
+		5892CB86192CB65D00C7734A /* CMISSecondaryTypeDefinition.h in Headers */ = {isa = PBXBuildFile; fileRef = 5892CB7C192CB65D00C7734A /* CMISSecondaryTypeDefinition.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5892CB87192CB65D00C7734A /* CMISSecondaryTypeDefinition.m in Sources */ = {isa = PBXBuildFile; fileRef = 5892CB7D192CB65D00C7734A /* CMISSecondaryTypeDefinition.m */; };
-		5892CB88192CB65D00C7734A /* CMISTypeDefinitionCache.h in Headers */ = {isa = PBXBuildFile; fileRef = 5892CB7E192CB65D00C7734A /* CMISTypeDefinitionCache.h */; };
+		5892CB88192CB65D00C7734A /* CMISTypeDefinitionCache.h in Headers */ = {isa = PBXBuildFile; fileRef = 5892CB7E192CB65D00C7734A /* CMISTypeDefinitionCache.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5892CB89192CB65D00C7734A /* CMISTypeDefinitionCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 5892CB7F192CB65D00C7734A /* CMISTypeDefinitionCache.m */; };
-		5892CB92192CB73D00C7734A /* CMISAtomPubConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 5892CB8A192CB73D00C7734A /* CMISAtomPubConstants.h */; };
+		5892CB92192CB73D00C7734A /* CMISAtomPubConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 5892CB8A192CB73D00C7734A /* CMISAtomPubConstants.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5892CB93192CB73D00C7734A /* CMISAtomPubConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = 5892CB8B192CB73D00C7734A /* CMISAtomPubConstants.m */; };
-		5892CB94192CB73D00C7734A /* CMISAtomPubObjectByIdUriBuilder.h in Headers */ = {isa = PBXBuildFile; fileRef = 5892CB8C192CB73D00C7734A /* CMISAtomPubObjectByIdUriBuilder.h */; };
+		5892CB94192CB73D00C7734A /* CMISAtomPubObjectByIdUriBuilder.h in Headers */ = {isa = PBXBuildFile; fileRef = 5892CB8C192CB73D00C7734A /* CMISAtomPubObjectByIdUriBuilder.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5892CB95192CB73D00C7734A /* CMISAtomPubObjectByIdUriBuilder.m in Sources */ = {isa = PBXBuildFile; fileRef = 5892CB8D192CB73D00C7734A /* CMISAtomPubObjectByIdUriBuilder.m */; };
-		5892CB96192CB73D00C7734A /* CMISAtomPubObjectByPathUriBuilder.h in Headers */ = {isa = PBXBuildFile; fileRef = 5892CB8E192CB73D00C7734A /* CMISAtomPubObjectByPathUriBuilder.h */; };
+		5892CB96192CB73D00C7734A /* CMISAtomPubObjectByPathUriBuilder.h in Headers */ = {isa = PBXBuildFile; fileRef = 5892CB8E192CB73D00C7734A /* CMISAtomPubObjectByPathUriBuilder.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5892CB97192CB73D00C7734A /* CMISAtomPubObjectByPathUriBuilder.m in Sources */ = {isa = PBXBuildFile; fileRef = 5892CB8F192CB73D00C7734A /* CMISAtomPubObjectByPathUriBuilder.m */; };
-		5892CB98192CB73D00C7734A /* CMISAtomPubTypeByIdUriBuilder.h in Headers */ = {isa = PBXBuildFile; fileRef = 5892CB90192CB73D00C7734A /* CMISAtomPubTypeByIdUriBuilder.h */; };
+		5892CB98192CB73D00C7734A /* CMISAtomPubTypeByIdUriBuilder.h in Headers */ = {isa = PBXBuildFile; fileRef = 5892CB90192CB73D00C7734A /* CMISAtomPubTypeByIdUriBuilder.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5892CB99192CB73D00C7734A /* CMISAtomPubTypeByIdUriBuilder.m in Sources */ = {isa = PBXBuildFile; fileRef = 5892CB91192CB73D00C7734A /* CMISAtomPubTypeByIdUriBuilder.m */; };
-		5892CBBB192CB7D900C7734A /* CMISAtomEntryParser.h in Headers */ = {isa = PBXBuildFile; fileRef = 5892CB9A192CB7D900C7734A /* CMISAtomEntryParser.h */; };
+		5892CBBB192CB7D900C7734A /* CMISAtomEntryParser.h in Headers */ = {isa = PBXBuildFile; fileRef = 5892CB9A192CB7D900C7734A /* CMISAtomEntryParser.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5892CBBC192CB7D900C7734A /* CMISAtomEntryParser.m in Sources */ = {isa = PBXBuildFile; fileRef = 5892CB9B192CB7D900C7734A /* CMISAtomEntryParser.m */; };
-		5892CBBD192CB7D900C7734A /* CMISAtomEntryWriter.h in Headers */ = {isa = PBXBuildFile; fileRef = 5892CB9C192CB7D900C7734A /* CMISAtomEntryWriter.h */; };
+		5892CBBD192CB7D900C7734A /* CMISAtomEntryWriter.h in Headers */ = {isa = PBXBuildFile; fileRef = 5892CB9C192CB7D900C7734A /* CMISAtomEntryWriter.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5892CBBE192CB7D900C7734A /* CMISAtomEntryWriter.m in Sources */ = {isa = PBXBuildFile; fileRef = 5892CB9D192CB7D900C7734A /* CMISAtomEntryWriter.m */; };
-		5892CBBF192CB7D900C7734A /* CMISAtomFeedParser.h in Headers */ = {isa = PBXBuildFile; fileRef = 5892CB9E192CB7D900C7734A /* CMISAtomFeedParser.h */; };
+		5892CBBF192CB7D900C7734A /* CMISAtomFeedParser.h in Headers */ = {isa = PBXBuildFile; fileRef = 5892CB9E192CB7D900C7734A /* CMISAtomFeedParser.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5892CBC0192CB7D900C7734A /* CMISAtomFeedParser.m in Sources */ = {isa = PBXBuildFile; fileRef = 5892CB9F192CB7D900C7734A /* CMISAtomFeedParser.m */; };
-		5892CBC1192CB7D900C7734A /* CMISAtomPubAceParser.h in Headers */ = {isa = PBXBuildFile; fileRef = 5892CBA0192CB7D900C7734A /* CMISAtomPubAceParser.h */; };
+		5892CBC1192CB7D900C7734A /* CMISAtomPubAceParser.h in Headers */ = {isa = PBXBuildFile; fileRef = 5892CBA0192CB7D900C7734A /* CMISAtomPubAceParser.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5892CBC2192CB7D900C7734A /* CMISAtomPubAceParser.m in Sources */ = {isa = PBXBuildFile; fileRef = 5892CBA1192CB7D900C7734A /* CMISAtomPubAceParser.m */; };
-		5892CBC3192CB7D900C7734A /* CMISAtomPubAclParser.h in Headers */ = {isa = PBXBuildFile; fileRef = 5892CBA2192CB7D900C7734A /* CMISAtomPubAclParser.h */; };
+		5892CBC3192CB7D900C7734A /* CMISAtomPubAclParser.h in Headers */ = {isa = PBXBuildFile; fileRef = 5892CBA2192CB7D900C7734A /* CMISAtomPubAclParser.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5892CBC4192CB7D900C7734A /* CMISAtomPubAclParser.m in Sources */ = {isa = PBXBuildFile; fileRef = 5892CBA3192CB7D900C7734A /* CMISAtomPubAclParser.m */; };
-		5892CBC5192CB7D900C7734A /* CMISAtomPubAllowableActionsParser.h in Headers */ = {isa = PBXBuildFile; fileRef = 5892CBA4192CB7D900C7734A /* CMISAtomPubAllowableActionsParser.h */; };
+		5892CBC5192CB7D900C7734A /* CMISAtomPubAllowableActionsParser.h in Headers */ = {isa = PBXBuildFile; fileRef = 5892CBA4192CB7D900C7734A /* CMISAtomPubAllowableActionsParser.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5892CBC6192CB7D900C7734A /* CMISAtomPubAllowableActionsParser.m in Sources */ = {isa = PBXBuildFile; fileRef = 5892CBA5192CB7D900C7734A /* CMISAtomPubAllowableActionsParser.m */; };
-		5892CBC9192CB7D900C7734A /* CMISAtomPubExtensionDataParserBase.h in Headers */ = {isa = PBXBuildFile; fileRef = 5892CBA8192CB7D900C7734A /* CMISAtomPubExtensionDataParserBase.h */; };
+		5892CBC9192CB7D900C7734A /* CMISAtomPubExtensionDataParserBase.h in Headers */ = {isa = PBXBuildFile; fileRef = 5892CBA8192CB7D900C7734A /* CMISAtomPubExtensionDataParserBase.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5892CBCA192CB7D900C7734A /* CMISAtomPubExtensionDataParserBase.m in Sources */ = {isa = PBXBuildFile; fileRef = 5892CBA9192CB7D900C7734A /* CMISAtomPubExtensionDataParserBase.m */; };
-		5892CBCB192CB7D900C7734A /* CMISAtomPubExtensionElementParser.h in Headers */ = {isa = PBXBuildFile; fileRef = 5892CBAA192CB7D900C7734A /* CMISAtomPubExtensionElementParser.h */; };
+		5892CBCB192CB7D900C7734A /* CMISAtomPubExtensionElementParser.h in Headers */ = {isa = PBXBuildFile; fileRef = 5892CBAA192CB7D900C7734A /* CMISAtomPubExtensionElementParser.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5892CBCC192CB7D900C7734A /* CMISAtomPubExtensionElementParser.m in Sources */ = {isa = PBXBuildFile; fileRef = 5892CBAB192CB7D900C7734A /* CMISAtomPubExtensionElementParser.m */; };
-		5892CBCD192CB7D900C7734A /* CMISAtomPubParserUtil.h in Headers */ = {isa = PBXBuildFile; fileRef = 5892CBAC192CB7D900C7734A /* CMISAtomPubParserUtil.h */; };
+		5892CBCD192CB7D900C7734A /* CMISAtomPubParserUtil.h in Headers */ = {isa = PBXBuildFile; fileRef = 5892CBAC192CB7D900C7734A /* CMISAtomPubParserUtil.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5892CBCE192CB7D900C7734A /* CMISAtomPubParserUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 5892CBAD192CB7D900C7734A /* CMISAtomPubParserUtil.m */; };
-		5892CBCF192CB7D900C7734A /* CMISAtomPubPrincipalParser.h in Headers */ = {isa = PBXBuildFile; fileRef = 5892CBAE192CB7D900C7734A /* CMISAtomPubPrincipalParser.h */; };
+		5892CBCF192CB7D900C7734A /* CMISAtomPubPrincipalParser.h in Headers */ = {isa = PBXBuildFile; fileRef = 5892CBAE192CB7D900C7734A /* CMISAtomPubPrincipalParser.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5892CBD0192CB7D900C7734A /* CMISAtomPubPrincipalParser.m in Sources */ = {isa = PBXBuildFile; fileRef = 5892CBAF192CB7D900C7734A /* CMISAtomPubPrincipalParser.m */; };
-		5892CBD1192CB7D900C7734A /* CMISAtomPubPropertyDefinitionParser.h in Headers */ = {isa = PBXBuildFile; fileRef = 5892CBB0192CB7D900C7734A /* CMISAtomPubPropertyDefinitionParser.h */; };
+		5892CBD1192CB7D900C7734A /* CMISAtomPubPropertyDefinitionParser.h in Headers */ = {isa = PBXBuildFile; fileRef = 5892CBB0192CB7D900C7734A /* CMISAtomPubPropertyDefinitionParser.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5892CBD2192CB7D900C7734A /* CMISAtomPubPropertyDefinitionParser.m in Sources */ = {isa = PBXBuildFile; fileRef = 5892CBB1192CB7D900C7734A /* CMISAtomPubPropertyDefinitionParser.m */; };
-		5892CBD3192CB7D900C7734A /* CMISAtomPubRepositoryInfoParser.h in Headers */ = {isa = PBXBuildFile; fileRef = 5892CBB2192CB7D900C7734A /* CMISAtomPubRepositoryInfoParser.h */; };
+		5892CBD3192CB7D900C7734A /* CMISAtomPubRepositoryInfoParser.h in Headers */ = {isa = PBXBuildFile; fileRef = 5892CBB2192CB7D900C7734A /* CMISAtomPubRepositoryInfoParser.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5892CBD4192CB7D900C7734A /* CMISAtomPubRepositoryInfoParser.m in Sources */ = {isa = PBXBuildFile; fileRef = 5892CBB3192CB7D900C7734A /* CMISAtomPubRepositoryInfoParser.m */; };
-		5892CBD5192CB7D900C7734A /* CMISAtomPubServiceDocumentParser.h in Headers */ = {isa = PBXBuildFile; fileRef = 5892CBB4192CB7D900C7734A /* CMISAtomPubServiceDocumentParser.h */; };
+		5892CBD5192CB7D900C7734A /* CMISAtomPubServiceDocumentParser.h in Headers */ = {isa = PBXBuildFile; fileRef = 5892CBB4192CB7D900C7734A /* CMISAtomPubServiceDocumentParser.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5892CBD6192CB7D900C7734A /* CMISAtomPubServiceDocumentParser.m in Sources */ = {isa = PBXBuildFile; fileRef = 5892CBB5192CB7D900C7734A /* CMISAtomPubServiceDocumentParser.m */; };
-		5892CBD7192CB7D900C7734A /* CMISQueryAtomEntryWriter.h in Headers */ = {isa = PBXBuildFile; fileRef = 5892CBB6192CB7D900C7734A /* CMISQueryAtomEntryWriter.h */; };
+		5892CBD7192CB7D900C7734A /* CMISQueryAtomEntryWriter.h in Headers */ = {isa = PBXBuildFile; fileRef = 5892CBB6192CB7D900C7734A /* CMISQueryAtomEntryWriter.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5892CBD8192CB7D900C7734A /* CMISQueryAtomEntryWriter.m in Sources */ = {isa = PBXBuildFile; fileRef = 5892CBB7192CB7D900C7734A /* CMISQueryAtomEntryWriter.m */; };
-		5892CBDA192CB7D900C7734A /* CMISTypeDefinitionAtomEntryParser.h in Headers */ = {isa = PBXBuildFile; fileRef = 5892CBB9192CB7D900C7734A /* CMISTypeDefinitionAtomEntryParser.h */; };
+		5892CBDA192CB7D900C7734A /* CMISTypeDefinitionAtomEntryParser.h in Headers */ = {isa = PBXBuildFile; fileRef = 5892CBB9192CB7D900C7734A /* CMISTypeDefinitionAtomEntryParser.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5892CBDB192CB7D900C7734A /* CMISTypeDefinitionAtomEntryParser.m in Sources */ = {isa = PBXBuildFile; fileRef = 5892CBBA192CB7D900C7734A /* CMISTypeDefinitionAtomEntryParser.m */; };
 		5892CBDE192CB81900C7734A /* CMISAtomWorkspace.h in Headers */ = {isa = PBXBuildFile; fileRef = 5892CBDC192CB81900C7734A /* CMISAtomWorkspace.h */; };
 		5892CBDF192CB81900C7734A /* CMISAtomWorkspace.m in Sources */ = {isa = PBXBuildFile; fileRef = 5892CBDD192CB81900C7734A /* CMISAtomWorkspace.m */; };
-		5892CBF8192CB83800C7734A /* CMISBroswerFormDataWriter.h in Headers */ = {isa = PBXBuildFile; fileRef = 5892CBE1192CB83800C7734A /* CMISBroswerFormDataWriter.h */; };
+		5892CBF8192CB83800C7734A /* CMISBroswerFormDataWriter.h in Headers */ = {isa = PBXBuildFile; fileRef = 5892CBE1192CB83800C7734A /* CMISBroswerFormDataWriter.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5892CBF9192CB83800C7734A /* CMISBroswerFormDataWriter.m in Sources */ = {isa = PBXBuildFile; fileRef = 5892CBE2192CB83800C7734A /* CMISBroswerFormDataWriter.m */; };
-		5892CBFA192CB83800C7734A /* CMISBrowserBaseService+Protected.h in Headers */ = {isa = PBXBuildFile; fileRef = 5892CBE3192CB83800C7734A /* CMISBrowserBaseService+Protected.h */; };
-		5892CBFB192CB83800C7734A /* CMISBrowserBaseService.h in Headers */ = {isa = PBXBuildFile; fileRef = 5892CBE4192CB83800C7734A /* CMISBrowserBaseService.h */; };
+		5892CBFA192CB83800C7734A /* CMISBrowserBaseService+Protected.h in Headers */ = {isa = PBXBuildFile; fileRef = 5892CBE3192CB83800C7734A /* CMISBrowserBaseService+Protected.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		5892CBFB192CB83800C7734A /* CMISBrowserBaseService.h in Headers */ = {isa = PBXBuildFile; fileRef = 5892CBE4192CB83800C7734A /* CMISBrowserBaseService.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5892CBFC192CB83800C7734A /* CMISBrowserBaseService.m in Sources */ = {isa = PBXBuildFile; fileRef = 5892CBE5192CB83800C7734A /* CMISBrowserBaseService.m */; };
-		5892CBFD192CB83800C7734A /* CMISBrowserBinding.h in Headers */ = {isa = PBXBuildFile; fileRef = 5892CBE6192CB83800C7734A /* CMISBrowserBinding.h */; };
+		5892CBFD192CB83800C7734A /* CMISBrowserBinding.h in Headers */ = {isa = PBXBuildFile; fileRef = 5892CBE6192CB83800C7734A /* CMISBrowserBinding.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5892CBFE192CB83800C7734A /* CMISBrowserBinding.m in Sources */ = {isa = PBXBuildFile; fileRef = 5892CBE7192CB83800C7734A /* CMISBrowserBinding.m */; };
-		5892CBFF192CB83800C7734A /* CMISBrowserConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 5892CBE8192CB83800C7734A /* CMISBrowserConstants.h */; };
+		5892CBFF192CB83800C7734A /* CMISBrowserConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 5892CBE8192CB83800C7734A /* CMISBrowserConstants.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5892CC00192CB83800C7734A /* CMISBrowserConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = 5892CBE9192CB83800C7734A /* CMISBrowserConstants.m */; };
-		5892CC01192CB83800C7734A /* CMISBrowserDiscoveryService.h in Headers */ = {isa = PBXBuildFile; fileRef = 5892CBEA192CB83800C7734A /* CMISBrowserDiscoveryService.h */; };
+		5892CC01192CB83800C7734A /* CMISBrowserDiscoveryService.h in Headers */ = {isa = PBXBuildFile; fileRef = 5892CBEA192CB83800C7734A /* CMISBrowserDiscoveryService.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5892CC02192CB83800C7734A /* CMISBrowserDiscoveryService.m in Sources */ = {isa = PBXBuildFile; fileRef = 5892CBEB192CB83800C7734A /* CMISBrowserDiscoveryService.m */; };
-		5892CC03192CB83800C7734A /* CMISBrowserNavigationService.h in Headers */ = {isa = PBXBuildFile; fileRef = 5892CBEC192CB83800C7734A /* CMISBrowserNavigationService.h */; };
+		5892CC03192CB83800C7734A /* CMISBrowserNavigationService.h in Headers */ = {isa = PBXBuildFile; fileRef = 5892CBEC192CB83800C7734A /* CMISBrowserNavigationService.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5892CC04192CB83800C7734A /* CMISBrowserNavigationService.m in Sources */ = {isa = PBXBuildFile; fileRef = 5892CBED192CB83800C7734A /* CMISBrowserNavigationService.m */; };
-		5892CC05192CB83800C7734A /* CMISBrowserObjectService.h in Headers */ = {isa = PBXBuildFile; fileRef = 5892CBEE192CB83800C7734A /* CMISBrowserObjectService.h */; };
+		5892CC05192CB83800C7734A /* CMISBrowserObjectService.h in Headers */ = {isa = PBXBuildFile; fileRef = 5892CBEE192CB83800C7734A /* CMISBrowserObjectService.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5892CC06192CB83800C7734A /* CMISBrowserObjectService.m in Sources */ = {isa = PBXBuildFile; fileRef = 5892CBEF192CB83800C7734A /* CMISBrowserObjectService.m */; };
-		5892CC07192CB83800C7734A /* CMISBrowserRepositoryService.h in Headers */ = {isa = PBXBuildFile; fileRef = 5892CBF0192CB83800C7734A /* CMISBrowserRepositoryService.h */; };
+		5892CC07192CB83800C7734A /* CMISBrowserRepositoryService.h in Headers */ = {isa = PBXBuildFile; fileRef = 5892CBF0192CB83800C7734A /* CMISBrowserRepositoryService.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5892CC08192CB83800C7734A /* CMISBrowserRepositoryService.m in Sources */ = {isa = PBXBuildFile; fileRef = 5892CBF1192CB83800C7734A /* CMISBrowserRepositoryService.m */; };
-		5892CC09192CB83800C7734A /* CMISBrowserTypeCache.h in Headers */ = {isa = PBXBuildFile; fileRef = 5892CBF2192CB83800C7734A /* CMISBrowserTypeCache.h */; };
+		5892CC09192CB83800C7734A /* CMISBrowserTypeCache.h in Headers */ = {isa = PBXBuildFile; fileRef = 5892CBF2192CB83800C7734A /* CMISBrowserTypeCache.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5892CC0A192CB83800C7734A /* CMISBrowserTypeCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 5892CBF3192CB83800C7734A /* CMISBrowserTypeCache.m */; };
-		5892CC0B192CB83800C7734A /* CMISBrowserUtil.h in Headers */ = {isa = PBXBuildFile; fileRef = 5892CBF4192CB83800C7734A /* CMISBrowserUtil.h */; };
+		5892CC0B192CB83800C7734A /* CMISBrowserUtil.h in Headers */ = {isa = PBXBuildFile; fileRef = 5892CBF4192CB83800C7734A /* CMISBrowserUtil.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5892CC0C192CB83800C7734A /* CMISBrowserUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 5892CBF5192CB83800C7734A /* CMISBrowserUtil.m */; };
-		5892CC0D192CB83800C7734A /* CMISBrowserVersioningService.h in Headers */ = {isa = PBXBuildFile; fileRef = 5892CBF6192CB83800C7734A /* CMISBrowserVersioningService.h */; };
+		5892CC0D192CB83800C7734A /* CMISBrowserVersioningService.h in Headers */ = {isa = PBXBuildFile; fileRef = 5892CBF6192CB83800C7734A /* CMISBrowserVersioningService.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5892CC0E192CB83800C7734A /* CMISBrowserVersioningService.m in Sources */ = {isa = PBXBuildFile; fileRef = 5892CBF7192CB83800C7734A /* CMISBrowserVersioningService.m */; };
-		5892CC13192CB91300C7734A /* CMISMimeHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 5892CC0F192CB91300C7734A /* CMISMimeHelper.h */; };
+		5892CC13192CB91300C7734A /* CMISMimeHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 5892CC0F192CB91300C7734A /* CMISMimeHelper.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5892CC14192CB91300C7734A /* CMISMimeHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 5892CC10192CB91300C7734A /* CMISMimeHelper.m */; };
-		5892CC15192CB91300C7734A /* CMISNSDictionary+CMISUtil.h in Headers */ = {isa = PBXBuildFile; fileRef = 5892CC11192CB91300C7734A /* CMISNSDictionary+CMISUtil.h */; };
+		5892CC15192CB91300C7734A /* CMISNSDictionary+CMISUtil.h in Headers */ = {isa = PBXBuildFile; fileRef = 5892CC11192CB91300C7734A /* CMISNSDictionary+CMISUtil.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5892CC16192CB91300C7734A /* CMISNSDictionary+CMISUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 5892CC12192CB91300C7734A /* CMISNSDictionary+CMISUtil.m */; };
 		5892CC17192CB93E00C7734A /* CMISNSDictionary+CMISUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 5892CC12192CB91300C7734A /* CMISNSDictionary+CMISUtil.m */; };
 		5892CC1A192CE23F00C7734A /* CMISReachability.h in Headers */ = {isa = PBXBuildFile; fileRef = 5892CC18192CE23F00C7734A /* CMISReachability.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -311,6 +311,7 @@
 		4EA61BE01564F73900C759E4 /* CMISQueryResult.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CMISQueryResult.m; path = Bindings/CMISQueryResult.m; sourceTree = "<group>"; };
 		4EA61BE71564F75000C759E4 /* CMISErrors.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CMISErrors.h; path = Common/CMISErrors.h; sourceTree = "<group>"; };
 		4EA61BE81564F75000C759E4 /* CMISErrors.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CMISErrors.m; path = Common/CMISErrors.m; sourceTree = "<group>"; };
+		580123DB196AEE010028422E /* ObjectiveCMIS.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = ObjectiveCMIS.xcconfig; sourceTree = "<group>"; };
 		5892CB72192CB5DF00C7734A /* CMISLinkRelations.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CMISLinkRelations.h; path = Common/CMISLinkRelations.h; sourceTree = "<group>"; };
 		5892CB73192CB5DF00C7734A /* CMISLinkRelations.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CMISLinkRelations.m; path = Common/CMISLinkRelations.m; sourceTree = "<group>"; };
 		5892CB76192CB65D00C7734A /* CMISFolderTypeDefinition.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CMISFolderTypeDefinition.h; path = Bindings/CMISFolderTypeDefinition.h; sourceTree = "<group>"; };
@@ -645,6 +646,7 @@
 			isa = PBXGroup;
 			children = (
 				828072AA15153DE800EF635C /* ObjectiveCMIS-Prefix.pch */,
+				580123DB196AEE010028422E /* ObjectiveCMIS.xcconfig */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -1318,6 +1320,7 @@
 		};
 		828072C515153DE900EF635C /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 580123DB196AEE010028422E /* ObjectiveCMIS.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ENABLE_OBJC_ARC = YES;
@@ -1353,6 +1356,7 @@
 		};
 		828072C615153DE900EF635C /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 580123DB196AEE010028422E /* ObjectiveCMIS.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ENABLE_OBJC_ARC = YES;
@@ -1381,6 +1385,7 @@
 		};
 		828072C815153DE900EF635C /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 580123DB196AEE010028422E /* ObjectiveCMIS.xcconfig */;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
 				CLANG_ENABLE_MODULES = YES;
@@ -1398,6 +1403,7 @@
 		};
 		828072C915153DE900EF635C /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 580123DB196AEE010028422E /* ObjectiveCMIS.xcconfig */;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
 				CLANG_ENABLE_MODULES = YES;

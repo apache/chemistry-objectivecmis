@@ -25,6 +25,13 @@ static NSSet *_repositoryCapabilityCreateablePropertyTypesKeys;
 
 @implementation CMISConstants
 
+// Library version constant - defined in ObjectiveCMIS.xcconfig
+#if !defined(OBJECTIVECMIS_VERSION)
+#warning Missing ObjectiveCMIS.xcconfig entries. Ensure the project configuration settings are correct.
+#define OBJECTIVECMIS_VERSION @"Unknown"
+#endif
+NSString * const kCMISLibraryVersion = OBJECTIVECMIS_VERSION;
+
 // Properties
 
 NSString * const kCMISPropertyObjectId = @"cmis:objectId";

@@ -21,6 +21,9 @@
 
 @interface CMISConstants : NSObject
 
+// Version
+extern NSString * const kCMISLibraryVersion;
+
 // Properties
 extern NSString * const kCMISPropertyObjectId;
 extern NSString * const kCMISPropertyName;
