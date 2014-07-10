@@ -74,6 +74,12 @@ NSString * const kCMISErrorDescriptionVersioning = @"Versioning Error";
     NSMutableDictionary *errorInfo = [NSMutableDictionary dictionary];
     [errorInfo setValue:[CMISErrors localizedDescriptionForCode:code] forKey:NSLocalizedDescriptionKey];
     [errorInfo setObject:error forKey:NSUnderlyingErrorKey];
+    
+    if (error.localizedFailureReason != nil)
+    {
+        errorInfo[NSLocalizedFailureReasonErrorKey] = error.localizedFailureReason;
+    }
+    
     return [NSError errorWithDomain:kCMISErrorDomainName code:code userInfo:errorInfo];
 }
 
