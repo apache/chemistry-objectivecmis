@@ -110,7 +110,7 @@
 		5892CBD8192CB7D900C7734A /* CMISQueryAtomEntryWriter.m in Sources */ = {isa = PBXBuildFile; fileRef = 5892CBB7192CB7D900C7734A /* CMISQueryAtomEntryWriter.m */; };
 		5892CBDA192CB7D900C7734A /* CMISTypeDefinitionAtomEntryParser.h in Headers */ = {isa = PBXBuildFile; fileRef = 5892CBB9192CB7D900C7734A /* CMISTypeDefinitionAtomEntryParser.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5892CBDB192CB7D900C7734A /* CMISTypeDefinitionAtomEntryParser.m in Sources */ = {isa = PBXBuildFile; fileRef = 5892CBBA192CB7D900C7734A /* CMISTypeDefinitionAtomEntryParser.m */; };
-		5892CBDE192CB81900C7734A /* CMISAtomWorkspace.h in Headers */ = {isa = PBXBuildFile; fileRef = 5892CBDC192CB81900C7734A /* CMISAtomWorkspace.h */; };
+		5892CBDE192CB81900C7734A /* CMISAtomWorkspace.h in Headers */ = {isa = PBXBuildFile; fileRef = 5892CBDC192CB81900C7734A /* CMISAtomWorkspace.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5892CBDF192CB81900C7734A /* CMISAtomWorkspace.m in Sources */ = {isa = PBXBuildFile; fileRef = 5892CBDD192CB81900C7734A /* CMISAtomWorkspace.m */; };
 		5892CBF8192CB83800C7734A /* CMISBroswerFormDataWriter.h in Headers */ = {isa = PBXBuildFile; fileRef = 5892CBE1192CB83800C7734A /* CMISBroswerFormDataWriter.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5892CBF9192CB83800C7734A /* CMISBroswerFormDataWriter.m in Sources */ = {isa = PBXBuildFile; fileRef = 5892CBE2192CB83800C7734A /* CMISBroswerFormDataWriter.m */; };
@@ -965,7 +965,6 @@
 				82AD4AF615416AA90012DDB6 /* CMISPolicyService.h in Headers */,
 				5892CBC1192CB7D900C7734A /* CMISAtomPubAceParser.h in Headers */,
 				82AD4AF815416AC10012DDB6 /* CMISRelationshipService.h in Headers */,
-				5892CBDE192CB81900C7734A /* CMISAtomWorkspace.h in Headers */,
 				82ABA0481554655A00935225 /* CMISBindingSession.h in Headers */,
 				5892CB96192CB73D00C7734A /* CMISAtomPubObjectByPathUriBuilder.h in Headers */,
 				82ABA04C1554819300935225 /* CMISAtomPubBaseService+Protected.h in Headers */,
@@ -1032,6 +1031,7 @@
 				BD30D33D162D7DD7001FFF80 /* CMISRequest.h in Headers */,
 				278B269C177BB10B0049C229 /* CMISStandardAuthenticationProvider.h in Headers */,
 				278B269F177BB3000049C229 /* CMISStandardUntrustedSSLAuthenticationProvider.h in Headers */,
+				5892CBDE192CB81900C7734A /* CMISAtomWorkspace.h in Headers */,
 				5892CBCD192CB7D900C7734A /* CMISAtomPubParserUtil.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
