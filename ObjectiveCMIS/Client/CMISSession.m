@@ -274,9 +274,28 @@
     }];
 }
 
+- (CMISRequest*)queryStatement:(CMISQueryStatement *)queryStatement searchAllVersions:(BOOL)searchAllVersion
+      completionBlock:(void (^)(CMISPagedResult *pagedResult, NSError *error))completionBlock {
+        return [self query:[queryStatement queryString]
+        searchAllVersions:searchAllVersion
+          completionBlock:completionBlock];
+}
+
+- (CMISRequest*)queryStatement:(CMISQueryStatement *)queryStatement searchAllVersions:(BOOL)searchAllVersion
+     operationContext:(CMISOperationContext *)operationContext
+      completionBlock:(void (^)(CMISPagedResult *pagedResult, NSError *error))completionBlock {
+        return [self query:[queryStatement queryString]
+         searchAllVersions:searchAllVersion
+          operationContext:operationContext
+           completionBlock:completionBlock];
+}
+
 - (CMISRequest*)query:(NSString *)statement searchAllVersions:(BOOL)searchAllVersion completionBlock:(void (^)(CMISPagedResult *pagedResult, NSError *error))completionBlock
 {
-    return [self query:statement searchAllVersions:searchAllVersion operationContext:[CMISOperationContext defaultOperationContext] completionBlock:completionBlock];
+    return [self query:statement
+     searchAllVersions:searchAllVersion
+      operationContext:[CMISOperationContext defaultOperationContext]
+       completionBlock:completionBlock];
 }
 
 - (CMISRequest*)query:(NSString *)statement searchAllVersions:(BOOL)searchAllVersion
@@ -403,10 +422,31 @@
 }
 
 - (CMISRequest*)queryObjectsWithTypeid:(NSString *)typeId
-                   whereClause:(NSString *)whereClause
-             searchAllVersions:(BOOL)searchAllVersion
-              operationContext:(CMISOperationContext *)operationContext
-               completionBlock:(void (^)(CMISPagedResult *result, NSError *error))completionBlock
+                           whereClause:(NSString *)whereClause
+                     searchAllVersions:(BOOL)searchAllVersion
+                      operationContext:(CMISOperationContext *)operationContext
+                       completionBlock:(void (^)(CMISPagedResult *result, NSError *error))completionBlock
+{
+    return [self retrieveTypeDefinition:typeId
+                        completionBlock:^(CMISTypeDefinition *typeDefinition, NSError *internalError) {
+                            if (internalError != nil) {
+                                NSError *error = [CMISErrors cmisError:internalError cmisErrorCode:kCMISErrorCodeRuntime];
+                                completionBlock(nil, error);
+                            } else {
+                                [self queryObjectsWithTypeDefinition:typeDefinition
+                                                         whereClause:whereClause
+                                                   searchAllVersions:searchAllVersion
+                                                    operationContext:operationContext
+                                                     completionBlock:completionBlock];
+                            }
+                        }];
+}
+
+- (CMISRequest*)queryObjectsWithTypeid:(NSString *)typeId
+                        whereStatement:(CMISQueryStatement *)whereStatement
+                     searchAllVersions:(BOOL)searchAllVersion
+                      operationContext:(CMISOperationContext *)operationContext
+                       completionBlock:(void (^)(CMISPagedResult *result, NSError *error))completionBlock
 {
     return [self retrieveTypeDefinition:typeId
                  completionBlock:^(CMISTypeDefinition *typeDefinition, NSError *internalError) {
@@ -414,11 +454,11 @@
                          NSError *error = [CMISErrors cmisError:internalError cmisErrorCode:kCMISErrorCodeRuntime];
                          completionBlock(nil, error);
                      } else {
-                         [self queryObjectsWithTypeDefinition:typeDefinition
-                                                  whereClause:whereClause
-                                            searchAllVersions:searchAllVersion
-                                             operationContext:operationContext
-                                              completionBlock:completionBlock];
+                         [self queryObjectsWithTypeid:typeId
+                                          whereClause:[whereStatement queryString]
+                                    searchAllVersions:searchAllVersion
+                                     operationContext:operationContext
+                                      completionBlock:completionBlock];
                      }
                  }];
 }

@@ -21,6 +21,9 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		253F2D2F19741FAE006BA517 /* CMISQueryStatement.h in Headers */ = {isa = PBXBuildFile; fileRef = 253F2D2D19741FAE006BA517 /* CMISQueryStatement.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		253F2D3019741FAE006BA517 /* CMISQueryStatement.m in Sources */ = {isa = PBXBuildFile; fileRef = 253F2D2E19741FAE006BA517 /* CMISQueryStatement.m */; };
+		255E7EE41975069500C683A0 /* CMISQueryStatement.m in Sources */ = {isa = PBXBuildFile; fileRef = 253F2D2E19741FAE006BA517 /* CMISQueryStatement.m */; };
 		258998DB18D73D5A0091BA96 /* CMISAce.h in Headers */ = {isa = PBXBuildFile; fileRef = 258998D718D73D5A0091BA96 /* CMISAce.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		258998DC18D73D5A0091BA96 /* CMISAce.m in Sources */ = {isa = PBXBuildFile; fileRef = 258998D818D73D5A0091BA96 /* CMISAce.m */; };
 		258998DD18D73D5A0091BA96 /* CMISAcl.h in Headers */ = {isa = PBXBuildFile; fileRef = 258998D918D73D5A0091BA96 /* CMISAcl.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -278,6 +281,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		253F2D2D19741FAE006BA517 /* CMISQueryStatement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CMISQueryStatement.h; path = Bindings/CMISQueryStatement.h; sourceTree = "<group>"; };
+		253F2D2E19741FAE006BA517 /* CMISQueryStatement.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CMISQueryStatement.m; path = Bindings/CMISQueryStatement.m; sourceTree = "<group>"; };
 		258998D718D73D5A0091BA96 /* CMISAce.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CMISAce.h; path = Common/CMISAce.h; sourceTree = "<group>"; };
 		258998D818D73D5A0091BA96 /* CMISAce.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CMISAce.m; path = Common/CMISAce.m; sourceTree = "<group>"; };
 		258998D918D73D5A0091BA96 /* CMISAcl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CMISAcl.h; path = Common/CMISAcl.h; sourceTree = "<group>"; };
@@ -761,6 +766,8 @@
 		828072D315153EC100EF635C /* Bindings */ = {
 			isa = PBXGroup;
 			children = (
+				8280730D1515405C00EF635C /* AtomPub */,
+				5892CBE0192CB83800C7734A /* Browser */,
 				82AD4AEE15416A150012DDB6 /* CMISAclService.h */,
 				828073191515405C00EF635C /* CMISBinding.h */,
 				82AD4AE9154164290012DDB6 /* CMISBindingFactory.h */,
@@ -786,11 +793,13 @@
 				FE417D6015761A34009056AA /* CMISPropertyDefinition.m */,
 				4EA61BDF1564F73900C759E4 /* CMISQueryResult.h */,
 				4EA61BE01564F73900C759E4 /* CMISQueryResult.m */,
+				253F2D2D19741FAE006BA517 /* CMISQueryStatement.h */,
+				253F2D2E19741FAE006BA517 /* CMISQueryStatement.m */,
 				82AD4AF715416AC10012DDB6 /* CMISRelationshipService.h */,
 				5892CB7A192CB65D00C7734A /* CMISRelationshipTypeDefinition.h */,
 				5892CB7B192CB65D00C7734A /* CMISRelationshipTypeDefinition.m */,
-				FE417D6815761A34009056C1 /* CMISRenditionData.m */,
 				FE417D6815761A34009056BF /* CMISRenditionData.h */,
+				FE417D6815761A34009056C1 /* CMISRenditionData.m */,
 				8276E157155E392A00344A29 /* CMISRepositoryService.h */,
 				5892CB7C192CB65D00C7734A /* CMISSecondaryTypeDefinition.h */,
 				5892CB7D192CB65D00C7734A /* CMISSecondaryTypeDefinition.m */,
@@ -799,8 +808,6 @@
 				5892CB7E192CB65D00C7734A /* CMISTypeDefinitionCache.h */,
 				5892CB7F192CB65D00C7734A /* CMISTypeDefinitionCache.m */,
 				8276E158155E392A00344A29 /* CMISVersioningService.h */,
-				8280730D1515405C00EF635C /* AtomPub */,
-				5892CBE0192CB83800C7734A /* Browser */,
 			);
 			name = Bindings;
 			sourceTree = "<group>";
@@ -919,6 +926,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				253F2D2F19741FAE006BA517 /* CMISQueryStatement.h in Headers */,
 				828072E51515403800EF635C /* CMISCollection.h in Headers */,
 				828072E71515403800EF635C /* CMISDocument.h in Headers */,
 				5892CBC9192CB7D900C7734A /* CMISAtomPubExtensionDataParserBase.h in Headers */,
@@ -1194,6 +1202,7 @@
 				82C1C63715348EC4009B7B3D /* CMISAtomPubNavigationService.m in Sources */,
 				5892CB85192CB65D00C7734A /* CMISRelationshipTypeDefinition.m in Sources */,
 				5892CB95192CB73D00C7734A /* CMISAtomPubObjectByIdUriBuilder.m in Sources */,
+				253F2D3019741FAE006BA517 /* CMISQueryStatement.m in Sources */,
 				5892CBC0192CB7D900C7734A /* CMISAtomFeedParser.m in Sources */,
 				5892CBBE192CB7D900C7734A /* CMISAtomEntryWriter.m in Sources */,
 				82AD4AEC1541642A0012DDB6 /* CMISBindingFactory.m in Sources */,
@@ -1268,6 +1277,7 @@
 			files = (
 				828072C415153DE900EF635C /* ObjectiveCMISTests.m in Sources */,
 				75E7789D155BA59D00191BAE /* ObjectiveCMISTests+Environment.m in Sources */,
+				255E7EE41975069500C683A0 /* CMISQueryStatement.m in Sources */,
 				4EA61BD91564F70C00C759E4 /* CMISStringInOutParameter.m in Sources */,
 				4EA61BDC1564F70C00C759E4 /* CMISURLUtil.m in Sources */,
 				4EA61BE31564F73900C759E4 /* CMISObjectList.m in Sources */,

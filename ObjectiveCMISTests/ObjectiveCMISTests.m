@@ -43,6 +43,7 @@
 #import "CMISLog.h"
 #import "CMISURLUtil.h"
 #import "CMISMimeHelper.h"
+#import "CMISQueryStatement.h"
 
 @interface ObjectiveCMISTests ()
 
@@ -2289,6 +2290,112 @@
     XCTAssertEqualObjects(@"%E5%BD%BC%E5%BE%97", [CMISURLUtil encodeUrlParameterValue:@"彼得"], @"wrong encoded url parameter value");
     
     XCTAssertEqualObjects(@"%C3%BC%C3%A4%C3%B6%C3%9C%C3%84%C3%96%C3%A9%C4%9F", [CMISURLUtil encodeUrlParameterValue:@"üäöÜÄÖéğ"], @"wrong encoded url parameter value");
+}
+
+- (void)testQueryStatementStaticQueries {
+    NSString *query;
+    CMISQueryStatement *st;
+    
+    query = @"SELECT cmis:name FROM cmis:folder";
+    st = [[CMISQueryStatement alloc] initWithStatement:query];
+    XCTAssertEqualObjects(query, [st queryString], @"wrong encoded query statement");
+    
+    query = @"SELECT * FROM cmis:document WHERE cmis:createdBy = \'admin\' AND abc:int = 42";
+    st = [[CMISQueryStatement alloc] initWithStatement:query];
+    XCTAssertEqualObjects(query, [st queryString], @"wrong encoded query statement");
+    
+    query = @"SELECT * FROM cmis:document WHERE abc:test = 'x?z'";
+    st = [[CMISQueryStatement alloc] initWithStatement:query];
+    [st setStringAtIndex:1 string:@"y"];
+    XCTAssertEqualObjects(query, [st queryString], @"wrong encoded query statement");
+}
+
+- (void)testQueryStatementWherePlacholder {
+    NSString *query;
+    CMISQueryStatement *st;
+    
+    // strings
+    query = @"SELECT * FROM cmis:document WHERE abc:string = ?";
+    st = [[CMISQueryStatement alloc] initWithStatement:query];
+    [st setStringAtIndex:1 string:@"test"];
+    XCTAssertEqualObjects(@"SELECT * FROM cmis:document WHERE abc:string = 'test'", [st queryString], @"wrong encoded query statement");
+    
+    query = @"SELECT * FROM cmis:document WHERE abc:string = ?";
+    st = [[CMISQueryStatement alloc] initWithStatement:query];
+    [st setStringAtIndex:1 string:@"te'st"];
+    XCTAssertEqualObjects(@"SELECT * FROM cmis:document WHERE abc:string = 'te\\'st'", [st queryString], @"wrong encoded query statement");
+    
+    // likes
+    query = @"SELECT * FROM cmis:document WHERE abc:string LIKE ?";
+    st = [[CMISQueryStatement alloc] initWithStatement:query];
+    [st setStringLikeAtIndex:1 string:@"%test%"];
+    XCTAssertEqualObjects(@"SELECT * FROM cmis:document WHERE abc:string LIKE '%test%'", [st queryString], @"wrong encoded query statement");
+    
+    query = @"SELECT * FROM cmis:document WHERE abc:string LIKE ?";
+    st = [[CMISQueryStatement alloc] initWithStatement:query];
+    [st setStringLikeAtIndex:1 string:@"\\_test\\%blah\\\\blah"];
+    XCTAssertEqualObjects(@"SELECT * FROM cmis:document WHERE abc:string LIKE '\\_test\\%blah\\\\\\\\blah'", [st queryString], @"wrong encoded query statement");
+    
+    // contains
+    
+    // *, ? and - are treated as text search operators: 1st level escaping:
+    // none, 2nd level escaping: none
+    // \*, \? and \- are used as literals, 1st level escaping: none, 2nd
+    // level escaping: \\*, \\?, \\-
+    // ' and " are used as literals, 1st level escaping: \', \", 2nd level
+    // escaping: \\\', \\\",
+    // \ plus any other character, 1st level escaping \\ plus character, 2nd
+    // level: \\\\ plus character
+    
+    query = @"SELECT * FROM cmis:document WHERE CONTAINS(?)";
+    st = [[CMISQueryStatement alloc] initWithStatement:query];
+    [st setStringContainsAtIndex:1 string:@"John's"];
+    XCTAssertEqualObjects(@"SELECT * FROM cmis:document WHERE CONTAINS('John\\\\\\'s')", [st queryString], @"wrong encoded query statement");
+    [st setStringContainsAtIndex:1 string:@"foo -bar"];
+    XCTAssertEqualObjects(@"SELECT * FROM cmis:document WHERE CONTAINS('foo -bar')", [st queryString], @"wrong encoded query statement");
+    [st setStringContainsAtIndex:1 string:@"foo*"];
+    XCTAssertEqualObjects(@"SELECT * FROM cmis:document WHERE CONTAINS('foo*')", [st queryString], @"wrong encoded query statement");
+    [st setStringContainsAtIndex:1 string:@"foo?"];
+    XCTAssertEqualObjects(@"SELECT * FROM cmis:document WHERE CONTAINS('foo?')", [st queryString], @"wrong encoded query statement");
+    [st setStringContainsAtIndex:1 string:@"foo\\-bar"];
+    XCTAssertEqualObjects(@"SELECT * FROM cmis:document WHERE CONTAINS('foo\\\\-bar')", [st queryString], @"wrong encoded query statement");
+    [st setStringContainsAtIndex:1 string:@"foo\\*"];
+    XCTAssertEqualObjects(@"SELECT * FROM cmis:document WHERE CONTAINS('foo\\\\*')", [st queryString], @"wrong encoded query statement");
+    [st setStringContainsAtIndex:1 string:@"foo\\?"];
+    XCTAssertEqualObjects(@"SELECT * FROM cmis:document WHERE CONTAINS('foo\\\\?')", [st queryString], @"wrong encoded query statement");
+    [st setStringContainsAtIndex:1 string:@"\"Cool\""];
+    XCTAssertEqualObjects(@"SELECT * FROM cmis:document WHERE CONTAINS('\\\\\\\"Cool\\\\\\\"')", [st queryString], @"wrong encoded query statement");
+    [st setStringContainsAtIndex:1 string:@"c:\\MyDcuments"];
+    XCTAssertEqualObjects(@"SELECT * FROM cmis:document WHERE CONTAINS('c:\\\\MyDcuments')", [st queryString], @"wrong encoded query statement");
+    
+    // ids
+    query = @"SELECT * FROM cmis:document WHERE abc:id = ?";
+    st = [[CMISQueryStatement alloc] initWithStatement:query];
+    [st setStringAtIndex:1 string:@"123"];
+    XCTAssertEqualObjects(@"SELECT * FROM cmis:document WHERE abc:id = '123'", [st queryString], @"wrong encoded query statement");
+    
+    // booleans
+    query = @"SELECT * FROM cmis:document WHERE abc:bool = ?";
+    st = [[CMISQueryStatement alloc] initWithStatement:query];
+    [st setBooleanAtIndex:1 boolean:YES];
+    XCTAssertEqualObjects(@"SELECT * FROM cmis:document WHERE abc:bool = YES", [st queryString], @"wrong encoded query statement");
+    
+    // numbers
+    query = @"SELECT * FROM cmis:document WHERE abc:int = ? AND abc:int2 = 123";
+    st = [[CMISQueryStatement alloc] initWithStatement:query];
+    [st setNumberAtIndex:1 number:[NSNumber numberWithInt:42]];
+    XCTAssertEqualObjects(@"SELECT * FROM cmis:document WHERE abc:int = 42 AND abc:int2 = 123", [st queryString], @"wrong encoded query statement");
+    
+    query = @"SELECT * FROM cmis:document WHERE abc:dateTime = ?";
+    st = [[CMISQueryStatement alloc] initWithStatement:query];
+    NSDateFormatter *df = [NSDateFormatter new];
+    [df setDateFormat:@"dd/MM/yyyy HH:mm:ss"];
+    //Create the GMT date
+    df.timeZone = [NSTimeZone timeZoneForSecondsFromGMT:0];
+    NSDate *date = [df dateFromString:@"02/02/2012 03:04:05"];
+
+    [st setDateTimeAtIndex:1 date:date];
+    XCTAssertEqualObjects(@"SELECT * FROM cmis:document WHERE abc:dateTime = TIMESTAMP '2012-02-02T03:04:05.000Z'", [st queryString], @"wrong encoded query statement");
 }
 
 @end
