@@ -26,7 +26,7 @@
 #import "CMISSession.h"
 #import "CMISDateUtil.h"
 #import "CMISConstants.h"
-#import "CMISNSDictionary+CMISUtil.h"
+#import "CMISDictionaryUtil.h"
 
 @interface CMISObjectConverter ()
 @property (nonatomic, weak) CMISSession *session;

@@ -29,7 +29,7 @@
 #import "CMISItemTypeDefinition.h"
 #import "CMISSecondaryTypeDefinition.h"
 #import "CMISErrors.h"
-#import "CMISNSDictionary+CMISUtil.h"
+#import "CMISDictionaryUtil.h"
 #import "CMISRepositoryCapabilities.h"
 #import "CMISObjectConverter.h"
 #import "CMISAcl.h"

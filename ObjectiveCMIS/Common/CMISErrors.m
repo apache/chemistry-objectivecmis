@@ -18,6 +18,7 @@
  */
 
 #import "CMISErrors.h"
+#import "CMISDictionaryUtil.h"
 
 NSString * const kCMISErrorDomainName = @"org.apache.chemistry.objectivecmis";
 //to be used in the userInfo dictionary as Localized error description
@@ -68,30 +69,23 @@ NSString * const kCMISErrorDescriptionVersioning = @"Versioning Error";
     if (error == nil) {//shouldn't really get there
         return nil;
     }
+    
     if ([error.domain isEqualToString:kCMISErrorDomainName]) {
         return error;
     }
-    NSMutableDictionary *errorInfo = [NSMutableDictionary dictionary];
-    [errorInfo setValue:[CMISErrors localizedDescriptionForCode:code] forKey:NSLocalizedDescriptionKey];
-    [errorInfo setObject:error forKey:NSUnderlyingErrorKey];
     
-    if (error.localizedFailureReason != nil)
-    {
-        errorInfo[NSLocalizedFailureReasonErrorKey] = error.localizedFailureReason;
-    }
-    
-    return [NSError errorWithDomain:kCMISErrorDomainName code:code userInfo:errorInfo];
+    NSDictionary *userInfo = [CMISDictionaryUtil userInfoDictionaryForErrorWithDescription:[CMISErrors localizedDescriptionForCode:code]
+                                                                                    reason:nil
+                                                                           underlyingError:error];
+    return [NSError errorWithDomain:kCMISErrorDomainName code:code userInfo:userInfo];
 }
 
 + (NSError *)createCMISErrorWithCode:(CMISErrorCodes)code detailedDescription:(NSString *)detailedDescription
 {
-    NSMutableDictionary *errorInfo = [NSMutableDictionary dictionary];
-    [errorInfo setValue:[CMISErrors localizedDescriptionForCode:code] forKey:NSLocalizedDescriptionKey];
-    if (detailedDescription != nil) {
-        [errorInfo setValue:detailedDescription forKey:NSLocalizedFailureReasonErrorKey];
-    }
-    
-    return [NSError errorWithDomain:kCMISErrorDomainName code:code userInfo:errorInfo];
+    NSDictionary *userInfo = [CMISDictionaryUtil userInfoDictionaryForErrorWithDescription:[CMISErrors localizedDescriptionForCode:code]
+                                                                                    reason:detailedDescription
+                                                                           underlyingError:nil];
+    return [NSError errorWithDomain:kCMISErrorDomainName code:code userInfo:userInfo];
 }
 
 + (NSString *)localizedDescriptionForCode:(CMISErrorCodes)code

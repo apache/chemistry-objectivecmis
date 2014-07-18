@@ -18,7 +18,7 @@
  */
 
 #import "CMISNewTypeSettableAttributes.h"
-#import "CMISNSDictionary+CMISUtil.h"
+#import "CMISDictionaryUtil.h"
 #import "CMISLog.h"
 #import "CMISConstants.h"
 #import "CMISObjectConverter.h"

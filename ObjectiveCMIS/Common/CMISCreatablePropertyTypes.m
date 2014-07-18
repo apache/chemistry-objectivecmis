@@ -21,7 +21,7 @@
 #import "CMISLog.h"
 #import "CMISObjectConverter.h"
 #import "CMISConstants.h"
-#import "CMISNSDictionary+CMISUtil.h"
+#import "CMISDictionaryUtil.h"
 
 @implementation CMISCreatablePropertyTypes
 
