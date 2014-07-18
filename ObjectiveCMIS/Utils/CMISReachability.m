@@ -35,16 +35,14 @@ static CMISReachability *networkReachability = NULL;
 
 + (instancetype)networkReachability
 {
-    if (networkReachability == NULL)
-    {
+    if (networkReachability == NULL) {
         struct sockaddr_in zeroAddress;
         bzero(&zeroAddress, sizeof(zeroAddress));
         zeroAddress.sin_len = sizeof(zeroAddress);
         zeroAddress.sin_family = AF_INET;
         networkReachability = [self reachabilityWithAddress:&zeroAddress];
         SCNetworkReachabilityFlags currentFlags = 0;
-        if (SCNetworkReachabilityGetFlags(networkReachability->_networkReachabilityRef, &currentFlags))
-        {
+        if (SCNetworkReachabilityGetFlags(networkReachability->_networkReachabilityRef, &currentFlags)) {
             handleFlags(currentFlags);
         }
     }
@@ -54,8 +52,7 @@ static CMISReachability *networkReachability = NULL;
 - (void)dealloc
 {
     [self stopNotifier];
-    if (self.networkReachabilityRef != NULL)
-    {
+    if (self.networkReachabilityRef != NULL) {
         CFRelease(self.networkReachabilityRef);
     }
 }
@@ -78,17 +75,14 @@ void handleFlags(SCNetworkReachabilityFlags flags)
     
     BOOL connected = !(flags & kSCNetworkReachabilityFlagsConnectionRequired);
     
-    if (reachable && connected)
-    {
+    if (reachable && connected) {
         networkReachability->_networkConnection = YES;
     }
-    else
-    {
+    else {
         networkReachability->_networkConnection = NO;
     }
     
-    if ([CMISLog sharedInstance].logLevel == CMISLogLevelDebug)
-    {
+    if ([CMISLog sharedInstance].logLevel == CMISLogLevelDebug) {
         CMISLogDebug(@"Network reachable: %@", (reachable && connected) ? @"YES" : @"NO");
     }
 }
@@ -99,17 +93,14 @@ void handleFlags(SCNetworkReachabilityFlags flags)
     
     SCNetworkReachabilityRef reachability = SCNetworkReachabilityCreateWithAddress(kCFAllocatorDefault, (const struct sockaddr *)hostAddress);
     
-    if (reachability != NULL)
-    {
+    if (reachability != NULL) {
         returnReachability = [[self alloc] init];
-        if (returnReachability != NULL)
-        {
+        if (returnReachability != NULL) {
             returnReachability.networkReachabilityRef = reachability;
             [returnReachability startNotifier];
         }
     }
-    else
-    {
+    else {
         CMISLogWarning(@"Failed to create reachability reference for address %@", hostAddress);
     }
     
@@ -122,19 +113,15 @@ void handleFlags(SCNetworkReachabilityFlags flags)
     
     SCNetworkReachabilityContext context = {0, (__bridge void *)(self), NULL, NULL, NULL};
     
-    if (SCNetworkReachabilitySetCallback(self.networkReachabilityRef, ReachabilityChangedCallback, &context))
-    {
-        if (SCNetworkReachabilityScheduleWithRunLoop(self.networkReachabilityRef, CFRunLoopGetCurrent(), kCFRunLoopDefaultMode))
-        {
+    if (SCNetworkReachabilitySetCallback(self.networkReachabilityRef, ReachabilityChangedCallback, &context)) {
+        if (SCNetworkReachabilityScheduleWithRunLoop(self.networkReachabilityRef, CFRunLoopGetCurrent(), kCFRunLoopDefaultMode)) {
             started = YES;
         }
-        else
-        {
+        else {
             CMISLogWarning(@"Failed to schedule network reachability with run loop");
         }
     }
-    else
-    {
+    else {
         CMISLogWarning(@"Failed to set network reachability callback");
     }
     
@@ -145,14 +132,11 @@ void handleFlags(SCNetworkReachabilityFlags flags)
 {
     BOOL stopped = NO;
     
-    if (self.networkReachabilityRef != NULL)
-    {
-        if (SCNetworkReachabilityUnscheduleFromRunLoop(self.networkReachabilityRef, CFRunLoopGetCurrent(), kCFRunLoopDefaultMode))
-        {
+    if (self.networkReachabilityRef != NULL) {
+        if (SCNetworkReachabilityUnscheduleFromRunLoop(self.networkReachabilityRef, CFRunLoopGetCurrent(), kCFRunLoopDefaultMode)) {
             stopped = YES;
         }
-        else
-        {
+        else {
             CMISLogWarning(@"Failed to unschedule network reachability from run loop");
         }
     }
