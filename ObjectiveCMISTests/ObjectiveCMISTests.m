@@ -2378,7 +2378,7 @@
     query = @"SELECT * FROM cmis:document WHERE abc:bool = ?";
     st = [[CMISQueryStatement alloc] initWithStatement:query];
     [st setBooleanAtIndex:1 boolean:YES];
-    XCTAssertEqualObjects(@"SELECT * FROM cmis:document WHERE abc:bool = YES", [st queryString], @"wrong encoded query statement");
+    XCTAssertEqualObjects(@"SELECT * FROM cmis:document WHERE abc:bool = TRUE", [st queryString], @"wrong encoded query statement");
     
     // numbers
     query = @"SELECT * FROM cmis:document WHERE abc:int = ? AND abc:int2 = 123";

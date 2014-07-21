@@ -19,6 +19,8 @@
 
 #import "CMISQueryStatement.h"
 
+static NSDateFormatter *cmisQueryStatementTimeStampFormatter;
+
 @interface CMISQueryStatement ()
 
 @property (nonatomic, strong) NSString* statement;
@@ -40,37 +42,37 @@
 
 - (void)setTypeAtIndex:(NSUInteger)parameterIndex type:(NSString*)type {
     if (type && type.length > 0) {
-        [self.parametersDictionary setObject:[CMISQueryStatement escapeString:type withSurroundingQuotes:NO] forKey:[NSNumber numberWithInteger:parameterIndex]];
+        self.parametersDictionary[@(parameterIndex)] = [CMISQueryStatement escapeString:type withSurroundingQuotes:NO];
     }
 }
 
 - (void)setPropertyAtIndex:(NSUInteger)parameterIndex property:(NSString*)property {
     if (property && property.length > 0) {
-        [self.parametersDictionary setObject:[CMISQueryStatement escapeString:property withSurroundingQuotes:NO] forKey:[NSNumber numberWithInteger:parameterIndex]];
+        self.parametersDictionary[@(parameterIndex)] = [CMISQueryStatement escapeString:property withSurroundingQuotes:NO];
     }
 }
 
 - (void)setNumberAtIndex:(NSUInteger)parameterIndex number:(NSNumber*)number {
     if (number) {
-        [self.parametersDictionary setObject:number forKey:[NSNumber numberWithInteger:parameterIndex]];
+        self.parametersDictionary[@(parameterIndex)] = number;
     }
 }
 
 - (void)setStringAtIndex:(NSUInteger)parameterIndex string:(NSString*)string {
     if (string && string.length > 0) {
-        [self.parametersDictionary setObject:[CMISQueryStatement escapeString:string withSurroundingQuotes:YES] forKey:[NSNumber numberWithInteger:parameterIndex]];
+        self.parametersDictionary[@(parameterIndex)] = [CMISQueryStatement escapeString:string withSurroundingQuotes:YES];
     }
 }
 
 - (void)setStringLikeAtIndex:(NSUInteger)parameterIndex string:(NSString*)string {
     if (string && string.length > 0) {
-        [self.parametersDictionary setObject:[CMISQueryStatement escapeLike:string] forKey:[NSNumber numberWithInteger:parameterIndex]];
+        self.parametersDictionary[@(parameterIndex)] = [CMISQueryStatement escapeLike:string];
     }
 }
 
 - (void)setStringContainsAtIndex:(NSUInteger)parameterIndex string:(NSString*)string {
     if (string && string.length > 0) {
-        [self.parametersDictionary setObject:[CMISQueryStatement escapeContains:string] forKey:[NSNumber numberWithInteger:parameterIndex]];
+        self.parametersDictionary[@(parameterIndex)] = [CMISQueryStatement escapeContains:string];
     }
 }
 
@@ -79,24 +81,18 @@
         NSError *error;
         NSString *urlString = [NSString stringWithContentsOfURL:url encoding:NSUTF8StringEncoding error:&error];
         if (!error && urlString && urlString.length >0) {
-            [self.parametersDictionary setObject:[CMISQueryStatement escapeString:urlString withSurroundingQuotes:YES] forKey:[NSNumber numberWithInteger:parameterIndex]];
+            self.parametersDictionary[@(parameterIndex)] = [CMISQueryStatement escapeString:urlString withSurroundingQuotes:YES];
         }
     }
 }
 
 - (void)setBooleanAtIndex:(NSUInteger)parameterIndex boolean:(BOOL)boolean {
-    NSString *booleanString;
-    if (boolean) {
-        booleanString = @"YES";
-    } else {
-        booleanString = @"NO";
-    }
-    [self.parametersDictionary setObject:booleanString forKey:[NSNumber numberWithInteger:parameterIndex]];
+    self.parametersDictionary[@(parameterIndex)] = boolean ? @"TRUE" : @"FALSE";
 }
 
 - (void)setDateTimeAtIndex:(NSUInteger)parameterIndex date:(NSDate*)date {
     if (date) {
-        [self.parametersDictionary setObject:[NSString stringWithFormat:@"TIMESTAMP '%@'", [CMISQueryStatement convert:date]] forKey:[NSNumber numberWithInteger:parameterIndex]];
+        self.parametersDictionary[@(parameterIndex)] = [NSString stringWithFormat:@"TIMESTAMP '%@'", [CMISQueryStatement convert:date]];
     }
 }
 
@@ -119,7 +115,7 @@
             [retStr appendString:[NSString stringWithCharacters:&c length:1]];
         } else if (c == '?' && !inStr) {
             parameterIndex++;
-            NSObject *parameter = [self.parametersDictionary objectForKey:[NSNumber numberWithInteger:parameterIndex]];
+            NSObject *parameter = self.parametersDictionary[@(parameterIndex)];
             NSString *paramValue = nil;
             if ([parameter isKindOfClass:NSString.class]) {
                 paramValue = (NSString*)parameter;
@@ -201,12 +197,14 @@
 }
 
 + (NSString*)convert:(NSDate*)date {
-    NSDateFormatter* timeStampFormatter = [[NSDateFormatter alloc] init];
-    timeStampFormatter.dateFormat = @"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
-    timeStampFormatter.calendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
-    timeStampFormatter.timeZone = [NSTimeZone timeZoneWithName:@"GMT"];
-    
-    return [timeStampFormatter stringFromDate:date];
+    if (!cmisQueryStatementTimeStampFormatter) {
+        cmisQueryStatementTimeStampFormatter = [[NSDateFormatter alloc] init];
+        cmisQueryStatementTimeStampFormatter.dateFormat = @"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
+        cmisQueryStatementTimeStampFormatter.calendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
+        cmisQueryStatementTimeStampFormatter.timeZone = [NSTimeZone timeZoneWithName:@"GMT"];
+    }
+
+    return [cmisQueryStatementTimeStampFormatter stringFromDate:date];
 }
 
 @end
