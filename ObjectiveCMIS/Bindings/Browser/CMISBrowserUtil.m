@@ -209,7 +209,7 @@ NSString * const kCMISBrowserMaxValueJSONProperty = @"\"maxValue\":1797693134862
         typeDef.includedInSupertypeQuery = [jsonDictionary cmis_boolForKey:kCMISBrowserJSONIncludedInSuperTypeQuery];
         typeDef.queryable = [jsonDictionary cmis_boolForKey:kCMISBrowserJSONQueryable];
         typeDef.localName = [jsonDictionary cmis_objectForKeyNotNull:kCMISBrowserJSONLocalName];
-        typeDef.localNameSpace = [jsonDictionary cmis_objectForKeyNotNull:kCMISBrowserJSONLocalNamespace];
+        typeDef.localNamespace = [jsonDictionary cmis_objectForKeyNotNull:kCMISBrowserJSONLocalNamespace];
         typeDef.parentTypeId = [jsonDictionary cmis_objectForKeyNotNull:kCMISBrowserJSONParentId];
         typeDef.queryName = [jsonDictionary cmis_objectForKeyNotNull:kCMISBrowserJSONQueryName];
         
@@ -1004,6 +1004,20 @@ NSString * const kCMISBrowserMaxValueJSONProperty = @"\"maxValue\":1797693134862
     }
     
     // TODO default value
+    
+    // parse choices, if present
+    NSArray *choicesJSON = propertyDictionary[kCMISBrowserJSONChoice];
+    if (choicesJSON != nil) {
+        NSMutableArray *choices = [NSMutableArray array];
+        for (NSDictionary *choiceDictionary in choicesJSON) {
+            CMISPropertyChoice *choice = [CMISPropertyChoice new];
+            choice.displayName = [choiceDictionary cmis_objectForKeyNotNull:kCMISBrowserJSONDisplayName];
+            choice.value = [choiceDictionary cmis_objectForKeyNotNull:kCMISBrowserJSONValue];
+            [choices addObject:choice];
+        }
+        
+        propDef.choices = choices;
+    }
     
     // handle extensions
     propDef.extensions = [CMISObjectConverter convertExtensions:propertyDictionary cmisKeys:[CMISBrowserConstants propertyTypeKeys]];

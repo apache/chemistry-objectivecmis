@@ -1404,12 +1404,13 @@
              // Check type definition properties
              XCTAssertNotNil(typeDefinition, @"Type definition should not be nil");
              XCTAssertTrue(typeDefinition.baseTypeId == CMISBaseTypeDocument, @"Unexpected base type id");
-             XCTAssertNotNil(typeDefinition.description, @"Type description should not be nil");
+             XCTAssertNil(typeDefinition.parentTypeId, @"Expected parent type id to be nil");
+             XCTAssertNotNil(typeDefinition.summary, @"Type summary should not be nil");
              XCTAssertNotNil(typeDefinition.displayName, @"Type displayName should not be nil");
              XCTAssertNotNil(typeDefinition.identifier, @"Type id should not be nil");
              XCTAssertTrue([typeDefinition.identifier isEqualToString:@"cmis:document"], @"Wrong id for type");
              XCTAssertNotNil(typeDefinition.localName, @"Type local name should not be nil");
-             XCTAssertNotNil(typeDefinition.localNameSpace, @"Type local namespace should not be nil");
+             XCTAssertNotNil(typeDefinition.localNamespace, @"Type local namespace should not be nil");
              XCTAssertNotNil(typeDefinition.queryName, @"Type query name should not be nil");
              
              // Check property definitions
@@ -1417,7 +1418,7 @@
              for (id key in typeDefinition.propertyDefinitions)
              {
                  CMISPropertyDefinition *propertyDefinition = [typeDefinition.propertyDefinitions objectForKey:key];
-                 XCTAssertNotNil(propertyDefinition.description, @"Property definition description should not be nil");
+                 XCTAssertNotNil(propertyDefinition.summary, @"Property definition summary should not be nil");
                  XCTAssertNotNil(propertyDefinition.displayName, @"Property definition display name should not be nil");
                  XCTAssertNotNil(propertyDefinition.identifier, @"Property definition id should not be nil");
                  XCTAssertNotNil(propertyDefinition.localName, @"Property definition local name should not be nil");
@@ -1428,6 +1429,198 @@
              self.testCompleted = YES;
          }];
      }];
+}
+
+- (void)testRetrieveSubTypeDefinition
+{
+    [self runTest:^ {
+        
+        // NOTE: This test will request a custom type from an Alfresco repository, if this type is not installed an error will
+        //       be returned, however, in this case, the test will still pass
+        
+        [self.session.binding.repositoryService retrieveTypeDefinition:@"D:fdk:everything" completionBlock:^(CMISTypeDefinition *typeDefinition, NSError *error) {
+            if (typeDefinition == nil)
+            {
+                // check the error code was ObjectNotFound
+                XCTAssertTrue(error.code == kCMISErrorCodeObjectNotFound, @"Expected error code of 257 but it was %lu", (unsigned long)error.code);
+                self.testCompleted = YES;
+            }
+            else
+            {
+                // Check type definition properties
+                XCTAssertNotNil(typeDefinition, @"Type definition should not be nil");
+                XCTAssertTrue([typeDefinition.identifier isEqualToString:@"D:fdk:everything"],
+                              @"Expected identifer to be 'D:fdk:everything' but it was %@", typeDefinition.identifier);
+                XCTAssertTrue([typeDefinition.localName isEqualToString:@"everything"],
+                              @"Expected localName to be 'everything' but it was %@", typeDefinition.localName);
+                XCTAssertTrue([typeDefinition.localNamespace isEqualToString:@"http://www.alfresco.org/model/fdk/1.0"],
+                              @"Expected localNameSpace to be 'http://www.alfresco.org/model/fdk/1.0' but it was %@", typeDefinition.localNamespace);
+                XCTAssertTrue([typeDefinition.queryName isEqualToString:@"fdk:everything"],
+                              @"Expected queryName to be 'fdk:everything' but it was %@", typeDefinition.queryName);
+                
+                // the following properties have different values on 4.0 servers
+                if ([self.session.repositoryInfo.productVersion hasPrefix:@"4.0."])
+                {
+                    XCTAssertTrue([typeDefinition.displayName isEqualToString:@"D:fdk:everything"],
+                                  @"Expected displayName to be 'D:fdk:everything' but it was %@", typeDefinition.displayName);
+                    XCTAssertTrue([typeDefinition.summary isEqualToString:@"D:fdk:everything"],
+                                  @"Expected summary to be 'D:fdk:everything' but it was %@", typeDefinition.summary);
+                }
+                else
+                {
+                    XCTAssertTrue([typeDefinition.displayName isEqualToString:@"Everything"],
+                                  @"Expected displayName to be 'Everything' but it was %@", typeDefinition.displayName);
+                    XCTAssertTrue([typeDefinition.summary isEqualToString:@"Everything"],
+                                  @"Expected summary to be 'Everything' but it was %@", typeDefinition.summary);
+                }
+                
+                XCTAssertTrue(typeDefinition.baseTypeId == CMISBaseTypeDocument, @"Unexpected base type id");
+                XCTAssertTrue([typeDefinition.parentTypeId isEqualToString:@"cmis:document"],
+                              @"Expected parentTypeId to be 'cmis:document' but it was %@", typeDefinition.parentTypeId);
+                XCTAssertTrue(typeDefinition.creatable, @"Expected creatable property to be true");
+                XCTAssertTrue(typeDefinition.fileable, @"Expected fileable property to be true");
+                XCTAssertTrue(typeDefinition.queryable, @"Expected queryable property to be true");
+                XCTAssertTrue(typeDefinition.fullTextIndexed, @"Expected fullTextIndexed property to be true");
+                XCTAssertTrue(typeDefinition.includedInSupertypeQuery, @"Expected includedInSupertypeQuery property to be true");
+                XCTAssertFalse(typeDefinition.controllablePolicy, @"Expected controllablePolicy property to be false");
+                XCTAssertTrue(typeDefinition.controllableAcl, @"Expected controllableAcl property to be true");
+                
+                // retrieve cmis:name property and check it
+                CMISPropertyDefinition *namePropertyDefiniton = [typeDefinition propertyDefinitionForId:@"cmis:name"];
+                XCTAssertNotNil(namePropertyDefiniton, @"Expected to find a property definition for cmis:name");
+                XCTAssertTrue([namePropertyDefiniton.identifier isEqualToString:@"cmis:name"],
+                              @"Expected identifier to be 'cmis:name' but it was %@", namePropertyDefiniton.identifier);
+                XCTAssertTrue([namePropertyDefiniton.localName isEqualToString:@"name"],
+                              @"Expected localName to be 'name' but it was %@", namePropertyDefiniton.localName);
+                XCTAssertTrue([namePropertyDefiniton.localNamespace isEqualToString:@"http://www.alfresco.org/model/cmis/1.0/cs01"],
+                              @"Expected localNameSpace to be 'http://www.alfresco.org/model/cmis/1.0/cs01' but it was %@", namePropertyDefiniton.localNamespace);
+                XCTAssertTrue([namePropertyDefiniton.displayName isEqualToString:@"Name"],
+                              @"Expected displayName to be 'Name' but it was %@", namePropertyDefiniton.displayName);
+                XCTAssertTrue([namePropertyDefiniton.queryName isEqualToString:@"cmis:name"],
+                              @"Expected queryName to be 'cmis:name' but it was %@", namePropertyDefiniton.queryName);
+                XCTAssertTrue([namePropertyDefiniton.summary isEqualToString:@"Name"],
+                              @"Expected summary to be 'Name' but it was %@", namePropertyDefiniton.summary);
+                XCTAssertTrue(namePropertyDefiniton.propertyType == CMISPropertyTypeString, @"Expected int property to be of type string");
+                XCTAssertTrue(namePropertyDefiniton.cardinality == CMISCardinalitySingle, @"Unexpected cardinality");
+                XCTAssertTrue(namePropertyDefiniton.updatability == CMISUpdatabilityReadWrite, @"Unexpected updatability");
+                XCTAssertTrue(namePropertyDefiniton.inherited, @"Expected inherited property to be true");
+                XCTAssertTrue(namePropertyDefiniton.queryable, @"Expected queryable property to be true");
+                XCTAssertTrue(namePropertyDefiniton.orderable, @"Expected orderable property to be true");
+                if ([self.session.repositoryInfo.productVersion hasPrefix:@"4.0."])
+                {
+                    // due to a bug on 4.0 servers the required property was set to false
+                    XCTAssertFalse(namePropertyDefiniton.required, @"Expected required property to be false");
+                }
+                else
+                {
+                    XCTAssertTrue(namePropertyDefiniton.required, @"Expected required property to be true");
+                }
+                
+                // retrieve other property types
+                CMISPropertyDefinition *intPropertyDefiniton = [typeDefinition propertyDefinitionForId:@"fdk:int"];
+                XCTAssertTrue(intPropertyDefiniton.propertyType == CMISPropertyTypeInteger, @"Expected int property to be of type integer");
+                CMISPropertyDefinition *doublePropertyDefiniton = [typeDefinition propertyDefinitionForId:@"fdk:double"];
+                XCTAssertTrue(doublePropertyDefiniton.propertyType == CMISPropertyTypeDecimal, @"Expected double property to be of type decimal");
+                CMISPropertyDefinition *boolPropertyDefiniton = [typeDefinition propertyDefinitionForId:@"fdk:boolean"];
+                XCTAssertTrue(boolPropertyDefiniton.propertyType == CMISPropertyTypeBoolean, @"Expected boolean property to be of type boolean");
+                CMISPropertyDefinition *dateTimePropertyDefiniton = [typeDefinition propertyDefinitionForId:@"fdk:dateTime"];
+                XCTAssertTrue(dateTimePropertyDefiniton.propertyType == CMISPropertyTypeDateTime, @"Expected dateTime property to be of type dateTime");
+                CMISPropertyDefinition *noderefPropertyDefiniton = [typeDefinition propertyDefinitionForId:@"fdk:noderef"];
+                XCTAssertTrue(noderefPropertyDefiniton.propertyType == CMISPropertyTypeId, @"Expected noderef property to be of type id");
+                
+                // retrieve choices
+                CMISPropertyDefinition *constraintPropertyDefiniton = [typeDefinition propertyDefinitionForId:@"fdk:listConstraint"];
+                XCTAssertTrue(constraintPropertyDefiniton.propertyType == CMISPropertyTypeString, @"Expected listConstraint property to be of type string");
+                XCTAssertTrue([constraintPropertyDefiniton.localNamespace isEqualToString:@"http://www.alfresco.org/model/fdk/1.0"],
+                              @"Expected localNameSpace to be 'http://www.alfresco.org/model/fdk/1.0' but it was %@", constraintPropertyDefiniton.localNamespace);
+                XCTAssertFalse(constraintPropertyDefiniton.openChoice, @"Expected openChoice property to be false");
+                NSArray *choices = constraintPropertyDefiniton.choices;
+                XCTAssertNotNil(choices, @"Expected choices property for listConstraint property to be populated");
+                XCTAssertTrue(choices.count == 3, @"Expected there to be 3 choices but there were %lu", (unsigned long)choices.count);
+                
+                // only perform the following tests on endpoints using OpenCMIS
+                if (self.session.sessionParameters.atomPubUrl == nil ||
+                    [self.session.sessionParameters.atomPubUrl.absoluteString rangeOfString:@"/alfresco/service/api/cmis" options:NSCaseInsensitiveSearch].location == NSNotFound) {
+                    CMISPropertyChoice *choice1 = choices[0];
+                    XCTAssertTrue([choice1.displayName isEqualToString:@"Phone"], @"Expected choice 1 displayName to be 'Phone' but was %@", choice1.displayName);
+                    XCTAssertTrue([choice1.value isEqualToString:@"Phone"], @"Expected choice 1 value to be 'Phone' but was %@", choice1.value);
+                    CMISPropertyChoice *choice2 = choices[1];
+                    XCTAssertTrue([choice2.displayName isEqualToString:@"Audio Visual"], @"Expected choice 2 displayName to be 'Audio Visual' but was %@", choice1.displayName);
+                    XCTAssertTrue([choice2.value isEqualToString:@"Audio Visual"], @"Expected choice 2 value to be 'Audio Visual' but was %@", choice1.value);
+                    CMISPropertyChoice *choice3 = choices[2];
+                    XCTAssertTrue([choice3.displayName isEqualToString:@"Computer"], @"Expected choice 3 displayName to be 'Computer' but was %@", choice1.displayName);
+                    XCTAssertTrue([choice3.value isEqualToString:@"Computer"], @"Expected choice 3 value to be 'Computer' but was %@", choice1.value);
+                    
+                    // make sure the extensions data is also populated
+                    NSArray *extensions = typeDefinition.extensions;
+                    XCTAssertNotNil(extensions, @"Expected extensions data to be populated");
+                    XCTAssertTrue(extensions.count == 1, @"Expected 1 extension element but there were: %lu", (unsigned long)extensions.count);
+                    CMISExtensionElement *extensionElement = extensions[0];
+                    XCTAssertTrue(extensionElement.children.count > 0, @"Expected extension element to have at least one child");
+                }
+                
+                self.testCompleted = YES;
+            }
+        }];
+    }];
+}
+
+- (void)testRetrieveAspectDefinition
+{
+    [self runTest:^ {
+        
+        // NOTE: This test will request an aspect from an Alfresco repository, if the server is not an Alfresco server an error will
+        //       be returned, however, in this case, the test will still pass
+        
+        [self.session.binding.repositoryService retrieveTypeDefinition:@"P:exif:exif" completionBlock:^(CMISTypeDefinition *aspectDefinition, NSError *error) {
+            if (aspectDefinition == nil)
+            {
+                // check the error code was ObjectNotFound
+                XCTAssertTrue(error.code == kCMISErrorCodeObjectNotFound, @"Expected error code of 257 but it was %lu", (unsigned long)error.code);
+                self.testCompleted = YES;
+            }
+            else
+            {
+                // Check type definition properties
+                XCTAssertNotNil(aspectDefinition, @"Aspect definition should not be nil");
+                XCTAssertTrue([aspectDefinition.identifier isEqualToString:@"P:exif:exif"],
+                              @"Expected identifer to be 'P:exif:exif' but it was %@", aspectDefinition.identifier);
+                XCTAssertTrue([aspectDefinition.localName isEqualToString:@"exif"],
+                              @"Expected localName to be 'exif' but it was %@", aspectDefinition.localName);
+                XCTAssertTrue([aspectDefinition.localNamespace isEqualToString:@"http://www.alfresco.org/model/exif/1.0"],
+                              @"Expected localNameSpace to be 'http://www.alfresco.org/model/exif/1.0' but it was %@", aspectDefinition.localNamespace);
+                XCTAssertTrue([aspectDefinition.displayName isEqualToString:@"EXIF"],
+                              @"Expected displayName to be 'EXIF' but it was %@", aspectDefinition.displayName);
+                XCTAssertTrue([aspectDefinition.queryName isEqualToString:@"exif:exif"],
+                              @"Expected queryName to be 'exif:exif' but it was %@", aspectDefinition.queryName);
+                XCTAssertTrue([aspectDefinition.summary isEqualToString:@"Subset of the standard EXIF metadata"],
+                              @"Expected summary to be 'Subset of the standard EXIF metadata' but it was %@", aspectDefinition.summary);
+                
+                if ([self.session.repositoryInfo.cmisVersionSupported isEqualToString:@"1.0"])
+                {
+                    XCTAssertTrue(aspectDefinition.baseTypeId == CMISBaseTypePolicy, @"Unexpected base type id");
+                    XCTAssertNotNil(aspectDefinition.parentTypeId, @"Expected parent type id to be populated");
+                }
+                else
+                {
+                    // from the 1.1 binding onwards aspects are represented as secondary types
+                    XCTAssertTrue(aspectDefinition.baseTypeId == CMISBaseTypeSecondary, @"Unexpected base type id");
+                    XCTAssertTrue([aspectDefinition.parentTypeId isEqualToString:@"cmis:secondary"],
+                                  @"Expected parentTypeId to be 'cmis:secondary' but it was %@", aspectDefinition.parentTypeId);
+                }
+                
+                XCTAssertFalse(aspectDefinition.creatable, @"Expected creatable property to be false");
+                XCTAssertFalse(aspectDefinition.fileable, @"Expected fileable property to be false");
+                XCTAssertTrue(aspectDefinition.queryable, @"Expected queryable property to be true");
+                XCTAssertTrue(aspectDefinition.fullTextIndexed, @"Expected fullTextIndexed property to be true");
+                XCTAssertTrue(aspectDefinition.includedInSupertypeQuery, @"Expected includedInSupertypeQuery property to be true");
+                XCTAssertFalse(aspectDefinition.controllablePolicy, @"Expected controllablePolicy property to be false");
+                XCTAssertFalse(aspectDefinition.controllableAcl, @"Expected controllableAcl property to be false");
+                
+                self.testCompleted = YES;
+            }
+        }];
+    }];
 }
 
 - (void)testUpdateDocumentPropertiesThroughObjectService

@@ -24,8 +24,10 @@
 
 @interface CMISAtomPubPropertyDefinitionParser ()
 
-@property(nonatomic, strong, readwrite) CMISPropertyDefinition *propertyDefinition;
-@property(nonatomic, strong, readwrite) NSString *currentString;
+@property (nonatomic, strong, readwrite) CMISPropertyDefinition *propertyDefinition;
+@property (nonatomic, strong, readwrite) NSString *currentString;
+@property (nonatomic, strong, readwrite) NSMutableArray *currentChoices;
+@property (nonatomic, strong, readwrite) CMISPropertyChoice *currentChoice;
 
 // Properties if used as child delegate parser
 @property(nonatomic, weak) id <NSXMLParserDelegate, CMISAtomPubPropertyDefinitionDelegate> parentDelegate;
@@ -95,6 +97,19 @@
     }
 }
 
+- (void)parser:(NSXMLParser *)parser didStartElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qName attributes:(NSDictionary *)attributeDict
+{
+    if ([elementName isEqualToString:kCMISCoreChoice] || [elementName isEqualToString:kCMISCoreChoiceString]) {
+        if (self.currentChoices == nil)
+        {
+            self.currentChoices = [NSMutableArray array];
+        }
+        
+        self.currentChoice = [CMISPropertyChoice new];
+        self.currentChoice.displayName = attributeDict[kCMISAtomEntryDisplayName];
+    }
+}
+
 - (void)parser:(NSXMLParser *)parser didEndElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qName
 {
     if ([elementName isEqualToString:kCMISCorePropertyStringDefinition]
@@ -103,6 +118,10 @@
         || [elementName isEqualToString:kCMISCorePropertyIntegerDefinition]
         || [elementName isEqualToString:kCMISCorePropertyDateTimeDefinition]
         || [elementName isEqualToString:kCMISCorePropertyDecimalDefinition]) {
+        
+        // store any choice objects
+        self.propertyDefinition.choices = self.currentChoices;
+        
         if (self.parentDelegate) {
             if ([self.parentDelegate respondsToSelector:@selector(propertyDefinitionParser:didFinishParsingPropertyDefinition:)]) {
                 [self.parentDelegate performSelector:@selector(propertyDefinitionParser:didFinishParsingPropertyDefinition:) withObject:self withObject:self.propertyDefinition];
@@ -155,8 +174,11 @@
         self.propertyDefinition.orderable = [self parseBooleanValue:self.currentString];
     } else if ([elementName isEqualToString:kCMISCoreOpenChoice]) {
         self.propertyDefinition.openChoice = [self parseBooleanValue:self.currentString];
+    } else if ([elementName isEqualToString:kCMISAtomEntryValue]) {
+        self.currentChoice.value = self.currentString;
+        [self.currentChoices addObject:self.currentChoice];
     }
-
+    
     self.currentString = nil;
 }
 

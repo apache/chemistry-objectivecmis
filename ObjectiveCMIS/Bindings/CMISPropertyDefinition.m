@@ -19,6 +19,10 @@
 
 #import "CMISPropertyDefinition.h"
 
+@implementation CMISPropertyChoice
+
+@end
+
 
 @implementation CMISPropertyDefinition
 

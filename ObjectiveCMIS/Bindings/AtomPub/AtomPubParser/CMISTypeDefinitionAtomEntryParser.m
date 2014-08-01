@@ -30,8 +30,6 @@
 @property(nonatomic, strong, readwrite) NSData *atomData;
 @property(nonatomic, strong, readwrite) NSString *currentString;
 
-@property (nonatomic, strong) id<NSXMLParserDelegate> childParserDelegate;
-
 @end
 
 
@@ -70,27 +68,42 @@
 
 - (void)parser:(NSXMLParser *)parser didStartElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qName attributes:(NSDictionary *)attributeDict
 {
-    if ([elementName isEqualToString:kCMISRestAtomType]) {
-        __block BOOL documentType = NO;
-        [attributeDict enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
-            if ([key hasSuffix:@"type"] && [obj hasSuffix:@"cmisTypeDocumentDefinitionType"]) {
-                documentType = YES;
+    if ([namespaceURI isEqualToString:kCMISNamespaceCmisRestAtom]) {
+        if ([elementName isEqualToString:kCMISRestAtomType]) {
+            __block BOOL documentType = NO;
+            [attributeDict enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
+                if ([key hasSuffix:@"type"] && [obj hasSuffix:@"cmisTypeDocumentDefinitionType"]) {
+                    documentType = YES;
+                }
+            }];
+            
+            if (documentType) {
+                self.typeDefinition = [[CMISDocumentTypeDefinition alloc] init];
+            } else {
+                self.typeDefinition = [[CMISTypeDefinition alloc] init];
             }
-        }];
-        
-        if (documentType) {
-            self.typeDefinition = [[CMISDocumentTypeDefinition alloc] init];
-        } else {
-            self.typeDefinition = [[CMISTypeDefinition alloc] init];
+            self.isParsingTypeDefinition = YES;
+            
+            [self pushNewCurrentExtensionData:self.typeDefinition];
         }
-        self.isParsingTypeDefinition = YES;
-    } else if ([elementName isEqualToString:kCMISCorePropertyStringDefinition]
-             || [elementName isEqualToString:kCMISCorePropertyIdDefinition]
-             || [elementName isEqualToString:kCMISCorePropertyBooleanDefinition]
-             || [elementName isEqualToString:kCMISCorePropertyIntegerDefinition]
-             || [elementName isEqualToString:kCMISCorePropertyDateTimeDefinition]
-             || [elementName isEqualToString:kCMISCorePropertyDecimalDefinition]) {
-        self.childParserDelegate = [CMISAtomPubPropertyDefinitionParser parserForPropertyDefinition:elementName withParentDelegate:self parser:parser];
+    } else if ([namespaceURI isEqualToString:kCMISNamespaceCmis]) {
+        if ([elementName isEqualToString:kCMISCorePropertyStringDefinition] ||
+            [elementName isEqualToString:kCMISCorePropertyIdDefinition] ||
+            [elementName isEqualToString:kCMISCorePropertyBooleanDefinition] ||
+            [elementName isEqualToString:kCMISCorePropertyIntegerDefinition] ||
+            [elementName isEqualToString:kCMISCorePropertyDateTimeDefinition] ||
+            [elementName isEqualToString:kCMISCorePropertyDecimalDefinition]) {
+            self.childParserDelegate = [CMISAtomPubPropertyDefinitionParser parserForPropertyDefinition:elementName withParentDelegate:self parser:parser];
+        }
+    } else if ([namespaceURI isEqualToString:kCMISNamespaceApp] ||
+               [namespaceURI isEqualToString:kCMISNamespaceAtom]) {
+        // do nothing with these namespaces
+    } else {
+        // parse extension data
+        if (self.currentExtensionData != nil) {
+            self.childParserDelegate = [CMISAtomPubExtensionElementParser extensionElementParserWithElementName:elementName namespaceUri:namespaceURI
+                                                                                                     attributes:attributeDict parentDelegate:self parser:parser];
+        }
     }
 }
 
@@ -119,7 +132,7 @@
         }
     } else if ([elementName isEqualToString:kCMISCoreLocalNamespace]) {
         if (self.isParsingTypeDefinition) {
-            self.typeDefinition.localNameSpace = self.currentString;
+            self.typeDefinition.localNamespace = self.currentString;
         }
     } else if ([elementName isEqualToString:kCMISCoreDisplayName]) {
         if (self.isParsingTypeDefinition) {
@@ -139,7 +152,19 @@
                 self.typeDefinition.baseTypeId = CMISBaseTypeDocument;
             } else if ([self.currentString isEqualToString:kCMISPropertyObjectTypeIdValueFolder]) {
                 self.typeDefinition.baseTypeId = CMISBaseTypeFolder;
+            } else if ([self.currentString isEqualToString:kCMISPropertyObjectTypeIdValuePolicy]) {
+                self.typeDefinition.baseTypeId = CMISBaseTypePolicy;
+            } else if ([self.currentString isEqualToString:kCMISPropertyObjectTypeIdValueItem]) {
+                self.typeDefinition.baseTypeId = CMISBaseTypeItem;
+            } else if ([self.currentString isEqualToString:kCMISPropertyObjectTypeIdValueSecondary]) {
+                self.typeDefinition.baseTypeId = CMISBaseTypeSecondary;
+            } else if ([self.currentString isEqualToString:kCMISPropertyObjectTypeIdValueRelationship]) {
+                self.typeDefinition.baseTypeId = CMISBaseTypeRelationship;
             }
+        }
+    } else if ([elementName isEqualToString:kCMISCoreParentId]) {
+        if (self.isParsingTypeDefinition) {
+            self.typeDefinition.parentTypeId = self.currentString;
         }
     } else if ([elementName isEqualToString:kCMISCoreCreatable]) {
         if (self.isParsingTypeDefinition) {
@@ -183,6 +208,9 @@
                 ((CMISDocumentTypeDefinition*)self.typeDefinition).contentStreamAllowed = CMISContentStreamRequired;
             }
         }
+    } else if ([elementName isEqualToString:kCMISAtomEntry]) {
+        // set the extensionData
+        [self saveCurrentExtensionsAndPushPreviousExtensionData];
     }
 
     self.currentString = nil;
