@@ -308,7 +308,7 @@ totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite
 {
     switch (eventCode){
         case NSStreamEventOpenCompleted:{
-#ifndef TARGET_OS_MAC
+#if TARGET_OS_IPHONE
             // this fix breaks POST requests on MacOS targets
             if (self.combinedInputStream.streamStatus != NSStreamStatusOpen) {
                 [self.combinedInputStream open]; // this seems to work around the 'Stream ... is sending an event before being opened' Apple bug
