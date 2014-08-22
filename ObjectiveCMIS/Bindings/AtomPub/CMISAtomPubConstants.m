@@ -152,6 +152,7 @@ NSString * const kCMISCoreOrderable = @"orderable";
 NSString * const kCMISCoreOpenChoice = @"openChoice";
 NSString * const kCMISCoreChoice = @"choice";
 NSString * const kCMISCoreChoiceString = @"choiceString";
+NSString * const kCMISCoreDefaultValue = @"defaultValue";
 NSString * const kCMISCoreVersionable = @"versionable";
 NSString * const kCMISCoreContentStreamAllowed = @"contentStreamAllowed";
 NSString * const kCMISCoreAllowed = @"allowed";

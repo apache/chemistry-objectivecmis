@@ -28,6 +28,7 @@
 @property (nonatomic, strong, readwrite) NSString *currentString;
 @property (nonatomic, strong, readwrite) NSMutableArray *currentChoices;
 @property (nonatomic, strong, readwrite) CMISPropertyChoice *currentChoice;
+@property (nonatomic, strong, readwrite) NSMutableArray *currentValues;
 
 // Properties if used as child delegate parser
 @property(nonatomic, weak) id <NSXMLParserDelegate, CMISAtomPubPropertyDefinitionDelegate> parentDelegate;
@@ -43,6 +44,7 @@
     self = [super init];
     if (self) {
         self.propertyDefinition = [[CMISPropertyDefinition alloc] init];
+        self.currentValues = [NSMutableArray array];
     }
     return self;
 }
@@ -175,8 +177,22 @@
     } else if ([elementName isEqualToString:kCMISCoreOpenChoice]) {
         self.propertyDefinition.openChoice = [self parseBooleanValue:self.currentString];
     } else if ([elementName isEqualToString:kCMISAtomEntryValue]) {
-        self.currentChoice.value = self.currentString;
-        [self.currentChoices addObject:self.currentChoice];
+        if (self.currentString != nil) {
+            [self.currentValues addObject:self.currentString];
+        } else {
+            // a value element being present without a value signifies an empty string
+            [self.currentValues addObject:@""];
+        }
+    } else if ([elementName isEqualToString:kCMISCoreChoice] || [elementName isEqualToString:kCMISCoreChoiceString]) {
+        // there should only ever be one value for a single choice element
+        if (self.currentValues.count == 1) {
+            self.currentChoice.value = self.currentValues[0];
+            [self.currentChoices addObject:self.currentChoice];
+        }
+        [self.currentValues removeAllObjects];
+    } else if ([elementName isEqualToString:kCMISCoreDefaultValue]) {
+        self.propertyDefinition.defaultValues = [NSArray arrayWithArray:self.currentValues];
+        [self.currentValues removeAllObjects];
     }
     
     self.currentString = nil;

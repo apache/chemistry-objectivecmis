@@ -1003,7 +1003,21 @@ NSString * const kCMISBrowserMaxValueJSONProperty = @"\"maxValue\":1797693134862
         propDef.updatability = CMISUpdatabilityWhenCheckedOut;
     }
     
-    // TODO default value
+    // parse default value
+    id defaultValueObject = propertyDictionary[kCMISBrowserJSONDefaultValue];
+    if (defaultValueObject != nil)
+    {
+        // for single valued properties this will be actual default value,
+        // for multi valued properties this will be an array
+        if ([defaultValueObject isKindOfClass:[NSArray class]])
+        {
+            propDef.defaultValues = defaultValueObject;
+        }
+        else
+        {
+            propDef.defaultValues = @[defaultValueObject];
+        }
+    }
     
     // parse choices, if present
     NSArray *choicesJSON = propertyDictionary[kCMISBrowserJSONChoice];

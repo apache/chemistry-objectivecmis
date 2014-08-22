@@ -1537,20 +1537,19 @@
                 NSArray *choices = constraintPropertyDefiniton.choices;
                 XCTAssertNotNil(choices, @"Expected choices property for listConstraint property to be populated");
                 XCTAssertTrue(choices.count == 3, @"Expected there to be 3 choices but there were %lu", (unsigned long)choices.count);
+                // add the displayNames of each choice to a set and then check for existence (order differs on older Alfresco servers)
+                NSMutableSet *choicesDisplayNameSet = [NSMutableSet set];
+                for (CMISPropertyChoice *choice in constraintPropertyDefiniton.choices)
+                {
+                    [choicesDisplayNameSet addObject:choice.displayName];
+                }
+                XCTAssertTrue([choicesDisplayNameSet containsObject:@"Phone"], @"Expected to find a choice of 'Phone'");
+                XCTAssertTrue([choicesDisplayNameSet containsObject:@"Audio Visual"], @"Expected to find a choice of 'Audio Visual'");
+                XCTAssertTrue([choicesDisplayNameSet containsObject:@"Computer"], @"Expected to find a choice of 'Computer'");
                 
-                // only perform the following tests on endpoints using OpenCMIS
+                // only perform the following test on endpoints using OpenCMIS
                 if (self.session.sessionParameters.atomPubUrl == nil ||
                     [self.session.sessionParameters.atomPubUrl.absoluteString rangeOfString:@"/alfresco/service/api/cmis" options:NSCaseInsensitiveSearch].location == NSNotFound) {
-                    CMISPropertyChoice *choice1 = choices[0];
-                    XCTAssertTrue([choice1.displayName isEqualToString:@"Phone"], @"Expected choice 1 displayName to be 'Phone' but was %@", choice1.displayName);
-                    XCTAssertTrue([choice1.value isEqualToString:@"Phone"], @"Expected choice 1 value to be 'Phone' but was %@", choice1.value);
-                    CMISPropertyChoice *choice2 = choices[1];
-                    XCTAssertTrue([choice2.displayName isEqualToString:@"Audio Visual"], @"Expected choice 2 displayName to be 'Audio Visual' but was %@", choice1.displayName);
-                    XCTAssertTrue([choice2.value isEqualToString:@"Audio Visual"], @"Expected choice 2 value to be 'Audio Visual' but was %@", choice1.value);
-                    CMISPropertyChoice *choice3 = choices[2];
-                    XCTAssertTrue([choice3.displayName isEqualToString:@"Computer"], @"Expected choice 3 displayName to be 'Computer' but was %@", choice1.displayName);
-                    XCTAssertTrue([choice3.value isEqualToString:@"Computer"], @"Expected choice 3 value to be 'Computer' but was %@", choice1.value);
-                    
                     // make sure the extensions data is also populated
                     NSArray *extensions = typeDefinition.extensions;
                     XCTAssertNotNil(extensions, @"Expected extensions data to be populated");
@@ -1558,6 +1557,49 @@
                     CMISExtensionElement *extensionElement = extensions[0];
                     XCTAssertTrue(extensionElement.children.count > 0, @"Expected extension element to have at least one child");
                 }
+                
+                self.testCompleted = YES;
+            }
+        }];
+    }];
+}
+
+- (void)testDefaultValuesForPropertyDefinition
+{
+    [self runTest:^ {
+        
+        // NOTE: This test will request an task type from an Alfresco repository, if the server is not an Alfresco server an error will
+        //       be returned, however, in this case, the test will still pass
+        
+        [self.session.binding.repositoryService retrieveTypeDefinition:@"D:wf:adhocTask" completionBlock:^(CMISTypeDefinition *taskDefinition, NSError *error) {
+            if (taskDefinition == nil)
+            {
+                // check the error code was ObjectNotFound
+                XCTAssertTrue(error.code == kCMISErrorCodeObjectNotFound, @"Expected error code of 257 but it was %lu", (unsigned long)error.code);
+                self.testCompleted = YES;
+            }
+            else
+            {
+                // Check task definition properties
+                XCTAssertNotNil(taskDefinition, @"Task definition should not be nil");
+                XCTAssertTrue([taskDefinition.identifier isEqualToString:@"D:wf:adhocTask"],
+                              @"Expected identifer to be 'D:wf:adhocTask' but it was %@", taskDefinition.identifier);
+                
+                // retrieve and check some property definition objects
+                CMISPropertyDefinition *statusPropertyDefiniton = [taskDefinition propertyDefinitionForId:@"bpm:status"];
+                XCTAssertNotNil(statusPropertyDefiniton, @"Expected to find a property definition for bpm:status");
+                XCTAssertTrue([statusPropertyDefiniton.identifier isEqualToString:@"bpm:status"],
+                              @"Expected identifier to be 'bpm:status' but it was %@", statusPropertyDefiniton.identifier);
+                
+                NSArray *defaultValues = statusPropertyDefiniton.defaultValues;
+                XCTAssertNotNil(defaultValues, @"Expected defaultValues to be populated");
+                XCTAssertTrue(defaultValues.count == 1, @"Expected there to be 1 default value but there were %lu", (unsigned long)defaultValues.count);
+                XCTAssertTrue([defaultValues[0] isEqualToString:@"Not Yet Started"],
+                              @"Expected default value to be 'Not Yet Started' but it was %@", defaultValues[0]);
+                
+                NSArray *choices = statusPropertyDefiniton.choices;
+                XCTAssertNotNil(choices, @"Expected choices to be populated");
+                XCTAssertTrue(choices.count == 5, @"Expected there to be 5 choices but there were %lu", (unsigned long)choices.count);
                 
                 self.testCompleted = YES;
             }
