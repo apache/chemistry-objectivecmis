@@ -58,6 +58,9 @@
         NSString *repositoryId = [envDict valueForKey:@"repositoryId"];
         NSString *username = [envDict valueForKey:@"username"];
         NSString *password = [envDict valueForKey:@"password"];
+        
+        // store the expected repo version
+        self.expectedRepositoryVersion = [envDict valueForKey:@"repositoryVersion"];
 
         // ensure there is a binding value, default to atom
         if (binding == nil)
@@ -115,21 +118,26 @@
     }
     [CMISSession connectWithSessionParameters:self.parameters completionBlock:^(CMISSession *session, NSError *error){
         if (nil == session) {
-            XCTFail(@"Failed to create session: %@", error.localizedDescription);
+            XCTFail(@"Failed to create session: %@", [self failureMessageFromError:error]);
             self.testCompleted = YES;
         } else {
             self.session = session;
             XCTAssertTrue(self.session.isAuthenticated, @"Session should be authenticated");
             [self.session retrieveRootFolderWithCompletionBlock:^(CMISFolder *rootFolder, NSError *error) {
-                XCTAssertNil(error, @"Error while retrieving root folder: %@", [error description]);
+                XCTAssertNil(error, @"Error while retrieving root folder: %@", [self failureMessageFromError:error]);
                 XCTAssertNotNil(rootFolder, @"rootFolder object should not be nil");
                 if (rootFolder)
                 {
                     [self.session retrieveObjectByPath:@"/ios-test" completionBlock:^(CMISObject *object, NSError *error) {
-                        self.rootFolder = (CMISFolder *)object;
-                        XCTAssertNil(error, @"Error while retrieving root folder: %@", [error description]);
-                        XCTAssertNotNil(self.rootFolder, @"/ios-test rootFolder object should not be nil");
-                        completionBlock();
+                        if (object == nil) {
+                            XCTFail(@"Error while retrieving ios-test folder: %@", [self failureMessageFromError:error]);
+                            self.testCompleted = YES;
+                        }
+                        else {
+                            self.rootFolder = (CMISFolder *)object;
+                            XCTAssertNotNil(self.rootFolder, @"/ios-test folder object should not be nil");
+                            completionBlock();
+                        }
                     }];
                 }
             }];
@@ -231,5 +239,32 @@
     return [[self testDateFormatter] stringFromDate:[NSDate date]];
 }
 
+- (NSString *)failureMessageFromError:(NSError *)error
+{
+    // just return if error has not been provided
+    if (error == nil)
+    {
+        return nil;
+    }
+    
+    NSString *message = error.localizedDescription;
+    
+    // add the failure reason, if there is one!
+    if (error.localizedFailureReason != nil)
+    {
+        message = [message stringByAppendingFormat:@" - %@", error.localizedFailureReason];
+    }
+    else
+    {
+        // try looking for an underlying error and output the whole error object
+        NSError *underlyingError = error.userInfo[NSUnderlyingErrorKey];
+        if (underlyingError != nil)
+        {
+            message = [message stringByAppendingFormat:@" - %@", underlyingError];
+        }
+    }
+    
+    return message;
+}
 
 @end

@@ -89,10 +89,16 @@ NSString * const kCMISExceptionVersioning              = @"versioning";
     
     [self.authenticationProvider.httpHeadersToApply enumerateKeysAndObjectsUsingBlock:^(NSString *headerName, NSString *header, BOOL *stop) {
         [urlRequest addValue:header forHTTPHeaderField:headerName];
+        if ([CMISLog sharedInstance].logLevel == CMISLogLevelTrace) {
+            CMISLogTrace(@"Added header: %@ with value: %@", headerName, header);
+        }
     }];
     
     [self.additionalHeaders enumerateKeysAndObjectsUsingBlock:^(NSString *headerName, NSString *header, BOOL *stop) {
         [urlRequest addValue:header forHTTPHeaderField:headerName];
+        if ([CMISLog sharedInstance].logLevel == CMISLogLevelTrace) {
+            CMISLogTrace(@"Added header: %@ with value: %@", headerName, header);
+        }
     }];
     
     self.connection = [[NSURLConnection alloc] initWithRequest:urlRequest delegate:self startImmediately:NO];

@@ -53,7 +53,7 @@
 {
     return [self internalRetrieveRepositoriesWithCompletionBlock:^(NSError *error) {
         if (error) {
-            completionBlock(nil, [CMISErrors cmisError:error cmisErrorCode:kCMISErrorCodeInvalidArgument]);
+            completionBlock(nil, [CMISErrors cmisError:error cmisErrorCode:kCMISErrorCodeNoRepositoryFound]);
         } else {
             completionBlock([self.repositories objectForKey:repositoryId], nil);
         }

@@ -153,7 +153,9 @@
         bogusParams.repositoryId = self.parameters.repositoryId;
         bogusParams.username = @"bogus";
         bogusParams.password = @"sugob";
-
+        // make sure we don't reuse the cookie from session created in setup
+        [bogusParams setObject:@(NO) forKey:kCMISSessionParameterSendCookies];
+        
         [CMISSession connectWithSessionParameters:bogusParams completionBlock:^(CMISSession *session, NSError *error){
             XCTAssertNil(session, @"we should not get back a valid session");
             if (nil == session) {
@@ -176,7 +178,11 @@
         XCTAssertNotNil(repoInfo, @"repoInfo object should not be nil");
 
         // check the repository info is what we expect
-        XCTAssertTrue([repoInfo.productVersion rangeOfString:@"4."].length > 0, @"Product Version should be 4.x.x, but was %@", repoInfo.productVersion);
+        if (self.expectedRepositoryVersion)
+        {
+            XCTAssertTrue([repoInfo.productVersion hasPrefix:self.expectedRepositoryVersion],
+                          @"Expected productVersion to start with %@ but was %@", self.expectedRepositoryVersion, repoInfo.productVersion);
+        }
         XCTAssertTrue([repoInfo.productName hasPrefix:@"Alfresco"], @"Product name should start with Alfresco, but was %@", repoInfo.productName);
         XCTAssertTrue([repoInfo.vendorName isEqualToString:@"Alfresco"], @"Vendor name should be Alfresco, but was %@", repoInfo.vendorName);
 
@@ -223,7 +229,15 @@
             XCTAssertTrue(objectTypeIdDef.propertyType == CMISPropertyTypeId, @"Expected objectTypeId type to be id");
             XCTAssertTrue(objectTypeIdDef.cardinality == CMISCardinalitySingle, @"Expected objectTypeId cardinality to be single");
             XCTAssertTrue(objectTypeIdDef.updatability == CMISUpdatabilityOnCreate, @"Expected objectTypeId updatability to be oncreate");
-            XCTAssertTrue(objectTypeIdDef.required, @"Expected objectTypeId to be required");
+            if ([self.session.repositoryInfo.productVersion hasPrefix:@"3."])
+            {
+                // a bug on 3.x Alfresco servers flagged this property as optional
+                XCTAssertFalse(objectTypeIdDef.required, @"Expected objectTypeId to not be required");
+            }
+            else
+            {
+                XCTAssertTrue(objectTypeIdDef.required, @"Expected objectTypeId to be required");
+            }
             
             // test secondary type id when using the 1.1 bindings
             CMISPropertyDefinition *secondaryTypeIdDef = typeDef.propertyDefinitions[@"cmis:secondaryObjectTypeIds"];
@@ -429,7 +443,8 @@
 - (void)testCancelDownload
 {
     [self runTest:^ {
-         [self.session retrieveObjectByPath:@"/ios-test/activiti-modeler.png" completionBlock:^(CMISObject *object, NSError *error) {
+         __block BOOL cancelPossible = YES;
+         [self.session retrieveObjectByPath:@"/ios-test/millenium-dome-exif.jpg" completionBlock:^(CMISObject *object, NSError *error) {
              CMISDocument *document = (CMISDocument *)object;
              XCTAssertNil(error, @"Error while retrieving object: %@", [error description]);
 
@@ -445,8 +460,13 @@
                  NSDictionary *fileAttributes = [[NSFileManager defaultManager] attributesOfItemAtPath:filePath error:&fileError];
                  XCTAssertNil(fileError, @"Could not verify attributes of file %@: %@", filePath, [fileError description]);
                  XCTAssertTrue([fileAttributes fileSize] > 0, @"Expected at least some bytes but found an empty file");
-                 XCTAssertTrue([fileAttributes fileSize] < document.contentStreamLength, @"Could not cancel download before the complete file was downloaded");
-                                          
+                                                
+                 // if we managed to cancel check we don't have the whole file
+                 if (cancelPossible)
+                 {
+                     XCTAssertTrue([fileAttributes fileSize] < document.contentStreamLength, @"Cancel was successful so expected smaller file size");
+                 }
+                                                
                  // Nice boys clean up after themselves
                  [[NSFileManager defaultManager] removeItemAtPath:filePath error:&fileError];
                  XCTAssertNil(fileError, @"Could not remove file %@: %@", filePath, [fileError description]);
@@ -454,6 +474,11 @@
                  self.testCompleted = YES;
              } progressBlock:^(unsigned long long bytesDownloaded, unsigned long long bytesTotal) {
                  CMISLogDebug(@"download progress %llu/%llu", bytesDownloaded, bytesTotal);
+                 if (bytesDownloaded == bytesTotal)
+                 {
+                     cancelPossible = NO;
+                     CMISLogWarning(@"whole file was recieved in one chunk!");
+                 }
                  if (bytesDownloaded > 0) { // as soon as some data was downloaded cancel the request
                      [self.request cancel];
                      CMISLogDebug(@"download cancelled");
@@ -942,7 +967,7 @@
                         XCTAssertTrue([document.name isEqualToString:versionOfDocument.name], @"Other version of same document does not have the same name");
                         XCTAssertFalse([document.versionLabel isEqualToString:versionOfDocument.versionLabel], @"Other version of same document should have different version label");
                         XCTAssertTrue([previousModifiedDate compare:versionOfDocument.lastModificationDate] == NSOrderedDescending,
-                                     @"Versions of document should be ordered descending by creation date");
+                                     @"Versions of document should be ordered descending by creation date (%@ vs %@)", previousModifiedDate, versionOfDocument.lastModificationDate);
                         previousModifiedDate = versionOfDocument.lastModificationDate;
                     }
                 }
@@ -1506,9 +1531,9 @@
                 XCTAssertTrue(namePropertyDefiniton.inherited, @"Expected inherited property to be true");
                 XCTAssertTrue(namePropertyDefiniton.queryable, @"Expected queryable property to be true");
                 XCTAssertTrue(namePropertyDefiniton.orderable, @"Expected orderable property to be true");
-                if ([self.session.repositoryInfo.productVersion hasPrefix:@"4.0."])
+                if ([self.session.repositoryInfo.productVersion hasPrefix:@"3."] || [self.session.repositoryInfo.productVersion hasPrefix:@"4.0."])
                 {
-                    // due to a bug on 4.0 servers the required property was set to false
+                    // due to a bug on 3.x and 4.0 servers the required property was set to false
                     XCTAssertFalse(namePropertyDefiniton.required, @"Expected required property to be false");
                 }
                 else

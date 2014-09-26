@@ -153,11 +153,10 @@
         self.repositoryInfo = repositoryInfo;
         if (self.repositoryInfo == nil) {
             if (error) {
-                CMISLogError(@"Error because repositoryInfo is nil: %@", error.description);
-                completionBlock(nil, [CMISErrors cmisError:error cmisErrorCode:kCMISErrorCodeInvalidArgument]);
+                completionBlock(nil, [CMISErrors cmisError:error cmisErrorCode:kCMISErrorCodeNoRepositoryFound]);
             } else {
-                completionBlock(nil, [CMISErrors createCMISErrorWithCode:kCMISErrorCodeInvalidArgument
-                                                     detailedDescription:@"Could not fetch repository information"]);
+                completionBlock(nil, [CMISErrors createCMISErrorWithCode:kCMISErrorCodeNoRepositoryFound
+                                                     detailedDescription:[NSString stringWithFormat:@"Invalid repository id provided: %@", self.sessionParameters.repositoryId]]);
             }
         } else {
             // no errors have occurred so set authenticated flag and return success flag

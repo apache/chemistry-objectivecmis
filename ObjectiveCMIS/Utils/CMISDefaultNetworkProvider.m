@@ -310,6 +310,13 @@ completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))comple
     [request setHTTPMethod:httpMethod];
     CMISLogDebug(@"HTTP %@: %@", httpMethod, [url absoluteString]);
     
+    // turn off cookies if configured to do so
+    id sendCookies = [session objectForKey:kCMISSessionParameterSendCookies];
+    if (sendCookies && ![sendCookies boolValue])
+    {
+        request.HTTPShouldHandleCookies = NO;
+    }
+    
     return request;
 }
 

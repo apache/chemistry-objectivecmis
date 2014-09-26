@@ -8,13 +8,15 @@
 			<key>disabled</key>
 			<false/>
 			<key>summary</key>
-			<string>Alfresco v4.0.0 Enterprise. Legacy (Webscript)</string>
+			<string>Alfresco v4.0.2 Enterprise. Legacy (Webscript)</string>
 			<key>username</key>
 			<string>cmis</string>
 			<key>password</key>
 			<string>unittest</string>
 			<key>url</key>
 			<string>http://ec2-176-34-173-67.eu-west-1.compute.amazonaws.com/alfresco/service/api/cmis</string>
+			<key>repositoryVersion</key>
+			<string>4.0.2</string>
 			<key>repositoryId</key>
 			<string>62e5f6d6-7c82-47f8-ad45-c2cbcc5a4e23</string>
 		</dict>
@@ -22,13 +24,15 @@
 			<key>disabled</key>
 			<false/>
 			<key>summary</key>
-			<string>Alfresco v4.0.0 Enterprise. OpenCMIS AtomPub 1.0</string>
+			<string>Alfresco v4.0.2 Enterprise. OpenCMIS AtomPub 1.0</string>
 			<key>username</key>
 			<string>cmis</string>
 			<key>password</key>
 			<string>unittest</string>
 			<key>url</key>
 			<string>http://ec2-176-34-173-67.eu-west-1.compute.amazonaws.com/alfresco/cmisatom</string>
+			<key>repositoryVersion</key>
+			<string>4.0.2</string>
 			<key>repositoryId</key>
 			<string>62e5f6d6-7c82-47f8-ad45-c2cbcc5a4e23</string>
 		</dict>
@@ -43,6 +47,8 @@
 			<string>unittest</string>
 			<key>url</key>
 			<string>http://ec2-54-195-83-189.eu-west-1.compute.amazonaws.com/alfresco/api/-default-/public/cmis/versions/1.0/atom</string>
+			<key>repositoryVersion</key>
+			<string>4.2.0</string>
 			<key>repositoryId</key>
 			<string>-default-</string>
 		</dict>
@@ -59,6 +65,8 @@
 			<string>unittest</string>
 			<key>url</key>
 			<string>http://ec2-54-195-83-189.eu-west-1.compute.amazonaws.com/alfresco/api/-default-/public/cmis/versions/1.1/browser</string>
+			<key>repositoryVersion</key>
+			<string>4.2.0</string>
 			<key>repositoryId</key>
 			<string>-default-</string>
 		</dict>

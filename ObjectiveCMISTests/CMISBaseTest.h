@@ -32,6 +32,7 @@ typedef void (^CMISTestBlock)(void);
 @property (nonatomic, strong) CMISSessionParameters *parameters;
 @property (nonatomic, strong) CMISSession *session;
 @property (nonatomic, strong) CMISFolder *rootFolder;
+@property (nonatomic, strong) NSString *expectedRepositoryVersion;
 @property BOOL testCompleted;
 
 #pragma mark Running the test

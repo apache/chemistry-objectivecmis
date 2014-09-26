@@ -34,9 +34,9 @@ NSString * const kCMISErrorDomainName = @"org.apache.chemistry.objectivecmis";
 NSString * const kCMISErrorDescriptionUnknown = @"Unknown Error";
 NSString * const kCMISErrorDescriptionConnection = @"Connection Error";
 NSString * const kCMISErrorDescriptionProxyAuthentication = @"Proxy Authentication Error";
-NSString * const kCMISErrorDescriptionUnauthorized = @"Unauthorized access error";
-NSString * const kCMISErrorDescriptionNoRootFolderFound =  @"Root Folder Not Found Error";
-NSString * const kCMISErrorDescriptionRepositoryNotFound =  @"Repository Not Found Error";
+NSString * const kCMISErrorDescriptionUnauthorized = @"Unauthorized Access";
+NSString * const kCMISErrorDescriptionNoRootFolderFound =  @"Root Folder Not Found";
+NSString * const kCMISErrorDescriptionRepositoryNotFound =  @"Repository Not Found";
 NSString * const kCMISErrorDescriptionCancelled = @"Operation Cancelled";
 NSString * const kCMISErrorDescriptionParsingFailed = @"Parsing Failed";
 NSString * const kCMISErrorDescriptionNoNetworkConnection = @"No Network Connection";
@@ -44,7 +44,7 @@ NSString * const kCMISErrorDescriptionNoNetworkConnection = @"No Network Connect
 //General errors as defined in 2.2.1.4.1 of spec
 NSString * const kCMISErrorDescriptionInvalidArgument = @"Invalid Argument Error";
 NSString * const kCMISErrorDescriptionObjectNotFound = @"Object Not Found Error";
-NSString * const kCMISErrorDescriptionNotSupported = @"Not supported Error";
+NSString * const kCMISErrorDescriptionNotSupported = @"Not Supported Error";
 NSString * const kCMISErrorDescriptionPermissionDenied = @"Permission Denied Error";
 NSString * const kCMISErrorDescriptionRuntime = @"Runtime Error";
 
