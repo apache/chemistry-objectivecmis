@@ -47,7 +47,7 @@
                           filter:filter
                    relationships:relationships
                 includePolicyIds:includePolicyIds
-                 renditionFilder:renditionFilter
+                 renditionFilter:renditionFilter
                       includeACL:includeACL
          includeAllowableActions:includeAllowableActions
                      cmisRequest:request

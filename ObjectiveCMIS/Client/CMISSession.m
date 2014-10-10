@@ -206,7 +206,7 @@
                                                filter:operationContext.filterString
                                         relationships:operationContext.relationships
                                      includePolicyIds:operationContext.includePolicies
-                                      renditionFilder:operationContext.renditionFilterString
+                                      renditionFilter:operationContext.renditionFilterString
                                            includeACL:operationContext.includeACLs
                               includeAllowableActions:operationContext.includeAllowableActions
                                       completionBlock:^(CMISObjectData *objectData, NSError *error) {
@@ -239,7 +239,7 @@
                                               filter:operationContext.filterString
                                        relationships:operationContext.relationships
                                     includePolicyIds:operationContext.includePolicies
-                                     renditionFilder:operationContext.renditionFilterString
+                                     renditionFilter:operationContext.renditionFilterString
                                           includeACL:operationContext.includeACLs
                              includeAllowableActions:operationContext.includeAllowableActions
                                      completionBlock:^(CMISObjectData *objectData, NSError *error) {
