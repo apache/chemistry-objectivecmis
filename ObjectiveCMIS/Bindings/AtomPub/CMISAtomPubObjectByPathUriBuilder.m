@@ -40,13 +40,21 @@
 
 - (NSURL *)buildUrl
 {
+    // make sure we have a path, without one there's little point in generating the URL!
+    assert(self.path);
+    
     NSString *urlString = [self.templateUrl stringByReplacingOccurrencesOfString:@"{path}" withString:self.path];
     urlString = [urlString stringByReplacingOccurrencesOfString:@"{filter}" withString:(self.filter != nil ? self.filter : @"")];
     urlString = [urlString stringByReplacingOccurrencesOfString:@"{includeAllowableActions}" withString:(self.includeAllowableActions ? @"true" : @"false")];
     urlString = [urlString stringByReplacingOccurrencesOfString:@"{includePolicyIds}" withString:(self.includePolicyIds ? @"true" : @"false")];
-    urlString = [urlString stringByReplacingOccurrencesOfString:@"{includeRelationships}" withString:[CMISEnums stringForIncludeRelationShip:self.relationships]];
     urlString = [urlString stringByReplacingOccurrencesOfString:@"{includeACL}" withString:(self.includeACL ? @"true" : @"false")];
     urlString = [urlString stringByReplacingOccurrencesOfString:@"{renditionFilter}" withString:(self.renditionFilter != nil ? self.renditionFilter : @"")];
+    
+    NSString *includeRelationShipParam = [CMISEnums stringForIncludeRelationShip:self.relationships];
+    if (includeRelationShipParam == nil) {
+        includeRelationShipParam = [CMISEnums stringForIncludeRelationShip:CMISIncludeRelationshipNone];
+    }
+    urlString = [urlString stringByReplacingOccurrencesOfString:@"{includeRelationships}" withString:includeRelationShipParam];
 
     return [NSURL URLWithString:[urlString stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
 }
