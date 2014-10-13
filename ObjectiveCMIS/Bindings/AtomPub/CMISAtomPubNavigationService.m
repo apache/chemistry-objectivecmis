@@ -155,4 +155,68 @@
     return request;
 }
 
+- (CMISRequest*)retrieveCheckedOutDocumentsInFolder:(NSString *)folderId
+                                            orderBy:(NSString *)orderBy
+                                             filter:(NSString *)filter
+                                      relationships:(CMISIncludeRelationship)relationships
+                                    renditionFilter:(NSString *)renditionFilter
+                            includeAllowableActions:(BOOL)includeAllowableActions
+                                          skipCount:(NSNumber *)skipCount
+                                           maxItems:(NSNumber *)maxItems
+                                    completionBlock:(void (^)(CMISObjectList *objectList, NSError *error))completionBlock
+{
+    // Get checked out link
+    NSString *checkedoutLink = [self.bindingSession objectForKey:kCMISAtomBindingSessionKeyCheckedoutCollection];
+    if (checkedoutLink == nil) {
+        CMISLogDebug(@"Checkedout not supported!");
+        completionBlock(nil, [CMISErrors createCMISErrorWithCode:kCMISErrorCodeNotSupported detailedDescription:nil]);
+        return nil;
+    }
+    
+    // add the parameters to the URL (CMISUrlUtil will not append if the param name or value is nil)
+    checkedoutLink = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterFolderId value:folderId urlString:checkedoutLink];
+    checkedoutLink = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterFilter value:filter urlString:checkedoutLink];
+    checkedoutLink = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterOrderBy value:orderBy urlString:checkedoutLink];
+    checkedoutLink = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterIncludeAllowableActions value:(includeAllowableActions ? @"true" : @"false") urlString:checkedoutLink];
+    checkedoutLink = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterIncludeRelationships value:[CMISEnums stringForIncludeRelationShip:relationships] urlString:checkedoutLink];
+    checkedoutLink = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterRenditionFilter value:renditionFilter urlString:checkedoutLink];
+    checkedoutLink = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterMaxItems value:[maxItems stringValue] urlString:checkedoutLink];
+    checkedoutLink = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterSkipCount value:[skipCount stringValue] urlString:checkedoutLink];
+    
+    // retrieve the list
+    CMISRequest *request = [[CMISRequest alloc] init];
+    [self.bindingSession.networkProvider invokeGET:[NSURL URLWithString:checkedoutLink]
+                                           session:self.bindingSession
+                                       cmisRequest:request
+                                   completionBlock:^(CMISHttpResponse *httpResponse, NSError *error) {
+        if (httpResponse) {
+            if (httpResponse.data == nil) {
+                NSError *error = [CMISErrors createCMISErrorWithCode:kCMISErrorCodeConnection detailedDescription:nil];
+                completionBlock(nil, error);
+                return;
+            }
+             
+            // Parse the feed (containing entries for the documents)
+            CMISAtomFeedParser *parser = [[CMISAtomFeedParser alloc] initWithData:httpResponse.data];
+            NSError *internalError = nil;
+            if ([parser parseAndReturnError:&internalError]) {
+                NSString *nextLink = [parser.linkRelations linkHrefForRel:kCMISLinkRelationNext];
+                 
+                CMISObjectList *objectList = [[CMISObjectList alloc] init];
+                objectList.hasMoreItems = (nextLink != nil);
+                objectList.numItems = parser.numItems;
+                objectList.objects = parser.entries;
+                completionBlock(objectList, nil);
+            } else {
+                NSError *error = [CMISErrors cmisError:internalError cmisErrorCode:kCMISErrorCodeRuntime];
+                completionBlock(nil, error);
+            }
+        } else {
+            completionBlock(nil, error);
+        }
+    }];
+
+    return request;
+}
+
 @end

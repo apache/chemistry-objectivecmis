@@ -112,4 +112,52 @@
     return cmisRequest;
 }
 
+- (CMISRequest*)retrieveCheckedOutDocumentsInFolder:(NSString *)folderId
+                                            orderBy:(NSString *)orderBy
+                                             filter:(NSString *)filter
+                                      relationships:(CMISIncludeRelationship)relationships
+                                    renditionFilter:(NSString *)renditionFilter
+                            includeAllowableActions:(BOOL)includeAllowableActions
+                                          skipCount:(NSNumber *)skipCount
+                                           maxItems:(NSNumber *)maxItems
+                                    completionBlock:(void (^)(CMISObjectList *objectList, NSError *error))completionBlock
+{
+    NSString *checkedOutUrl = nil;
+    if (folderId != nil) {
+        checkedOutUrl = [self retrieveObjectUrlForObjectWithId:folderId selector:kCMISBrowserJSONSelectorCheckedout];
+    } else {
+        checkedOutUrl = [self retrieveRepositoryUrlWithSelector:kCMISBrowserJSONSelectorCheckedout];
+    }
+    checkedOutUrl = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterFilter value:filter urlString:checkedOutUrl];
+    checkedOutUrl = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterOrderBy value:orderBy urlString:checkedOutUrl];
+    checkedOutUrl = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterIncludeAllowableActions boolValue:includeAllowableActions urlString:checkedOutUrl];
+    checkedOutUrl = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterIncludeRelationships value:[CMISEnums stringForIncludeRelationShip:relationships] urlString:checkedOutUrl];
+    checkedOutUrl = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterRenditionFilter value:renditionFilter urlString:checkedOutUrl];
+    checkedOutUrl = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterMaxItems numberValue:maxItems urlString:checkedOutUrl];
+    checkedOutUrl = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterSkipCount numberValue:skipCount urlString:checkedOutUrl];
+    checkedOutUrl = [CMISURLUtil urlStringByAppendingParameter:kCMISBrowserJSONParameterSuccinct value:kCMISParameterValueTrue urlString:checkedOutUrl];
+    
+    CMISRequest *cmisRequest = [[CMISRequest alloc] init];
+    
+    [self.bindingSession.networkProvider invokeGET:[NSURL URLWithString:checkedOutUrl]
+                                           session:self.bindingSession
+                                       cmisRequest:cmisRequest
+                                   completionBlock:^(CMISHttpResponse *httpResponse, NSError *error) {
+                                       if (httpResponse.statusCode == 200 && httpResponse.data) {
+                                           CMISBrowserTypeCache *typeCache = [[CMISBrowserTypeCache alloc] initWithRepositoryId:self.bindingSession.repositoryId bindingService:self];
+                                           [CMISBrowserUtil objectListFromJSONData:httpResponse.data typeCache:typeCache isQueryResult:NO completionBlock:^(CMISObjectList *objectList, NSError *error) {
+                                               if (error) {
+                                                   completionBlock(nil, error);
+                                               } else {
+                                                   completionBlock(objectList, nil);
+                                               }
+                                           }];
+                                       } else {
+                                           completionBlock(nil, error);
+                                       }
+                                   }];
+    
+    return cmisRequest;
+}
+
 @end

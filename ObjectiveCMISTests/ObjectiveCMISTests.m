@@ -2368,6 +2368,67 @@
     }];
 }
 
+- (void)testCheckedOutDocuments
+{
+    [self runTest:^ {
+        // Upload test file
+        [self uploadTestFileWithCompletionBlock:^(CMISDocument *testDocument) {
+            
+            XCTAssertNotNil(testDocument, @"Expected testDocument to be uploaded!");
+            
+            // checkout the uploaded test document
+            [testDocument checkOutWithCompletionBlock:^(CMISDocument *privateWorkingCopy, NSError *checkOutError) {
+                XCTAssertNotNil(privateWorkingCopy, @"Expected to recieve the private working copy object");
+
+                // retrieve the checked out documents
+                [self.session retrieveCheckedOutDocumentsWithCompletionBlock:^(CMISPagedResult *checkedOutDocs, NSError *retrieveError) {
+                    XCTAssertNotNil(checkedOutDocs, @"Expected to receive a paged result");
+                    
+                    // ensure the PWC is part of the list
+                    BOOL pwcFound = NO;
+                    for (CMISObject *object in checkedOutDocs.resultArray)
+                    {
+                        if ([object.identifier isEqualToString:privateWorkingCopy.identifier])
+                        {
+                            pwcFound = YES;
+                            break;
+                        }
+                    }
+                    XCTAssertTrue(pwcFound, @"Expected to find the private working copy in the checkedout files");
+                    
+                    // cancel checkout of the test document
+                    [privateWorkingCopy cancelCheckOutWithCompletionBlock:^(BOOL checkoutCancelled, NSError *cancelError) {
+                        XCTAssertTrue(checkoutCancelled, @"Expected cancel checkout to be successful");
+                        
+                        // retrieve checked out documents and ensure test document is not listed
+                        [self.session retrieveCheckedOutDocumentsWithCompletionBlock:^(CMISPagedResult *checkedOutDocs2, NSError *retrieveError2) {
+                            XCTAssertNotNil(checkedOutDocs2, @"Expected to receive a paged result");
+                            
+                            // ensure the PWC is NOT part of the list
+                            BOOL pwcFound2 = NO;
+                            for (CMISObject *object in checkedOutDocs2.resultArray)
+                            {
+                                if ([object.identifier isEqualToString:privateWorkingCopy.identifier])
+                                {
+                                    pwcFound2 = YES;
+                                    break;
+                                }
+                            }
+                            XCTAssertFalse(pwcFound2, @"Did not expect to find the private working copy in the checkedout files");
+                            
+                            // delete the test document
+                            [self deleteDocumentAndVerify:testDocument completionBlock:^{
+                                // mark the test as completed
+                                self.testCompleted = YES;
+                            }];
+                        }];
+                    }];
+                }];
+            }];
+        }];
+    }];
+}
+
 - (void)testSecondaryTypes
 {
     [self runTest:^ {

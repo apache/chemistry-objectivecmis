@@ -115,6 +115,7 @@ NSString * const kCMISParameterIncludeAllowableActions = @"includeAllowableActio
 NSString * const kCMISParameterFilter = @"filter";
 NSString * const kCMISParameterMaxItems = @"maxItems";
 NSString * const kCMISParameterObjectId = @"objectId";
+NSString * const kCMISParameterFolderId = @"folderId";
 NSString * const kCMISParameterOrderBy = @"orderBy";
 NSString * const kCMISParameterIncludePathSegment = @"includePathSegment";
 NSString * const kCMISParameterIncludeRelationships = @"includeRelationships";
