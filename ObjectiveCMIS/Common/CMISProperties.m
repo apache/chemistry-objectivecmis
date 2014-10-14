@@ -43,6 +43,20 @@
     }
 }
 
+- (void)removePropertyWithId:(NSString *)propertyId
+{
+    if (self.internalPropertiesByIdDict) {
+        CMISPropertyData *propertyData = self.internalPropertiesByIdDict[propertyId];
+        if (propertyData) {
+            [self.internalPropertiesByIdDict removeObjectForKey:propertyId];
+            
+            if (propertyData.queryName) {
+                [self.internalPropertiesByQueryNameDict removeObjectForKey:propertyData.queryName];
+            }
+        }
+    }
+}
+
 - (NSDictionary *)propertiesDictionary
 {
     return [NSDictionary dictionaryWithDictionary:self.internalPropertiesByIdDict];
@@ -53,9 +67,9 @@
     return [NSArray arrayWithArray:self.internalPropertiesByIdDict.allValues];
 }
 
-- (CMISPropertyData *)propertyForId:(NSString *)id
+- (CMISPropertyData *)propertyForId:(NSString *)propertyId
 {
-    return [self.internalPropertiesByIdDict objectForKey:id];
+    return [self.internalPropertiesByIdDict objectForKey:propertyId];
 }
 
 - (CMISPropertyData *)propertyForQueryName:(NSString *)queryName
@@ -73,9 +87,9 @@
     return [[self propertyForQueryName:queryName] firstValue];
 }
 
-- (NSArray *)propertyMultiValueById:(NSString *)id
+- (NSArray *)propertyMultiValueById:(NSString *)propertyId
 {
-    return [[self propertyForId:id] values];
+    return [[self propertyForId:propertyId] values];
 }
 
 - (NSArray *)propertyMultiValueByQueryName:(NSString *)queryName
