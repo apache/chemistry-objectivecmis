@@ -65,7 +65,9 @@
         // TODO: Check that the idx is valid in the defined enum
         
         NSInteger idx = [actionsArray indexOfObject:actionStrValue];
-        [allowableActionTypesSet addObject:INT_OBJ(idx)];
+        if (idx != NSNotFound) {
+            [allowableActionTypesSet addObject:INT_OBJ(idx)];
+        }
     }
     return [allowableActionTypesSet copy];
 }

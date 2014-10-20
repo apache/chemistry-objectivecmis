@@ -56,7 +56,7 @@ NSString * const kCMISRFC3986Reserved = @"!*'();:@&=+$,/?%#[]";
     // Append param
     [result appendString:parameterName];
     [result appendString:@"="];
-    [result appendString:[parameterValue stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+    [result appendString:[CMISURLUtil encodeUrlParameterValue:parameterValue]];
 
     return result;
 }

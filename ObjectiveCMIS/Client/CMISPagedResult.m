@@ -99,7 +99,7 @@
                                 completionBlock:completionBlock];
 }
 
-- (void)enumerateItemsUsingBlock:(void (^)(CMISObject *object, BOOL *stop))enumerationBlock completionBlock:(void (^)(NSError *error))completionBlock
+- (void)enumerateItemsUsingBlock:(void (^)(id object, BOOL *stop))enumerationBlock completionBlock:(void (^)(NSError *error))completionBlock
 {
     BOOL stop = NO;
     for (CMISObject *object in self.resultArray) {
@@ -110,7 +110,8 @@
             return;
         }
     }
-    if (self.hasMoreItems) {
+    // Additional check if call returned any result as server may return hasMoreItems even if there are none; this could result in an endless loop
+    if (self.hasMoreItems && [self.resultArray count] > 0) {
         [self fetchNextPageWithCompletionBlock:^(CMISPagedResult *result, NSError *error) {
             if (error) {
                 completionBlock(error);

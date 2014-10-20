@@ -140,6 +140,7 @@
             self.currentPropertyData.identifier = [attributeDict objectForKey:kCMISAtomEntryPropertyDefId];
             self.currentPropertyData.queryName = [attributeDict objectForKey:kCMISAtomEntryQueryName];
             self.currentPropertyData.displayName = [attributeDict objectForKey:kCMISAtomEntryDisplayName];
+            self.currentPropertyData.type = [CMISAtomPubParserUtil atomPubTypeToInternalType:self.currentPropertyType];
         } else if ([elementName isEqualToString:kCMISCoreProperties]) {
             // create the CMISProperties object to hold all property data
             self.currentObjectProperties = [[CMISProperties alloc] init];
@@ -241,7 +242,9 @@
                 if (self.currentRenditions == nil) {
                     self.currentRenditions = [[NSMutableArray alloc] init];
                 }
-                [self.currentRenditions addObject:self.currentRendition];
+                if (self.currentRendition != nil) {
+                    [self.currentRenditions addObject:self.currentRendition];
+                }
                 self.currentRendition = nil;
         	} else if ([elementName isEqualToString:kCMISAtomEntryExactACL]) {
             	self.isExcatAcl = [self.string isEqualToString:@"true"] ? YES : NO;

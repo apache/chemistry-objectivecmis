@@ -310,6 +310,45 @@
                                      }];
 }
 
+- (CMISRequest*)retrieveDocumentOfLatestVersion:(NSString *)objectId completionBlock:(void (^)(CMISDocument *document, NSError *error))completionBlock
+{
+    return [self retrieveDocumentOfLatestVersion:objectId
+                                operationContext:[CMISOperationContext defaultOperationContext]
+                                 completionBlock:completionBlock];
+}
+
+- (CMISRequest*)retrieveDocumentOfLatestVersion:(NSString *)objectId operationContext:(CMISOperationContext*)operationContext completionBlock:(void (^)(CMISDocument *document, NSError *error))completionBlock
+{
+    return [self retrieveDocumentOfLatestVersion:objectId
+                                operationContext:operationContext
+                                           major:NO completionBlock:completionBlock];
+}
+
+- (CMISRequest*)retrieveDocumentOfLatestVersion:(NSString *)objectId operationContext:(CMISOperationContext*)operationContext major:(BOOL)major completionBlock:(void (^)(CMISDocument *document, NSError *error))completionBlock
+{
+    return [self.binding.versioningService retrieveObjectOfLatestVersion:objectId
+                                                                   major:major
+                                                                  filter:operationContext.filterString
+                                                           relationships:operationContext.relationships
+                                                        includePolicyIds:operationContext.includePolicies
+                                                         renditionFilter:operationContext.renditionFilterString
+                                                              includeACL:operationContext.includeACLs
+                                                 includeAllowableActions:operationContext.includeAllowableActions
+                                                         completionBlock:^(CMISObjectData *objectData, NSError *error) {
+                                                             if (objectData != nil && error == nil) {
+                                                                 [self.objectConverter convertObject:objectData
+                                                                                     completionBlock:^(CMISObject *object, NSError *error) {
+                                                                                         completionBlock((CMISDocument*)object, error);
+                                                                                     }];
+                                                             } else {
+                                                                 if (error == nil) {
+                                                                     error = [CMISErrors cmisError:error cmisErrorCode:kCMISErrorCodeObjectNotFound];
+                                                                 }
+                                                                 completionBlock(nil, error);
+                                                             }
+                                                         }];
+}
+
 - (CMISRequest*)retrieveTypeDefinition:(NSString *)typeId completionBlock:(void (^)(CMISTypeDefinition *typeDefinition, NSError *error))completionBlock
 {
     CMISTypeDefinition *typeDefinition = [self.typeCache objectForKey:typeId];
