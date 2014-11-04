@@ -18,6 +18,7 @@
  */
 
 #import "CMISHttpResponse.h"
+#import "CMISDictionaryUtil.h"
 
 @interface CMISHttpResponse ()
 
@@ -64,10 +65,32 @@
 
 - (NSString*)exception
 {
+    NSString *exception = [self responseValueForKey:@"exception"];
+    return exception;
+}
+
+
+- (NSString*)errorMessage
+{
+    NSString *message = [self responseValueForKey:@"message"];
+    return message;
+}
+
+- (NSString*)responseValueForKey:(NSString *)key
+{
+    NSString *value = [self jsonResponseValueForKey:key];
+    if (!value) {
+        value = [self atomResponseValueForKey:key];
+    }
+    return value;
+}
+
+- (NSString*)atomResponseValueForKey:(NSString *)key
+{
     NSString *responseString = self.responseString;
     if (responseString) {
-        NSRange begin = [responseString rangeOfString:@"<!--exception-->"];
-        NSRange end   = [responseString rangeOfString:@"<!--/exception-->"];
+        NSRange begin = [responseString rangeOfString:[NSString stringWithFormat:@"<!--%@-->", key]];
+        NSRange end   = [responseString rangeOfString:[NSString stringWithFormat:@"<!--/%@-->", key]];
         
         if (begin.location != NSNotFound &&
             end.location != NSNotFound &&
@@ -80,22 +103,21 @@
     return nil;
 }
 
-
-- (NSString*)errorMessage
+- (NSString*)jsonResponseValueForKey:(NSString *)key
 {
     NSString *responseString = self.responseString;
     if (responseString) {
-        NSRange begin = [responseString rangeOfString:@"<!--message-->"];
-        NSRange end   = [responseString rangeOfString:@"<!--/message-->"];
+        NSError *serialisationError = nil;
         
-        if (begin.location != NSNotFound &&
-            end.location != NSNotFound &&
-            begin.location < end.location) {
-            
-            return [responseString substringWithRange:NSMakeRange(begin.location + begin.length,
-                                                                  end.location - begin.location - begin.length)];
+        NSData *responseStringData = [responseString dataUsingEncoding:NSUTF8StringEncoding];
+        id jsonDictionary = [NSJSONSerialization JSONObjectWithData:responseStringData options:0 error:&serialisationError];
+        
+        if (!serialisationError) {
+            NSString *message = [jsonDictionary cmis_objectForKeyNotNull:key];
+            return message;
         }
     }
+    
     return nil;
 }
 
