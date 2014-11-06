@@ -41,7 +41,7 @@ if [[ -d test-reports ]] ; then
   rm -R test-reports
 fi
 
-BUILD_OPTS=(test -scheme ObjectiveCMIS -destination OS=latest,name="iPhone Retina (4-inch 64-bit)")
+BUILD_OPTS=(test -scheme ObjectiveCMIS -destination OS=latest,name="Resizable iPhone")
 
 if [[ "$JUNIT_FLAG" == "true" ]] ; then
    echo "Tests are running, output is being piped to ocunit2junit, results will appear soon..."
