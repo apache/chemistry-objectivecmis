@@ -20,13 +20,14 @@ export BUILD_UNIVERSAL_LIB
 
 if [[ "$1" == "Debug" ]] ; then
    BUILD_CONFIG=Debug
-   echo "Building debug version of universal library..."
+   echo "Building debug version of libraries..."
 else
    BUILD_CONFIG=Release
-   echo "Building release version of universal library..."
+   echo "Building release version of libraries..."
 fi
 
-xcodebuild -project ObjectiveCMIS.xcodeproj -target ObjectiveCMIS -configuration $BUILD_CONFIG ONLY_ACTIVE_ARCH=NO clean build
+xcodebuild -project ObjectiveCMIS.xcodeproj -target ObjectiveCMIS-iOS -configuration $BUILD_CONFIG ONLY_ACTIVE_ARCH=NO clean build
+xcodebuild -project ObjectiveCMIS.xcodeproj -target ObjectiveCMIS-OSX -configuration $BUILD_CONFIG ONLY_ACTIVE_ARCH=NO clean build
 
-appledoc --project-name ObjectiveCMIS --project-company "Apache Chemistry" --company-id org.apache.chemistry.opencmis --output ./ObjectiveCMISHelp --keep-intermediate-files --exit-threshold 2 --keep-undocumented-objects --keep-undocumented-members --ignore .m --ignore ObjectiveCMISTests --ignore build .
+appledoc --project-name ObjectiveCMIS --project-company "Apache Chemistry" --company-id org.apache.chemistry --output ./ObjectiveCMISHelp --keep-intermediate-files --exit-threshold 2 --keep-undocumented-objects --keep-undocumented-members --ignore .m --ignore ObjectiveCMISTests --ignore build .
 

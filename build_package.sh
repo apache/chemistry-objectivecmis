@@ -33,11 +33,16 @@ cp README $PACKAGE_DIR
 echo "Building static library..."
 
 export BUILD_UNIVERSAL_LIB='TRUE'
-xcodebuild -project ObjectiveCMIS.xcodeproj -target ObjectiveCMIS -configuration Debug ONLY_ACTIVE_ARCH=NO clean build
-xcodebuild -project ObjectiveCMIS.xcodeproj -target ObjectiveCMIS -configuration Release clean build
+xcodebuild -project ObjectiveCMIS.xcodeproj -target ObjectiveCMIS-iOS -configuration Debug ONLY_ACTIVE_ARCH=NO clean build
+xcodebuild -project ObjectiveCMIS.xcodeproj -target ObjectiveCMIS-iOS -configuration Release clean build
+
+xcodebuild -project ObjectiveCMIS.xcodeproj -target ObjectiveCMIS-OSX -configuration Debug ONLY_ACTIVE_ARCH=NO clean build
+xcodebuild -project ObjectiveCMIS.xcodeproj -target ObjectiveCMIS-OSX -configuration Release clean build
 
 cp -R build/Debug-universal/* $PACKAGE_DIR
 cp build/Release-universal/*.a $PACKAGE_DIR
+cp build/Debug/libObjectiveCMIS-OSX.a $PACKAGE_DIR/libObjectiveCMIS-OSX-debug.a
+cp build/Release/*.a $PACKAGE_DIR
 
 echo "Creating package..."
 

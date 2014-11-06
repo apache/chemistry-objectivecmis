@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "0600"
+   LastUpgradeVersion = "0610"
    version = "1.3">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -15,8 +15,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "828072A215153DE800EF635C"
-               BuildableName = "libObjectiveCMIS.a"
-               BlueprintName = "ObjectiveCMIS"
+               BuildableName = "libObjectiveCMIS-iOS.a"
+               BlueprintName = "ObjectiveCMIS-iOS"
                ReferencedContainer = "container:ObjectiveCMIS.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -29,8 +29,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "828072B215153DE900EF635C"
-               BuildableName = "ObjectiveCMISTests.xctest"
-               BlueprintName = "ObjectiveCMISTests"
+               BuildableName = "ObjectiveCMIS-iOSTests.xctest"
+               BlueprintName = "ObjectiveCMIS-iOSTests"
                ReferencedContainer = "container:ObjectiveCMIS.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -47,8 +47,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "828072B215153DE900EF635C"
-               BuildableName = "ObjectiveCMISTests.xctest"
-               BlueprintName = "ObjectiveCMISTests"
+               BuildableName = "ObjectiveCMIS-iOSTests.xctest"
+               BlueprintName = "ObjectiveCMIS-iOSTests"
                ReferencedContainer = "container:ObjectiveCMIS.xcodeproj">
             </BuildableReference>
          </TestableReference>
@@ -67,8 +67,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "828072A215153DE800EF635C"
-            BuildableName = "libObjectiveCMIS.a"
-            BlueprintName = "ObjectiveCMIS"
+            BuildableName = "libObjectiveCMIS-iOS.a"
+            BlueprintName = "ObjectiveCMIS-iOS"
             ReferencedContainer = "container:ObjectiveCMIS.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
