@@ -105,54 +105,32 @@ authenticationProvider:(id<CMISAuthenticationProvider>) authenticationProvider
     return self;
 }
 
+#pragma mark CMISCancellableRequest method
 
 - (void)cancel
 {
-    [self.outputStream close];
+    [super cancel];
     
+    // clean up
+    [self.outputStream close];
+    self.progressBlock = nil;
+}
+
+#pragma mark Session delegate methods
+
+- (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error
+{
+    // clean up
+    [self.outputStream close];
     self.progressBlock = nil;
     
-    [super cancel];
+    [super URLSession:session task:task didCompleteWithError:error];
 }
 
-
-- (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response
-{
-    [super connection:connection didReceiveResponse:response];
-    
-    // update statistics
-    if (self.bytesExpected == 0 && response.expectedContentLength != NSURLResponseUnknownLength) {
-        self.bytesExpected = response.expectedContentLength;
-    }
-    self.bytesDownloaded = 0;
-
-    // set up output stream if available
-    if (self.outputStream) { // otherwise store data in memory in self.data
-        // create file for downloaded content
-        BOOL isStreamReady = self.outputStream.streamStatus == NSStreamStatusOpen;
-        if (!isStreamReady) {
-            [self.outputStream open];
-            isStreamReady = self.outputStream.streamStatus == NSStreamStatusOpen;
-        }
-    
-        if (!isStreamReady) {
-            [connection cancel];
-            
-            if (self.completionBlock)
-            {
-                NSError *cmisError = [CMISErrors createCMISErrorWithCode:kCMISErrorCodeStorage
-                                                     detailedDescription:@"Could not open output stream"];
-                self.completionBlock(nil, cmisError);
-            }
-        }
-    }
-}
-
-
-- (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data
+- (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask didReceiveData:(NSData *)data
 {
     if (self.outputStream == nil) { // if there is no outputStream then store data in memory in self.data
-        [super connection:connection didReceiveData:data];
+        [super URLSession:session dataTask:dataTask didReceiveData:data];
     } else {
         const uint8_t *bytes = data.bytes;
         NSUInteger length = data.length;
@@ -160,8 +138,8 @@ authenticationProvider:(id<CMISAuthenticationProvider>) authenticationProvider
         do {
             NSUInteger written = [self.outputStream write:&bytes[offset] maxLength:length - offset];
             if (written <= 0) {
-                CMISLogError(@"Error while writing downloaded data to file");
-                [connection cancel];
+                CMISLogError(@"Error while writing downloaded data to stream");
+                [session invalidateAndCancel];
                 return;
             } else {
                 offset += written;
@@ -171,31 +149,52 @@ authenticationProvider:(id<CMISAuthenticationProvider>) authenticationProvider
     
     // update statistics
     self.bytesDownloaded += data.length;
-    // pass progress to progressBlock
+    
+    // pass progress to progressBlock, on the main thread
     if (self.progressBlock) {
-        self.progressBlock(self.bytesDownloaded, self.bytesExpected);
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if (self.progressBlock) {
+                self.progressBlock(self.bytesDownloaded, self.bytesExpected);
+            }
+        });
+    }
+}
+
+- (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask didReceiveResponse:(NSURLResponse *)response completionHandler:(void (^)(NSURLSessionResponseDisposition))completionHandler
+{
+    // update statistics
+    if (self.bytesExpected == 0 && self.sessionTask.countOfBytesExpectedToReceive != NSURLSessionTransferSizeUnknown) {
+        self.bytesExpected = self.sessionTask.countOfBytesExpectedToReceive;
     }
     
-}
-
-
-- (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error
-{
-    [self.outputStream close];
-
-    self.progressBlock = nil;
-
-    [super connection:connection didFailWithError:error];
-}
-
-
-- (void)connectionDidFinishLoading:(NSURLConnection *)connection
-{
-    [self.outputStream close];
-
-    self.progressBlock = nil;
-
-    [super connectionDidFinishLoading:connection];
+    self.bytesDownloaded = 0;
+    
+    // set up output stream if available
+    if (self.outputStream) { // otherwise store data in memory in self.data
+        // create file for downloaded content
+        BOOL isStreamReady = self.outputStream.streamStatus == NSStreamStatusOpen;
+        if (!isStreamReady) {
+            [self.outputStream open];
+            isStreamReady = self.outputStream.streamStatus == NSStreamStatusOpen;
+        }
+        
+        if (isStreamReady) {
+            [super URLSession:session dataTask:dataTask didReceiveResponse:response completionHandler:completionHandler];
+        } else {
+            [session invalidateAndCancel];
+            
+            if (self.completionBlock)
+            {
+                NSError *cmisError = [CMISErrors createCMISErrorWithCode:kCMISErrorCodeStorage
+                                                     detailedDescription:@"Could not open output stream"];
+                
+                // call the completion block on the main thread
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    self.completionBlock(nil, cmisError);
+                });
+            }
+        }
+    }
 }
 
 @end

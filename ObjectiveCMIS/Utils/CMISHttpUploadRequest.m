@@ -42,7 +42,7 @@ const NSUInteger kRawBufferSize = 24576;
 
 /**
  A category that extends the NSStream class in order to pair an inputstream with an outputstream.
- The input stream will be used by NSURLConnection via the HTTPBodyStream property of the URL request.
+ The input stream will be used by NSURLSession via the HTTPBodyStream property of the URL request.
  The paired output stream will buffer base64 encoded as well as XML data.
  
  NOTE: the original sample code also provides a method for backward compatibility w.r.t  iOS versions below 5.0
@@ -207,7 +207,8 @@ authenticationProvider:(id<CMISAuthenticationProvider>)authenticationProvider
     return startSuccess;
 }
 
-#pragma CMISCancellableRequest method
+#pragma mark CMISCancellableRequest method
+
 - (void)cancel
 {
     self.progressBlock = nil;
@@ -218,67 +219,51 @@ authenticationProvider:(id<CMISAuthenticationProvider>)authenticationProvider
     }
 }
 
-#pragma NSURLConnectionDataDelegate methods
-- (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response
+#pragma mark Session delegate methods
+
+- (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error
 {
-    [super connection:connection didReceiveResponse:response];
+    [super URLSession:session task:task didCompleteWithError:error];
     
-    self.bytesUploaded = 0;
+    if (self.useCombinedInputStream) {
+        if (error) {
+            [self stopSendWithStatus:@"connection is being terminated with error."];
+        } else {
+            [self stopSendWithStatus:@"Connection finished as expected."];
+        }
+    }
+    
+    self.progressBlock = nil;
 }
 
-- (void)connection:(NSURLConnection *)connection
-   didSendBodyData:(NSInteger)bytesWritten
- totalBytesWritten:(NSInteger)totalBytesWritten
-totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite
+- (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask didReceiveResponse:(NSURLResponse *)response completionHandler:(void (^)(NSURLSessionResponseDisposition))completionHandler
+{
+    self.bytesUploaded = 0;
+    
+    [super URLSession:session dataTask:dataTask didReceiveResponse:response completionHandler:completionHandler];
+}
+
+- (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didSendBodyData:(int64_t)bytesSent totalBytesSent:(int64_t)totalBytesSent totalBytesExpectedToSend:(int64_t)totalBytesExpectedToSend
 {
     if (self.progressBlock) {
         if (self.useCombinedInputStream && self.base64Encoding) {
             // Show the actual transmitted raw data size to the user, not the base64 encoded size
-            totalBytesWritten = [CMISHttpUploadRequest rawEncodedLength:totalBytesWritten];
-            if (totalBytesWritten > totalBytesExpectedToWrite) {
-                totalBytesWritten = totalBytesExpectedToWrite;
+            totalBytesSent = [CMISHttpUploadRequest rawEncodedLength:totalBytesSent];
+            if (totalBytesSent > totalBytesExpectedToSend) {
+                totalBytesSent = totalBytesExpectedToSend;
             }
         }
         
         if (self.bytesExpected == 0) {
-            self.progressBlock((unsigned long long)totalBytesWritten, (unsigned long long)totalBytesExpectedToWrite);
+            self.progressBlock((unsigned long long)totalBytesSent, (unsigned long long)totalBytesExpectedToSend);
         } else {
-            self.progressBlock((unsigned long long)totalBytesWritten, self.bytesExpected);
+            self.progressBlock((unsigned long long)totalBytesSent, self.bytesExpected);
         }
     }
 }
 
+#pragma mark NSStreamDelegate method
 
-/**
- In addition to closing the connection we also have to close/reset all streams used in this class.
- This is for base64 encoding only
- */
-- (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error
-{
-    [super connection:connection didFailWithError:error];
-    
-    if (self.useCombinedInputStream) {
-        [self stopSendWithStatus:@"connection is being terminated with error."];
-    }
-    self.progressBlock = nil;
-}
-
-
-/**
- In addition to closing the connection we also have to close/reset all streams used in this class.
- This is for base64 encoding only
- */
-- (void)connectionDidFinishLoading:(NSURLConnection *)connection
-{
-    [super connectionDidFinishLoading:connection];
-    if (self.useCombinedInputStream) {
-        [self stopSendWithStatus:@"Connection finished as expected."];
-    }
-    
-    self.progressBlock = nil;
-}
-
-#pragma NSStreamDelegate method
 /**
  For encoding base64 data - this is the meat of this class.
  The action is in the case where the eventCode == NSStreamEventHasSpaceAvailable
@@ -393,7 +378,7 @@ totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite
                 if (bytesWritten <= 0) {
                     [self stopSendWithStatus:@"Network write error"];
                     NSError *cmisError = [CMISErrors createCMISErrorWithCode:kCMISErrorCodeConnection detailedDescription:@"Network write error"];
-                    [self connection:nil didFailWithError:cmisError];
+                    [self URLSession:nil task:nil didCompleteWithError:cmisError];
                 } else {
                     self.bufferOffset += bytesWritten;
                 }
@@ -417,7 +402,7 @@ totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite
 }
 
 
-#pragma private methods
+#pragma mark Private methods
 
 - (void)prepareStreams
 {
@@ -468,13 +453,13 @@ totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite
     return 4 * adjustedThirdPartOfSize;
 }
 
-+ (NSUInteger)rawEncodedLength:(NSUInteger)base64EncodedSize
++ (unsigned long long)rawEncodedLength:(unsigned long long)base64EncodedSize
 {
     if (0 == base64EncodedSize) {
         return 0;
     }
     
-    NSUInteger adjustedFourthPartOfSize = (base64EncodedSize / 4) + ( (0 == base64EncodedSize % 4 ) ? 0 : 1 );
+    unsigned long long adjustedFourthPartOfSize = (base64EncodedSize / 4) + ( (0 == base64EncodedSize % 4 ) ? 0 : 1 );
     return 3 * adjustedFourthPartOfSize;
 }
 
@@ -486,9 +471,9 @@ totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite
     self.bufferOffset = 0;
     self.bufferLimit  = 0;
     self.dataBuffer = nil;
-    if (self.connection != nil) {
-        [self.connection cancel];
-        self.connection = nil;
+    if (self.urlSession != nil) {
+        [self.urlSession invalidateAndCancel];
+        self.urlSession = nil;
     }
     if (self.encoderStream != nil) {
         self.encoderStream.delegate = nil;
