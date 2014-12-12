@@ -149,10 +149,14 @@ NSString * const kCMISParameterValueReturnValueLatestMajor = @"latestmajor";
 // Common Media Types
 NSString * const kCMISMediaTypeOctetStream = @"application/octet-stream";
 
-//ContentStreamAllowed enum values
+// ContentStreamAllowed enum values
 NSString * const kCMISContentStreamAllowedValueRequired = @"required";
 NSString * const kCMISContentStreamAllowedValueAllowed = @"allowed";
 NSString * const kCMISContentStreamAllowedValueNotAllowed = @"notallowed";
+
+// Background network default values
+NSString * const kCMISDefaultBackgroundNetworkSessionId = @"ObjectiveCMIS";
+NSString * const kCMISDefaultBackgroundNetworkSessionSharedContainerId = @"ObjectiveCMISContainer";
 
 + (NSSet *)repositoryCapabilityKeys
 {

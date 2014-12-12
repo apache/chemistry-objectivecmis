@@ -174,7 +174,6 @@ authenticationProvider:(id<CMISAuthenticationProvider>)authenticationProvider
     return self;
 }
 
-
 /**
  if we are using on-the-go base64 encoding, we will use the combinedInputStream in URL connections/request.
  In this case a little extra work is required: i.e. we need to provide the length of the encoded data stream (including
@@ -182,29 +181,24 @@ authenticationProvider:(id<CMISAuthenticationProvider>)authenticationProvider
  */
 - (BOOL)startRequest:(NSMutableURLRequest*)urlRequest
 {
-    if (self.useCombinedInputStream)
-    {
-        if (self.combinedInputStream) {
-            urlRequest.HTTPBodyStream = self.combinedInputStream;
-            if(self.base64Encoding) {
-                NSMutableDictionary *headers = [NSMutableDictionary dictionaryWithDictionary:self.additionalHeaders];
-                [headers setValue:[NSString stringWithFormat:@"%llu", self.encodedLength] forKey:@"Content-Length"];
-                self.additionalHeaders = [NSDictionary dictionaryWithDictionary:headers];
-            }
-        }
+    if (self.useCombinedInputStream && self.combinedInputStream && self.base64Encoding) {
+        NSMutableDictionary *headers = [NSMutableDictionary dictionaryWithDictionary:self.additionalHeaders];
+        [headers setValue:[NSString stringWithFormat:@"%llu", self.encodedLength] forKey:@"Content-Length"];
+        self.additionalHeaders = [NSDictionary dictionaryWithDictionary:headers];
     }
-    else
-    {
-        if (self.inputStream) {
-            urlRequest.HTTPBodyStream = self.inputStream;
-        }
-    }
+
     BOOL startSuccess = [super startRequest:urlRequest];
+    
     if (self.useCombinedInputStream) {
         [self.encoderStream open];
     }
 
     return startSuccess;
+}
+
+- (NSURLSessionTask *)taskForRequest:(NSURLRequest *)request
+{
+    return [self.urlSession uploadTaskWithStreamedRequest:request];
 }
 
 #pragma mark CMISCancellableRequest method
@@ -220,6 +214,15 @@ authenticationProvider:(id<CMISAuthenticationProvider>)authenticationProvider
 }
 
 #pragma mark Session delegate methods
+
+- (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task needNewBodyStream:(void (^)(NSInputStream *))completionHandler
+{
+    if (self.combinedInputStream) {
+        completionHandler(self.combinedInputStream);
+    } else {
+        completionHandler(self.inputStream);
+    }
+}
 
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error
 {

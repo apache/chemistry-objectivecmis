@@ -105,7 +105,7 @@ NSString * const kCMISExceptionVersioning              = @"versioning";
     self.urlSession = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]
                                                     delegate:self
                                                delegateQueue:nil];
-    self.sessionTask = [self.urlSession dataTaskWithRequest:urlRequest];
+    self.sessionTask = [self taskForRequest:urlRequest];
     
     CMISReachability *reachability = [CMISReachability networkReachability];
     
@@ -125,6 +125,11 @@ NSString * const kCMISExceptionVersioning              = @"versioning";
     }
     
     return startedRequest;
+}
+
+- (NSURLSessionTask *)taskForRequest:(NSURLRequest *)request
+{
+    return [self.urlSession dataTaskWithRequest:request];
 }
 
 #pragma mark CMISCancellableRequest method

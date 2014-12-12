@@ -415,7 +415,7 @@
                 CMISLogDebug(@"Fetching content stream for document %@", randomDoc.name);
                 
                 // Writing content of CMIS document to local file
-                NSString *filePath = [NSString stringWithFormat:@"%@/testfile", NSTemporaryDirectory()];
+                NSString *filePath = [NSString stringWithFormat:@"%@testfile", NSTemporaryDirectory()];
 //                NSString *filePath = @"testfile";
                 [randomDoc downloadContentToFile:filePath
                                  completionBlock:^(NSError *error) {
@@ -443,7 +443,6 @@
 - (void)testCancelDownload
 {
     [self runTest:^ {
-         __block BOOL cancelPossible = YES;
          [self.session retrieveObjectByPath:@"/ios-test/millenium-dome-exif.jpg" completionBlock:^(CMISObject *object, NSError *error) {
              CMISDocument *document = (CMISDocument *)object;
              XCTAssertNil(error, @"Error while retrieving object: %@", [error description]);
@@ -454,29 +453,22 @@
                                             completionBlock:^(NSError *error) {
                  XCTAssertNotNil(error, @"Could not cancel download");
                  XCTAssertTrue(error.code == kCMISErrorCodeCancelled, @"Unexpected error: %@", [error description]);
-                 // Assert File exists and check file length
-                 XCTAssertTrue([[NSFileManager defaultManager] fileExistsAtPath:filePath], @"File does not exist");
-                 NSError *fileError = nil;
-                 NSDictionary *fileAttributes = [[NSFileManager defaultManager] attributesOfItemAtPath:filePath error:&fileError];
-                 XCTAssertNil(fileError, @"Could not verify attributes of file %@: %@", filePath, [fileError description]);
-                 XCTAssertTrue([fileAttributes fileSize] > 0, @"Expected at least some bytes but found an empty file");
-                                                
-                 // if we managed to cancel check we don't have the whole file
-                 if (cancelPossible)
+                 
+                 // Assert requested file path does not exist
+                 if ([[NSFileManager defaultManager] fileExistsAtPath:filePath])
                  {
-                     XCTAssertTrue([fileAttributes fileSize] < document.contentStreamLength, @"Cancel was successful so expected smaller file size");
+                     XCTFail(@"File exists despite being cancelled");
+                     
+                     // remove the temp file
+                     NSError *fileError = nil;
+                     [[NSFileManager defaultManager] removeItemAtPath:filePath error:&fileError];
+                     XCTAssertNil(fileError, @"Could not remove file %@: %@", filePath, [fileError description]);
                  }
-                                                
-                 // Nice boys clean up after themselves
-                 [[NSFileManager defaultManager] removeItemAtPath:filePath error:&fileError];
-                 XCTAssertNil(fileError, @"Could not remove file %@: %@", filePath, [fileError description]);
-
                  self.testCompleted = YES;
              } progressBlock:^(unsigned long long bytesDownloaded, unsigned long long bytesTotal) {
                  CMISLogDebug(@"download progress %llu/%llu", bytesDownloaded, bytesTotal);
                  if (bytesDownloaded == bytesTotal)
                  {
-                     cancelPossible = NO;
                      CMISLogWarning(@"whole file was recieved in one chunk!");
                  }
                  if (bytesDownloaded > 0) { // as soon as some data was downloaded cancel the request

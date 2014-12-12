@@ -26,6 +26,7 @@
 @property (nonatomic, copy) void (^progressBlock)(unsigned long long bytesDownloaded, unsigned long long bytesTotal);
 @property (nonatomic, assign) unsigned long long bytesDownloaded;
 @property (nonatomic, assign) BOOL cancelled;
+@property (nonatomic, strong) NSError *fileCopyError;
 
 - (id)initWithHttpMethod:(CMISHttpRequestMethod)httpRequestMethod
          completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))completionBlock
@@ -37,17 +38,19 @@
 @implementation CMISHttpDownloadRequest
 
 + (id)startRequest:(NSMutableURLRequest *)urlRequest
-        httpMethod:(CMISHttpRequestMethod)httpRequestMethod
-      outputStream:(NSOutputStream*)outputStream
-     bytesExpected:(unsigned long long)bytesExpected
-authenticationProvider:(id<CMISAuthenticationProvider>) authenticationProvider
-   completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))completionBlock
-     progressBlock:(void (^)(unsigned long long bytesDownloaded, unsigned long long bytesTotal))progressBlock
+                              httpMethod:(CMISHttpRequestMethod)httpRequestMethod
+                            outputStream:(NSOutputStream*)outputStream
+                           bytesExpected:(unsigned long long)bytesExpected
+                  authenticationProvider:(id<CMISAuthenticationProvider>) authenticationProvider
+                         completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))completionBlock
+                           progressBlock:(void (^)(unsigned long long bytesDownloaded, unsigned long long bytesTotal))progressBlock
 {
     return [CMISHttpDownloadRequest startRequest:urlRequest
                                httpMethod:httpRequestMethod
                              outputStream:outputStream
                             bytesExpected:bytesExpected
+                                   offset:nil
+                                   length:nil
                    authenticationProvider:authenticationProvider
                           completionBlock:completionBlock
                             progressBlock:progressBlock];
@@ -92,6 +95,27 @@ authenticationProvider:(id<CMISAuthenticationProvider>) authenticationProvider
     return httpRequest;
 }
 
++ (id)startRequest:(NSMutableURLRequest *)urlRequest
+                              httpMethod:(CMISHttpRequestMethod)httpRequestMethod
+                          outputFilePath:(NSString *)outputFilePath
+                           bytesExpected:(unsigned long long)bytesExpected
+                  authenticationProvider:(id<CMISAuthenticationProvider>) authenticationProvider
+                         completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))completionBlock
+                           progressBlock:(void (^)(unsigned long long bytesDownloaded, unsigned long long bytesTotal))progressBlock;
+{
+    CMISHttpDownloadRequest *httpRequest = [[self alloc] initWithHttpMethod:httpRequestMethod
+                                                            completionBlock:completionBlock
+                                                              progressBlock:progressBlock];
+    httpRequest.outputFilePath = outputFilePath;
+    httpRequest.bytesExpected = bytesExpected;
+    httpRequest.authenticationProvider = authenticationProvider;
+    
+    if (![httpRequest startRequest:urlRequest]) {
+        httpRequest = nil;
+    };
+    
+    return httpRequest;
+}
 
 - (id)initWithHttpMethod:(CMISHttpRequestMethod)httpRequestMethod
          completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))completionBlock
@@ -103,6 +127,15 @@ authenticationProvider:(id<CMISAuthenticationProvider>) authenticationProvider
         _progressBlock = progressBlock;
     }
     return self;
+}
+
+- (NSURLSessionTask *)taskForRequest:(NSURLRequest *)request
+{
+    if (self.outputFilePath) {
+        return [self.urlSession downloadTaskWithRequest:request];
+    } else {
+        return [super taskForRequest:request];
+    }
 }
 
 #pragma mark CMISCancellableRequest method
@@ -123,6 +156,15 @@ authenticationProvider:(id<CMISAuthenticationProvider>) authenticationProvider
     // clean up
     [self.outputStream close];
     self.progressBlock = nil;
+    
+    if (self.outputFilePath) {
+        // download tasks don't return the response via delegate methods so get it from the task
+        self.response = (NSHTTPURLResponse *)task.response;
+        
+        if (self.fileCopyError) {
+            error = self.fileCopyError;
+        }
+    }
     
     [super URLSession:session task:task didCompleteWithError:error];
 }
@@ -194,6 +236,47 @@ authenticationProvider:(id<CMISAuthenticationProvider>) authenticationProvider
                 });
             }
         }
+    }
+}
+
+- (void)URLSession:(NSURLSession *)session downloadTask:(NSURLSessionDownloadTask *)downloadTask didResumeAtOffset:(int64_t)fileOffset expectedTotalBytes:(int64_t)expectedTotalBytes
+{
+    // TODO: Add support for resuming download tasks
+}
+
+- (void)URLSession:(NSURLSession *)session downloadTask:(NSURLSessionDownloadTask *)downloadTask didFinishDownloadingToURL:(NSURL *)location
+{
+    // create URL representation of destination
+    NSURL *destinationURL = [NSURL fileURLWithPath:self.outputFilePath];
+
+    // remove the current file, if it exists
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    [fileManager removeItemAtURL:destinationURL error:nil];
+    
+    // copy the temporary file to the requested file path
+    if ([fileManager copyItemAtURL:location toURL:destinationURL error:nil]) {
+        CMISLogDebug(@"Copied downloaded file from %@ to %@", location, self.outputFilePath);
+    } else {
+        self.fileCopyError = [CMISErrors createCMISErrorWithCode:kCMISErrorCodeStorage
+                                             detailedDescription:[NSString stringWithFormat:@"Could not copy temporary file to %@", self.outputFilePath]];
+    }
+}
+
+- (void)URLSession:(NSURLSession *)session downloadTask:(NSURLSessionDownloadTask *)downloadTask didWriteData:(int64_t)bytesWritten totalBytesWritten:(int64_t)totalBytesWritten totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite
+{
+    // pass progress to progressBlock, on the main thread
+    if (self.progressBlock) {
+        unsigned long long totalBytesExpected = totalBytesExpectedToWrite;
+        
+        if (totalBytesExpected == NSURLSessionTransferSizeUnknown && self.bytesExpected != 0) {
+            totalBytesExpected = self.bytesExpected;
+        }
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if (self.progressBlock) {
+                self.progressBlock(totalBytesWritten, totalBytesExpected);
+            }
+        });
     }
 }
 

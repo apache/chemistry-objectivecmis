@@ -58,4 +58,7 @@
 /// starts the URL request
 - (BOOL)startRequest:(NSMutableURLRequest*)urlRequest;
 
+/// Creates an appropriate task for the given request object.
+- (NSURLSessionTask *)taskForRequest:(NSURLRequest *)request;
+
 @end
