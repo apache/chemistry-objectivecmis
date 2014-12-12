@@ -38,7 +38,7 @@ NSString * const kCMISRFC3986Reserved = @"!*'();:@&=+$,/?%#[]";
 
 + (NSString *)urlStringByAppendingParameter:(NSString *)parameterName value:(NSString *)parameterValue urlString:(NSString *)urlString
 {
-    if (parameterName == nil || parameterValue == nil) {
+    if (parameterName == nil || parameterValue == nil || urlString == nil) {
         return urlString;
     }
 
