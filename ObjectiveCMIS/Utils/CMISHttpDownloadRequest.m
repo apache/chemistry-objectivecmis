@@ -38,40 +38,40 @@
 @implementation CMISHttpDownloadRequest
 
 + (id)startRequest:(NSMutableURLRequest *)urlRequest
-                              httpMethod:(CMISHttpRequestMethod)httpRequestMethod
-                            outputStream:(NSOutputStream*)outputStream
-                           bytesExpected:(unsigned long long)bytesExpected
-                  authenticationProvider:(id<CMISAuthenticationProvider>) authenticationProvider
-                         completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))completionBlock
-                           progressBlock:(void (^)(unsigned long long bytesDownloaded, unsigned long long bytesTotal))progressBlock
+        httpMethod:(CMISHttpRequestMethod)httpRequestMethod
+      outputStream:(NSOutputStream*)outputStream
+     bytesExpected:(unsigned long long)bytesExpected
+           session:(CMISBindingSession *)session
+   completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))completionBlock
+     progressBlock:(void (^)(unsigned long long bytesDownloaded, unsigned long long bytesTotal))progressBlock
 {
     return [CMISHttpDownloadRequest startRequest:urlRequest
-                               httpMethod:httpRequestMethod
-                             outputStream:outputStream
-                            bytesExpected:bytesExpected
-                                   offset:nil
-                                   length:nil
-                   authenticationProvider:authenticationProvider
-                          completionBlock:completionBlock
-                            progressBlock:progressBlock];
+                                      httpMethod:httpRequestMethod
+                                    outputStream:outputStream
+                                   bytesExpected:bytesExpected
+                                          offset:nil
+                                          length:nil
+                                         session:session
+                                 completionBlock:completionBlock
+                                   progressBlock:progressBlock];
 }
 
 + (id)startRequest:(NSMutableURLRequest *)urlRequest
-                              httpMethod:(CMISHttpRequestMethod)httpRequestMethod
-                            outputStream:(NSOutputStream*)outputStream
-                           bytesExpected:(unsigned long long)bytesExpected
-                                  offset:(NSDecimalNumber*)offset
-                                  length:(NSDecimalNumber*)length
-                  authenticationProvider:(id<CMISAuthenticationProvider>) authenticationProvider
-                         completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))completionBlock
-                           progressBlock:(void (^)(unsigned long long bytesDownloaded, unsigned long long bytesTotal))progressBlock
+        httpMethod:(CMISHttpRequestMethod)httpRequestMethod
+      outputStream:(NSOutputStream*)outputStream
+     bytesExpected:(unsigned long long)bytesExpected
+            offset:(NSDecimalNumber*)offset
+            length:(NSDecimalNumber*)length
+           session:(CMISBindingSession *)session
+   completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))completionBlock
+     progressBlock:(void (^)(unsigned long long bytesDownloaded, unsigned long long bytesTotal))progressBlock
 {
     CMISHttpDownloadRequest *httpRequest = [[self alloc] initWithHttpMethod:httpRequestMethod
                                                             completionBlock:completionBlock
                                                               progressBlock:progressBlock];
     httpRequest.outputStream = outputStream;
     httpRequest.bytesExpected = bytesExpected;
-    httpRequest.authenticationProvider = authenticationProvider;
+    httpRequest.session = session;
     
     //range
     if ((offset != nil) || (length != nil)) {
@@ -96,19 +96,19 @@
 }
 
 + (id)startRequest:(NSMutableURLRequest *)urlRequest
-                              httpMethod:(CMISHttpRequestMethod)httpRequestMethod
-                          outputFilePath:(NSString *)outputFilePath
-                           bytesExpected:(unsigned long long)bytesExpected
-                  authenticationProvider:(id<CMISAuthenticationProvider>) authenticationProvider
-                         completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))completionBlock
-                           progressBlock:(void (^)(unsigned long long bytesDownloaded, unsigned long long bytesTotal))progressBlock;
+        httpMethod:(CMISHttpRequestMethod)httpRequestMethod
+    outputFilePath:(NSString *)outputFilePath
+     bytesExpected:(unsigned long long)bytesExpected
+           session:(CMISBindingSession *)session
+   completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))completionBlock
+     progressBlock:(void (^)(unsigned long long bytesDownloaded, unsigned long long bytesTotal))progressBlock;
 {
     CMISHttpDownloadRequest *httpRequest = [[self alloc] initWithHttpMethod:httpRequestMethod
                                                             completionBlock:completionBlock
                                                               progressBlock:progressBlock];
     httpRequest.outputFilePath = outputFilePath;
     httpRequest.bytesExpected = bytesExpected;
-    httpRequest.authenticationProvider = authenticationProvider;
+    httpRequest.session = session;
     
     if (![httpRequest startRequest:urlRequest]) {
         httpRequest = nil;

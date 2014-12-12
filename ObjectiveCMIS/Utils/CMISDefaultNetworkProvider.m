@@ -46,7 +46,7 @@ completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))comple
                                                       httpMethod:httpRequestMethod
                                                      requestBody:body
                                                          headers:additionalHeaders
-                                          authenticationProvider:session.authenticationProvider
+                                                         session:session
                                                  completionBlock:completionBlock];
         if (request)
         {
@@ -74,13 +74,13 @@ completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))comple
                                                                                   session:session];
         
         CMISHttpUploadRequest* request = [CMISHttpUploadRequest startRequest:urlRequest
-                                                           httpMethod:httpRequestMethod
-                                                          inputStream:inputStream
-                                                              headers:additionalHeaders
-                                                        bytesExpected:0
-                                               authenticationProvider:session.authenticationProvider
-                                                      completionBlock:completionBlock
-                                                        progressBlock:nil];
+                                                                  httpMethod:httpRequestMethod
+                                                                 inputStream:inputStream
+                                                                     headers:additionalHeaders
+                                                               bytesExpected:0
+                                                                     session:session
+                                                             completionBlock:completionBlock
+                                                               progressBlock:nil];
         if (request)
         {
             cmisRequest.httpRequest = request;
@@ -109,13 +109,13 @@ completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))comple
                                                                                   session:session];
         
         CMISHttpUploadRequest* request = [CMISHttpUploadRequest startRequest:urlRequest
-                                                           httpMethod:httpRequestMethod
-                                                          inputStream:inputStream
-                                                              headers:additionalHeaders
-                                                        bytesExpected:bytesExpected
-                                               authenticationProvider:session.authenticationProvider
-                                                      completionBlock:completionBlock
-                                                        progressBlock:progressBlock];
+                                                                  httpMethod:httpRequestMethod
+                                                                 inputStream:inputStream
+                                                                     headers:additionalHeaders
+                                                               bytesExpected:bytesExpected
+                                                                     session:session
+                                                             completionBlock:completionBlock
+                                                               progressBlock:progressBlock];
         if (request){
             cmisRequest.httpRequest = request;
         }
@@ -150,9 +150,9 @@ completionBlock:(void (^)(CMISHttpResponse *, NSError *))completionBlock
                                                                  inputStream:inputStream
                                                                      headers:additionalHeaders
                                                                bytesExpected:bytesExpected
-                                                      authenticationProvider:session.authenticationProvider
-                                                              startData:startData
-                                                                    endData:endData
+                                                                     session:session
+                                                                   startData:startData
+                                                                     endData:endData
                                                            useBase64Encoding:useBase64Encoding
                                                              completionBlock:completionBlock
                                                                progressBlock:progressBlock];
@@ -185,7 +185,7 @@ completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))comple
                                                                       httpMethod:httpRequestMethod
                                                                   outputFilePath:outputFilePath
                                                                    bytesExpected:bytesExpected
-                                                          authenticationProvider:session.authenticationProvider
+                                                                         session:session
                                                                  completionBlock:completionBlock
                                                                    progressBlock:progressBlock];
         if (request) {
@@ -238,14 +238,14 @@ completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))comple
                                                                                   session:session];
         
         CMISHttpDownloadRequest* request = [CMISHttpDownloadRequest startRequest:urlRequest
-                                                             httpMethod:httpRequestMethod
-                                                           outputStream:outputStream
-                                                          bytesExpected:bytesExpected
-                                                                 offset:offset
-                                                                 length:length
-                                                 authenticationProvider:session.authenticationProvider
-                                                        completionBlock:completionBlock
-                                                          progressBlock:progressBlock];
+                                                                      httpMethod:httpRequestMethod
+                                                                    outputStream:outputStream
+                                                                   bytesExpected:bytesExpected
+                                                                          offset:offset
+                                                                          length:length
+                                                                         session:session
+                                                                 completionBlock:completionBlock
+                                                                   progressBlock:progressBlock];
         if (request) {
             cmisRequest.httpRequest = request;
         }

@@ -102,13 +102,13 @@ const NSUInteger kRawBufferSize = 24576;
 @implementation CMISHttpUploadRequest
 
 + (id)startRequest:(NSMutableURLRequest *)urlRequest
-                            httpMethod:(CMISHttpRequestMethod)httpRequestMethod
-                           inputStream:(NSInputStream*)inputStream
-                               headers:(NSDictionary*)additionalHeaders
-                         bytesExpected:(unsigned long long)bytesExpected
-                authenticationProvider:(id<CMISAuthenticationProvider>) authenticationProvider
-                       completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))completionBlock
-                         progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal))progressBlock
+        httpMethod:(CMISHttpRequestMethod)httpRequestMethod
+       inputStream:(NSInputStream*)inputStream
+           headers:(NSDictionary*)additionalHeaders
+     bytesExpected:(unsigned long long)bytesExpected
+           session:(CMISBindingSession *)session
+   completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))completionBlock
+     progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal))progressBlock
 {
     CMISHttpUploadRequest *httpRequest = [[self alloc] initWithHttpMethod:httpRequestMethod
                                                           completionBlock:completionBlock
@@ -116,7 +116,7 @@ const NSUInteger kRawBufferSize = 24576;
     httpRequest.inputStream = inputStream;
     httpRequest.additionalHeaders = additionalHeaders;
     httpRequest.bytesExpected = bytesExpected;
-    httpRequest.authenticationProvider = authenticationProvider;
+    httpRequest.session = session;
     httpRequest.useCombinedInputStream = NO;
     httpRequest.combinedInputStream = nil;
     httpRequest.encoderStream = nil;
@@ -133,7 +133,7 @@ const NSUInteger kRawBufferSize = 24576;
        inputStream:(NSInputStream *)inputStream
            headers:(NSDictionary *)additionalHeaders
      bytesExpected:(unsigned long long)bytesExpected
-authenticationProvider:(id<CMISAuthenticationProvider>)authenticationProvider
+           session:(CMISBindingSession *)session
          startData:(NSData *)startData
            endData:(NSData *)endData
  useBase64Encoding:(BOOL)useBase64Encoding
@@ -151,7 +151,7 @@ authenticationProvider:(id<CMISAuthenticationProvider>)authenticationProvider
     httpRequest.bytesExpected = bytesExpected;
     httpRequest.useCombinedInputStream = YES;
     httpRequest.base64Encoding = useBase64Encoding;
-    httpRequest.authenticationProvider = authenticationProvider;
+    httpRequest.session = session;
     
     [httpRequest prepareStreams];
     if (![httpRequest startRequest:urlRequest]) {
