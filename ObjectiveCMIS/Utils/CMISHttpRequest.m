@@ -218,7 +218,7 @@ NSString * const kCMISExceptionVersioning              = @"versioning";
             void (^completionBlock)(CMISHttpResponse *httpResponse, NSError *error);
             completionBlock = self.completionBlock;
             self.completionBlock = nil; // Prevent multiple execution if method on this request gets called inside completion block
-            completionBlock(nil, cmisError);
+            completionBlock(httpResponse, cmisError);
         });
     }
     
