@@ -147,7 +147,10 @@ NSString * const kCMISExceptionVersioning              = @"versioning";
         if (self.completionBlock) {
             NSString *detailedDescription = [NSString stringWithFormat:@"Could not create network session for %@", urlRequest.URL];
             NSError *cmisError = [CMISErrors createCMISErrorWithCode:kCMISErrorCodeConnection detailedDescription:detailedDescription];
-            self.completionBlock(nil, cmisError);
+            void (^completionBlock)(CMISHttpResponse *httpResponse, NSError *error);
+            completionBlock = self.completionBlock;
+            self.completionBlock = nil; // Prevent multiple execution if method on this request gets called inside completion block
+            completionBlock(nil, cmisError);
         }
     }
     
@@ -173,8 +176,10 @@ NSString * const kCMISExceptionVersioning              = @"versioning";
         
         self.urlSession = nil;
         
-        NSError *cmisError = [CMISErrors createCMISErrorWithCode:kCMISErrorCodeCancelled detailedDescription:@"Request was cancelled"];
-        completionBlock(nil, cmisError);
+        if (completionBlock) {
+            NSError *cmisError = [CMISErrors createCMISErrorWithCode:kCMISErrorCodeCancelled detailedDescription:@"Request was cancelled"];
+            completionBlock(nil, cmisError);
+        }
     }
 }
 
@@ -210,7 +215,10 @@ NSString * const kCMISExceptionVersioning              = @"versioning";
         
         // call the completion block on the main thread
         dispatch_async(dispatch_get_main_queue(), ^{
-            self.completionBlock(httpResponse, cmisError);
+            void (^completionBlock)(CMISHttpResponse *httpResponse, NSError *error);
+            completionBlock = self.completionBlock;
+            self.completionBlock = nil; // Prevent multiple execution if method on this request gets called inside completion block
+            completionBlock(nil, cmisError);
         });
     }
     

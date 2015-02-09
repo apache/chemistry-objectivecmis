@@ -87,6 +87,7 @@ const NSUInteger kRawBufferSize = 24576;
 @property (nonatomic, copy) void (^progressBlock)(unsigned long long bytesUploaded, unsigned long long bytesTotal);
 @property (nonatomic, assign) BOOL useCombinedInputStream;
 @property (nonatomic, assign) BOOL base64Encoding;
+@property (nonatomic, assign) BOOL transferCompleted;
 @property (nonatomic, strong) NSInputStream *combinedInputStream;
 @property (nonatomic, strong) NSOutputStream *encoderStream;
 @property (nonatomic, strong) NSData *streamStartData;
@@ -170,6 +171,7 @@ const NSUInteger kRawBufferSize = 24576;
                      completionBlock:completionBlock];
     if (self) {
         _progressBlock = progressBlock;
+        _transferCompleted = NO;
     }
     return self;
 }
@@ -205,6 +207,9 @@ const NSUInteger kRawBufferSize = 24576;
 
 - (void)cancel
 {
+    if (self.transferCompleted) {
+        return;
+    }
     self.progressBlock = nil;
     
     [super cancel];
@@ -258,8 +263,14 @@ const NSUInteger kRawBufferSize = 24576;
         }
         
         if (self.bytesExpected == 0) {
+            if (totalBytesSent >= totalBytesExpectedToSend) {
+                self.transferCompleted = YES;
+            }
             self.progressBlock((unsigned long long)totalBytesSent, (unsigned long long)totalBytesExpectedToSend);
         } else {
+            if (totalBytesSent >= self.bytesExpected) {
+                self.transferCompleted = YES;
+            }
             self.progressBlock((unsigned long long)totalBytesSent, self.bytesExpected);
         }
     }

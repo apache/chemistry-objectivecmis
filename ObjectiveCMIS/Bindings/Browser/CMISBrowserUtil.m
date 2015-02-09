@@ -37,8 +37,11 @@
 #import "CMISPrincipal.h"
 #import "CMISAllowableActions.h"
 
-NSString * const kCMISBrowserMinValueJSONProperty = @"\"minValue\":0.0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000049,";
-NSString * const kCMISBrowserMaxValueJSONProperty = @"\"maxValue\":179769313486231570000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000,";
+NSString * const kCMISBrowserMinValueAlfrescoJSONProperty = @"\"minValue\":0.0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000049,";
+NSString * const kCMISBrowserMinValueECMJSONProperty = @"\"minValue\":-179769313486231570000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000,";
+
+NSString * const kCMISBrowserMaxValueAlfrescoJSONProperty = @"\"maxValue\":179769313486231570000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000,";
+NSString * const kCMISBrowserMaxValueECMJSONProperty = @"\"maxValue\":179769313486231570000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000,";
 
 @interface NSObject (CMISUtil)
 
@@ -136,8 +139,10 @@ NSString * const kCMISBrowserMaxValueJSONProperty = @"\"maxValue\":1797693134862
         NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
         
         // remove the minValue and maxValue properties as they are effectively indicating any reasonable value is valid
-        jsonString = [jsonString stringByReplacingOccurrencesOfString:kCMISBrowserMinValueJSONProperty withString:@""];
-        jsonString = [jsonString stringByReplacingOccurrencesOfString:kCMISBrowserMaxValueJSONProperty withString:@""];
+        jsonString = [jsonString stringByReplacingOccurrencesOfString:kCMISBrowserMinValueAlfrescoJSONProperty withString:@""];
+        jsonString = [jsonString stringByReplacingOccurrencesOfString:kCMISBrowserMinValueECMJSONProperty withString:@""];
+        jsonString = [jsonString stringByReplacingOccurrencesOfString:kCMISBrowserMaxValueAlfrescoJSONProperty withString:@""];
+        jsonString = [jsonString stringByReplacingOccurrencesOfString:kCMISBrowserMaxValueECMJSONProperty withString:@""];
         
         // re-try and JSON parse
         serialisationError = nil;
@@ -402,11 +407,12 @@ NSString * const kCMISBrowserMaxValueJSONProperty = @"\"maxValue\":1797693134862
         objectData.baseType = CMISBaseTypeFolder;
     }
     
-    objectData.acl = [CMISBrowserUtil convertAcl:[dictionary cmis_objectForKeyNotNull:kCMISBrowserJSONAcl]]; //TODO here we should pass isExactAcl:nil!
+    BOOL isExactAcl = [dictionary cmis_boolForKey:kCMISBrowserJSONIsExact];
+    objectData.acl = [CMISBrowserUtil convertAcl:[dictionary cmis_objectForKeyNotNull:kCMISBrowserJSONAcl] isExactAcl:isExactAcl];
     
     objectData.allowableActions = [CMISBrowserUtil convertAllowableActions:[dictionary cmis_objectForKeyNotNull:kCMISBrowserJSONAllowableActions]];
     
-    objectData.isExactAcl = [dictionary cmis_boolForKey:kCMISBrowserJSONIsExact];
+    objectData.isExactAcl = isExactAcl;
 
     // TODO set policyIds
     
@@ -830,7 +836,7 @@ NSString * const kCMISBrowserMaxValueJSONProperty = @"\"maxValue\":1797693134862
     return result;
 }
 
-+ (CMISAcl *)convertAcl:(NSDictionary *)jsonDictionary
++ (CMISAcl *)convertAcl:(NSDictionary *)jsonDictionary isExactAcl:(BOOL)isExact
 {
     if (!jsonDictionary) {
         return nil;
@@ -876,7 +882,7 @@ NSString * const kCMISBrowserMaxValueJSONProperty = @"\"maxValue\":1797693134862
     
     result.aces = [aces copy];
     
-    //TODO result.isExact = isExact; // there should be a "isExcat" parameter of this method
+    result.isExact = isExact;
     
     result.extensions = [CMISObjectConverter convertExtensions:jsonDictionary cmisKeys:[CMISBrowserConstants aclKeys]];
     

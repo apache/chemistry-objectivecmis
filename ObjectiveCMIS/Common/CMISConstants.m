@@ -45,8 +45,11 @@ NSString * const kCMISPropertyContentStreamId = @"cmis:contentStreamId";
 NSString * const kCMISPropertyContentStreamFileName = @"cmis:contentStreamFileName";
 NSString * const kCMISPropertyContentStreamLength = @"cmis:contentStreamLength";
 NSString * const kCMISPropertyContentStreamMediaType = @"cmis:contentStreamMimeType";
+NSString * const kCMISPropertyContentStreamHash = @"cmis:contentStreamHash";
 NSString * const kCMISPropertyObjectTypeId = @"cmis:objectTypeId";
 NSString * const kCMISPropertyVersionSeriesId = @"cmis:versionSeriesId";
+NSString * const kCMISPropertyVersionSeriesCheckedOutBy = @"cmis:versionSeriesCheckedOutBy";
+NSString * const kCMISPropertyVersionSeriesCheckedOutId= @"cmis:versionSeriesCheckedOutId";
 NSString * const kCMISPropertyVersionLabel = @"cmis:versionLabel";
 NSString * const kCMISPropertyIsLatestVersion = @"cmis:isLatestVersion";
 NSString * const kCMISPropertyIsMajorVersion = @"cmis:isMajorVersion";
@@ -56,7 +59,6 @@ NSString * const kCMISPropertyBaseTypeId = @"cmis:baseTypeId";
 NSString * const kCMISPropertyCheckinComment = @"cmis:checkinComment";
 NSString * const kCMISPropertySecondaryObjectTypeIds = @"cmis:secondaryObjectTypeIds";
 NSString * const kCMISPropertyDescription = @"cmis:description";
-
 
 // Property values
 

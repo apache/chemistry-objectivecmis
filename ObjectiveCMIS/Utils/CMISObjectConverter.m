@@ -140,178 +140,182 @@
             Class expectedType = nil;
             BOOL validType = YES;
             
-            switch (propertyDefinition.propertyType) {
-                case(CMISPropertyTypeString): {
-                    expectedType = [NSString class];
-                    if ([propertyValue isKindOfClass:expectedType]) {
-                        [convertedProperties addProperty:[CMISPropertyData createPropertyForId:propertyId stringValue:propertyValue]];
-                    } else if ([propertyValue isKindOfClass:[NSArray class]]) {
-                        for (id propertyValueItemValue in propertyValue) {
-                            if (![propertyValueItemValue isKindOfClass:expectedType]) {
-                                validType = NO;
-                                break;
+            if (propertyValue == [NSNull null]) {
+                [convertedProperties addProperty:[CMISPropertyData createPropertyForId:propertyId arrayValue:nil type:propertyDefinition.propertyType]];
+            } else {
+                switch (propertyDefinition.propertyType) {
+                    case(CMISPropertyTypeString): {
+                        expectedType = [NSString class];
+                        if ([propertyValue isKindOfClass:expectedType]) {
+                            [convertedProperties addProperty:[CMISPropertyData createPropertyForId:propertyId stringValue:propertyValue]];
+                        } else if ([propertyValue isKindOfClass:[NSArray class]]) {
+                            for (id propertyValueItemValue in propertyValue) {
+                                if (![propertyValueItemValue isKindOfClass:expectedType]) {
+                                    validType = NO;
+                                    break;
+                                }
                             }
-                        }
-                        if (validType) {
-                            [convertedProperties addProperty:[CMISPropertyData createPropertyForId:propertyId arrayValue:propertyValue type:propertyDefinition.propertyType]];
-                        }
-                    } else {
-                        validType = NO;
-                    }
-                    break;
-                }
-                case(CMISPropertyTypeBoolean): {
-                    expectedType = [NSNumber class];
-                    if ([propertyValue isKindOfClass:expectedType]) {
-                        BOOL boolValue = ((NSNumber *) propertyValue).boolValue;
-                        [convertedProperties addProperty:[CMISPropertyData createPropertyForId:propertyId boolValue:boolValue]];
-                    } else if ([propertyValue isKindOfClass:[NSArray class]]) {
-                        for (id propertyValueItemValue in propertyValue) {
-                            if (![propertyValueItemValue isKindOfClass:expectedType]) {
-                                validType = NO;
-                                break;
+                            if (validType) {
+                                [convertedProperties addProperty:[CMISPropertyData createPropertyForId:propertyId arrayValue:propertyValue type:propertyDefinition.propertyType]];
                             }
+                        } else {
+                            validType = NO;
                         }
-                        if (validType) {
-                            [convertedProperties addProperty:[CMISPropertyData createPropertyForId:propertyId arrayValue:propertyValue type:propertyDefinition.propertyType]];
-                        }
-                    } else {
-                        validType = NO;
+                        break;
                     }
-                    break;
-                }
-                case(CMISPropertyTypeInteger): {
-                    expectedType = [NSNumber class];
-                    if ([propertyValue isKindOfClass:expectedType]) {
-                        NSInteger intValue = ((NSNumber *) propertyValue).integerValue;
-                        [convertedProperties addProperty:[CMISPropertyData createPropertyForId:propertyId integerValue:intValue]];
-                    } else if ([propertyValue isKindOfClass:[NSArray class]]) {
-                        for (id propertyValueItemValue in propertyValue) {
-                            if (![propertyValueItemValue isKindOfClass:expectedType]) {
-                                validType = NO;
-                                break;
+                    case(CMISPropertyTypeBoolean): {
+                        expectedType = [NSNumber class];
+                        if ([propertyValue isKindOfClass:expectedType]) {
+                            BOOL boolValue = ((NSNumber *) propertyValue).boolValue;
+                            [convertedProperties addProperty:[CMISPropertyData createPropertyForId:propertyId boolValue:boolValue]];
+                        } else if ([propertyValue isKindOfClass:[NSArray class]]) {
+                            for (id propertyValueItemValue in propertyValue) {
+                                if (![propertyValueItemValue isKindOfClass:expectedType]) {
+                                    validType = NO;
+                                    break;
+                                }
                             }
-                        }
-                        if (validType) {
-                            [convertedProperties addProperty:[CMISPropertyData createPropertyForId:propertyId arrayValue:propertyValue type:propertyDefinition.propertyType]];
-                        }
-                    } else {
-                        validType = NO;
-                    }
-                    break;
-                }
-                case(CMISPropertyTypeDecimal): {
-                    expectedType = [NSNumber class];
-                    if ([propertyValue isKindOfClass:expectedType]) {
-                        [convertedProperties addProperty:[CMISPropertyData createPropertyForId:propertyId decimalValue:propertyValue]];
-                    } else if ([propertyValue isKindOfClass:[NSArray class]]) {
-                        for (id propertyValueItemValue in propertyValue) {
-                            if (![propertyValueItemValue isKindOfClass:expectedType]) {
-                                validType = NO;
-                                break;
+                            if (validType) {
+                                [convertedProperties addProperty:[CMISPropertyData createPropertyForId:propertyId arrayValue:propertyValue type:propertyDefinition.propertyType]];
                             }
+                        } else {
+                            validType = NO;
                         }
-                        if (validType) {
-                            [convertedProperties addProperty:[CMISPropertyData createPropertyForId:propertyId arrayValue:propertyValue type:propertyDefinition.propertyType]];
-                        }
-                    } else {
-                        validType = NO;
+                        break;
                     }
-                    break;
-                }
-                case(CMISPropertyTypeId): {
-                    expectedType = [NSString class];
-                    if ([propertyValue isKindOfClass:expectedType]) {
-                        [convertedProperties addProperty:[CMISPropertyData createPropertyForId:propertyId idValue:propertyValue]];
-                    } else if ([propertyValue isKindOfClass:[NSArray class]]) {
-                        for (id propertyValueItemValue in propertyValue) {
-                            if (![propertyValueItemValue isKindOfClass:expectedType]) {
-                                validType = NO;
-                                break;
+                    case(CMISPropertyTypeInteger): {
+                        expectedType = [NSNumber class];
+                        if ([propertyValue isKindOfClass:expectedType]) {
+                            NSInteger intValue = ((NSNumber *) propertyValue).integerValue;
+                            [convertedProperties addProperty:[CMISPropertyData createPropertyForId:propertyId integerValue:intValue]];
+                        } else if ([propertyValue isKindOfClass:[NSArray class]]) {
+                            for (id propertyValueItemValue in propertyValue) {
+                                if (![propertyValueItemValue isKindOfClass:expectedType]) {
+                                    validType = NO;
+                                    break;
+                                }
                             }
-                        }
-                        if (validType) {
-                            [convertedProperties addProperty:[CMISPropertyData createPropertyForId:propertyId arrayValue:propertyValue type:propertyDefinition.propertyType]];
-                        }
-                    } else {
-                        validType = NO;
-                    }
-                    break;
-                }
-                case(CMISPropertyTypeDateTime): {
-                    if ([propertyValue isKindOfClass:[NSString class]]) {
-                        propertyValue = [CMISDateUtil dateFromString:propertyValue];
-                    }
-                    expectedType = [NSDate class];
-                    if ([propertyValue isKindOfClass:expectedType]) {
-                        [convertedProperties addProperty:[CMISPropertyData createPropertyForId:propertyId dateTimeValue:propertyValue]];
-                    } else if ([propertyValue isKindOfClass:[NSArray class]]) {
-                        for (__strong id propertyValueItemValue in propertyValue) {
-                            if ([propertyValueItemValue isKindOfClass:[NSString class]]) {
-                                propertyValueItemValue = [CMISDateUtil dateFromString:propertyValueItemValue];
+                            if (validType) {
+                                [convertedProperties addProperty:[CMISPropertyData createPropertyForId:propertyId arrayValue:propertyValue type:propertyDefinition.propertyType]];
                             }
-                            if (![propertyValueItemValue isKindOfClass:expectedType]) {
-                                validType = NO;
-                                break;
-                            }
+                        } else {
+                            validType = NO;
                         }
-                        if (validType) {
-                            [convertedProperties addProperty:[CMISPropertyData createPropertyForId:propertyId arrayValue:propertyValue type:propertyDefinition.propertyType]];
-                        }
-                    } else {
-                        validType = NO;
+                        break;
                     }
-                    break;
-                }
-                case(CMISPropertyTypeUri): {
-                    if ([propertyValue isKindOfClass:[NSString class]]) {
-                        propertyValue = [NSURL URLWithString:propertyValue];
-                    }
-                    expectedType = [NSURL class];
-                    if ([propertyValue isKindOfClass:expectedType]) {
-                        [convertedProperties addProperty:[CMISPropertyData createPropertyForId:propertyId uriValue:propertyValue]];
-                    } else if ([propertyValue isKindOfClass:[NSArray class]]) {
-                        for (__strong id propertyValueItemValue in propertyValue) {
-                            if ([propertyValueItemValue isKindOfClass:[NSString class]]) {
-                                propertyValueItemValue = [NSURL URLWithString:propertyValueItemValue];
+                    case(CMISPropertyTypeDecimal): {
+                        expectedType = [NSNumber class];
+                        if ([propertyValue isKindOfClass:expectedType]) {
+                            [convertedProperties addProperty:[CMISPropertyData createPropertyForId:propertyId decimalValue:propertyValue]];
+                        } else if ([propertyValue isKindOfClass:[NSArray class]]) {
+                            for (id propertyValueItemValue in propertyValue) {
+                                if (![propertyValueItemValue isKindOfClass:expectedType]) {
+                                    validType = NO;
+                                    break;
+                                }
                             }
-                            if (![propertyValueItemValue isKindOfClass:expectedType]) {
-                                validType = NO;
-                                break;
+                            if (validType) {
+                                [convertedProperties addProperty:[CMISPropertyData createPropertyForId:propertyId arrayValue:propertyValue type:propertyDefinition.propertyType]];
                             }
+                        } else {
+                            validType = NO;
                         }
-                        if (validType) {
-                            [convertedProperties addProperty:[CMISPropertyData createPropertyForId:propertyId arrayValue:propertyValue type:propertyDefinition.propertyType]];
-                        }
-                    } else {
-                        validType = NO;
+                        break;
                     }
-                    break;
-                }
-                case(CMISPropertyTypeHtml): {
-                    expectedType = [NSString class];
-                    if ([propertyValue isKindOfClass:expectedType]) {
-                        [convertedProperties addProperty:[CMISPropertyData createPropertyForId:propertyId htmlValue:propertyValue]];
-                    } else if ([propertyValue isKindOfClass:[NSArray class]]) {
-                        for (id propertyValueItemValue in propertyValue) {
-                            if (![propertyValueItemValue isKindOfClass:expectedType]) {
-                                validType = NO;
-                                break;
+                    case(CMISPropertyTypeId): {
+                        expectedType = [NSString class];
+                        if ([propertyValue isKindOfClass:expectedType]) {
+                            [convertedProperties addProperty:[CMISPropertyData createPropertyForId:propertyId idValue:propertyValue]];
+                        } else if ([propertyValue isKindOfClass:[NSArray class]]) {
+                            for (id propertyValueItemValue in propertyValue) {
+                                if (![propertyValueItemValue isKindOfClass:expectedType]) {
+                                    validType = NO;
+                                    break;
+                                }
                             }
+                            if (validType) {
+                                [convertedProperties addProperty:[CMISPropertyData createPropertyForId:propertyId arrayValue:propertyValue type:propertyDefinition.propertyType]];
+                            }
+                        } else {
+                            validType = NO;
                         }
-                        if (validType) {
-                            [convertedProperties addProperty:[CMISPropertyData createPropertyForId:propertyId arrayValue:propertyValue type:propertyDefinition.propertyType]];
-                        }
-                    } else {
-                        validType = NO;
+                        break;
                     }
-                    break;
-                }
-                default: {
-                    NSError *error = [CMISErrors createCMISErrorWithCode:kCMISErrorCodeInvalidArgument
-                                                 detailedDescription:[NSString stringWithFormat:@"Unsupported: cannot convert property type %li", (long)propertyDefinition.propertyType]];
-                    completionBlock(nil, error);
-                    return;
+                    case(CMISPropertyTypeDateTime): {
+                        if ([propertyValue isKindOfClass:[NSString class]]) {
+                            propertyValue = [CMISDateUtil dateFromString:propertyValue];
+                        }
+                        expectedType = [NSDate class];
+                        if ([propertyValue isKindOfClass:expectedType]) {
+                            [convertedProperties addProperty:[CMISPropertyData createPropertyForId:propertyId dateTimeValue:propertyValue]];
+                        } else if ([propertyValue isKindOfClass:[NSArray class]]) {
+                            for (__strong id propertyValueItemValue in propertyValue) {
+                                if ([propertyValueItemValue isKindOfClass:[NSString class]]) {
+                                    propertyValueItemValue = [CMISDateUtil dateFromString:propertyValueItemValue];
+                                }
+                                if (![propertyValueItemValue isKindOfClass:expectedType]) {
+                                    validType = NO;
+                                    break;
+                                }
+                            }
+                            if (validType) {
+                                [convertedProperties addProperty:[CMISPropertyData createPropertyForId:propertyId arrayValue:propertyValue type:propertyDefinition.propertyType]];
+                            }
+                        } else {
+                            validType = NO;
+                        }
+                        break;
+                    }
+                    case(CMISPropertyTypeUri): {
+                        if ([propertyValue isKindOfClass:[NSString class]]) {
+                            propertyValue = [NSURL URLWithString:propertyValue];
+                        }
+                        expectedType = [NSURL class];
+                        if ([propertyValue isKindOfClass:expectedType]) {
+                            [convertedProperties addProperty:[CMISPropertyData createPropertyForId:propertyId uriValue:propertyValue]];
+                        } else if ([propertyValue isKindOfClass:[NSArray class]]) {
+                            for (__strong id propertyValueItemValue in propertyValue) {
+                                if ([propertyValueItemValue isKindOfClass:[NSString class]]) {
+                                    propertyValueItemValue = [NSURL URLWithString:propertyValueItemValue];
+                                }
+                                if (![propertyValueItemValue isKindOfClass:expectedType]) {
+                                    validType = NO;
+                                    break;
+                                }
+                            }
+                            if (validType) {
+                                [convertedProperties addProperty:[CMISPropertyData createPropertyForId:propertyId arrayValue:propertyValue type:propertyDefinition.propertyType]];
+                            }
+                        } else {
+                            validType = NO;
+                        }
+                        break;
+                    }
+                    case(CMISPropertyTypeHtml): {
+                        expectedType = [NSString class];
+                        if ([propertyValue isKindOfClass:expectedType]) {
+                            [convertedProperties addProperty:[CMISPropertyData createPropertyForId:propertyId htmlValue:propertyValue]];
+                        } else if ([propertyValue isKindOfClass:[NSArray class]]) {
+                            for (id propertyValueItemValue in propertyValue) {
+                                if (![propertyValueItemValue isKindOfClass:expectedType]) {
+                                    validType = NO;
+                                    break;
+                                }
+                            }
+                            if (validType) {
+                                [convertedProperties addProperty:[CMISPropertyData createPropertyForId:propertyId arrayValue:propertyValue type:propertyDefinition.propertyType]];
+                            }
+                        } else {
+                            validType = NO;
+                        }
+                        break;
+                    }
+                    default: {
+                        NSError *error = [CMISErrors createCMISErrorWithCode:kCMISErrorCodeInvalidArgument
+                                                     detailedDescription:[NSString stringWithFormat:@"Unsupported: cannot convert property type %li", (long)propertyDefinition.propertyType]];
+                        completionBlock(nil, error);
+                        return;
+                    }
                 }
             }
             

@@ -351,15 +351,22 @@
 
 - (CMISRequest*)retrieveTypeDefinition:(NSString *)typeId completionBlock:(void (^)(CMISTypeDefinition *typeDefinition, NSError *error))completionBlock
 {
-    CMISTypeDefinition *typeDefinition = [self.typeCache objectForKey:typeId];
+    id typeDefinition = [self.typeCache objectForKey:typeId];
     if (typeDefinition) {
-        completionBlock(typeDefinition, nil);
+        if (typeDefinition == [NSNull null]) {
+            completionBlock(nil, [CMISErrors createCMISErrorWithCode:kCMISErrorCodeObjectNotFound detailedDescription:nil]);
+        } else {
+            completionBlock(typeDefinition, nil);
+        }
         return nil;
     }
     
     return [self.binding.repositoryService retrieveTypeDefinition:typeId completionBlock:^(CMISTypeDefinition *typeDefinition, NSError *error) {
         if (typeDefinition) {
             [self.typeCache setObject:typeDefinition forKey:typeId];
+        } else if ([error.domain isEqualToString:kCMISErrorDomainName] && error.code == kCMISErrorCodeObjectNotFound) {
+            // Negative type cache
+            [self.typeCache setObject:[NSNull null] forKey:typeId];
         }
         completionBlock(typeDefinition, error);
     }];

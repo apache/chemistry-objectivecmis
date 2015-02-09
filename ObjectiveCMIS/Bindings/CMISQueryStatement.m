@@ -76,6 +76,20 @@ static NSDateFormatter *cmisQueryStatementTimeStampFormatter;
     }
 }
 
+- (void)setStringArrayAtIndex:(NSUInteger)parameterIndex stringArray:(NSArray*)stringArray {
+    NSMutableString *paramStr = [NSMutableString string];
+    for (NSString *value in stringArray) {
+        if ([value isKindOfClass:NSString.class] && value.length > 0) {
+            [paramStr appendFormat:@"%@, ", [CMISQueryStatement escapeString:value withSurroundingQuotes:YES]];
+        }
+    }
+    if (paramStr.length > 2) {
+        self.parametersDictionary[@(parameterIndex)] = [paramStr substringToIndex:paramStr.length-2];
+    } else {
+        self.parametersDictionary[@(parameterIndex)] = [NSString string]; // Empty list
+    }
+}
+
 - (void)setUrlAtIndex:(NSUInteger)parameterIndex url:(NSURL*)url {
     if (url) {
         NSError *error;
