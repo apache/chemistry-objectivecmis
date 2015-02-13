@@ -192,13 +192,9 @@
     // update statistics
     self.bytesDownloaded += data.length;
     
-    // pass progress to progressBlock, on the main thread
-    if (self.progressBlock) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            if (self.progressBlock) {
-                self.progressBlock(self.bytesDownloaded, self.bytesExpected);
-            }
-        });
+    // pass progress to progressBlock, on the original thread
+    if (self.originalThread) {
+        [self performSelector:@selector(executeProgressBlock:) onThread:self.originalThread withObject:@[@(self.bytesDownloaded), @(self.bytesExpected)] waitUntilDone:NO];
     }
 }
 
@@ -230,10 +226,10 @@
                 NSError *cmisError = [CMISErrors createCMISErrorWithCode:kCMISErrorCodeStorage
                                                      detailedDescription:@"Could not open output stream"];
                 
-                // call the completion block on the main thread
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    self.completionBlock(nil, cmisError);
-                });
+                // call the completion block on the original thread
+                if (self.originalThread) {
+                    [self performSelector:@selector(executeCompletionBlockError:) onThread:self.originalThread withObject:cmisError waitUntilDone:NO];
+                }
             }
         }
     }
@@ -271,12 +267,16 @@
         if (totalBytesExpected == NSURLSessionTransferSizeUnknown && self.bytesExpected != 0) {
             totalBytesExpected = self.bytesExpected;
         }
-        
-        dispatch_async(dispatch_get_main_queue(), ^{
-            if (self.progressBlock) {
-                self.progressBlock(totalBytesWritten, totalBytesExpected);
-            }
-        });
+        // pass progress to progressBlock, on the original thread
+        if (self.originalThread) {
+            [self performSelector:@selector(executeProgressBlock:) onThread:self.originalThread withObject:@[@(totalBytesWritten), @(totalBytesExpected)] waitUntilDone:NO];
+        }
+    }
+}
+
+- (void)executeProgressBlock:(NSArray*)valueArray {
+    if (self.progressBlock) {
+        self.progressBlock([valueArray[0] unsignedLongLongValue], [valueArray[1] unsignedLongLongValue]);
     }
 }
 

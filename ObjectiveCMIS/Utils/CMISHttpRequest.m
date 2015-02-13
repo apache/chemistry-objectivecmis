@@ -39,7 +39,6 @@ NSString * const kCMISExceptionStreamNotSupported      = @"streamNotSupported";
 NSString * const kCMISExceptionUpdateConflict          = @"updateConflict";
 NSString * const kCMISExceptionVersioning              = @"versioning";
 
-
 @implementation CMISHttpRequest
 
 
@@ -69,6 +68,7 @@ NSString * const kCMISExceptionVersioning              = @"versioning";
 {
     self = [super init];
     if (self) {
+        _originalThread = [NSThread currentThread];
         _requestMethod = httpRequestMethod;
         _completionBlock = completionBlock;
     }
@@ -147,10 +147,7 @@ NSString * const kCMISExceptionVersioning              = @"versioning";
         if (self.completionBlock) {
             NSString *detailedDescription = [NSString stringWithFormat:@"Could not create network session for %@", urlRequest.URL];
             NSError *cmisError = [CMISErrors createCMISErrorWithCode:kCMISErrorCodeConnection detailedDescription:detailedDescription];
-            void (^completionBlock)(CMISHttpResponse *httpResponse, NSError *error);
-            completionBlock = self.completionBlock;
-            self.completionBlock = nil; // Prevent multiple execution if method on this request gets called inside completion block
-            completionBlock(nil, cmisError);
+            [self executeCompletionBlockResponse:nil error:cmisError];
         }
     }
     
@@ -212,14 +209,14 @@ NSString * const kCMISExceptionVersioning              = @"versioning";
                 httpResponse = nil;
             }
         }
-        
-        // call the completion block on the main thread
-        dispatch_async(dispatch_get_main_queue(), ^{
-            void (^completionBlock)(CMISHttpResponse *httpResponse, NSError *error);
-            completionBlock = self.completionBlock;
-            self.completionBlock = nil; // Prevent multiple execution if method on this request gets called inside completion block
-            completionBlock(httpResponse, cmisError);
-        });
+        // call the completion block on the original thread
+        if (self.originalThread) {
+            if(cmisError) {
+                [self performSelector:@selector(executeCompletionBlockError:) onThread:self.originalThread withObject:cmisError waitUntilDone:NO];
+            } else {
+                [self performSelector:@selector(executeCompletionBlockResponse:) onThread:self.originalThread withObject:httpResponse waitUntilDone:NO];
+            }
+        }
     }
     
     // clean up
@@ -331,6 +328,23 @@ NSString * const kCMISExceptionVersioning              = @"versioning";
         return NO;
     }
     return YES;
+}
+
+- (void)executeCompletionBlockResponse:(CMISHttpResponse*)response {
+    [self executeCompletionBlockResponse:response error:nil];
+}
+
+- (void)executeCompletionBlockError:(NSError*)error {
+    [self executeCompletionBlockResponse:nil error:error];
+}
+
+- (void)executeCompletionBlockResponse:(CMISHttpResponse*)response error:(NSError*)error {
+    if (self.completionBlock) {
+        void (^completionBlock)(CMISHttpResponse *httpResponse, NSError *error);
+        completionBlock = self.completionBlock;
+        self.completionBlock = nil; // Prevent multiple execution if method on this request gets called inside completion block
+        completionBlock(response, error);
+    }
 }
 
 @end
