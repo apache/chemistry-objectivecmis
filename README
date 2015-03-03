@@ -19,10 +19,10 @@ The ObjectiveCMIS library is distributed in two packages.
 Minimum Requirements
 --------------------
 
-The library is making use of Objective-C automated reference counting (ARC).
-Therefore the library is compatible with iOS SDK v5.x or later.
-For development we recommend the latest available version of XCode and
-iOS/Mac OSX SDKs.
+The library is making use of NSURLSession API for downloading content via HTTP.
+Therefore the library is compatible with iOS v7.0 SDK and OS X v10.9 SDK or later.
+For development we recommend the latest available version of Xcode and
+iOS / Mac OSX SDKs.
 
 
 How to include the library on your XCode project
