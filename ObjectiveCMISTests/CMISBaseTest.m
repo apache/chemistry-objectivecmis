@@ -78,7 +78,7 @@
             
             testBlock();
         }];
-        [self waitForCompletion:20];
+        [self waitForCompletion:30];
     }
 }
 
