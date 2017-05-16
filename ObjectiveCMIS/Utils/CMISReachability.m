@@ -74,8 +74,9 @@ void handleFlags(SCNetworkReachabilityFlags flags)
 #endif
     
     BOOL connected = !(flags & kSCNetworkReachabilityFlagsConnectionRequired);
+    BOOL connectionOnDemand = (flags & kSCNetworkReachabilityFlagsConnectionOnDemand); // connectionOnDemand is true when using e.g. per App-VPN
     
-    if (reachable && connected) {
+    if (reachable && (connected || connectionOnDemand)) {
         networkReachability->_networkConnection = YES;
     }
     else {
@@ -89,21 +90,24 @@ void handleFlags(SCNetworkReachabilityFlags flags)
 
 + (instancetype)reachabilityWithAddress:(const struct sockaddr_in *)hostAddress;
 {
-    CMISReachability *returnReachability = NULL;
-    
+    CMISReachability *returnReachability = nil;
+    // deactivated static analyzer because of false positive: release of reachabilityRef is done in dealloc method, however compiler does not recognize this
+#ifndef __clang_analyzer__
     SCNetworkReachabilityRef reachability = SCNetworkReachabilityCreateWithAddress(kCFAllocatorDefault, (const struct sockaddr *)hostAddress);
     
     if (reachability != NULL) {
         returnReachability = [[self alloc] init];
-        if (returnReachability != NULL) {
+        if (returnReachability != nil) {
             returnReachability.networkReachabilityRef = reachability;
             [returnReachability startNotifier];
+        } else {
+            CFRelease(reachability);
         }
     }
     else {
         CMISLogWarning(@"Failed to create reachability reference for address %@", hostAddress);
     }
-    
+#endif
     return returnReachability;
 }
 

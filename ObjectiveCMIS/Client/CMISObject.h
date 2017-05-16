@@ -68,5 +68,28 @@
  */
 - (NSArray *)extensionsForExtensionLevel:(CMISExtensionLevel)extensionLevel;
 
+/**
+ * Retrieves the acl of an object with the given object identifier.
+ * completionBlock returns acl for an object or nil if unsuccessful
+ */
+- (CMISRequest*)retrieveAclOnlyBasicPermissions:(BOOL)onlyBasicPermissions
+                                completionBlock:(void (^)(CMISAcl *acl, NSError *error))completionBlock;
+
+/**
+ * Removes and adds the specified acl to an object with the given object identifier.
+ * completionBlock returns acl for an object or nil if unsuccessful
+ */
+- (CMISRequest*)applyAclAddAces:(CMISAcl *)addAces
+                     removeAces:(CMISAcl *)removeAces
+                 aclPropagation:(CMISAclPropagation)aclPropagation
+                completionBlock:(void (^)(CMISAcl *acl, NSError *error))completionBlock;
+
+/**
+ * Sets the specified acl to an object with the given object identifier.
+ * completionBlock returns acl for an object or nil if unsuccessful
+ */
+- (CMISRequest*)setAcl:(CMISAcl *)aces
+       completionBlock:(void (^)(CMISAcl *acl, NSError *error))completionBlock;
+
 @end
 

@@ -26,6 +26,8 @@
 #import "CMISBrowserConstants.h"
 #import "CMISConstants.h"
 #import "CMISEnums.h"
+#import "CMISURLUtil.h"
+#import "CMISStringInOutParameter.h"
 
 @implementation CMISBrowserDiscoveryService
 
@@ -68,6 +70,54 @@ includeAllowableActions:(BOOL)includeAllowableActions
                                                    completionBlock(objectList, nil);
                                                }
                                            }];
+                                       } else {
+                                           completionBlock(nil, error);
+                                       }
+                                   }];
+    return cmisRequest;
+}
+
+- (CMISRequest *)retrieveContentChanges:(CMISStringInOutParameter *)changeLogTokenParam
+                     includeProperties:(BOOL)includeProperties
+                                filter:(NSString *)filter
+                      includePolicyIds:(BOOL)includePolicyIds
+                            includeAcl:(BOOL)includeAcl
+                              maxItems:(NSNumber *)maxItems
+                       completionBlock:(void (^)(CMISObjectList *, NSError *))completionBlock
+{
+    // build url
+    NSString *url = [self retrieveRepositoryUrlWithSelector:kCMISBrowserJSONSelectorContentChanges];
+    url = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterChangeLogToken value:changeLogTokenParam.inParameter urlString:url];
+    url = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterIncludeProperties boolValue:includeProperties urlString:url];
+    url = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterFilter value:filter urlString:url];
+    url = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterIncludePolicyIds boolValue:includePolicyIds urlString:url];
+    url = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterIncludeAcl boolValue:includeAcl urlString:url];
+    url = [CMISURLUtil urlStringByAppendingParameter:kCMISParameterMaxItems numberValue:maxItems urlString:url];
+    url = [CMISURLUtil urlStringByAppendingParameter:kCMISBrowserJSONParameterSuccinct value:kCMISParameterValueTrue urlString:url];
+    
+    // read and parse
+    CMISRequest *cmisRequest = [[CMISRequest alloc] init];
+    [self.bindingSession.networkProvider invokeGET:[NSURL URLWithString:url]
+                                           session:self.bindingSession
+                                       cmisRequest:cmisRequest
+                                   completionBlock:^(CMISHttpResponse *httpResponse, NSError *error) {
+                                       if (httpResponse.statusCode == 200 && httpResponse.data) {
+                                           NSError *parsingError = nil;
+                                           NSString *token = [CMISBrowserUtil objectListChangeLogTokenFromJSONData:httpResponse.data error:&parsingError];
+                                           if (parsingError) {
+                                               completionBlock(nil, parsingError);
+                                           } else {
+                                               changeLogTokenParam.outParameter = token;
+                                               
+                                               CMISBrowserTypeCache *typeCache = [[CMISBrowserTypeCache alloc] initWithRepositoryId:self.bindingSession.repositoryId bindingService:self];
+                                               [CMISBrowserUtil objectListFromJSONData:httpResponse.data typeCache:typeCache isQueryResult:NO completionBlock:^(CMISObjectList *objectList, NSError *objectListParseError) {
+                                                   if (objectListParseError) {
+                                                       completionBlock(nil, objectListParseError);
+                                                   } else {
+                                                       completionBlock(objectList, nil);
+                                                   }
+                                               }];
+                                           }
                                        } else {
                                            completionBlock(nil, error);
                                        }

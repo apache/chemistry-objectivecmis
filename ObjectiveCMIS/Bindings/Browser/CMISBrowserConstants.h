@@ -89,6 +89,7 @@ extern NSString * const kCMISBrowserJSONResults;
 extern NSString * const kCMISBrowserJSONObject;
 extern NSString * const kCMISBrowserJSONHasMoreItems;
 extern NSString * const kCMISBrowserJSONNumberItems;
+extern NSString * const kCMISBrowserJSONChangeLogToken;
 extern NSString * const kCMISBrowserJSONThinClientUri;
 extern NSString * const kCMISBrowserJSONChangesIncomplete;
 extern NSString * const kCMISBrowserJSONChangesOnType;
@@ -105,6 +106,8 @@ extern NSString * const kCMISBrowserJSONAcePrincipal;
 extern NSString * const kCMISBrowserJSONAcePrincipalId;
 extern NSString * const kCMISBrowserJSONAcePermissions;
 extern NSString * const kCMISBrowserJSONAceIsDirect;
+extern NSString * const kCMISBrowserJSONChangeEventType;
+extern NSString * const kCMISBrowserJSONChangeEventTime;
 
 // JSON enum values
 extern NSString * const kCMISBrowserJSONPropertyTypeValueString;
@@ -164,6 +167,10 @@ extern NSString * const kCMISBrowserJSONParameterSuccinct;
 extern NSString * const kCMISBrowserJSONControlCmisAction;
 extern NSString * const kCMISBrowserJSONControlPropertyId;
 extern NSString * const kCMISBrowserJSONControlPropertyValue;
+extern NSString * const kCMISBrowserJSONControlAddAcePrincipal;
+extern NSString * const kCMISBrowserJSONControlAddAcePermission;
+extern NSString * const kCMISBrowserJSONControlRemoveAcePrincipal;
+extern NSString * const kCMISBrowserJSONControlRemoveAcePermission;
 
 // Browser binding actions
 extern NSString * const kCMISBrowserJSONActionCreateType;
@@ -204,5 +211,7 @@ extern NSString * const kCMISBrowserJSONActionApplyAcl;
 + (NSSet *)aclKeys;
 + (NSSet *)aceKeys;
 + (NSSet *)principalKeys;
++ (NSSet *)policyIdsKeys;
++ (NSSet *)changeEventKeys;
 
 @end

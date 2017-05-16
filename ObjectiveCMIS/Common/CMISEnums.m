@@ -67,6 +67,26 @@
     return unfileObjectString;
 }
 
++ (NSString *)stringForAclPropagation:(CMISAclPropagation)aclPropagation;
+{
+    NSString *aclPropagationString = nil;
+    switch (aclPropagation) {
+        case CMISAclPropagationRepositoryDetermined:
+            aclPropagationString = @"repositorydetermined";
+            break;
+        case  CMISAclPropagationObjectOnly:
+            aclPropagationString = @"objectonly";
+            break;
+        case CMISAclPropagationPropagate:
+            aclPropagationString = @"propagate";
+            break;
+        default:
+            CMISLogError(@"Inavlid enum type %d", (int)aclPropagation);
+            break;
+    }
+    return aclPropagationString;
+}
+
 + (NSString *)stringForReturnVersion:(BOOL)major
 {
     return major == NO ? kCMISParameterValueReturnValueLatest : kCMISParameterValueReturnValueLatestMajor;
@@ -127,6 +147,21 @@
         propertyType = CMISPropertyTypeUnknown;
     }
     return propertyType;
+}
+
++ (CMISChangeType)enumForChangeType:(NSString *)changeType
+{
+    if([kCMISChangeTypeCreated isEqualToString:changeType]) {
+        return CMISChangeTypeCreated;
+    } else if([kCMISChangeTypeUpdated isEqualToString:changeType]) {
+        return CMISChangeTypeUpdated;
+    } else if([kCMISChangeTypeDeleted isEqualToString:changeType]) {
+        return CMISChangeTypeDeleted;
+    } else if([kCMISChangeTypeSecurity isEqualToString:changeType]) {
+        return CMISChangeTypeSecurity;
+    } else {
+        return CMISChangeTypeUnknown;
+    }
 }
 
 @end

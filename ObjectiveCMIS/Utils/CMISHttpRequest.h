@@ -37,10 +37,10 @@
 @property (nonatomic, weak) NSThread *originalThread;
 
 /**
- * starts a URL request for given HTTP method 
+ * starts a URL request for given HTTP method
  * @param requestBody (optional)
  * @param additionalHeaders (optional)
- * @param authenticationProvider (required)
+ * @param session (required)
  * completionBlock returns a CMISHTTPResponse object or nil if unsuccessful
  */
 + (id)startRequest:(NSMutableURLRequest *)urlRequest
@@ -67,5 +67,18 @@
 
 /// Call completion block with error returned from server
 - (void)executeCompletionBlockError:(NSError*)error;
+
+-(void) didCompleteWithError:(NSError *)error;
+
+- (BOOL)callCompletionBlockOnOriginalThread;
+
++ (BOOL)checkStatusCodeForResponse:(CMISHttpResponse *)response httpRequestMethod:(CMISHttpRequestMethod)httpRequestMethod error:(NSError **)error;
+
+@end
+
+@interface CMISHttpRequest (Protected)
+
++ (BOOL)isErrorResponse:(NSInteger)statusCode httpRequestMethod:(CMISHttpRequestMethod)httpRequestMethod;
+- (BOOL)shouldApplyHttpHeaders;
 
 @end

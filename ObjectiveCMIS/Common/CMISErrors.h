@@ -99,6 +99,21 @@ extern NSString * const kCMISErrorDescriptionStorage;
 extern NSString * const kCMISErrorDescriptionStreamNotSupported;
 extern NSString * const kCMISErrorDescriptionUpdateConflict;
 extern NSString * const kCMISErrorDescriptionVersioning;
+//OAuth specific - to be used in the userInfo dictionary when OAuth token request fails
+extern NSString * const kCMISErrorOAuthExceptionErrorKey;
+extern NSString * const kCMISErrorOAuthExceptionDescriptionKey;
+extern NSString * const kCMISErrorOAuthExceptionUriKey;
+//OAuth specific error codes as defined in RFC 6749 5.2
+extern NSString * const kCMISErrorOAuthCodeInvalidRequest;
+extern NSString * const kCMISErrorOAuthCodeInvalidClient;
+extern NSString * const kCMISErrorOAuthCodeInvalidGrant;
+extern NSString * const kCMISErrorOAuthCodeUnauthorizedClient;
+extern NSString * const kCMISErrorOAuthCodeUnsupportedGrantType;
+extern NSString * const kCMISErrorOAuthCodeInvalidScope;
+//Bearer OAuth specific error codes as defined in RFC 6750 6.2
+extern NSString * const kCMISErrorBearerOAuthCodeInvalidRequest;
+extern NSString * const kCMISErrorBearerOAuthCodeInvalidToken; // ask the user to authenticate again
+extern NSString * const kCMISErrorBearerOAuthCodeInsufficientScope;
 
 /** This class defines Errors in the Objective-C CMIS library
  
@@ -128,5 +143,15 @@ extern NSString * const kCMISErrorDescriptionVersioning;
  @return the CMIS error as NSError object with error domain org.apache.chemistry.objectivecmis
  */
 + (NSError *)createCMISErrorWithCode:(CMISErrorCodes)code detailedDescription:(NSString *)detailedDescription;
+/** Creates a new CMIS error
+ 
+ This is the direct way of creating CMIS errors
+ 
+ @param code the CMIS Error code to be used
+ @param detailedDescription a detailed description to be added to the localizedDescription. Use nil if none is available/needed.
+ @param additionalUserInfo additional user info dictionary to be added to the NSError's userInfo
+ @return the CMIS error as NSError object with error domain org.apache.chemistry.objectivecmis
+ */
++ (NSError *)createCMISErrorWithCode:(CMISErrorCodes)code detailedDescription:(NSString *)detailedDescription additionalUserInfo:(NSDictionary *)additionalUserInfo;
 @end
 

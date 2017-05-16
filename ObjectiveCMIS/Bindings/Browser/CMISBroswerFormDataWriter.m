@@ -24,6 +24,9 @@
 #import "CMISLog.h"
 #import "CMISMimeHelper.h"
 #import "CMISURLUtil.h"
+#import "CMISAcl.h"
+#import "CMISAce.h"
+#import "CMISProperties.h"
 
 NSString * const kCMISFormDataContentTypeUrlEncoded = @"application/x-www-form-urlencoded;charset=utf-8";
 NSString * const kCMISFormDataContentTypeFormData = @"multipart/form-data; boundary=";
@@ -72,6 +75,41 @@ NSString * const kCMISFormDataContentTypeFormData = @"multipart/form-data; bound
 - (void)addParameter:(NSString *)name boolValue:(BOOL)value
 {
     [self addParameter:name value:(value? kCMISParameterValueTrue : kCMISParameterValueFalse)];
+}
+
+- (void)addAcesParameters:(CMISAcl *)acl
+{
+    [self addAcesParameters:acl principalControl:kCMISBrowserJSONControlAddAcePrincipal permissionControl:kCMISBrowserJSONControlAddAcePermission];
+}
+
+- (void)addRemoveAcesParameters:(CMISAcl *)acl
+{
+    [self addAcesParameters:acl principalControl:kCMISBrowserJSONControlRemoveAcePrincipal permissionControl:kCMISBrowserJSONControlRemoveAcePermission];
+}
+
+- (void)addAcesParameters:(CMISAcl *)acl principalControl:(NSString *)principalControl permissionControl:(NSString *)permissionControl
+{
+    if (!acl || !acl.aces) {
+        return;
+    }
+    
+    int idx = 0;
+    for (CMISAce *ace in acl.aces) {
+        if (ace.principalId && ace.permissions.count > 0) {
+            NSString *idxStr = [NSString stringWithFormat:@"[%d]", idx];
+            [self addParameter:[NSString stringWithFormat:@"%@%@", principalControl, idxStr] value:ace.principalId];
+            
+            int permIdx = 0;
+            for (NSString *perm in ace.permissions) {
+                if (perm) {
+                    NSString *permIdxStr = [NSString stringWithFormat:@"[%d]", permIdx];
+                    [self addParameter:[NSString stringWithFormat:@"%@%@%@", permissionControl, idxStr, permIdxStr] value:perm];
+                    permIdx++;
+                }
+            }
+            idx++;
+        }
+    }
 }
 
 - (void)addSuccinctFlag:(BOOL)succinct

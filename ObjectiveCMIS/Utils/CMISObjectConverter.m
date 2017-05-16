@@ -27,6 +27,14 @@
 #import "CMISDateUtil.h"
 #import "CMISConstants.h"
 #import "CMISDictionaryUtil.h"
+#import "CMISChangeEvents.h"
+#import "CMISChangeEvent.h"
+#import "CMISObjectList.h"
+#import "CMISObjectData.h"
+#import "CMISChangeEventInfo.h"
+#import "CMISEnums.h"
+#import "CMISPolicyIdList.h"
+#import "CMISItem.h"
 
 @interface CMISObjectConverter ()
 @property (nonatomic, weak) CMISSession *session;
@@ -53,11 +61,19 @@
         object = [[CMISDocument alloc] initWithObjectData:objectData session:self.session];
     } else if (objectData.baseType == CMISBaseTypeFolder) {
         object = [[CMISFolder alloc] initWithObjectData:objectData session:self.session];
+    } else if (objectData.baseType == CMISBaseTypeItem) {
+        object = [[CMISItem alloc] initWithObjectData:objectData session:self.session];
     }
     
-    [object fetchTypeDefinitionWithCompletionBlock:^(NSError *error) {
-        completionBlock(object, error);
-    }];
+    if (object) {
+        [object fetchTypeDefinitionWithCompletionBlock:^(NSError *error) {
+            completionBlock(object, error);
+        }];    
+    } else {
+        NSError *error = [CMISErrors createCMISErrorWithCode:kCMISErrorCodeNotSupported
+                                         detailedDescription:[NSString stringWithFormat:@"Base type '%ld' not supported", (long)objectData.baseType]];
+        completionBlock(nil, error);
+    }
 }
 
 
@@ -542,5 +558,59 @@
     return extensions;
 }
 
++ (CMISChangeEvents *)convertChangeEvents:(NSString *)changeLogToken objectList:(CMISObjectList *)objectList
+{
+    if (objectList == nil) {
+        return nil;
+    }
+    
+    NSMutableArray *events = [NSMutableArray new];
+    for (CMISObjectData *objectData in objectList.objects) {
+        CMISChangeEvent *changeEvent = [self convertChangeEvent:objectData];
+        [events addObject:changeEvent];
+    }
+    
+    CMISChangeEvents *changeEvents = [CMISChangeEvents new];
+    changeEvents.hasMoreItems = objectList.hasMoreItems;
+    changeEvents.numItems = objectList.numItems;
+    changeEvents.changeEvents = [events copy];
+    changeEvents.latestChangeLogToken = changeLogToken;
+    
+    return changeEvents;
+}
+
++ (CMISChangeEvent *)convertChangeEvent:(CMISObjectData *)objectData
+{
+    CMISChangeEvent *changeEvent = [CMISChangeEvent new];
+    NSMutableDictionary *properties = nil;
+    
+    if (objectData.changeEventInfo) {
+        changeEvent.changeType = objectData.changeEventInfo.changeType;
+        changeEvent.changeTime = objectData.changeEventInfo.changeTime;
+    }
+    
+    if (objectData.properties.propertyList) {
+        properties = [NSMutableDictionary new];
+        
+        for (CMISPropertyData *property in objectData.properties.propertyList) {
+            [properties setObject:property.values forKey:property.identifier];
+        }
+        
+        changeEvent.properties = [properties copy];
+        
+        NSArray *objectIdList = [properties objectForKey:kCMISPropertyObjectId];
+        if (objectIdList.count > 0) {
+            changeEvent.objectId = objectIdList[0];
+        }
+        
+        changeEvent.policyIds = objectData.policyIds.policyIds;
+        
+        changeEvent.acl = objectData.acl;
+    }
+    
+    
+    
+    return changeEvent;
+}
 
 @end

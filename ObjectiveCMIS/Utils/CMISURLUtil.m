@@ -19,6 +19,7 @@
  
 #import "CMISURLUtil.h"
 #import "CMISConstants.h"
+#import "CMISLog.h"
 
 NSString * const kCMISRFC7232Reserved = @";?:@&=+$,[]";
 NSString * const kCMISRFC3986Reserved = @"!*'();:@&=+$,/?%#[]";
@@ -71,14 +72,15 @@ NSString * const kCMISRFC3986Reserved = @"!*'();:@&=+$,/?%#[]";
         path = [path substringFromIndex:1];
     }
     
-    NSURL *url = [[NSURL URLWithString:urlString] URLByAppendingPathComponent:path];
-
+    NSURL *url = [NSURL URLWithString:urlString];
+    if (path.length > 0) {
+        url = [url URLByAppendingPathComponent:path];
+    }
+    
     // quote some additional reserved characters
-    path = CFBridgingRelease(CFURLCreateStringByAddingPercentEscapes(NULL,
-                                                                     (CFStringRef)url.path,
-                                                                     NULL,
-                                                                     (CFStringRef)kCMISRFC7232Reserved,
-                                                                     kCFStringEncodingUTF8));
+    NSMutableCharacterSet *characterSet = [[NSCharacterSet URLQueryAllowedCharacterSet] mutableCopy];
+    [characterSet removeCharactersInString:kCMISRFC7232Reserved];
+    path = [url.path stringByAddingPercentEncodingWithAllowedCharacters:characterSet];
     
     return [self replacePathInUrl:[url absoluteString] withPath:path];
 }
@@ -90,11 +92,10 @@ NSString * const kCMISRFC3986Reserved = @"!*'();:@&=+$,/?%#[]";
 
 + (NSString *)encodeUrlParameterValue:(NSString *)value
 {
-    NSString *encodedValue = CFBridgingRelease(CFURLCreateStringByAddingPercentEscapes(NULL,
-                                                                                       (CFStringRef)value,
-                                                                                       NULL,
-                                                                                       (CFStringRef)kCMISRFC3986Reserved,
-                                                                                       kCFStringEncodingUTF8));
+    NSMutableCharacterSet *characterSet = [[NSCharacterSet URLQueryAllowedCharacterSet] mutableCopy];
+    [characterSet removeCharactersInString:kCMISRFC3986Reserved];
+    NSString *encodedValue = [value stringByAddingPercentEncodingWithAllowedCharacters:characterSet];
+    
     return encodedValue;
 }
 

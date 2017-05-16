@@ -40,3 +40,9 @@
 - (NSString*)errorMessage;
 
 @end
+
+@interface CMISHttpResponse (Protected)
+
+- (NSString*)responseValueForKey:(NSString *)key;
+
+@end

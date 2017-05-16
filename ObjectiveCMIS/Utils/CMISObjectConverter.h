@@ -22,6 +22,9 @@
 #import "CMISObjectData.h"
 
 @class CMISSession;
+@class CMISChangeEvents;
+@class CMISChangeEvent;
+@class CMISObjectList;
 
 @interface CMISObjectConverter : NSObject
 
@@ -42,5 +45,9 @@
  * Converts the source to an array with elements of type CMISExtensionElement. Elements of the source with keys that are contained in the cmisKeys set set are ignored.
  */
 + (NSArray *)convertExtensions:(NSDictionary *)source cmisKeys:(NSSet *)cmisKeys;
+
++ (CMISChangeEvents *)convertChangeEvents:(NSString *)changeLogToken objectList:(CMISObjectList *)objectList;
+
++ (CMISChangeEvent *)convertChangeEvent:(CMISObjectData *)objectData;
 
 @end

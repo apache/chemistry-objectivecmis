@@ -101,6 +101,7 @@ extern NSString * const kCMISRepositoryCapabilityCreateablePropertyTypesCanCreat
 
 // URL parameters
 extern NSString * const kCMISParameterChangeToken;
+extern NSString * const kCMISParameterChangeLogToken;
 extern NSString * const kCMISParameterOverwriteFlag;
 extern NSString * const kCMISParameterIncludeAllowableActions;
 extern NSString * const kCMISParameterFilter;
@@ -111,6 +112,7 @@ extern NSString * const kCMISParameterOrderBy;
 extern NSString * const kCMISParameterIncludePathSegment;
 extern NSString * const kCMISParameterIncludeRelationships;
 extern NSString * const kCMISParameterIncludePolicyIds;
+extern NSString * const kCMISParameterIncludeProperties;
 extern NSString * const kCMISParameterIncludeAcl;
 extern NSString * const kCMISParameterRenditionFilter;
 extern NSString * const kCMISParameterSkipCount;
@@ -129,6 +131,8 @@ extern NSString * const kCMISParameterReturnVersion;
 extern NSString * const kCMISParameterTypeId;
 extern NSString * const kCMISParameterStatement;
 extern NSString * const kCMISParameterSearchAllVersions;
+extern NSString * const kCMISParameterOnlyBasicPermissions;
+extern NSString * const kCMISParameterAclPropagation;
 
 // Parameter Values
 extern NSString * const kCMISParameterValueTrue;
@@ -144,6 +148,12 @@ extern NSString * const kCMISMediaTypeOctetStream;
 extern NSString * const kCMISContentStreamAllowedValueRequired;
 extern NSString * const kCMISContentStreamAllowedValueAllowed;
 extern NSString * const kCMISContentStreamAllowedValueNotAllowed;
+
+// ChangeType enum values
+extern NSString * const kCMISChangeTypeCreated;
+extern NSString * const kCMISChangeTypeUpdated;
+extern NSString * const kCMISChangeTypeDeleted;
+extern NSString * const kCMISChangeTypeSecurity;
 
 // Background network default values
 extern NSString * const kCMISDefaultBackgroundNetworkSessionId;

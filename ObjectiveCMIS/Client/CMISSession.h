@@ -28,6 +28,7 @@
 @class CMISPagedResult;
 @class CMISTypeDefinition;
 @class CMISObjectConverter;
+@class CMISChangeEvents;
 
 @interface CMISSession : NSObject
 
@@ -276,4 +277,51 @@
                         bytesExpected:(unsigned long long)bytesExpected
                       completionBlock:(void (^)(NSString *objectId, NSError *error))completionBlock
                         progressBlock:(void (^)(unsigned long long bytesUploaded, unsigned long long bytesTotal))progressBlock;
+
+/**
+ * Retrieves the acl of an object with the given object identifier.
+ * completionBlock returns acl for an object or nil if unsuccessful
+ */
+- (CMISRequest*)retrieveAclFromCMISObject:objectId
+                     onlyBasicPermissions:(BOOL)onlyBasicPermissions
+                          completionBlock:(void (^)(CMISAcl *acl, NSError *error))completionBlock;
+
+/**
+ * Removes and adds the specified acl to an object with the given object identifier.
+ * completionBlock returns acl for an object or nil if unsuccessful
+ */
+- (CMISRequest*)applyAclToCMISObject:objectId
+                             addAces:(CMISAcl *)addAces
+                          removeAces:(CMISAcl *)removeAces
+                      aclPropagation:(CMISAclPropagation)aclPropagation
+                     completionBlock:(void (^)(CMISAcl *acl, NSError *error))completionBlock;
+
+/**
+ * Sets the specified acl to an object with the given object identifier.
+ * completionBlock returns acl for an object or nil if unsuccessful
+ */
+- (CMISRequest*)setAclOnCMISObject:objectId
+                              aces:(CMISAcl *)aces
+                   completionBlock:(void (^)(CMISAcl *acl, NSError *error))completionBlock;
+
+/**
+ * Retrieves the content changes.
+ * completionBlock returns change events or nil if unsuccessful
+ */
+- (CMISRequest*)retrieveContentChangesWithChangeLogToken:(NSString *)changeLogToken
+                                       includeProperties:(BOOL)includeProperties
+                                                maxItems:(NSNumber *)maxItems
+                                        operationContext:(CMISOperationContext *)operationContext
+                                         completionBlock:(void (^)(CMISChangeEvents *changeEvents, NSError *error))completionBlock;
+
+/**
+ * Returns a paged result set, containing CMISChangeEvent instances.
+ * completionBlock returns the content changes, starting from the given change log token to 
+ * the latest entry in the change log as a paged results object or nil if unsuccessful.
+ */
+- (CMISRequest*)retrieveContentChangesWithChangeLogToken:(NSString *)changeLogToken
+                                       includeProperties:(BOOL)includeProperties
+                                        operationContext:(CMISOperationContext *)operationContext
+                                         completionBlock:(void (^)(CMISPagedResult *result, NSError *error))completionBlock;
+
 @end

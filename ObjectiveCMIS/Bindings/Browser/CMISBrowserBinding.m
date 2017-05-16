@@ -24,6 +24,7 @@
 #import "CMISBrowserNavigationService.h"
 #import "CMISBrowserVersioningService.h"
 #import "CMISBrowserDiscoveryService.h"
+#import "CMISBrowserAclService.h"
 
 @interface CMISBrowserBinding ()
 
@@ -53,6 +54,7 @@
         self.navigationService = [[CMISBrowserNavigationService alloc] initWithBindingSession:self.session];
         self.versioningService = [[CMISBrowserVersioningService alloc] initWithBindingSession:self.session];
         self.discoveryService = [[CMISBrowserDiscoveryService alloc] initWithBindingSession:self.session];
+        self.aclService = [[CMISBrowserAclService alloc] initWithBindingSession:self.session];
     }
     return self;
 }

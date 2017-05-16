@@ -18,11 +18,13 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "CMISTypeDefinition.h"
-#import "CMISObjectData.h"
-#import "CMISObjectList.h"
-#import "CMISBindingSession.h"
-#import "CMISBrowserTypeCache.h"
+
+@class CMISObjectData;
+@class CMISBindingSession;
+@class CMISAcl;
+@class CMISObjectList;
+@class CMISBrowserTypeCache;
+@class CMISTypeDefinition;
 
 @interface CMISBrowserUtil : NSObject
 
@@ -60,5 +62,12 @@
  Returns all object parents as an array of CMISObjectData objects, parsed from the given JSON data.
  */
 + (void)objectParents:(NSData *)jsonData typeCache:(CMISBrowserTypeCache *)typeCache completionBlock:(void(^)(NSArray *objectParents, NSError *error))completionBlock;
+
+/**
+ Returns a CMISAcl object parsed from the given JSON data.
+ */
++ (void)aclFromJSONData:(NSData *)jsonData completionBlock:(void(^)(CMISAcl *objectList, NSError *error))completionBlock;
+
++ (NSString *)objectListChangeLogTokenFromJSONData:(NSData *)jsonData error:(NSError **)outError;
 
 @end

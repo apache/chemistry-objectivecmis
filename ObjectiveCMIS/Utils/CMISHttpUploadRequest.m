@@ -232,7 +232,10 @@ const NSUInteger kRawBufferSize = 24576;
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error
 {
     [super URLSession:session task:task didCompleteWithError:error];
-    
+}
+
+- (void)didCompleteWithError:(NSError *)error {
+    [super didCompleteWithError:error];
     if (self.useCombinedInputStream) {
         if (error) {
             [self stopSendWithStatus:@"connection is being terminated with error."];
@@ -398,7 +401,7 @@ const NSUInteger kRawBufferSize = 24576;
                 if (bytesWritten <= 0) {
                     [self stopSendWithStatus:@"Network write error"];
                     NSError *cmisError = [CMISErrors createCMISErrorWithCode:kCMISErrorCodeConnection detailedDescription:@"Network write error"];
-                    [self URLSession:nil task:nil didCompleteWithError:cmisError];
+                    [self didCompleteWithError:cmisError];
                 } else {
                     self.bufferOffset += bytesWritten;
                 }

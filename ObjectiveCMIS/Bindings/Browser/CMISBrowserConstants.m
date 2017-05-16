@@ -30,6 +30,8 @@ static NSSet *_queryResultListKeys;
 static NSSet *_aclKeys;
 static NSSet *_aceKeys;
 static NSSet *_principalKeys;
+static NSSet *_policyIdKeys;
+static NSSet *_changeEventKeys;
 
 @implementation CMISBrowserConstants
 
@@ -118,6 +120,8 @@ NSString * const kCMISBrowserJSONAcePrincipal = @"principal";
 NSString * const kCMISBrowserJSONAcePrincipalId = @"principalId";
 NSString * const kCMISBrowserJSONAcePermissions = @"permissions";
 NSString * const kCMISBrowserJSONAceIsDirect = @"isDirect";
+NSString * const kCMISBrowserJSONChangeEventType = @"changeType";
+NSString * const kCMISBrowserJSONChangeEventTime = @"changeTime";
 
 
 // JSON enum values
@@ -180,6 +184,10 @@ NSString * const kCMISBrowserJSONParameterSuccinct = @"succinct";
 NSString * const kCMISBrowserJSONControlCmisAction = @"cmisaction";
 NSString * const kCMISBrowserJSONControlPropertyId = @"propertyId";
 NSString * const kCMISBrowserJSONControlPropertyValue = @"propertyValue";
+NSString * const kCMISBrowserJSONControlAddAcePrincipal = @"addACEPrincipal";
+NSString * const kCMISBrowserJSONControlAddAcePermission = @"addACEPermission";
+NSString * const kCMISBrowserJSONControlRemoveAcePrincipal = @"removeACEPrincipal";
+NSString * const kCMISBrowserJSONControlRemoveAcePermission = @"removeACEPermission";
 
 
 // Browser binding actions
@@ -406,6 +414,27 @@ NSString * const kCMISBrowserJSONActionApplyAcl = @"applyACL";
                           nil];
     }
     return _principalKeys;
+}
+
++ (NSSet *)policyIdsKeys
+{
+    if(!_policyIdKeys) {
+        _policyIdKeys = [NSSet setWithObjects:
+                          kCMISBrowserJSONPolicyIdsIds,
+                          nil];
+    }
+    return _policyIdKeys;
+}
+
++ (NSSet *)changeEventKeys
+{
+    if(!_changeEventKeys) {
+        _changeEventKeys = [NSSet setWithObjects:
+                         kCMISBrowserJSONChangeEventType,
+                         kCMISBrowserJSONChangeEventTime,
+                         nil];
+    }
+    return _changeEventKeys;
 }
 
 @end

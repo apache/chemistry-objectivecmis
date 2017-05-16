@@ -67,51 +67,6 @@
     // nothing to do in the default implementation
 }
 
-- (BOOL)canAuthenticateAgainstProtectionSpace:(NSURLProtectionSpace *)protectionSpace
-{
-    // default implementation mimics default NSURLConnectionDelegate behavior
-    NSString *authenticationMethod = protectionSpace.authenticationMethod;
-    if ([authenticationMethod isEqualToString:NSURLAuthenticationMethodClientCertificate] && self.credential.identity) {
-        return YES; // client certificate requested and certificate identity available
-    }
-    if ([authenticationMethod isEqualToString:NSURLAuthenticationMethodHTTPBasic] && self.credential.user && self.credential.hasPassword) {
-        return YES; // basic authentication requested and username & password available
-    }
-    
-    return NO;
-}
-
-
-- (void)didCancelAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge
-{
-    // nothing to do in the default implementation
-}
-
-
-- (void)didReceiveAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge
-{
-    if (challenge.previousFailureCount == 0) {
-        if ([challenge.protectionSpace.authenticationMethod isEqualToString:NSURLAuthenticationMethodClientCertificate] &&
-            self.credential.identity) {
-            CMISLogDebug(@"Authenticating with client certificate");
-            [challenge.sender useCredential:self.credential forAuthenticationChallenge:challenge];
-        } else if ([challenge.protectionSpace.authenticationMethod isEqualToString:NSURLAuthenticationMethodHTTPBasic] &&
-                   self.credential.user && self.credential.hasPassword) {
-            CMISLogDebug(@"Authenticating with username and password");
-            [challenge.sender useCredential:self.credential forAuthenticationChallenge:challenge];
-        } else if (challenge.proposedCredential) {
-            CMISLogDebug(@"Authenticating with proposed credential");
-            [challenge.sender useCredential:challenge.proposedCredential forAuthenticationChallenge:challenge];
-        } else {
-            CMISLogDebug(@"Authenticating without credential");
-            [challenge.sender continueWithoutCredentialForAuthenticationChallenge:challenge];
-        }
-    } else {
-        CMISLogDebug(@"Authentication failed, cancelling logon");
-        [challenge.sender cancelAuthenticationChallenge:challenge];
-    }
-}
-
 - (void)didReceiveChallenge:(NSURLAuthenticationChallenge *)challenge
           completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition, NSURLCredential *))completionHandler
 {

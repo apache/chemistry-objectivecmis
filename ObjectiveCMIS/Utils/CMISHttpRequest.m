@@ -23,6 +23,7 @@
 #import "CMISLog.h"
 #import "CMISReachability.h"
 #import "CMISConstants.h"
+#import "CMISURLSessionUtil.h"
 
 //Exception names as returned in the <!--exception> tag
 NSString * const kCMISExceptionInvalidArgument         = @"invalidArgument";
@@ -62,7 +63,6 @@ NSString * const kCMISExceptionVersioning              = @"versioning";
     return httpRequest;
 }
 
-
 - (id)initWithHttpMethod:(CMISHttpRequestMethod)httpRequestMethod
          completionBlock:(void (^)(CMISHttpResponse *httpResponse, NSError *error))completionBlock
 {
@@ -89,8 +89,6 @@ NSString * const kCMISExceptionVersioning              = @"versioning";
         }
     }
     
-    BOOL startedRequest = NO;
-    
     if (self.requestBody) {
         if ([CMISLog sharedInstance].logLevel == CMISLogLevelTrace) {
             CMISLogTrace(@"Request body: %@", [[NSString alloc] initWithData:self.requestBody encoding:NSUTF8StringEncoding]);
@@ -99,59 +97,64 @@ NSString * const kCMISExceptionVersioning              = @"versioning";
         [urlRequest setHTTPBody:self.requestBody];
     }
     
-    [self.session.authenticationProvider.httpHeadersToApply enumerateKeysAndObjectsUsingBlock:^(NSString *headerName, NSString *header, BOOL *stop) {
-        [urlRequest addValue:header forHTTPHeaderField:headerName];
-        if ([CMISLog sharedInstance].logLevel == CMISLogLevelTrace) {
-            CMISLogTrace(@"Added header: %@ with value: %@", headerName, header);
-        }
-    }];
-    
-    [self.additionalHeaders enumerateKeysAndObjectsUsingBlock:^(NSString *headerName, NSString *header, BOOL *stop) {
-        [urlRequest addValue:header forHTTPHeaderField:headerName];
-        if ([CMISLog sharedInstance].logLevel == CMISLogLevelTrace) {
-            CMISLogTrace(@"Added header: %@ with value: %@", headerName, header);
-        }
-    }];
-    
-    // determine the type of session configuration to create
-    NSURLSessionConfiguration *sessionConfiguration = nil;
-    id useBackgroundSession = [self.session objectForKey:kCMISSessionParameterUseBackgroundNetworkSession];
-    if (useBackgroundSession && [useBackgroundSession boolValue]) {
-        // get session and container identifiers from session
-        NSString *backgroundId = [self.session objectForKey:kCMISSessionParameterBackgroundNetworkSessionId
-                                               defaultValue:kCMISDefaultBackgroundNetworkSessionId];
-        NSString *containerId = [self.session objectForKey:kCMISSessionParameterBackgroundNetworkSessionSharedContainerId
-                                              defaultValue:kCMISDefaultBackgroundNetworkSessionSharedContainerId];
+    void (^continueWithStartRequest)(NSDictionary*) = ^(NSDictionary *headers) {
+        [headers enumerateKeysAndObjectsUsingBlock:^(NSString *headerName, id header, BOOL *stop) {
+            if ([header isKindOfClass:NSSet.class]) {
+                for (NSString *headerValue in header) {
+                    [urlRequest addValue:headerValue forHTTPHeaderField:headerName];
+                }
+            } else {
+                [urlRequest addValue:header forHTTPHeaderField:headerName];
+            }
+        }];
         
-        // use the background session configuration, cache settings and timeout will be provided by the request object
-        sessionConfiguration = [NSURLSessionConfiguration backgroundSessionConfigurationWithIdentifier:backgroundId];
-        sessionConfiguration.sharedContainerIdentifier = containerId;
+        [self.additionalHeaders enumerateKeysAndObjectsUsingBlock:^(NSString *headerName, NSString *header, BOOL *stop) {
+            [urlRequest addValue:header forHTTPHeaderField:headerName];
+        }];
         
-        CMISLogDebug(@"Using background network session with identifier '%@' and shared container '%@'",
-                     backgroundId, containerId);
-    }
-    else {
-        // use the default session configuration, cache settings and timeout will be provided by the request object
-        sessionConfiguration = [NSURLSessionConfiguration defaultSessionConfiguration];
-    }
-    
-    // create session and task
-    self.urlSession = [NSURLSession sessionWithConfiguration:sessionConfiguration delegate:self delegateQueue:nil];
-    self.sessionTask = [self taskForRequest:urlRequest];
-    
-    if (self.sessionTask) {
-        // start the task
-        [self.sessionTask resume];
-        startedRequest = YES;
-    } else {
-        if (self.completionBlock) {
-            NSString *detailedDescription = [NSString stringWithFormat:@"Could not create network session for %@", urlRequest.URL];
-            NSError *cmisError = [CMISErrors createCMISErrorWithCode:kCMISErrorCodeConnection detailedDescription:detailedDescription];
-            [self executeCompletionBlockResponse:nil error:cmisError];
+        if ([CMISLog sharedInstance].logLevel == CMISLogLevelTrace) {
+            CMISLogTrace(@"Added headers: %@", urlRequest.allHTTPHeaderFields);
         }
-    }
+            
+        // create session and task
+        self.urlSession = [CMISURLSessionUtil internalUrlSessionWithParameters:self.session delegate:self];
+        self.sessionTask = [self taskForRequest:urlRequest];
+        
+        if (self.sessionTask) {
+            // start the task
+            [self.sessionTask resume];
+        } else {
+            if (self.completionBlock) {
+                NSString *detailedDescription = [NSString stringWithFormat:@"Could not create network session for %@", urlRequest.URL];
+                NSError *cmisError = [CMISErrors createCMISErrorWithCode:kCMISErrorCodeConnection detailedDescription:detailedDescription];
+                [self executeCompletionBlockResponse:nil error:cmisError];
+            }
+        }
+    };
     
-    return startedRequest;
+    if ([self shouldApplyHttpHeaders]) {
+        if ([self.session.authenticationProvider respondsToSelector:@selector(asyncHttpHeadersToApply:)]) {
+            [self.session.authenticationProvider asyncHttpHeadersToApply:^(NSDictionary *headers, NSError *cmisError) {
+                if (cmisError) {;
+                    [self executeCompletionBlockResponse:nil error:cmisError];
+                } else {
+                    continueWithStartRequest(headers);
+                }
+            }];
+        } else {
+            continueWithStartRequest(self.session.authenticationProvider.httpHeadersToApply);
+        }
+    } else { // when OAuth tokens are fetched we do not apply the headers of the CMISOAuthAuthenticationProvider
+        continueWithStartRequest(nil);
+    }
+
+    return YES; //TODO check if we need to remove the return value as it cannot be used anymore because of async behavior
+}
+
+// will be overwritten by CMISOAuthHttpRequest
+- (BOOL)shouldApplyHttpHeaders
+{
+    return YES;
 }
 
 - (NSURLSessionTask *)taskForRequest:(NSURLRequest *)request
@@ -185,13 +188,20 @@ NSString * const kCMISExceptionVersioning              = @"versioning";
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error
 {
     [self.session.authenticationProvider updateWithHttpURLResponse:self.response];
+    [self didCompleteWithError:error];
+}
 
+-(void) didCompleteWithError:(NSError *)error {
     if (self.completionBlock) {
         
         NSError *cmisError = nil;
         CMISHttpResponse *httpResponse = nil;
         
         if (error) {
+            if ([CMISLog sharedInstance].logLevel == CMISLogLevelTrace) {
+                CMISLogTrace(@"Request did complete with error: %@", error);
+            }
+            
             CMISErrorCodes cmisErrorCode = kCMISErrorCodeConnection;
             
             // swap error code if necessary
@@ -205,17 +215,18 @@ NSString * const kCMISExceptionVersioning              = @"versioning";
         } else {
             // no error returned but we also need to check response code
             httpResponse = [CMISHttpResponse responseUsingURLHTTPResponse:self.response data:self.responseBody];
-            if (![self checkStatusCodeForResponse:httpResponse httpRequestMethod:self.requestMethod error:&cmisError]) {
+            if (![CMISHttpRequest checkStatusCodeForResponse:httpResponse httpRequestMethod:self.requestMethod error:&cmisError]) {
                 httpResponse = nil;
             }
         }
-        // call the completion block on the original thread
-        if (self.originalThread) {
+        if ([self callCompletionBlockOnOriginalThread] && self.originalThread) { // call the completion block on the original thread
             if(cmisError) {
                 [self performSelector:@selector(executeCompletionBlockError:) onThread:self.originalThread withObject:cmisError waitUntilDone:NO];
             } else {
                 [self performSelector:@selector(executeCompletionBlockResponse:) onThread:self.originalThread withObject:httpResponse waitUntilDone:NO];
             }
+        } else {
+            [self executeCompletionBlockResponse:httpResponse error:cmisError];
         }
     }
     
@@ -244,17 +255,13 @@ NSString * const kCMISExceptionVersioning              = @"versioning";
     [self.session.authenticationProvider didReceiveChallenge:challenge completionHandler:completionHandler];
 }
 
-- (BOOL)checkStatusCodeForResponse:(CMISHttpResponse *)response httpRequestMethod:(CMISHttpRequestMethod)httpRequestMethod error:(NSError **)error
++ (BOOL)checkStatusCodeForResponse:(CMISHttpResponse *)response httpRequestMethod:(CMISHttpRequestMethod)httpRequestMethod error:(NSError **)error
 {
     if ([CMISLog sharedInstance].logLevel == CMISLogLevelTrace) {
-        CMISLogTrace(@"Response status code: %d", (int)response.statusCode);
-        CMISLogTrace(@"Response body: %@", [[NSString alloc] initWithData:response.data encoding:NSUTF8StringEncoding]);
+        CMISLogTrace(@"Response status code: %d, Response body: %@", (int)response.statusCode, [[NSString alloc] initWithData:response.data encoding:NSUTF8StringEncoding]);
     }
     
-    if ( (httpRequestMethod == HTTP_GET && response.statusCode != 200 && response.statusCode != 206)
-        || (httpRequestMethod == HTTP_POST && response.statusCode != 200 && response.statusCode != 201)
-        || (httpRequestMethod == HTTP_DELETE && response.statusCode != 204)
-        || (httpRequestMethod == HTTP_PUT && ((response.statusCode < 200 || response.statusCode > 299)))) {
+    if ([CMISHttpRequest isErrorResponse:response.statusCode httpRequestMethod:httpRequestMethod]) {
         if (error) {
             NSString *exception = response.exception;
             NSString *errorMessage = response.errorMessage;
@@ -327,6 +334,19 @@ NSString * const kCMISExceptionVersioning              = @"versioning";
         }
         return NO;
     }
+    return YES;
+}
+
++ (BOOL)isErrorResponse:(NSInteger)statusCode httpRequestMethod:(CMISHttpRequestMethod)httpRequestMethod
+{
+    return (httpRequestMethod == HTTP_GET && statusCode != 200 && statusCode != 206)
+            || (httpRequestMethod == HTTP_POST && statusCode != 200 && statusCode != 201)
+            || (httpRequestMethod == HTTP_DELETE && statusCode != 204)
+            || (httpRequestMethod == HTTP_PUT && ((statusCode < 200 || statusCode > 299)));
+}
+
+-(BOOL)callCompletionBlockOnOriginalThread
+{
     return YES;
 }
 

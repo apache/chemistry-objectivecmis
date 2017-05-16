@@ -31,6 +31,20 @@ NSString * const kCMISSessionParameterUseBackgroundNetworkSession = @"session_pa
 NSString * const kCMISSessionParameterBackgroundNetworkSessionId = @"session_param_background_session_id";
 NSString * const kCMISSessionParameterBackgroundNetworkSessionSharedContainerId = @"session_param_background_session_shared_container_id";
 
+// --- OAuth ---
+
+NSString * const kCMISSessionParameterOAuthClientId = @"session_param_oauth_clientId";
+NSString * const kCMISSessionParameterOAuthClientSecret = @"session_param_oauth_client_secret";
+NSString * const kCMISSessionParameterOAuthCode = @"session_param_oauth_code";
+NSString * const kCMISSessionParameterOAuthTokenEndpoint = @"session_param_oauth_token_endpoint";
+NSString * const kCMISSessionParameterOAuthRedirectUri = @"session_param_oauth_redirect_uri";
+
+NSString * const kCMISSessionParameterOAuthAccessToken = @"session_param_oauth_access_token";
+NSString * const kCMISSessionParameterOAuthRefreshToken = @"session_param_oauth_refresh_token";
+NSString * const kCMISSessionParameterOAuthExpirationTimestamp = @"session_param_oauth_expiration_timestamp";
+NSString * const kCMISSessionParameterOAuthDefaultTokenLifetime = @"session_param_oauth_default_token_lifetime";
+
+
 @interface CMISSessionParameters ()
 @property (nonatomic, assign, readwrite) CMISBindingType bindingType;
 @property (nonatomic, strong, readwrite) NSMutableDictionary *sessionData;
@@ -56,8 +70,8 @@ NSString * const kCMISSessionParameterBackgroundNetworkSessionSharedContainerId 
 
 - (NSString *)description
 {
-    return [NSString stringWithFormat:@"bindingType: %li, username: %@, password: %@, atomPubUrl: %@",
-            (long)self.bindingType, self.username, self.password, self.atomPubUrl];
+    return [NSString stringWithFormat:@"bindingType: %li, username: %@, password: %@, atomPubUrl: %@, browserUrl: %@",
+            (long)self.bindingType, self.username, self.password, self.atomPubUrl, self.browserUrl];
 }
 
 - (NSArray *)allKeys

@@ -24,6 +24,7 @@
 #import "CMISBrowserUtil.h"
 #import "CMISBrowserConstants.h"
 #import "CMISURLUtil.h"
+#import "CMISBrowserTypeCache.h"
 
 @implementation CMISBrowserNavigationService
 

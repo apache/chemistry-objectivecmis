@@ -19,12 +19,6 @@
 #import "CMISHttpUploadRequest.h"
 #import "CMISLog.h"
 
-@interface CMISDefaultNetworkProvider ()
-+ (NSMutableURLRequest *)createRequestForUrl:(NSURL *)url
-                                  httpMethod:(CMISHttpRequestMethod)httpRequestMethod
-                                     session:(CMISBindingSession *)session;
-@end
-
 @implementation CMISDefaultNetworkProvider
 #pragma mark block based methods
 

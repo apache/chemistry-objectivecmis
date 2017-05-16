@@ -18,7 +18,38 @@
  */
  
 #import <Foundation/Foundation.h>
+#import "CMISEnums.h"
+
+@class CMISExtensionData;
+@class CMISAcl;
+@class CMISRequest;
 
 @protocol CMISAclService <NSObject>
+
+/**
+ * Retrieves the acl of an object with the given object identifier.
+ * completionBlock returns acl for an object or nil if unsuccessful
+ */
+- (CMISRequest*)retrieveAcl:objectId
+       onlyBasicPermissions:(BOOL)onlyBasicPermissions
+            completionBlock:(void (^)(CMISAcl *acl, NSError *error))completionBlock;
+
+/**
+ * Removes and adds the specified acl to an object with the given object identifier.
+ * completionBlock returns acl for an object or nil if unsuccessful
+ */
+- (CMISRequest*)applyAcl:objectId
+                 addAces:(CMISAcl *)addAces
+              removeAces:(CMISAcl *)removeAces
+          aclPropagation:(CMISAclPropagation)aclPropagation
+         completionBlock:(void (^)(CMISAcl *acl, NSError *error))completionBlock;
+
+/**
+ * Sets the specified acl to an object with the given object identifier.
+ * completionBlock returns acl for an object or nil if unsuccessful
+ */
+- (CMISRequest*)setAcl:objectId
+                  aces:(CMISAcl *)aces
+       completionBlock:(void (^)(CMISAcl *acl, NSError *error))completionBlock;
 
 @end

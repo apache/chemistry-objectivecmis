@@ -26,8 +26,8 @@ NSString * const kCMISErrorDomainName = @"org.apache.chemistry.objectivecmis";
 /**
  Note, the string definitions below should not be used by themselves. Rather, they should be used to 
  obtain the localized string. Therefore, the proper use in the code would be e.g.
- NSLocalizedString(kCMISNoReturnErrorDescription,kCMISNoReturnErrorDescription)
- (the second parameter in NSLocalizedString is a Comment and may be set to nil)
+ LocalizedString(kCMISNoReturnErrorDescription,kCMISNoReturnErrorDescription)
+ (the second parameter in LocalizedString is a Comment and may be set to nil)
  */
 //Basic Errors
 
@@ -58,6 +58,26 @@ NSString * const kCMISErrorDescriptionStreamNotSupported = @"Stream Not Supporte
 NSString * const kCMISErrorDescriptionUpdateConflict = @"Update Conflict Error";
 NSString * const kCMISErrorDescriptionVersioning = @"Versioning Error";
 
+//OAuth specific - to be used in the userInfo dictionary when OAuth token request fails
+NSString * const kCMISErrorOAuthExceptionErrorKey = @"CMISErrorOAuthExceptionErrorKey";
+NSString * const kCMISErrorOAuthExceptionDescriptionKey = @"CMISErrorOAuthExceptionDescriptionKey";
+NSString * const kCMISErrorOAuthExceptionUriKey = @"CMISErrorOAuthExceptionUriKey";
+
+//OAuth specific error codes as defined in RFC 6749 5.2
+NSString * const kCMISErrorOAuthCodeInvalidRequest = @"invalid_request";
+NSString * const kCMISErrorOAuthCodeInvalidClient = @"invalid_client";
+NSString * const kCMISErrorOAuthCodeInvalidGrant = @"invalid_grant"; // ask the user to authenticate again
+NSString * const kCMISErrorOAuthCodeUnauthorizedClient = @"unauthorized_client";
+NSString * const kCMISErrorOAuthCodeUnsupportedGrantType = @"unsupported_grant_type";
+NSString * const kCMISErrorOAuthCodeInvalidScope = @"invalid_scope";
+
+//Bearer OAuth specific error codes as defined in RFC 6750 6.2
+NSString * const kCMISErrorBearerOAuthCodeInvalidRequest = @"invalid_request";
+NSString * const kCMISErrorBearerOAuthCodeInvalidToken = @"invalid_token"; // ask the user to authenticate again
+NSString * const kCMISErrorBearerOAuthCodeInsufficientScope = @"insufficient_scope";
+
+
+
 @interface CMISErrors ()
 + (NSString *)localizedDescriptionForCode:(CMISErrorCodes)code;
 @end
@@ -82,9 +102,20 @@ NSString * const kCMISErrorDescriptionVersioning = @"Versioning Error";
 
 + (NSError *)createCMISErrorWithCode:(CMISErrorCodes)code detailedDescription:(NSString *)detailedDescription
 {
+    return [CMISErrors createCMISErrorWithCode:code detailedDescription:detailedDescription additionalUserInfo:nil];
+}
+
++ (NSError *)createCMISErrorWithCode:(CMISErrorCodes)code detailedDescription:(NSString *)detailedDescription additionalUserInfo:(NSDictionary *)additionalUserInfo
+{
     NSDictionary *userInfo = [CMISDictionaryUtil userInfoDictionaryForErrorWithDescription:[CMISErrors localizedDescriptionForCode:code]
                                                                                     reason:detailedDescription
                                                                            underlyingError:nil];
+    if (additionalUserInfo) {
+        NSMutableDictionary *mutableUserInfo = [userInfo mutableCopy];
+        [mutableUserInfo addEntriesFromDictionary:additionalUserInfo];
+        userInfo = [mutableUserInfo copy];
+    }
+    
     return [NSError errorWithDomain:kCMISErrorDomainName code:code userInfo:userInfo];
 }
 

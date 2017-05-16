@@ -31,6 +31,8 @@
 #import "CMISTypeDefinition.h"
 #import "CMISDefaultNetworkProvider.h"
 #import "CMISLog.h"
+#import "CMISChangeEvents.h"
+#import "CMISStringInOutParameter.h"
 
 @interface CMISSession ()
 @property (nonatomic, strong, readwrite) CMISObjectConverter *objectConverter;
@@ -700,6 +702,179 @@
             request.httpRequest = createRequest.httpRequest;
         }
     }];
+    return request;
+}
+
+- (CMISRequest*)retrieveAclFromCMISObject:objectId
+                     onlyBasicPermissions:(BOOL)onlyBasicPermissions
+                          completionBlock:(void (^)(CMISAcl *acl, NSError *error))completionBlock
+{
+    if (objectId == nil) {
+        completionBlock(nil, [CMISErrors createCMISErrorWithCode:kCMISErrorCodeInvalidArgument detailedDescription:@"Must provide object id"]);
+        return nil;
+    }
+    
+    return [self.binding.aclService retrieveAcl:objectId onlyBasicPermissions:onlyBasicPermissions completionBlock:^(CMISAcl *acl, NSError *error) {
+        if (error) {
+            CMISLogError(@"Could not retrieve acl: %@", error.description);
+            if (completionBlock) {
+                completionBlock(nil, [CMISErrors cmisError:error cmisErrorCode:kCMISErrorCodeRuntime]);
+            }
+        } else {
+            if (completionBlock) {
+                completionBlock(acl, nil);
+            }
+        }
+    }];
+}
+
+- (CMISRequest*)applyAclToCMISObject:objectId
+                             addAces:(CMISAcl *)addAces
+                          removeAces:(CMISAcl *)removeAces
+                      aclPropagation:(CMISAclPropagation)aclPropagation
+                     completionBlock:(void (^)(CMISAcl *acl, NSError *error))completionBlock
+{
+    if (objectId == nil) {
+        completionBlock(nil, [CMISErrors createCMISErrorWithCode:kCMISErrorCodeInvalidArgument detailedDescription:@"Must provide object id"]);
+        return nil;
+    }
+    
+    return [self.binding.aclService applyAcl:objectId addAces:addAces removeAces:removeAces aclPropagation:aclPropagation completionBlock:^(CMISAcl *acl, NSError *error) {
+        if (error) {
+            CMISLogError(@"Could not apply acl: %@", error.description);
+            if (completionBlock) {
+                completionBlock(nil, [CMISErrors cmisError:error cmisErrorCode:kCMISErrorCodeRuntime]);
+            }
+        } else {
+            if (completionBlock) {
+                completionBlock(acl, nil);
+            }
+        }
+    }];
+}
+
+- (CMISRequest*)setAclOnCMISObject:objectId
+                              aces:(CMISAcl *)aces
+                   completionBlock:(void (^)(CMISAcl *acl, NSError *error))completionBlock
+{
+    if (objectId == nil) {
+        completionBlock(nil, [CMISErrors createCMISErrorWithCode:kCMISErrorCodeInvalidArgument detailedDescription:@"Must provide object id"]);
+        return nil;
+    }
+    
+    return [self.binding.aclService setAcl:objectId aces:aces completionBlock:^(CMISAcl *acl, NSError *error) {
+        if (error) {
+            CMISLogError(@"Could not set acl: %@", error.description);
+            if (completionBlock) {
+                completionBlock(nil, [CMISErrors cmisError:error cmisErrorCode:kCMISErrorCodeRuntime]);
+            }
+        } else {
+            if (completionBlock) {
+                completionBlock(acl, nil);
+            }
+        }
+    }];
+}
+
+- (CMISRequest*)retrieveContentChangesWithChangeLogToken:(NSString *)changeLogToken
+                                       includeProperties:(BOOL)includeProperties
+                                                maxItems:(NSNumber *)maxItems
+                                        operationContext:(CMISOperationContext *)operationContext
+                                         completionBlock:(void (^)(CMISChangeEvents *changeEvents, NSError *error))completionBlock
+{
+    CMISStringInOutParameter *changeLogTokenHolder = [CMISStringInOutParameter inOutParameterUsingInParameter:changeLogToken];
+    
+    return [self.binding.discoveryService retrieveContentChanges:changeLogTokenHolder
+                                               includeProperties:includeProperties
+                                                          filter:operationContext.filterString
+                                                includePolicyIds:operationContext.includePolicies
+                                                      includeAcl:operationContext.includeACLs
+                                                        maxItems:maxItems
+                                                 completionBlock:^(CMISObjectList *objectList, NSError *error) {
+                                                     if (error) {
+                                                         CMISLogError(@"Could not retrieve content changes: %@", error.description);
+                                                         completionBlock(nil, [CMISErrors cmisError:error cmisErrorCode:kCMISErrorCodeRuntime]);
+                                                     } else {
+                                                         CMISChangeEvents *changeEvents = [CMISObjectConverter convertChangeEvents:changeLogTokenHolder.outParameter objectList:objectList];
+                                                         completionBlock(changeEvents, nil);
+                                                     }
+                                                 }];
+}
+
+- (CMISRequest*)retrieveContentChangesWithChangeLogToken:(NSString *)changeLogToken
+                                       includeProperties:(BOOL)includeProperties
+                                        operationContext:(CMISOperationContext *)operationContext
+                                         completionBlock:(void (^)(CMISPagedResult *result, NSError *error))completionBlock
+{
+    CMISRequest *request = [[CMISRequest alloc] init];
+    
+    __block NSString *token = changeLogToken;
+    __block BOOL firstPage = YES;
+    CMISFetchNextPageBlock fetchNextPageBlock = ^(int skipCount, int maxItems, CMISFetchNextPageBlockCompletionBlock pageBlockCompletionBlock)
+    {
+        CMISStringInOutParameter *changeLogTokenHolder = [CMISStringInOutParameter inOutParameterUsingInParameter:token];
+        
+        // Fetch results through navigationService
+        CMISRequest * contentChangesRequest = [self.binding.discoveryService retrieveContentChanges:changeLogTokenHolder
+                                                                              includeProperties:includeProperties
+                                                                                         filter:operationContext.filterString
+                                                                               includePolicyIds:operationContext.includePolicies
+                                                                                     includeAcl:operationContext.includeACLs
+                                                                                       maxItems:@(maxItems)
+                                                                                completionBlock:^(CMISObjectList *objectList, NSError *error) {
+                                                                                    if (error) {
+                                                                                        pageBlockCompletionBlock(nil, [CMISErrors cmisError:error cmisErrorCode:kCMISErrorCodeConnection]);
+                                                                                    } else {
+                                                                                        CMISFetchNextPageBlockResult *result = [[CMISFetchNextPageBlockResult alloc] init];
+                                                                                        
+                                                                                        NSMutableArray *page = [[NSMutableArray alloc] initWithCapacity:objectList.objects.count];
+                                                                                        for (CMISObjectData *objectData in objectList.objects) {
+                                                                                            CMISChangeEvent *changeEvent = [CMISObjectConverter convertChangeEvent:objectData];
+                                                                                            [page addObject:changeEvent];
+                                                                                        }
+                                                                                        
+                                                                                        if (!firstPage) {
+                                                                                            // the last entry of the previous page is repeated
+                                                                                            // -> remove the first entry
+                                                                                            if (page.count > 0) {
+                                                                                                [page removeObjectAtIndex:0];
+                                                                                            }
+                                                                                        }
+                                                                                        
+                                                                                        firstPage = NO;
+                                                                                        
+                                                                                        if (changeLogTokenHolder.outParameter) {
+                                                                                            // the browser binding returns a new token
+                                                                                            token = changeLogTokenHolder.outParameter;
+                                                                                        } else {
+                                                                                            // the atompub binding does not return a new token,
+                                                                                            // but might return a link to the next Atom feed
+                                                                                            token = nil;
+                                                                                            // TODO handle nextLink in case of atompub binding
+                                                                                        }
+                                                                                        
+                                                                                        result.hasMoreItems = objectList.hasMoreItems;
+                                                                                        result.numItems = objectList.numItems;
+                                                                                        
+                                                                                        result.resultArray = page;
+                                                                                        pageBlockCompletionBlock(result, error);
+                                                                                    }
+                                                                                }];
+        
+        // set the underlying request object on the object returned to the original caller
+        request.httpRequest = contentChangesRequest.httpRequest;
+    };
+    
+    [CMISPagedResult pagedResultUsingFetchBlock:fetchNextPageBlock
+                                limitToMaxItems:operationContext.maxItemsPerPage
+                             startFromSkipCount:operationContext.skipCount
+                                completionBlock:^(CMISPagedResult *result, NSError *error) {
+                                    if (error) {
+                                        completionBlock(nil, [CMISErrors cmisError:error cmisErrorCode:kCMISErrorCodeRuntime]);
+                                    } else {
+                                        completionBlock(result, nil);
+                                    }
+                                }];
     return request;
 }
 

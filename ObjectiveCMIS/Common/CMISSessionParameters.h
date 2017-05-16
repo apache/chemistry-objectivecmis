@@ -83,6 +83,18 @@ extern NSString * const kCMISSessionParameterBackgroundNetworkSessionId;
  */
 extern NSString * const kCMISSessionParameterBackgroundNetworkSessionSharedContainerId;
 
+// --- OAuth ---
+
+extern NSString * const kCMISSessionParameterOAuthClientId;
+extern NSString * const kCMISSessionParameterOAuthClientSecret;
+extern NSString * const kCMISSessionParameterOAuthCode;
+extern NSString * const kCMISSessionParameterOAuthTokenEndpoint;
+extern NSString * const kCMISSessionParameterOAuthRedirectUri;
+
+extern NSString * const kCMISSessionParameterOAuthAccessToken;
+extern NSString * const kCMISSessionParameterOAuthRefreshToken;
+extern NSString * const kCMISSessionParameterOAuthExpirationTimestamp;
+extern NSString * const kCMISSessionParameterOAuthDefaultTokenLifetime;
 
 @interface CMISSessionParameters : NSObject
 

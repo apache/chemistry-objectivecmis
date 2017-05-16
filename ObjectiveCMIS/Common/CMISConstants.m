@@ -112,6 +112,7 @@ NSString * const kCMISRepositoryCapabilityCreateablePropertyTypesCanCreate = @"c
 
 // Parameters
 NSString * const kCMISParameterChangeToken = @"changeToken";
+NSString * const kCMISParameterChangeLogToken = @"changeLogToken";
 NSString * const kCMISParameterOverwriteFlag = @"overwriteFlag";
 NSString * const kCMISParameterIncludeAllowableActions = @"includeAllowableActions";
 NSString * const kCMISParameterFilter = @"filter";
@@ -122,6 +123,7 @@ NSString * const kCMISParameterOrderBy = @"orderBy";
 NSString * const kCMISParameterIncludePathSegment = @"includePathSegment";
 NSString * const kCMISParameterIncludeRelationships = @"includeRelationships";
 NSString * const kCMISParameterIncludePolicyIds = @"includePolicyIds";
+NSString * const kCMISParameterIncludeProperties = @"includeProperties";
 NSString * const kCMISParameterIncludeAcl = @"includeACL";
 NSString * const kCMISParameterRenditionFilter = @"renditionFilter";
 NSString * const kCMISParameterSkipCount = @"skipCount";
@@ -140,6 +142,8 @@ NSString * const kCMISParameterReturnVersion = @"returnVersion";
 NSString * const kCMISParameterTypeId = @"typeId";
 NSString * const kCMISParameterStatement = @"statement";
 NSString * const kCMISParameterSearchAllVersions = @"searchAllVersions";
+NSString * const kCMISParameterOnlyBasicPermissions = @"onlyBasicPermissions";
+NSString * const kCMISParameterAclPropagation = @"ACLPropagation";
 
 // Parameter Values
 NSString * const kCMISParameterValueTrue = @"true";
@@ -155,6 +159,12 @@ NSString * const kCMISMediaTypeOctetStream = @"application/octet-stream";
 NSString * const kCMISContentStreamAllowedValueRequired = @"required";
 NSString * const kCMISContentStreamAllowedValueAllowed = @"allowed";
 NSString * const kCMISContentStreamAllowedValueNotAllowed = @"notallowed";
+
+// ChangeType enum values
+NSString * const kCMISChangeTypeCreated = @"created";
+NSString * const kCMISChangeTypeUpdated = @"updated";
+NSString * const kCMISChangeTypeDeleted = @"deleted";
+NSString * const kCMISChangeTypeSecurity = @"security";
 
 // Background network default values
 NSString * const kCMISDefaultBackgroundNetworkSessionId = @"ObjectiveCMIS";

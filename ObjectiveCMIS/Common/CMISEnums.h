@@ -126,10 +126,9 @@ typedef NS_ENUM(NSInteger, CMISExtensionLevel)
     CMISExtensionLevelObject,
     CMISExtensionLevelProperties,
     CMISExtensionLevelAllowableActions,
-    CMISExtensionLevelAcl
-    // TODO expose the remaining extensions as they are implemented
-    // CMISExtensionLevelPolicies, CMISExtensionLevelChangeEvent
-
+    CMISExtensionLevelAcl,
+    CMISExtensionLevelPolicies,
+    CMISExtensionLevelChangeEvent
 };
 
 // UnfileObject
@@ -207,7 +206,15 @@ typedef NS_ENUM(NSInteger, CMISCapabilityOrderBy)
     CMISCapabilityOrderByCustom
 };
 
-// ReturnVersion
+// ACL Propagation
+typedef NS_ENUM(NSInteger, CMISAclPropagation)
+{
+    CMISAclPropagationRepositoryDetermined,
+    CMISAclPropagationObjectOnly,
+    CMISAclPropagationPropagate
+};
+
+// Return Version
 typedef NS_ENUM(NSInteger, CMISReturnVersion)
 {
     NOT_PROVIDED,
@@ -216,13 +223,25 @@ typedef NS_ENUM(NSInteger, CMISReturnVersion)
     LATEST_MAJOR
 };
 
+// Change Type
+typedef NS_ENUM(NSInteger, CMISChangeType)
+{
+    CMISChangeTypeUnknown,
+    CMISChangeTypeCreated,
+    CMISChangeTypeUpdated,
+    CMISChangeTypeDeleted,
+    CMISChangeTypeSecurity
+};
+
 @interface CMISEnums : NSObject 
 
 + (NSString *)stringForIncludeRelationShip:(CMISIncludeRelationship)includeRelationship;
 + (NSString *)stringForUnfileObject:(CMISUnfileObject)unfileObject;
 + (NSString *)stringForReturnVersion:(BOOL)major;
++ (NSString *)stringForAclPropagation:(CMISAclPropagation)aclPropagation;;
 + (CMISBaseType)enumForBaseId:(NSString *)baseId;
 + (CMISContentStreamAllowedType)enumForContentStreamAllowed:(NSString *)contentStreamAllowed;
 + (CMISPropertyType)enumForPropertyType:(NSString *)typeString;
++ (CMISChangeType)enumForChangeType:(NSString *)changeType;
 
 @end

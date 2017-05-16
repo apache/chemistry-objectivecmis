@@ -22,14 +22,15 @@
 
 @class CMISObjectList;
 @class CMISRequest;
+@class CMISStringInOutParameter;
 
 @protocol CMISDiscoveryService <NSObject>
 
 /**
 * (optional) Integer maxItems: This is the maximum number of items to return in a response.
 *                              The repository MUST NOT exceed this maximum. Default is repository-specific.
-(optional) Integer skipCount: This is the number of potential results that the repository MUST skip/page over
-                              before returning any results. Defaults to 0.
+* (optional) Integer skipCount: This is the number of potential results that the repository MUST skip/page over
+*                               before returning any results. Defaults to 0.
 */
 /** launches a query on the server with the parameters specified
  * completionBlock returns the found object list or nil if unsuccessful
@@ -41,5 +42,20 @@
                                                      maxItems:(NSNumber *)maxItems
                                                     skipCount:(NSNumber *)skipCount
                                               completionBlock:(void (^)(CMISObjectList *objectList, NSError *error))completionBlock;
+
+/**
+ * (optional) Integer maxItems: This is the maximum number of items to return in a response.
+ *                              The repository MUST NOT exceed this maximum. Default is repository-specific.
+ */
+/** Returns the content changes.
+ * completionBlock returns the found object list or nil if unsuccessful
+ */
+- (CMISRequest*)retrieveContentChanges:(CMISStringInOutParameter *)changeLogTokenParam
+                     includeProperties:(BOOL)includeProperties
+                                filter:(NSString *)filter
+                      includePolicyIds:(BOOL)includePolicyIds
+                            includeAcl:(BOOL)includeAcl
+                              maxItems:(NSNumber *)maxItems
+                       completionBlock:(void (^)(CMISObjectList *objectList, NSError *error))completionBlock;
 
 @end

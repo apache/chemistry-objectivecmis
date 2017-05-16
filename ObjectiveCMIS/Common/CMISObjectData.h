@@ -26,6 +26,8 @@
 #import "CMISAcl.h"
 
 @class CMISRenditionData;
+@class CMISChangeEventInfo;
+@class CMISPolicyIdList;
 
 @interface CMISObjectData : CMISExtensionData
 
@@ -39,5 +41,7 @@
 @property (nonatomic, strong) NSArray *renditions; // An array containing CMISRenditionData objects
 @property (nonatomic, strong) NSArray *relationships; // An array containing CMISObjectData objects; Relationships from and to this object.
 @property (nonatomic, assign) BOOL isExactAcl; //TODO set this value also from atom
+@property (nonatomic, strong) CMISChangeEventInfo *changeEventInfo;
+@property (nonatomic, strong) CMISPolicyIdList *policyIds;
 
 @end

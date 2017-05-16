@@ -2711,4 +2711,77 @@
     XCTAssertEqualObjects(@"SELECT * FROM cmis:document WHERE abc:dateTime = TIMESTAMP '2012-02-02T03:04:05.000Z'", [st queryString], @"wrong encoded query statement");
 }
 
+- (void)testAuthenticateHeaderParameters {
+    NSDictionary *challenges = nil;
+    
+    challenges = [CMISMimeHelper challengesFromAuthenticateHeader:nil];
+    XCTAssertNil(challenges);
+    
+    challenges = [CMISMimeHelper challengesFromAuthenticateHeader:@""];
+    XCTAssertNil(challenges);
+    
+    challenges = [CMISMimeHelper challengesFromAuthenticateHeader:@"Basic"];
+    XCTAssertNotNil(challenges);
+    XCTAssertTrue(challenges[@"basic"]);
+    XCTAssertTrue([challenges[@"basic"] count] == 0);
+    
+    challenges = [CMISMimeHelper challengesFromAuthenticateHeader:@"Basic realm=\"example\""];
+    XCTAssertNotNil(challenges);
+    XCTAssertTrue(challenges[@"basic"]);
+    XCTAssertEqualObjects(@"example", challenges[@"basic"][@"realm"]);
+    
+    challenges = [CMISMimeHelper challengesFromAuthenticateHeader:@"Basic realm= \"example\" "];
+    XCTAssertNotNil(challenges);
+    XCTAssertTrue(challenges[@"basic"]);
+    XCTAssertEqualObjects(@"example", challenges[@"basic"][@"realm"]);
+    
+    challenges = [CMISMimeHelper challengesFromAuthenticateHeader:@"Basic realm=example"];
+    XCTAssertNotNil(challenges);
+    XCTAssertTrue(challenges[@"basic"]);
+    XCTAssertEqualObjects(@"example", challenges[@"basic"][@"realm"]);
+    
+    challenges = [CMISMimeHelper challengesFromAuthenticateHeader:@"Basic realm=\"example\",charset=\"UTF-8\""];
+    XCTAssertNotNil(challenges);
+    XCTAssertTrue(challenges[@"basic"]);
+    XCTAssertEqualObjects(@"example", challenges[@"basic"][@"realm"]);
+    XCTAssertEqualObjects(@"UTF-8", challenges[@"basic"][@"charset"]);
+    
+    challenges = [CMISMimeHelper challengesFromAuthenticateHeader:@"Bearer realm=\"example\", error=\"invalid_token\""];
+    XCTAssertNotNil(challenges);
+    XCTAssertTrue(challenges[@"bearer"]);
+    XCTAssertEqualObjects(@"example", challenges[@"bearer"][@"realm"]);
+    XCTAssertEqualObjects(@"invalid_token", challenges[@"bearer"][@"error"]);
+    
+    challenges = [CMISMimeHelper challengesFromAuthenticateHeader:@"Bearer realm=\"example\", error=invalid_token"];
+    XCTAssertNotNil(challenges);
+    XCTAssertEqualObjects(@"example", challenges[@"bearer"][@"realm"]);
+    XCTAssertEqualObjects(@"invalid_token", challenges[@"bearer"][@"error"]);
+    
+    challenges = [CMISMimeHelper challengesFromAuthenticateHeader:@"Bearer realm=\"example\", error=\"invalid_token\", error_description=\"The access token expired\""];
+    XCTAssertNotNil(challenges);
+    XCTAssertEqualObjects(@"example", challenges[@"bearer"][@"realm"]);
+    XCTAssertEqualObjects(@"invalid_token", challenges[@"bearer"][@"error"]);
+    XCTAssertEqualObjects(@"The access token expired", challenges[@"bearer"][@"error_description"]);
+    
+    challenges = [CMISMimeHelper challengesFromAuthenticateHeader:@"Bearer realm=\"example\",error_description=\"It's expired, really!\", error=\"invalid_token\","];
+    XCTAssertNotNil(challenges);
+    XCTAssertEqualObjects(@"example", challenges[@"bearer"][@"realm"]);
+    XCTAssertEqualObjects(@"invalid_token", challenges[@"bearer"][@"error"]);
+    XCTAssertEqualObjects(@"It's expired, really!", challenges[@"bearer"][@"error_description"]);
+    
+    challenges = [CMISMimeHelper challengesFromAuthenticateHeader:@"Newauth realm=\"apps\", type=1, title=\"Login to \\\"apps\\\"\", Basic realm=\"simple\""];
+    XCTAssertNotNil(challenges);
+    XCTAssertEqualObjects(@"apps", challenges[@"newauth"][@"realm"]);
+    XCTAssertEqualObjects(@"1", challenges[@"newauth"][@"type"]);
+    XCTAssertEqualObjects(@"Login to \"apps\"", challenges[@"newauth"][@"title"]);
+    XCTAssertEqualObjects(@"simple", challenges[@"basic"][@"realm"]);
+    
+    challenges = [CMISMimeHelper challengesFromAuthenticateHeader:@"a1, a2 ,a3 ,a4"];
+    XCTAssertNotNil(challenges);
+    XCTAssertTrue(challenges[@"a1"]);
+    XCTAssertTrue(challenges[@"a2"]);
+    XCTAssertTrue(challenges[@"a3"]);
+    XCTAssertTrue(challenges[@"a4"]);
+}
+
 @end

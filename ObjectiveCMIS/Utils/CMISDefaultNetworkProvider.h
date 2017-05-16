@@ -18,3 +18,11 @@
 @interface CMISDefaultNetworkProvider : NSObject <CMISNetworkProvider>
 
 @end
+
+@interface CMISDefaultNetworkProvider (Protected)
+
++ (NSMutableURLRequest *)createRequestForUrl:(NSURL *)url
+                                  httpMethod:(CMISHttpRequestMethod)httpRequestMethod
+                                     session:(CMISBindingSession *)session;
+
+@end

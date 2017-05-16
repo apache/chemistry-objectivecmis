@@ -57,7 +57,12 @@ NSString * const kCMISBindingSessionKeyUrl = @"cmis_session_key_url";
             [self.sessionData setObject:[sessionParameters objectForKey:key] forKey:key];
         }
         
-        //set type definition cache after other data stored in the dictionary as the cache size is retrieved from the sessionData in the init method of the CMISTypeDefinitionCache
+        // set session to authentication provider after other data stored in the dictionary as the authentication provider might access the sessionData within the setSession method
+        if ([self.authenticationProvider respondsToSelector:@selector(setSession:)]) {
+            [self.authenticationProvider setSession:self];
+        }
+        
+        // set type definition cache after other data stored in the dictionary as the cache size is retrieved from the sessionData in the init method of the CMISTypeDefinitionCache
         if(sessionParameters.typeDefinitionCache == nil) {
             self.typeDefinitionCache = [[CMISTypeDefinitionCache alloc] initWithBindingSession:self];
         } else {

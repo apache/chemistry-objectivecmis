@@ -214,11 +214,15 @@ static NSDateFormatter *cmisQueryStatementTimeStampFormatter;
     if (!cmisQueryStatementTimeStampFormatter) {
         cmisQueryStatementTimeStampFormatter = [[NSDateFormatter alloc] init];
         cmisQueryStatementTimeStampFormatter.dateFormat = @"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
-        cmisQueryStatementTimeStampFormatter.calendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
+        cmisQueryStatementTimeStampFormatter.calendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSCalendarIdentifierGregorian];
         cmisQueryStatementTimeStampFormatter.timeZone = [NSTimeZone timeZoneWithName:@"GMT"];
     }
 
     return [cmisQueryStatementTimeStampFormatter stringFromDate:date];
+}
+
+-(NSString *)description {
+    return self.queryString;
 }
 
 @end

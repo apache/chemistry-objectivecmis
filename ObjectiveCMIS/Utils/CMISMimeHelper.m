@@ -91,4 +91,109 @@ NSString * const kCMISMimeHelperHexDigits = @"0123456789ABCDEF";
     return encoded;
 }
 
++ (NSDictionary *)challengesFromAuthenticateHeader:(NSString *)value
+{
+    if (value == nil || value.length == 0) {
+        return nil;
+    }
+    
+    NSString *trimValue = [value stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+    
+    NSMutableDictionary *result = [NSMutableDictionary new];
+    NSLocale *englishLocale = [[NSLocale alloc] initWithLocaleIdentifier:@"en"];
+    
+    BOOL inQuotes = NO;
+    BOOL inName = YES;
+    NSString *challenge = nil;
+    NSString *paramName = @"";
+    NSMutableString *sb = [NSMutableString new];
+    for (int i = 0; i < trimValue.length; i++) {
+        unichar c = [trimValue characterAtIndex:i];
+        
+        if (c == '\\') {
+            if (!inQuotes) {
+                return nil;
+            }
+            if (trimValue.length > i && [trimValue characterAtIndex:i + 1] == '\\') {
+                [sb appendFormat:@"%c", '\\'];
+                i++;
+            } else if (trimValue.length > i && [trimValue characterAtIndex:i + 1] == '"') {
+                [sb appendFormat:@"%c", '"'];
+                i++;
+            } else {
+                return nil;
+            }
+        } else if (c == '"') {
+            if (inName) {
+                return nil;
+            }
+            if (inQuotes) {
+                NSMutableDictionary *authMap = result[challenge];
+                if (authMap == nil) {
+                    return nil;
+                }
+                authMap[paramName] = sb;
+            }
+            sb = [NSMutableString new];
+            inQuotes = !inQuotes;
+        } else if (c == '=') {
+            if (inName) {
+                paramName = [sb stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+                
+                NSUInteger spcIdx = [paramName rangeOfString:@" "].location;
+                if (spcIdx != NSNotFound) {
+                    challenge = [[paramName substringToIndex:spcIdx] lowercaseStringWithLocale:englishLocale];
+                    result[challenge] = [NSMutableDictionary new];
+                    paramName = [[paramName substringFromIndex:spcIdx] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+                }
+                
+                sb = [NSMutableString new];
+                inName = NO;
+            } else if (!inQuotes) {
+                return nil;
+            }
+        } else if (c == ',') {
+            if (inName) {
+                challenge = [[sb stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]] lowercaseStringWithLocale:englishLocale];
+                result[challenge] = [NSMutableDictionary new];
+                sb = [NSMutableString new];
+            } else {
+                if (inQuotes) {
+                    [sb appendFormat:@"%c", c];
+                } else {
+                    NSMutableDictionary *authMap = result[challenge];
+                    if (authMap == nil) {
+                        return nil;
+                    }
+                    if (!authMap[paramName]) {
+                        authMap[paramName] = sb;
+                    }
+                    sb = [NSMutableString new];
+                    inName = YES;
+                }
+            }
+        } else {
+            [sb appendFormat:@"%c", c];
+        }
+    }
+    if (inQuotes) {
+        return nil;
+    }
+    if (inName) {
+        challenge = [[sb stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]] lowercaseStringWithLocale:englishLocale];
+        result[challenge] = [NSMutableDictionary new];
+    } else {
+        NSMutableDictionary *authMap = result[challenge];
+        if (authMap == nil) {
+            return nil;
+        }
+        if (!authMap[paramName]) {
+            authMap[paramName] = [sb stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+        }
+    }
+    
+    return result;
+
+}
+
 @end

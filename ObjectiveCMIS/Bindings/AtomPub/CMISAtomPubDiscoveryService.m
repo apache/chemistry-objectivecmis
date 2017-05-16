@@ -19,9 +19,9 @@
 
 #import "CMISAtomPubDiscoveryService.h"
 #import "CMISQueryAtomEntryWriter.h"
-#import "CMISHttpResponse.h"
 #import "CMISAtomPubConstants.h"
 #import "CMISAtomFeedParser.h"
+#import "CMISHttpResponse.h"
 #import "CMISObjectList.h"
 #import "CMISErrors.h"
 #import "CMISLog.h"
@@ -90,6 +90,19 @@ includeAllowableActions:(BOOL)includeAllowableActions
              }
          } ];
     return request;
+}
+
+- (CMISRequest*)retrieveContentChanges:(CMISStringInOutParameter *)changeLogTokenParam
+                     includeProperties:(BOOL)includeProperties
+                                filter:(NSString *)filter
+                      includePolicyIds:(BOOL)includePolicyIds
+                            includeAcl:(BOOL)includeAcl
+                              maxItems:(NSNumber *)maxItems
+                       completionBlock:(void (^)(CMISObjectList *objectList, NSError *error))completionBlock
+{
+    // TODO implement
+    completionBlock(nil, [CMISErrors createCMISErrorWithCode:kCMISErrorCodeRuntime detailedDescription:@"not implemented!"]);
+    return nil;
 }
 
 @end

@@ -26,6 +26,8 @@
 #import "CMISRenditionData.h"
 #import "CMISRendition.h"
 #import "CMISLog.h"
+#import "CMISPolicyIdList.h"
+#import "CMISChangeEventInfo.h"
 
 
 @interface CMISObject ()
@@ -74,12 +76,15 @@
         self.allowableActions = objectData.allowableActions;
         self.acl = objectData.acl;
 
+        // TODO handle policies (lazy loading)
+        
         // Extract Extensions and store in the extensionsDict
         self.extensionsDict = [[NSMutableDictionary alloc] init];
-        [self.extensionsDict setObject:[self nonNilArray:objectData.extensions] forKey:[NSNumber numberWithInteger:CMISExtensionLevelObject]];
-        [self.extensionsDict setObject:[self nonNilArray:self.properties.extensions] forKey:[NSNumber numberWithInteger:CMISExtensionLevelProperties]];
-        [self.extensionsDict setObject:[self nonNilArray:self.allowableActions.extensions] forKey:[NSNumber numberWithInteger:CMISExtensionLevelAllowableActions]];
-        [self.extensionsDict setObject:[self nonNilArray:self.acl.extensions] forKey:[NSNumber numberWithInteger:CMISExtensionLevelAcl]];
+        [self.extensionsDict setObject:[self nonNilArray:objectData.extensions] forKey:@(CMISExtensionLevelObject)];
+        [self.extensionsDict setObject:[self nonNilArray:self.properties.extensions] forKey:@(CMISExtensionLevelProperties)];
+        [self.extensionsDict setObject:[self nonNilArray:self.allowableActions.extensions] forKey:@(CMISExtensionLevelAllowableActions)];
+        [self.extensionsDict setObject:[self nonNilArray:self.acl.extensions] forKey:@(CMISExtensionLevelAcl)];
+        [self.extensionsDict setObject:[self nonNilArray:objectData.policyIds.extensions] forKey:@(CMISExtensionLevelPolicies)];
 
         // Renditions must be converted here, because they need access to the session
         if (objectData.renditions != nil) {
@@ -160,6 +165,51 @@
     // TODO Need to implement the following extension levels CMISExtensionLevelAcl, CMISExtensionLevelPolicies, CMISExtensionLevelChangeEvent
     
     return [self.extensionsDict objectForKey:[NSNumber numberWithInteger:extensionLevel]];
+}
+
+-(CMISRequest *)retrieveAclOnlyBasicPermissions:(BOOL)onlyBasicPermissions completionBlock:(void (^)(CMISAcl *, NSError *))completionBlock
+{
+    return [self.session retrieveAclFromCMISObject:self.identifier onlyBasicPermissions:onlyBasicPermissions completionBlock:^(CMISAcl *acl, NSError *error) {
+        if (error) {
+            if (completionBlock) {
+                completionBlock(nil, [CMISErrors cmisError:error cmisErrorCode:kCMISErrorCodeRuntime]);
+            }
+        } else {
+            if (completionBlock) {
+                completionBlock(acl, nil);
+            }
+        }
+    }];
+}
+
+-(CMISRequest *)applyAclAddAces:(CMISAcl *)addAces removeAces:(CMISAcl *)removeAces aclPropagation:(CMISAclPropagation)aclPropagation completionBlock:(void (^)(CMISAcl *, NSError *))completionBlock
+{
+    return [self.session applyAclToCMISObject:self.identifier addAces:addAces removeAces:removeAces aclPropagation:aclPropagation completionBlock:^(CMISAcl *acl, NSError *error) {
+        if (error) {
+            if (completionBlock) {
+                completionBlock(nil, [CMISErrors cmisError:error cmisErrorCode:kCMISErrorCodeRuntime]);
+            }
+        } else {
+            if (completionBlock) {
+                completionBlock(acl, nil);
+            }
+        }
+    }];
+}
+
+-(CMISRequest *)setAcl:(CMISAcl *)aces completionBlock:(void (^)(CMISAcl *, NSError *))completionBlock
+{
+    return [self.session setAclOnCMISObject:self.identifier aces:aces completionBlock:^(CMISAcl *acl, NSError *error) {
+        if (error) {
+            if (completionBlock) {
+                completionBlock(nil, [CMISErrors cmisError:error cmisErrorCode:kCMISErrorCodeRuntime]);
+            }
+        } else {
+            if (completionBlock) {
+                completionBlock(acl, nil);
+            }
+        }
+    }];
 }
 
 @end

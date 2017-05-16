@@ -24,6 +24,7 @@
 #import "CMISAtomPubNavigationService.h"
 #import "CMISAtomPubVersioningService.h"
 #import "CMISAtomPubDiscoveryService.h"
+#import "CMISAtomPubAclService.h"
 
 @interface CMISAtomPubBinding ()
 
@@ -48,6 +49,7 @@
     if (self) {
         self.session = [[CMISBindingSession alloc] initWithSessionParameters:sessionParameters];
         
+        self.aclService = [[CMISAtomPubAclService alloc] initWithBindingSession:self.session];
         self.repositoryService = [[CMISAtomPubRepositoryService alloc] initWithBindingSession:self.session];
         self.objectService = [[CMISAtomPubObjectService alloc] initWithBindingSession:self.session];
         self.navigationService = [[CMISAtomPubNavigationService alloc] initWithBindingSession:self.session];

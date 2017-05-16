@@ -18,7 +18,9 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "CMISProperties.h"
+
+@class CMISProperties;
+@class CMISAcl;
 
 @interface CMISBroswerFormDataWriter : NSObject
 
@@ -29,6 +31,10 @@
 - (void)addParameter:(NSString *)name value:(id)value;
 
 - (void)addParameter:(NSString *)name boolValue:(BOOL)value;
+
+- (void)addAcesParameters:(CMISAcl *)acl;
+
+- (void)addRemoveAcesParameters:(CMISAcl *)acl;
 
 /// if the fileName is not set the value of the property with id kCMISPropertyName will be used for the form data content name
 - (void)addPropertiesParameters:(CMISProperties *)properties;

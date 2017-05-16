@@ -38,4 +38,15 @@ extern NSString * const kCMISMimeHelperDispositionFormDataContent;
  */
 + (NSString *)encodeContentDisposition:(NSString *)disposition fileName:(NSString *)filename;
 
+/**
+ * Parses a WWW-Authenticate header value.
+ *
+ * @param value
+ *            the header value to parse
+ *
+ * @return a dictionary with the (lower case) challenge name as key and as the
+ *         value a sub-dictionary with parameters of the challenge
+ */
++ (NSDictionary *)challengesFromAuthenticateHeader:(NSString *)authenticationHeader;
+
 @end

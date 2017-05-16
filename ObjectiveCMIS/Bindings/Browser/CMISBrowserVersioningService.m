@@ -28,6 +28,8 @@
 #import "CMISBroswerFormDataWriter.h"
 #import "CMISFileUtil.h"
 #import "CMISLog.h"
+#import "CMISBrowserTypeCache.h"
+#import "CMISObjectList.h"
 
 @implementation CMISBrowserVersioningService
 

@@ -19,13 +19,16 @@
 
 #import <Foundation/Foundation.h>
 
+@class CMISBindingSession;
+
 @protocol CMISAuthenticationProvider <NSObject>
 
 /**
 * Returns a set of HTTP headers (key-value pairs) that should be added to a
 * HTTP call. This will be called by the AtomPub and the Web Services
 * binding. You might want to check the binding in use before you set the
-* headers.
+* headers. This property can be overwritten by the asyncHttpHeadersToApply:
+* method - if implemented.
 *
 * @return the HTTP headers or nil if no additional headers should be set
 */
@@ -37,24 +40,22 @@
 - (void)updateWithHttpURLResponse:(NSHTTPURLResponse*)httpUrlResponse;
 
 /**
- * checks if provider can authenticate against provided protection space
- */
-- (BOOL)canAuthenticateAgainstProtectionSpace:(NSURLProtectionSpace *)protectionSpace;
-
-/**
- * callback when authentication challenge was cancelled
- */
-- (void)didCancelAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge;
-
-/**
- * callback when authentication challenge was received
- */
-- (void)didReceiveAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge;
-
-/**
  * callback when authentication challenge was received using NSURLSession
  */
 - (void)didReceiveChallenge:(NSURLAuthenticationChallenge *)challenge
           completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition, NSURLCredential *))completionHandler;
+
+@optional
+
+/**
+ * Called when the CMISBindingSession gets initialized. Use a weak reference to avoid 
+ * reference cycles when storing the session in a property.
+ */
+- (void)setSession:(CMISBindingSession *)session;
+
+/**
+ * If this method is implemented the property httpHeadersToApply is overwritten
+ */
+- (void)asyncHttpHeadersToApply:(void(^)(NSDictionary *headers, NSError *cmisError))completionBlock;
 
 @end

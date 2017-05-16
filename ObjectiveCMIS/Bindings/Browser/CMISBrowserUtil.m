@@ -36,6 +36,10 @@
 #import "CMISAce.h"
 #import "CMISPrincipal.h"
 #import "CMISAllowableActions.h"
+#import "CMISBrowserTypeCache.h"
+#import "CMISObjectList.h"
+#import "CMISPolicyIdList.h"
+#import "CMISChangeEventInfo.h"
 
 NSString * const kCMISBrowserMinValueAlfrescoJSONProperty = @"\"minValue\":0.0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000049,";
 NSString * const kCMISBrowserMinValueECMJSONProperty = @"\"minValue\":-179769313486231570000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000,";
@@ -368,6 +372,44 @@ NSString * const kCMISBrowserMaxValueECMJSONProperty = @"\"maxValue\":1797693134
     }
 }
 
++(void)aclFromJSONData:(NSData *)jsonData completionBlock:(void (^)(CMISAcl *, NSError *))completionBlock
+{
+    // TODO: error handling i.e. if jsonData is nil, also handle outError being nil
+    
+    // parse the JSON response
+    NSError *serialisationError = nil;
+    id jsonDictionary = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:&serialisationError];
+    
+    if (!serialisationError) {
+        BOOL isExactAcl = [jsonDictionary cmis_boolForKey:kCMISBrowserJSONIsExact];
+        CMISAcl *acl = [self convertAcl:jsonDictionary isExactAcl:isExactAcl];
+        completionBlock(acl, nil);
+    } else {
+        completionBlock(nil, [CMISErrors cmisError:serialisationError cmisErrorCode:kCMISErrorCodeRuntime]);
+        return;
+    }
+}
+
++ (NSString *)objectListChangeLogTokenFromJSONData:(NSData *)jsonData error:(NSError *__autoreleasing *)outError
+{
+    // TODO: error handling i.e. if jsonData is nil, also handle outError being nil
+    
+    // parse the JSON response
+    NSError *serialisationError = nil;
+    id jsonDictionary = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:&serialisationError];
+    
+    NSString *token = nil;
+    if (!serialisationError) {
+        // parse the json into a CMISObjectData object
+        token = [jsonDictionary cmis_objectForKeyNotNull:kCMISBrowserJSONChangeLogToken];
+    } else {
+        if (outError != NULL) *outError = [CMISErrors cmisError:serialisationError cmisErrorCode:kCMISErrorCodeRuntime];
+        return nil;
+    }
+    
+    return token;
+}
+
 #pragma mark -
 #pragma mark Private helper methods
 
@@ -405,6 +447,8 @@ NSString * const kCMISBrowserMaxValueECMJSONProperty = @"\"maxValue\":1797693134
         objectData.baseType = CMISBaseTypeDocument;
     } else if ([baseType isEqualToString:kCMISPropertyObjectTypeIdValueFolder]) {
         objectData.baseType = CMISBaseTypeFolder;
+    } else if ([baseType isEqualToString:kCMISPropertyObjectTypeIdValueItem]) {
+        objectData.baseType = CMISBaseTypeItem;
     }
     
     BOOL isExactAcl = [dictionary cmis_boolForKey:kCMISBrowserJSONIsExact];
@@ -412,9 +456,20 @@ NSString * const kCMISBrowserMaxValueECMJSONProperty = @"\"maxValue\":1797693134
     
     objectData.allowableActions = [CMISBrowserUtil convertAllowableActions:[dictionary cmis_objectForKeyNotNull:kCMISBrowserJSONAllowableActions]];
     
+    NSDictionary *jsonChangeEventInfo = [dictionary cmis_objectForKeyNotNull:kCMISBrowserJSONChangeEventInfo];
+    if (jsonChangeEventInfo) {
+        CMISChangeEventInfo *changeEventInfo = [CMISChangeEventInfo new];
+        
+        changeEventInfo.changeTime = [CMISBrowserUtil convertNumberToDate:[jsonChangeEventInfo cmis_objectForKeyNotNull:kCMISBrowserJSONChangeEventTime]];
+        changeEventInfo.changeType = [CMISEnums enumForChangeType:[jsonChangeEventInfo cmis_objectForKeyNotNull:kCMISBrowserJSONChangeEventType]];
+        
+        changeEventInfo.extensions = [CMISObjectConverter convertExtensions:dictionary cmisKeys:[CMISBrowserConstants changeEventKeys]];
+        
+        objectData.changeEventInfo = changeEventInfo;
+    }
+    
     objectData.isExactAcl = isExactAcl;
-
-    // TODO set policyIds
+    objectData.policyIds = [CMISBrowserUtil convertPolicyIds:[dictionary cmis_objectForKeyNotNull:kCMISBrowserJSONPolicyIds]];
     
     NSDictionary *propertiesExtension = [dictionary cmis_objectForKeyNotNull:kCMISBrowserJSONPropertiesExtension];
     
@@ -652,6 +707,16 @@ NSString * const kCMISBrowserMaxValueECMJSONProperty = @"\"maxValue\":1797693134
             id propValue = [propertiesJson cmis_objectForKeyNotNull:propName];
             NSArray *values = nil;
             if ([propValue isKindOfClass:NSArray.class]) {
+                // validate array, it must not contain null elements
+                for (id value in propValue) {
+                    if (value == [NSNull null]) {
+                        NSError *error = [CMISErrors createCMISErrorWithCode:kCMISErrorCodeInvalidArgument
+                                                         detailedDescription:[NSString stringWithFormat:@"Array of property %@ contains null elements!", propName]];
+                        completionBlock(nil, error);
+                        return;
+                    }
+                }
+                
                 values = propValue;
             } else if (propValue) {
                 values = [NSArray arrayWithObject:propValue];
@@ -678,7 +743,7 @@ NSString * const kCMISBrowserMaxValueECMJSONProperty = @"\"maxValue\":1797693134
                     }
                     default: {
                         NSError *error = [CMISErrors createCMISErrorWithCode:kCMISErrorCodeInvalidArgument
-                                                         detailedDescription:@"Unknown property type!"];
+                                                         detailedDescription:[NSString stringWithFormat:@"Unknown property type of property %@!", propName]];
                         completionBlock(nil, error);
                         return;
                     }
@@ -751,6 +816,14 @@ NSString * const kCMISBrowserMaxValueECMJSONProperty = @"\"maxValue\":1797693134
         [dates addObject:date];
     }
     return dates;
+}
+
++ (NSDate *)convertNumberToDate:(NSNumber *)miliseconds
+{
+    if (!miliseconds) {
+        return nil;
+    }
+    return [NSDate dateWithTimeIntervalSince1970:[miliseconds unsignedLongLongValue] / 1000.0]; // miliseconds to seconds
 }
 
 + (void)convertProperties:(NSArray*)propNames position:(NSInteger)position properties:(CMISProperties *)properties propertiesJson:(NSDictionary *)propertiesJson typeCache:(CMISBrowserTypeCache *)typeCache typeDefinition:(CMISTypeDefinition *)typeDef secondaryTypeDefinitions:(NSArray *)secTypeDefs completionBlock:(void (^)(CMISProperties *properties, NSError *error))completionBlock
@@ -885,6 +958,32 @@ NSString * const kCMISBrowserMaxValueECMJSONProperty = @"\"maxValue\":1797693134
     result.isExact = isExact;
     
     result.extensions = [CMISObjectConverter convertExtensions:jsonDictionary cmisKeys:[CMISBrowserConstants aclKeys]];
+    
+    return result;
+}
+
++ (CMISPolicyIdList *)convertPolicyIds:(NSDictionary *)jsonDictionary
+{
+    if (!jsonDictionary) {
+        return nil;
+    }
+    
+    CMISPolicyIdList *result = [CMISPolicyIdList new];
+    NSMutableArray *policyIds = [NSMutableArray new];
+    
+    NSArray *ids = [jsonDictionary cmis_objectForKeyNotNull:kCMISBrowserJSONPolicyIdsIds];
+    
+    if (ids && [ids isKindOfClass:NSArray.class]) {
+        for (id obj in ids) {
+            if ([obj isKindOfClass:NSString.class]) {
+                [policyIds addObject:obj];
+            }
+        }
+    }
+    
+    result.extensions = [CMISObjectConverter convertExtensions:jsonDictionary cmisKeys:[CMISBrowserConstants policyIdsKeys]];
+    
+    result.policyIds = [policyIds copy];
     
     return result;
 }

@@ -206,29 +206,40 @@
     }
     
     self.bytesDownloaded = 0;
-    
-    // set up output stream if available
-    if (self.outputStream) { // otherwise store data in memory in self.data
-        // create file for downloaded content
-        BOOL isStreamReady = self.outputStream.streamStatus == NSStreamStatusOpen;
-        if (!isStreamReady) {
-            [self.outputStream open];
-            isStreamReady = self.outputStream.streamStatus == NSStreamStatusOpen;
+    if ([response isKindOfClass:NSHTTPURLResponse.class] && [CMISHttpRequest isErrorResponse:((NSHTTPURLResponse *)response).statusCode httpRequestMethod:self.requestMethod]) {
+        // we are receiving an error response -> do not write error response body to outputStream. Instead, store data in memory in self.data
+        if (self.outputStream) { // clean up
+            BOOL isStreamOpen = self.outputStream.streamStatus == NSStreamStatusOpen;
+            if (isStreamOpen) {
+                [self.outputStream close];
+            }
+            self.outputStream = nil; // remove reference so we store data in memory in self.data
         }
-        
-        if (isStreamReady) {
-            [super URLSession:session dataTask:dataTask didReceiveResponse:response completionHandler:completionHandler];
-        } else {
-            [session invalidateAndCancel];
+        [super URLSession:session dataTask:dataTask didReceiveResponse:response completionHandler:completionHandler];
+    } else {
+        // set up output stream if available
+        if (self.outputStream) { // otherwise store data in memory in self.data
+            // create file for downloaded content
+            BOOL isStreamReady = self.outputStream.streamStatus == NSStreamStatusOpen;
+            if (!isStreamReady) {
+                [self.outputStream open];
+                isStreamReady = self.outputStream.streamStatus == NSStreamStatusOpen;
+            }
             
-            if (self.completionBlock)
-            {
-                NSError *cmisError = [CMISErrors createCMISErrorWithCode:kCMISErrorCodeStorage
-                                                     detailedDescription:@"Could not open output stream"];
+            if (isStreamReady) {
+                [super URLSession:session dataTask:dataTask didReceiveResponse:response completionHandler:completionHandler];
+            } else {
+                [session invalidateAndCancel];
                 
-                // call the completion block on the original thread
-                if (self.originalThread) {
-                    [self performSelector:@selector(executeCompletionBlockError:) onThread:self.originalThread withObject:cmisError waitUntilDone:NO];
+                if (self.completionBlock)
+                {
+                    NSError *cmisError = [CMISErrors createCMISErrorWithCode:kCMISErrorCodeStorage
+                                                         detailedDescription:@"Could not open output stream"];
+                    
+                    // call the completion block on the original thread
+                    if (self.originalThread) {
+                        [self performSelector:@selector(executeCompletionBlockError:) onThread:self.originalThread withObject:cmisError waitUntilDone:NO];
+                    }
                 }
             }
         }

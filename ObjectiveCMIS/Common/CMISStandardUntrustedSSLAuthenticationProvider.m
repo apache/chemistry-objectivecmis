@@ -22,32 +22,12 @@
 
 @implementation CMISStandardUntrustedSSLAuthenticationProvider
 
-- (BOOL)canAuthenticateAgainstProtectionSpace:(NSURLProtectionSpace *)protectionSpace
-{
-    if ([protectionSpace.authenticationMethod isEqualToString:NSURLAuthenticationMethodServerTrust]) {
-        return YES;
-    }
-    return [super canAuthenticateAgainstProtectionSpace:protectionSpace];
-}
-
 /**
  * NOTE: Once the TLS Session has been cached for an untrusted connection, that session will be reused
  * by iOS (since 6.0) and willSendRequestForAuthenticationChallenge: will not be called again until the session is cleared.
  * The session is cleared by an app restart or after around 10 minutes.
  * See Apple Technical Q&A QA1727 http://developer.apple.com/library/ios/#qa/qa1727 for full details.
  */
-- (void)didReceiveAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge
-{
-    if ((challenge.previousFailureCount == 0) &&
-        ([challenge.protectionSpace.authenticationMethod isEqualToString:NSURLAuthenticationMethodServerTrust]))
-    {
-        CMISLogWarning(@"Allowing self-signed certificate");
-        [challenge.sender useCredential:[NSURLCredential credentialForTrust:challenge.protectionSpace.serverTrust] forAuthenticationChallenge:challenge];
-    } else {
-        [super didReceiveAuthenticationChallenge:challenge];
-    }
-}
-
 - (void)didReceiveChallenge:(NSURLAuthenticationChallenge *)challenge
           completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition, NSURLCredential *))completionHandler
 {
