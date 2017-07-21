@@ -2164,7 +2164,7 @@
                  }
              }
              XCTAssertNotNil(thumbnailRendition, @"Thumbnail rendition should be availabile");
-             XCTAssertTrue(thumbnailRendition.length > 0, @"Rendition length should be greater than 0");
+             XCTAssertTrue([thumbnailRendition.length integerValue] > 0, @"Rendition length should be greater than 0");
              
              // Get content
              NSString *filePath = [NSString stringWithFormat:@"%@/testfile.pdf" , NSTemporaryDirectory()];
@@ -2218,7 +2218,7 @@
                       }
                   }
                   XCTAssertNotNil(thumbnailRendition, @"Thumbnail rendition should be availabile");
-                  XCTAssertTrue(thumbnailRendition.length > 0, @"Rendition length should be greater than 0");
+                  XCTAssertTrue([thumbnailRendition.length integerValue] > 0, @"Rendition length should be greater than 0");
                   
                   // Download content through objectService
                   NSString *filePath = [NSString stringWithFormat:@"%@/testfile-rendition-through-objectservice.pdf", NSTemporaryDirectory()];

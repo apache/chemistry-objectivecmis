@@ -86,11 +86,15 @@
             } else {
                 if (position == 0) {
                     NSMutableArray *objects = [[NSMutableArray alloc] initWithCapacity:objectDatas.count];
-                    [objects addObject:object];
+                    if (object != nil) {
+                        [objects addObject:object];
+                    }
                     completionBlock(objects, error);
                 } else {
                     [self internalConvertObject:objectDatas position:(position - 1) completionBlock:^(NSMutableArray *objects, NSError *error) {
-                        [objects addObject:object];
+                        if (object != nil) {
+                            [objects addObject:object];
+                        }
                         completionBlock(objects, error);
                     }];
                 }
