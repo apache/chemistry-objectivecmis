@@ -16,7 +16,7 @@
 // under the License.
 
 // Library version number
-OBJECTIVECMIS_VERSION=0.6-dev
+OBJECTIVECMIS_VERSION=0.6
 
 // Allow selected config variables to be accessible in code
 OTHER_CFLAGS=-DOBJECTIVECMIS_VERSION="@\"${OBJECTIVECMIS_VERSION}\""
